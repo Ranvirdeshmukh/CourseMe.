@@ -1,0 +1,25 @@
+{
+  "name": "coursereview",
+  "version": "1.0.0",
+  "description": "dartmouth courses ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ranvirdeshmukh/AI-course-review.git"
+  },
+  "author": "ranvir deshmukh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ranvirdeshmukh/AI-course-review/issues"
+  },
+  "homepage": "https://github.com/Ranvirdeshmukh/AI-course-review#readme",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.4.1"
+  }
+}
