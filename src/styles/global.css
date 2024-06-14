@@ -1,0 +1,8 @@
+/* src/styles/global.css */
+body, html, #root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'SF Pro Display', sans-serif;
+  }
+  
