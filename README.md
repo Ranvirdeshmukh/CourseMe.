@@ -1,4 +1,4 @@
 
-# AI-course-review
+# Dart-course-review
 
 Made for Dartmouth Students by Dartmouth students.
