@@ -45,14 +45,9 @@ const NavBar = () => {
               </Button>
             </>
           ) : (
-            <>
-              <Button color="inherit" component={Link} to="/login" sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
-                Log In
-              </Button>
-              <Button color="inherit" component={Link} to="/signup" sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
-                Sign Up
-              </Button>
-            </>
+            <Button color="inherit" component={Link} to="/login" sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
+              Log In
+            </Button>
           )}
         </Box>
       </Toolbar>
