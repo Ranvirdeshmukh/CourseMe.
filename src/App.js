@@ -9,11 +9,13 @@ import EasyClassesPage from './pages/EasyClassesPage';
 import ProfilePage from './pages/ProfilePage';
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
+import SaveDataToFirestore from './components/SaveDataToFirestore';  // Ensure this matches the filename
 
 const App = () => (
   <AuthProvider>
     <Router>
       <NavBar />
+      <SaveDataToFirestore />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/classes" element={<AllClassesPage />} />
