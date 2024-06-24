@@ -1009,6 +1009,1823 @@
       "department": "Women's, Gender, and Sexuality Studies",
       "layup": 1
     }
+    ,
+    {
+        "name": "TUCK001: Financial Accounting",
+        "department": "Tuck Undergraduate Courses",
+        "layup": -7
+    },
+    {
+        "name": "TUCK002: Principles of Marketing",
+        "department": "Tuck Undergraduate Courses",
+        "layup": 16
+    },
+    {
+        "name": "TUCK003: Business Management and Strategy",
+        "department": "Tuck Undergraduate Courses",
+        "layup": 2
+    },
+    
+      {
+        "name": "THEA001: Introduction to Theater",
+        "department": "Theater",
+        "layup": 4
+      },
+      {
+        "name": "THEA007.01: Theater for Social Change",
+        "department": "Theater",
+        "layup": 17
+      },
+      {
+        "name": "THEA007.02: Documentary Theatre",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA007: First-Year Seminars in Theater",
+        "department": "Theater",
+        "layup": 4
+      },
+      {
+        "name": "THEA010.03: Russian Theater",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.04: Acting for Musical Theater",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.05: Tragedy & Comedy Greece & Rome",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.08: Creativity and Collaboration",
+        "department": "Theater",
+        "layup": 4
+      },
+      {
+        "name": "THEA010.11: Unveiling the Harem Dancer",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.13: Dramatic Storytelling - Plays and Screenplays!",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.22: Shakespeare in the Schools",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.23: Voices: Perform Activism",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.24: The Arts of War",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.25: Music, Design, and Creativity",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.26: Sound Design",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.27: Latinx Stage and Screen",
+        "department": "Theater",
+        "layup": -1
+      },
+      {
+        "name": "THEA010.28: Emerging Musical Theater",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA010.29: Text Analysis: Tools for Interpretation",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.30: Theater of Ideas: Britain and France",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.32: Acting for Musical Theater II",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.33: Contemporary Performance",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.45: Arab Theatre",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.51: Black Theatre & Storytelling Workshop in XR: Reimagining The Purple Flower (1928)",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.55: The Making of 21st Century Exhibits: Curating a National Black Theater Museum/Institution",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.56: Black Theatre Workshop: The August Wilson Experience",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.57: Dance Theatre of Harlem Workshop: Collaborative Storytelling Through Movement",
+        "department": "Theater",
+        "layup": 4
+      },
+      {
+        "name": "THEA010.64: Feminist & Queer Africa",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.65: Performers on the Latin American Stage",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.68: Staging Rebellion",
+        "department": "Theater",
+        "layup": 7
+      },
+      {
+        "name": "THEA010.71: Plays OnStage: Acting Comedy",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.84: Performing Histories & Us",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA010.90: Contemporary Theater and Performance",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA012: The Tragedy and Comedy of Greece and Rome",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA015: Theatre and Society I: Classical and Medieval Performance",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA016: Theatre and Society II: Early Modern Performance",
+        "department": "Theater",
+        "layup": 5
+      },
+      {
+        "name": "THEA017: Theatre and Society III: 19th and 20th Century Performance",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA018: Russian Theater",
+        "department": "Theater",
+        "layup": 0
+      },
+      {
+        "name": "THEA019: Human Rights and Performance",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA021: Race, Gender, and Performance",
+        "department": "Theater",
+        "layup": 4
+      },
+      {
+        "name": "THEA022: Black Theater, U.S.A.",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA023: Postcolonial African Drama",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA024: Asian Performance Traditions",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA025: Solo Performance",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA026: Movement Fundamentals I",
+        "department": "Theater",
+        "layup": 12
+      },
+      {
+        "name": "THEA027: Movement Fundamentals II",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA028: Dance Composition",
+        "department": "Theater",
+        "layup": 4
+      },
+      {
+        "name": "THEA029: Dance Theater Performance",
+        "department": "Theater",
+        "layup": 3
+      },
+      {
+        "name": "THEA030: Acting I",
+        "department": "Theater",
+        "layup": 60
+      },
+      {
+        "name": "THEA031: Acting II",
+        "department": "Theater",
+        "layup": 3
+      },
+      {
+        "name": "THEA032: Acting III",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA034: Acting for the Camera",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA035: Acting for Musical Theater",
+        "department": "Theater",
+        "layup": 3
+      },
+      {
+        "name": "THEA036: The Speaking Voice for the Stage",
+        "department": "Theater",
+        "layup": 4
+      },
+      {
+        "name": "THEA040: Technical Production",
+        "department": "Theater",
+        "layup": 17
+      },
+      {
+        "name": "THEA041: Stage Management",
+        "department": "Theater",
+        "layup": 6
+      },
+      {
+        "name": "THEA042: Scene Design I",
+        "department": "Theater",
+        "layup": 5
+      },
+      {
+        "name": "THEA043: Scene Design II",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA044: Lighting Design",
+        "department": "Theater",
+        "layup": 4
+      },
+      {
+        "name": "THEA045: Composition and Design",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA046: Costume Production",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA048: Costume Design",
+        "department": "Theater",
+        "layup": 3
+      },
+      {
+        "name": "THEA050: Playwriting I",
+        "department": "Theater",
+        "layup": 5
+      },
+      {
+        "name": "THEA051: Playwriting II",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA054: Directing",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA060: Classical Performance I",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA061: Classical Performance II",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA062: Plays in Performance - Perception and Analysis",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA065: Summer Theater Lab",
+        "department": "Theater",
+        "layup": 2
+      },
+      {
+        "name": "THEA080: Independent Study",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA090: Contemporary Theater Practice",
+        "department": "Theater",
+        "layup": 4
+      },
+      {
+        "name": "THEA091: The Honors Thesis I",
+        "department": "Theater",
+        "layup": 1
+      },
+      {
+        "name": "THEA092: The Honors Thesis II",
+        "department": "Theater",
+        "layup": 0
+      },
+      
+        {
+          "name": "PHYS001: Understanding the Universe: From Atoms to the Big Bang, with Laboratory",
+          "department": "Physics",
+          "layup": 5
+        },
+        {
+          "name": "PHYS002: Understanding the Universe: From Atoms to the Big Bang",
+          "department": "Physics",
+          "layup": 4
+        },
+        {
+          "name": "PHYS003: General Physics I",
+          "department": "Physics",
+          "layup": 4
+        },
+        {
+          "name": "PHYS004: General Physics II",
+          "department": "Physics",
+          "layup": -7
+        },
+        {
+          "name": "PHYS005: Physics for Future Leaders",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS007.02: History & Future of Universe",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS007.05: Discovering the Universe",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS007.06: The Origin of the Universe",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS007.07: Nanotechnology and Society",
+          "department": "Physics",
+          "layup": 2
+        },
+        {
+          "name": "PHYS007.08: Aliens in Fiction & Nonfiction",
+          "department": "Physics",
+          "layup": -1
+        },
+        {
+          "name": "PHYS007: First-year Seminars in Physics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS013: Introductory Physics I",
+          "department": "Physics",
+          "layup": -44
+        },
+        {
+          "name": "PHYS014: Introductory Physics II",
+          "department": "Physics",
+          "layup": -57
+        },
+        {
+          "name": "PHYS015: Introductory Physics I, Honors Section",
+          "department": "Physics",
+          "layup": -31
+        },
+        {
+          "name": "PHYS016: Introductory Physics II, Honors Section",
+          "department": "Physics",
+          "layup": -14
+        },
+        {
+          "name": "PHYS019: Relativistic and Quantum Physics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS022: Applied Math Methods for Physicists",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS024: Quantum Physics of Matter: An Introduction",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS030: Biological Physics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS031.01: Nonlinear Dynamics of Physical Systems",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS031.02: Research Methods in 21st Century Physics and Astronomy",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS031.03: Research Methods in 21st Century Astronomy in South Africa",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS031.04: Research Methods in 21st Century Astronomy",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS031: Explore Physics!",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS040: Quantum Physics of Matter",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS041: Electricity and Magnetism",
+          "department": "Physics",
+          "layup": -15
+        },
+        {
+          "name": "PHYS042: Introductory Quantum Mechanics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS043: Statistical Physics",
+          "department": "Physics",
+          "layup": -1
+        },
+        {
+          "name": "PHYS044: Mechanics",
+          "department": "Physics",
+          "layup": -1
+        },
+        {
+          "name": "PHYS047: Optics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS048: Electronics: Introduction to Linear and Digital Circuits",
+          "department": "Physics",
+          "layup": 2
+        },
+        {
+          "name": "PHYS050: Introductory Quantum Mechanics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS066: Relativistic Electrodynamics",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS068: Introductory Plasma Physics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS070: Fourier Transforms and Complex Variables",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS072: Introductory Particle Physics",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS073: Introductory Condensed Matter Physics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS074: Space Plasma Physics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS075: Quantum Computation and Information",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS076: Methods of Experimental Physics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS077: Introduction to General Relativity and Gravitation",
+          "department": "Physics",
+          "layup": -4
+        },
+        {
+          "name": "PHYS082.01: Question Reality",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS082.02: Introductory Mathematical Methods for Physicists",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS082: Special Topics Seminar",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS085.01: Reading Course",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS085: Reading Course",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS087.01: Undergraduate Research",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS087: Undergraduate Research",
+          "department": "Physics",
+          "layup": 2
+        },
+        {
+          "name": "PHYS090: Intermediate Quantum Mechanics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS091: Intermediate Quantum Mechanics",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS092: Physics of the Early Universe",
+          "department": "Physics",
+          "layup": -1
+        },
+        {
+          "name": "PHYS100: Mathematical Methods for Physicists",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS101: Classical Mechanics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS103: Advanced Quantum Mechanics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS104: Statistical Mechanics I",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS105: Electromagnetic Theory I",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS106: Electromagnetic Theory II",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS107: Relativistic Quantum Field Theory",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS108: Fluid Mechanics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS109: Statistical Mechanics II",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS110: Methods in Applied Mathematics II",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS111: Plasma Kinetic Theory",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS113: Microscopic Theory of Solids",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS114: General Relativity and Cosmology",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS115: Magnetohydrodynamics",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS116: Quantum Information Science",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS118: Computational Plasma Dynamics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS120: Nonlinear Systems",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS121: Seminar",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS122: Special Topics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS123: Optics",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS124: Optical Devices and Systems",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS126: Semiconductor Theory and Devices",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS127: Reading Course",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS128: Methods of Materials Characterization",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS129: Enterprise Experience Internship",
+          "department": "Physics",
+          "layup": 0
+        },
+        {
+          "name": "PHYS137: Graduate Research I: Level I",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS138: Graduate Research I: Level II",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS139: Graduate Research I: Level III",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS256: Instruction in Teaching for Graduate Students",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS257: Supervised Undergraduate Teaching",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS297: Graduate Research II: Level I",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS298: Graduate Research II: Level II",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS299: Graduate Research II: Level III",
+          "department": "Physics",
+          "layup": 1
+        },
+        {
+          "name": "PHYS700: Resp & Ethical Conduct of Res",
+          "department": "Physics",
+          "layup": 0
+        },
+
+
+        {
+          "name": "SSOC001: War and Peace in the Modern Age",
+          "department": "Social Science",
+          "layup": 0
+        },
+        {
+          "name": "SPEE020.01: Public Speaking",
+          "department": "Speech",
+          "layup": 1
+        },
+        {
+          "name": "SPEE020.02: Public Speaking",
+          "department": "Speech",
+          "layup": 10
+        },
+        {
+          "name": "SPEE020.03: Public Speaking",
+          "department": "Speech",
+          "layup": -4
+        },
+        {
+          "name": "SPEE020: Public Speaking",
+          "department": "Speech",
+          "layup": 7
+        },
+        {
+          "name": "SPEE025: Persuasive Public Speaking",
+          "department": "Speech",
+          "layup": 0
+        },
+        {
+          "name": "SPEE026: New Media Communication",
+          "department": "Speech",
+          "layup": 6
+        },
+        {
+          "name": "SPEE027: Intercultural Communication",
+          "department": "Speech",
+          "layup": -1
+        },
+        {
+          "name": "SPEE030: Speechwriting",
+          "department": "Speech",
+          "layup": 2
+        },
+        {
+          "name": "SPEE031: Rhetoric of Social Justice: Public Advocacy and U.S. Social Justice Movements",
+          "department": "Speech",
+          "layup": 1
+        },
+        {
+          "name": "SPEE032: Legal Rhetoric",
+          "department": "Speech",
+          "layup": 1
+        },
+        {
+          "name": "SPEE033: Political Humor Rhetoric: Contemporary Television",
+          "department": "Speech",
+          "layup": 1
+        },
+        {
+          "name": "SPEE034: Image Rhetoric: Image Attack, Image Repair, and Image Promotion",
+          "department": "Speech",
+          "layup": 0
+        },
+        {
+          "name": "SPEE035: Rhetorics of Race",
+          "department": "Speech",
+          "layup": 1
+        },
+        {
+          "name": "SPEE036: Organizational Communication and Sustainability",
+          "department": "Speech",
+          "layup": 2
+        },
+        {
+          "name": "SPEE037: Health Communication",
+          "department": "Speech",
+          "layup": 0
+        },
+        {
+          "name": "SPEE040: Resistance To Influence: Inoculation Theory-Based Persuasion",
+          "department": "Speech",
+          "layup": 4
+        },
+        
+          {
+            "name": "SPAN001: Spanish I",
+            "department": "Spanish",
+            "layup": 45
+          },
+          {
+            "name": "SPAN002: Spanish II",
+            "department": "Spanish",
+            "layup": 75
+          },
+          {
+            "name": "SPAN003: Spanish III",
+            "department": "Spanish",
+            "layup": 62
+          },
+          {
+            "name": "SPAN005.01: Language Study Abroad: Barcelona",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN005.02: Language Study Abroad: Buenos Aires",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN005: Language Study Abroad",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN006.01: Language Study Abroad: Barcelona",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN006.02: Language Study Abroad: Buenos Aires",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN006: Language Study Abroad",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN007.02: Mural Art in Mexico & U.S.",
+            "department": "Spanish",
+            "layup": 2
+          },
+          {
+            "name": "SPAN007.05: Utopia in Latin America",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN007.06: Quixote and the Quixotic",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN007.07: Don Quixote in Lit and Film",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN007.08: Cognitive Don Quixote",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN007.09: Streaming Latin America",
+            "department": "Spanish",
+            "layup": 4
+          },
+          {
+            "name": "SPAN007: First-Year Seminars in Spanish and Spanish-American Literature",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN009: Culture and Conversation: Advanced Spanish Language",
+            "department": "Spanish",
+            "layup": 39
+          },
+          {
+            "name": "SPAN015: Latinx Writing and Composition",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN020: Writing and Reading: A Critical and Cultural Approach",
+            "department": "Spanish",
+            "layup": 15
+          },
+          {
+            "name": "SPAN021: Traditional and Contemporary Andean Cosmogonies and Cultural Production: A Historical Approach",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN022: Modern and Contemporary Spanish Artistic and Cultural Production",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN023: Argentine Cultural Heritage",
+            "department": "Spanish",
+            "layup": 2
+          },
+          {
+            "name": "SPAN024: Spanish Cultural Heritage",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN030: Introduction to Hispanic Studies I: Middle Ages-17th Century",
+            "department": "Spanish",
+            "layup": -3
+          },
+          {
+            "name": "SPAN031: Introduction to Hispanic Studies II: 18th and 19th Centuries",
+            "department": "Spanish",
+            "layup": 5
+          },
+          {
+            "name": "SPAN032: Introduction to Hispanic Studies III: 20th-21st Centuries",
+            "department": "Spanish",
+            "layup": 2
+          },
+          {
+            "name": "SPAN033: Argentine Civilization: Society, Culture and Politics in Argentina",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN034: Society, Culture and Politics in Spain",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN035.01: Argentina On(the)line",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN035: Studies in Spanish-American Literature and Culture",
+            "department": "Spanish",
+            "layup": -1
+          },
+          {
+            "name": "SPAN036: Studies in Modern and Contemporary Spanish Literature",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN040.04: Dali, Lorca and Buñuel: The Secrets of Spanish Surrealism",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN040.05: Federico García Lorca and His Time",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN040.06: Love and all that Comes with It",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN040.07: Dark Mirror: Spanish Detective Fiction",
+            "department": "Spanish",
+            "layup": -1
+          },
+          {
+            "name": "SPAN040.08: Tell Me a Story! The Modern Spanish Short Story",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN040.09: The Shock of the Metropolis: America in the works of Lorca, Buñuel, and Dalí",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN040.10: Marginality and Novelistic Discourse in Early Modernity",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN040.11: Truth or Dare: Spanish American Testimonio and the Concept of Fake News",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN040.12: ‘Cosas de ninos:’ Representations of Children in Modern Spanish Culture",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN040: Hispanic Literature and Culture by Period",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN043.04: The Best Hispanic Poetry: Emotion for the Contemporary Reader",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN043.05: Drawn to Resist: The Latin American Comics",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN043.06: Tango Argentino: Music, Dance, Poetry, Community",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN043: Hispanic Literature and Culture by Genre",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN045.01: Politics of Inequality. Economy, Social Struggle, and the 19th Century Latin American Novel",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN045.02: Diaspora and Economic Imaginaries in Hispanic Caribbean Literature",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN045.03: Spanish Leviathan: Literature and State Violence from 1812 to 2009",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN045.04: Under the Influence. Intoxicating Goods and Vicious Texts from Early Modern Spain",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN045.05: The Stolen Children of Argentina and Spain",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN045.06: MigrationTransnationJustice",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN045.07: Slaves from the Past, Slaves Next Door",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN050.01: Machos and Malinches: Gender and Sexual Identities in Latin/x American Literature and Culture",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN050.02: New Sexual and Social identity in Film and Literature in Post-Franco Spain",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN050.03: Politics of Masculinity: Latin American Narrative, Film, and Politics.",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN050.04: Let's not talk about it. Eroticism in Modern Spain",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN050.05: Eroticism, Love and Sensuality in Hispanic Film",
+            "department": "Spanish",
+            "layup": 2
+          },
+          {
+            "name": "SPAN053.01: Introduction to the History of the Spanish Language",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN053.02: Spanish Linguistics, Rhetoric, Poetics and the Politics of Language",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN053.03: Bilingualism: Cognitive and Sociolinguistic Approaches to Bilingualism in the Spanish-speaking World",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.04: Humor and Politics in Latin American Literature, Film and Culture",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.05: Indignant Spain: Crisis and New Social Movements Today",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.06: Slaughterhouses. The Life and Death of Humans and Animals in the Southern Cone",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.07: Revolution & Art in Mexico",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.08: The New Argentine Short Story",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.09: Revoltosos/as: Forms of Rebellion and Revolution in Imperial Spain and Spanish America",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.10: Mexican Utopias: Science Fiction and Mexican Literature and Cinema",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.11: Bullets and Letters: Basque Terrorism and the Arts",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.12: TheDisappearedinLatAmerica",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN055.13: Planeta Paraguay. Power and Poetics of a 'Land Without Evil'",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN060.02: Racism in Spanish American Literary Representations",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN060.03: Racism at Work Then and Now. Five centuries of Race, Ethnicity and Culture in Span. Amer. Lit",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN060: Race and Ethnicity in Hispanic Studies",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN063.01: Latin American Film",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN063.02: Spain in the Movies. Literary Classics in Adaptation",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN063.03: Filming Fragility: The New Argentine Cinema",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN063.05: Latin American Film: Brazil",
+            "department": "Spanish",
+            "layup": 2
+          },
+          {
+            "name": "SPAN063.06: Youth Culture in Argentine Cinema",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN063.07: RadicalWomenLatAmerCinema",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN063.08: The Many Faces of Brazilian Cinema",
+            "department": "Spanish",
+            "layup": 3
+          },
+          {
+            "name": "SPAN063.09: Beyond Sex, Drugs, and Rock ‘n Roll: Radical Latinxs in the 60’s",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN063.10: Family Matters: Pedro Almodovar, Gender Reversals, and New Communities",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN063.11: Blood Cinema. Spanish Movies from 1926 to 2019",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN063.12: Got Las Meninas? Spanish Visual Culture and Baroque Imaginaries",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN063: Hispanic Film Studies",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.02: Obscene Images: Intro to Visual Studies in Latin America",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.04: Night at the Museum: A Cultural and Political History of El Prado",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.05: Staging Globalization in Latin America",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.06: Crossing the US-Mexico Border: Myths and Icons of Hybridity",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.07: Staged Rebellions: Dissidence in Latin American Theatre",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.08: War Pics: Photography in 19th Century Latin American Conflicts",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.09: Performeras on the Latin American Stage",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.10: Performing Latin American Identities",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.11: Archives in Unequal World",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.12: Reading Spain with Goya, the Eternal Provocateur",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.13: The World of Frida Kahlo",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.14: MedFictionIllDeathNeolibEra",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065.15: Cameras and Crisis",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN065: Hispanic Performance, Media, and the Arts",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN070.01: Great Works of Hispanic Literature: Don Quijote",
+            "department": "Spanish",
+            "layup": -2
+          },
+          {
+            "name": "SPAN070.02: One Hundred Years of Solitude",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN070: Great Works of Hispanic Literature: Don Quixote and One Hundred Years of Solitude",
+            "department": "Spanish",
+            "layup": -2
+          },
+          {
+            "name": "SPAN072: Latin American and Latina Women: Gender, Culture, Literature",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN073.04: Todo Borges",
+            "department": "Spanish",
+            "layup": 1
+          },
+          {
+            "name": "SPAN073.05: Utopia is Alive and Kicking",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN073.06: Outsiders: The Aesthetics of Deviance in Contemporary Argentina",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN073.08: Nietzsche in Argentine Literature",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN073.09: George Ticknor: The Legacy of a Dartmouth Hispanist",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN073.11: Obscene Images: Intro to Visual Studies in Latin America",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN073: Special Topics in Hispanic Literary and Cultural Production",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN075.01: Writing the Short Story",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN075: Creative Writing in Spanish",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN077.03: Paradigmas Mexicanos: Elena Garro y Octavio Paz",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN077.04: The Present that Was: Newspapers and the Modern Public Sphere in Spain",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN077.05: Advanced Writing with Federico García Lorca",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN077: Texts and Contexts: Topics in Writing",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN078: Living in the Borderlands: Latino/a Culture and Identity",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN079: Latino/a Literature: Between Literary Traditions, Languages, and Cultures",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.05: Senior Seminar-Latin Amer",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.09: One Hundred Years of Solitude",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.10: Tell Me a Story! The Modern Spanish Short Story",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.11: New Sexual and Social Identity in Film and Literature in Post-Franco Spain",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.12: The Aesthetics of Peronism",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.13: Hispanophilia and Hispanophobia, then and now",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.14: Slaves from the past, slaves next door",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.15: Indignant Spain Today: Crisis and New Social Movements",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.16: Planeta Paraguay. Power and Poetics of a 'land without evil.'",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.17: Spain Reset! Rethinking Democracy and Culture",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.18: Luis Buñuel: Cinema of Desire",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.19: Archives in Unequal World",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.20: The 'Spanish Craze': Hispanic Culture in the United States",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.21: The Boricua Gaze: Decolonialism in Puerto Rican Visual Cultures",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.22: The Boom Novels of Spanish America",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080.23: Bullets and Letters: Basque Terrorism and the Arts",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN080: Senior Seminar in Hispanic Studies",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN083: Independent Study",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN090: Honors Course",
+            "department": "Spanish",
+            "layup": 0
+          },
+          {
+            "name": "SPAN091: Honors Seminar",
+            "department": "Spanish",
+            "layup": 0
+          },
+
+          
+            {
+              "name": "SART015: Drawing I",
+              "department": "Studio Art",
+              "layup": 18
+            },
+            {
+              "name": "SART016: Sculpture I",
+              "department": "Studio Art",
+              "layup": -8
+            },
+            {
+              "name": "SART017.01: Collage: Bridging the Gap",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.03",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.07: THE PASSIONATE PURSUIT OF COLOR",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.08: Digital Drawing",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.09: The Photographer as Activist: Making Art Inspired by the Hood Museum's Collection",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.10: The Artist’s Book",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.11: Embodied Magic: Drawing into Life",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.12: Art Practices Across Media",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.13: Drawing with Van Gogh",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.14: Reinventing Architecture: Design and Social Action",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.15: 3D Design and Digital Fabrication",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.16: Personal Iconography & the Public Debate: Text, Image and Form",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.17: Handmade Cinema",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.18: Art & Activism",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.19: Cut and Paste Cinema",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.20: Video Art",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART017.21: Water In the Lake: Real Events for the Imagination",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.22: On Earth: Art The Anthropocene",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.23: Book Publication Lab",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART017.24: What is Architecture? 10/10",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART017: Special Topics: Collage",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART020: Drawing II",
+              "department": "Studio Art",
+              "layup": 2
+            },
+            {
+              "name": "SART021: Sculpture II",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART022: Figure Drawing",
+              "department": "Studio Art",
+              "layup": 2
+            },
+            {
+              "name": "SART023: Figure Sculpture",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART025: Painting I",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART026: Printmaking I: Lithography",
+              "department": "Studio Art",
+              "layup": 2
+            },
+            {
+              "name": "SART027: Printmaking I",
+              "department": "Studio Art",
+              "layup": 5
+            },
+            {
+              "name": "SART028: Printmaking II",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART029: Photography I - The Intentional Photograph",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART030: Photography II - The Nature of Photography",
+              "department": "Studio Art",
+              "layup": 0
+            },
+            {
+              "name": "SART031: Painting II",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART065: Architecture I",
+              "department": "Studio Art",
+              "layup": 4
+            },
+            {
+              "name": "SART066: Architecture II",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART068: Architecture III",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART071: Drawing III",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART072: Painting III",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART073: Sculpture III",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART074: Printmaking III",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART075: Photography III - Contemporary Photography & Research",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART076: Senior Seminar I",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART077: Senior Seminar II",
+              "department": "Studio Art",
+              "layup": 1
+            },
+            {
+              "name": "SART090: Independent Study",
+              "department": "Studio Art",
+              "layup": 1
+            }
+          
+          
+        
+        
+      
+      
+    
+    
+    
 
     
 ]
