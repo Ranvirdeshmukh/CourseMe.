@@ -248,5 +248,767 @@
     "name": "WRIT080: Independent Research",
     "department": "Writing Courses",
     "layup": 0
-  }
+  },
+    {
+      "name": "WGSS001: Intersections",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 7
+    },
+    {
+      "name": "WGSS003: Global Race x Global Migrat",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS007.01: Gender in Science Fiction",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": -1
+    },
+    {
+      "name": "WGSS007.04: Women in Journalism",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 3
+    },
+    {
+      "name": "WGSS007.05: Gay Literature in Americas",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS007.08: Gender and Genius",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS007.11: Writing India",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS007.12: Humanities and Human Rights",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS007.13: Gender and Urban Transform",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS007.14: Black Women's Activism",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS007.15: Looks, Lookism and the Law",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS007.16: The Body: West Vis Cult",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS007.17: Watch Your Language!",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS007.18: Women Monasticism Buddhism",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS007.19: New Dickinson",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS007.20: Gender & US Militarism",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS007: First-Year Seminar in Women's, Gender, and Sexuality Studies",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS010: Sex, Gender, and Society",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 175
+    },
+    {
+      "name": "WGSS012: Feminist and Queer Theories",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": -3
+    },
+    {
+      "name": "WGSS015: Roots of Feminisms: Texts and Contexts",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 5
+    },
+    {
+      "name": "WGSS016: Contemporary Issues in Feminism: Theory and Practice",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS018.01: Gay Lsbn Bsxl Trnsgdr Study",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS018: Introduction to Lesbian, Gay, Bisexual, and Transgender Studies",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 4
+    },
+    {
+      "name": "WGSS020.02: #MeToo: Intersectionality, Hashtag Activism, and Our Lives",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS020.03: Introduction to the Study of Race, Migration, and Sexuality",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS021.01: Slaves, Wives, & Concubines: Did Roman Women Have a History?",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS021.02: Fictions of Sappho",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS021.03: Gender and Sexuality in Ancient Greece",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS022.01: Gender and European Society from Antiquity to the Reformation",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS023.01: Gender and Power in American History",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS023.02: American Women in the Twentieth Century",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS024.01: Arab Feminisms",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS024.02: Gender and The Modern Middle East and North Africa",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS026.02: Women and American Radicalism Left and Right",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": -1
+    },
+    {
+      "name": "WGSS026.03: History of Sexuality",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS030.01: Women, Gender and Development",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS030.04: Women, Work, and Wealth",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS030.05: Maid in America: The Politics of Domestic Labor",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS030.06: Women and Poverty in the United States",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS031.01: Sex and the State in Latin America",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS031.02: Power to the People: Black Power, Radical Feminism, Gay Liberation",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS031.04: Women and Politics",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": -2
+    },
+    {
+      "name": "WGSS032.03: The Constitutional Rights of Women",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS033.01: Constructing Black Womanhood",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS033.03: Gender and Judaism",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS033.05: Unstalling the Stalled Revolution: Gender (In)equality at Work and at Home",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS033.07: Love, Romance, Intimacy and Dating",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS033.08: Sociology of Family",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS034.02: Gender Identities and Politics in Africa",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS034.04: Sociology of Gender",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS035.01: What's the T? Gender Variance and Identity Politics in Modernity",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS035.02: Lived Bodies: The Self and The Other",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS036.01: Gender in Cross-Cultural Perspective",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 3
+    },
+    {
+      "name": "WGSS036.06: Gender and Sexuality in Asian American Literature",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS037.02: Gender, Space and Islam",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS037.03: Social Justice and the City",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS037.04: Carceral Geographies: Explaining Mass Incarceration in the US",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS037.06: Women in Asian Cities",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS038.02: Women and Gender in the African Diaspora",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS040.01: Gender Topics in Native American Life",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 3
+    },
+    {
+      "name": "WGSS040.02: 10 Weeks, 10 Professors: #BlackLivesMatter",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS040.03: Racial Justice",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS040.04: Black Women's Activism, 1970-present",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS040.05: Feminist and Queer Performance at the Limit of Action",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS040.06: Race and Memory: Feminist and Queer Performance Against Disavowal",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS041.04: Muslim Feminism",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS041.05: Gender & Violence: Analyses",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS041.06: Transnational Feminisms",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 4
+    },
+    {
+      "name": "WGSS042.05: Ethnography of Violence",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS042.06: Gender and the Global War on Terror",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS043.02: Sex, Celibacy, and the Problem of Purity: Asceticism and the Human Body in Late Antiquity",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS043.03: Women and the Bible",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS043.04: Goddesses of India",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS043.05: Body and Sex in Chinese Religions",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS043.06: Gender in Islam",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS044.03: Women, Religion and Social Change in Africa",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS044.05: The Virgin of Guadalupe: From Tilma to Tattoo",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS044.07: The Struggle for Liberation: Women, Monasticism, and Buddhism",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS046.01: Philosophy and Gender",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS047.03: Modern American Women Poets",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS048.07: Sex and Gender in the Italian Renaissance",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS048.08: Desire and Difference in 19th Century British Fiction",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": -2
+    },
+    {
+      "name": "WGSS048.09: Nineteenth-Century British Women Writers",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS049.05: Sexing Korea: Gender and Sexuality in Korean Popular Culture and Literature",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS049.06: Women and War in Modern Arabic Literature and Film",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS051.07: Memoirs and the Work They Do",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS051.09: Young Adult Literature",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": -2
+    },
+    {
+      "name": "WGSS051.10: Narratives of Un-belonging: Bad Asians, Queer Texts",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS052.01: Colonial and Postcolonial Masculinities",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS052.03: Feminism, Islam, and Modernity in Postcolonial and Global Contexts",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS052.04: Arts Against Empire: Fictions of Revolution and Solidarity in the Americas",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS052.05: Women, Representation, Power: Writing India, Then and Now",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS052.06: Black Queer & Trans Futures: An Experiment",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS053.02: Hand to Mouth: Writing, Eating, and the Construction of Gender",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS053.05: The Poetry and Rhetoric of Love, from Petrarch to Social Media",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS053.07: Language, Gender & Sexuality",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS056.01: TV and Histories of Gender",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS056.03: Family Matters: Pedro Almodovar, Gender Reversals, and New Communities",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS056.04: Women and Journalism in the U.S.",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS056.07: From Fanny to the Nanny: Jewish Women and Humor",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS056.11: Women Make Movies",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS056.12: Black Queer Lit & Film",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS057.01: Data and Bodies",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS058.05: Women in Art",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS059.03: Unveiling the Harem Dancer",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS059.04: Race, Gender, and Performance",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS059.05: Sex and Drama: Sexuality Theory, Theatrical Representation",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS059.06: I Will Survive: Women's Political Resistance Through Popular Song",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS059.07: Latinx Performance",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS061.02: Plagues and Politics: The Impact of AIDS on U. S. Society",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS061.04: Women and Madness",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS061.05: Gender and Global Health",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS061.06: Feminist Perspectives on Reproductive Ethics",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS062.02: A Global History of Sexual Science",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS062.03: Gender and the Anthropocene",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS062.04: Women and the Making of Science",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS065.04: Queer Visual Culture",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS065.06: Radical Sexuality: Of Color, Wildness, and Fabulosity",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 3
+    },
+    {
+      "name": "WGSS065.07: Queer Popular Culture",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS065.08: Black LGBTQ History",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.01: Times of Crisis",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.02: Social Justice and Computing",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS066.03: Transnational Migration: Critical Ethnic, Indigenous and Queer Crossings",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.04: Introduction to Black Feminist Thought",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 3
+    },
+    {
+      "name": "WGSS066.05: Telling Stories for Social Change",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS066.06: Bodies and Technologies in Asian American Popular Cultures",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS066.07: African Diaspora Women Writers",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.08: Self, Subject, Photography",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.09: Black Consciousness and Black Feminisms",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.11: Black Elegies",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": -1
+    },
+    {
+      "name": "WGSS066.12: Gndr, Performance & Healing",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.13: Gender/Jewish-German Cultur",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.14: Gender and Family Issues",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.15: Feminist & Queer Africa",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.16: Feminist Sociology",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS066.17: Labors of Love",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.18: Hybrid Literatures",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066.19: EroticismLoveSensinHispFilm",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS066: Special Topics in Women's, Gender, and Sexuality Studies",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS067.01: Freud: Psychoanalysis, Jews, and Gender (in English)",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS067.02: Modern Sex:Weimar Republic",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS067.03: Sex, Violence and the Internet",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS067.04: Humanities and Human Rights: Thoughts on Community",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS067.05: Feminist Theory",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 0
+    },
+    {
+      "name": "WGSS080: Seminar in Women's, Gender, and Sexuality Studies",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 2
+    },
+    {
+      "name": "WGSS085: Independent Study",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS090: Foreign Study in Women's, Gender, and Sexuality Studies I",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS091: Foreign Study in Women's, Gender, and Sexuality Studies II",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS092: Foreign Study in Women's, Gender, and Sexuality Studies III",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS096: Advanced Research in Gender Studies",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS098: Honors Thesis I",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    },
+    {
+      "name": "WGSS099: Honors Thesis II",
+      "department": "Women's, Gender, and Sexuality Studies",
+      "layup": 1
+    }
+
+    
 ]
