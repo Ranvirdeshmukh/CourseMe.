@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Container, Typography, Box, List, ListItem, ListItemText, Alert } from '@mui/material';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Link } from 'react-router-dom';
 
-const AllClassesPage = () => {
-  const [departments, setDepartments] = useState([]);
+const DepartmentCoursesPage = () => {
+  const { department } = useParams();
+  const [courses, setCourses] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'courses'));
+        const q = query(collection(db, 'courses'), where('department', '==', department));
+        const querySnapshot = await getDocs(q);
         const coursesData = querySnapshot.docs.map(doc => doc.data());
-
-        const departmentSet = new Set();
-        coursesData.forEach(course => departmentSet.add(course.department));
-        setDepartments([...departmentSet]);
+        setCourses(coursesData);
       } catch (error) {
-        setError('Failed to fetch departments.');
-        console.error('Error fetching departments:', error);
+        setError('Failed to fetch courses.');
+        console.error('Error fetching courses:', error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [department]);
 
   return (
     <Box
@@ -41,22 +40,22 @@ const AllClassesPage = () => {
       }}
     >
       <Container>
-        <Typography variant="h4" gutterBottom>Departments</Typography>
+        <Typography variant="h4" gutterBottom>Courses in {department}</Typography>
         {error && <Alert severity="error">{error}</Alert>}
-        {departments.length > 0 ? (
+        {courses.length > 0 ? (
           <List>
-            {departments.map((department, index) => (
-              <ListItem button key={index} component={Link} to={`/departments/${department}`}>
-                <ListItemText primary={department} />
+            {courses.map((course, index) => (
+              <ListItem key={index}>
+                <ListItemText primary={`${course.name} (Layup: ${course.layup})`} />
               </ListItem>
             ))}
           </List>
         ) : (
-          <Typography>No departments available</Typography>
+          <Typography>No courses available</Typography>
         )}
       </Container>
     </Box>
   );
 };
 
-export default AllClassesPage;
+export default DepartmentCoursesPage;

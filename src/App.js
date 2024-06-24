@@ -9,6 +9,7 @@ import EasyClassesPage from './pages/EasyClassesPage';
 import ProfilePage from './pages/ProfilePage';
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
+import DepartmentCoursesPage from './pages/DepartmentCoursesPage';
 
 const App = () => (
   <AuthProvider>
@@ -21,6 +22,7 @@ const App = () => (
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/departments/:department" element={<DepartmentCoursesPage />} />
       </Routes>
     </Router>
   </AuthProvider>
