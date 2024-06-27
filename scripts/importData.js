@@ -14,10 +14,25 @@ const sanitizeId = (id) => {
 
 const importData = async () => {
   const batch = db.batch();
-  coursesData.forEach(course => {
-    const docRef = db.collection('courses').doc(sanitizeId(course.name)); // Use sanitized course name as document ID
-    batch.set(docRef, course);
-  });
+
+  for (const department in coursesData) {
+    if (department !== "Template") {
+      const departmentCourses = coursesData[department];
+      departmentCourses.forEach(course => {
+        const courseId = sanitizeId(`${department}_${course["class name"]}`);
+        const docRef = db.collection('courses').doc(courseId);
+        batch.set(docRef, {
+          department: department,
+          name: course["class name"],
+          distribs: course["distribs"],
+          numOfReviews: course["num of reviews"],
+          quality: course["quality"],
+          layup: course["layup"]
+        });
+      });
+    }
+  }
+
   await batch.commit();
   console.log('Data imported successfully');
 };
