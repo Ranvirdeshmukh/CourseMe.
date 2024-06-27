@@ -38,6 +38,7 @@ const DepartmentCoursesPage = () => {
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
       }}
+    
     >
       <Container>
         <Typography variant="h4" gutterBottom>Courses in {department}</Typography>

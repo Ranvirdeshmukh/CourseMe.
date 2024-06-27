@@ -2816,7 +2816,1465 @@
               "name": "SART090: Independent Study",
               "department": "Studio Art",
               "layup": 1
-            }
+            },
+            {"name": "SPAN001: Spanish I", "department": "Spanish", "layup": 45},
+    {"name": "SPAN002: Spanish II", "department": "Spanish", "layup": 75},
+    {"name": "SPAN003: Spanish III", "department": "Spanish", "layup": 62},
+    {"name": "SPAN005.01: Language Study Abroad: Barcelona", "department": "Spanish", "layup": 0},
+    {"name": "SPAN005.02: Language Study Abroad: Buenos Aires", "department": "Spanish", "layup": 0},
+    {"name": "SPAN005: Language Study Abroad", "department": "Spanish", "layup": 0},
+    {"name": "SPAN006.01: Language Study Abroad: Barcelona", "department": "Spanish", "layup": 1},
+    {"name": "SPAN006.02: Language Study Abroad: Buenos Aires", "department": "Spanish", "layup": 0},
+    {"name": "SPAN006: Language Study Abroad", "department": "Spanish", "layup": 0},
+    {"name": "SPAN007.02: Mural Art in Mexico & U.S.", "department": "Spanish", "layup": 2},
+    {"name": "SPAN007.05: Utopia in Latin America", "department": "Spanish", "layup": 0},
+    {"name": "SPAN007.06: Quixote and the Quixotic", "department": "Spanish", "layup": 1},
+    {"name": "SPAN007.07: Don Quixote in Lit and Film", "department": "Spanish", "layup": 0},
+    {"name": "SPAN007.08: Cognitive Don Quixote", "department": "Spanish", "layup": 1},
+    {"name": "SPAN007.09: Streaming Latin America", "department": "Spanish", "layup": 4},
+    {"name": "SPAN007: First-Year Seminars in Spanish and Spanish-American Literature", "department": "Spanish", "layup": 0},
+    {"name": "SPAN009: Culture and Conversation: Advanced Spanish Language", "department": "Spanish", "layup": 39},
+    {"name": "SPAN015: Latinx Writing and Composition", "department": "Spanish", "layup": 0},
+    {"name": "SPAN020: Writing and Reading: A Critical and Cultural Approach", "department": "Spanish", "layup": 15},
+    {"name": "SPAN021: Traditional and Contemporary Andean Cosmogonies and Cultural Production: A Historical Approach", "department": "Spanish", "layup": 0},
+    {"name": "SPAN022: Modern and Contemporary Spanish Artistic and Cultural Production", "department": "Spanish", "layup": 0},
+    {"name": "SPAN023: Argentine Cultural Heritage", "department": "Spanish", "layup": 2},
+    {"name": "SPAN024: Spanish Cultural Heritage", "department": "Spanish", "layup": 0},
+    {"name": "SPAN030: Introduction to Hispanic Studies I: Middle Ages-17th Century", "department": "Spanish", "layup": -3},
+    {"name": "SPAN031: Introduction to Hispanic Studies II: 18th and 19th Centuries", "department": "Spanish", "layup": 5},
+    {"name": "SPAN032: Introduction to Hispanic Studies III: 20th-21st Centuries", "department": "Spanish", "layup": 2},
+    {"name": "SPAN033: Argentine Civilization: Society, Culture and Politics in Argentina", "department": "Spanish", "layup": 1},
+    {"name": "SPAN034: Society, Culture and Politics in Spain", "department": "Spanish", "layup": 0},
+    {"name": "SPAN035.01: Argentina On(the)line", "department": "Spanish", "layup": 0},
+    {"name": "SPAN035: Studies in Spanish-American Literature and Culture", "department": "Spanish", "layup": -1},
+    {"name": "SPAN036: Studies in Modern and Contemporary Spanish Literature", "department": "Spanish", "layup": 0},
+    {"name": "SPAN040.04: Dali, Lorca and Buñuel: The Secrets of Spanish Surrealism", "department": "Spanish", "layup": 0},
+    {"name": "SPAN040.05: Federico García Lorca and His Time", "department": "Spanish", "layup": 0},
+    {"name": "SPAN040.06: Love and all that Comes with It", "department": "Spanish", "layup": 1},
+    {"name": "SPAN040.07: Dark Mirror: Spanish Detective Fiction", "department": "Spanish", "layup": -1},
+    {"name": "SPAN040.08: Tell Me a Story! The Modern Spanish Short Story", "department": "Spanish", "layup": 1},
+    {"name": "SPAN040.09: The Shock of the Metropolis: America in the works of Lorca, Buñuel, and Dalí", "department": "Spanish", "layup": 0},
+    {"name": "SPAN040.10: Marginality and Novelistic Discourse in Early Modernity", "department": "Spanish", "layup": 0},
+    {"name": "SPAN040.11: Truth or Dare: Spanish American Testimonio and the Concept of Fake News", "department": "Spanish", "layup": 0},
+    {"name": "SPAN040.12: ‘Cosas de ninos:’ Representations of Children in Modern Spanish Culture", "department": "Spanish", "layup": 0},
+    {"name": "SPAN040: Hispanic Literature and Culture by Period", "department": "Spanish", "layup": 0},
+    {"name": "SPAN043.04: The Best Hispanic Poetry: Emotion for the Contemporary Reader", "department": "Spanish", "layup": 0},
+    {"name": "SPAN043.05: Drawn to Resist: The Latin American Comics", "department": "Spanish", "layup": 0},
+    {"name": "SPAN043.06: Tango Argentino: Music, Dance, Poetry, Community", "department": "Spanish", "layup": 0},
+    {"name": "SPAN043: Hispanic Literature and Culture by Genre", "department": "Spanish", "layup": 0},
+    {"name": "SPAN045.01: Politics of Inequality. Economy, Social Struggle, and the 19th Century Latin American Novel", "department": "Spanish", "layup": 1},
+    {"name": "SPAN045.02: Diaspora and Economic Imaginaries in Hispanic Caribbean Literature", "department": "Spanish", "layup": 0},
+    {"name": "SPAN045.03: Spanish Leviathan: Literature and State Violence from 1812 to 2009", "department": "Spanish", "layup": 0},
+    {"name": "SPAN045.04: Under the Influence. Intoxicating Goods and Vicious Texts from Early Modern Spain", "department": "Spanish", "layup": 1},
+    {"name": "SPAN045.05: The Stolen Children of Argentina and Spain", "department": "Spanish", "layup": 0},
+    {"name": "SPAN045.06: MigrationTransnationJustice", "department": "Spanish", "layup": 0},
+    {"name": "SPAN045.07: Slaves from the Past, Slaves Next Door", "department": "Spanish", "layup": 0},
+    {"name": "SPAN050.01: Machos and Malinches: Gender and Sexual Identities in Latin/x American Literature and Culture", "department": "Spanish", "layup": 1},
+    {"name": "SPAN050.02: New Sexual and Social identity in Film and Literature in Post-Franco Spain", "department": "Spanish", "layup": 0},
+    {"name": "SPAN050.03: Politics of Masculinity: Latin American Narrative, Film, and Politics.", "department": "Spanish", "layup": 0},
+    {"name": "SPAN050.04: Let's not talk about it. Eroticism in Modern Spain", "department": "Spanish", "layup": 0},
+    {"name": "SPAN050.05: Eroticism, Love and Sensuality in Hispanic Film", "department": "Spanish", "layup": 2},
+    {"name": "SPAN053.01: Introduction to the History of the Spanish Language", "department": "Spanish", "layup": 0},
+    {"name": "SPAN053.02: Spanish Linguistics, Rhetoric, Poetics and the Politics of Language", "department": "Spanish", "layup": 0},
+    {"name": "SPAN053.03: Bilingualism: Cognitive and Sociolinguistic Approaches to Bilingualism in the Spanish-speaking World", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.04: Humor and Politics in Latin American Literature, Film and Culture", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.05: Indignant Spain: Crisis and New Social Movements Today", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.06: Slaughterhouses. The Life and Death of Humans and Animals in the Southern Cone", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.07: Revolution & Art in Mexico", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.08: The New Argentine Short Story", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.09: Revoltosos/as: Forms of Rebellion and Revolution in Imperial Spain and Spanish America", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.10: Mexican Utopias: Science Fiction and Mexican Literature and Cinema", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.11: Bullets and Letters: Basque Terrorism and the Arts", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.12: TheDisappearedinLatAmerica", "department": "Spanish", "layup": 0},
+    {"name": "SPAN055.13: Planeta Paraguay. Power and Poetics of a 'Land Without Evil'", "department": "Spanish", "layup": 0},
+    {"name": "SPAN060.02: Racism in Spanish American Literary Representations", "department": "Spanish", "layup": 0},
+    {"name": "SPAN060.03: Racism at Work Then and Now. Five centuries of Race, Ethnicity and Culture in Span. Amer. Lit", "department": "Spanish", "layup": 0},
+    {"name": "SPAN060: Race and Ethnicity in Hispanic Studies", "department": "Spanish", "layup": 0},
+    {"name": "SPAN063.01: Latin American Film", "department": "Spanish", "layup": 0},
+    {"name": "SPAN063.02: Spain in the Movies. Literary Classics in Adaptation", "department": "Spanish", "layup": 0},
+    {"name": "SPAN063.03: Filming Fragility: The New Argentine Cinema", "department": "Spanish", "layup": 1},
+    {"name": "SPAN063.05: Latin American Film: Brazil", "department": "Spanish", "layup": 2},
+    {"name": "SPAN063.06: Youth Culture in Argentine Cinema", "department": "Spanish", "layup": 0},
+    {"name": "SPAN063.07: RadicalWomenLatAmerCinema", "department": "Spanish", "layup": 0},
+    {"name": "SPAN063.08: The Many Faces of Brazilian Cinema", "department": "Spanish", "layup": 3},
+    {"name": "SPAN063.09: Beyond Sex, Drugs, and Rock ‘n Roll: Radical Latinxs in the 60’s", "department": "Spanish", "layup": 0},
+    {"name": "SPAN063.10: Family Matters: Pedro Almodovar, Gender Reversals, and New Communities", "department": "Spanish", "layup": 0},
+    {"name": "SPAN063.11: Blood Cinema. Spanish Movies from 1926 to 2019", "department": "Spanish", "layup": 0},
+    {"name": "SPAN063.12: Got Las Meninas? Spanish Visual Culture and Baroque Imaginaries", "department": "Spanish", "layup": 0},
+    {"name": "SPAN063: Hispanic Film Studies", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.02: Obscene Images: Intro to Visual Studies in Latin America", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.04: Night at the Museum: A Cultural and Political History of El Prado", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.05: Staging Globalization in Latin America", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.06: Crossing the US-Mexico Border: Myths and Icons of Hybridity", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.07: Staged Rebellions: Dissidence in Latin American Theatre", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.08: War Pics: Photography in 19th Century Latin American Conflicts", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.09: Performeras on the Latin American Stage", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.10: Performing Latin American Identities", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.11: Archives in Unequal World", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.12: Reading Spain with Goya, the Eternal Provocateur", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.13: The World of Frida Kahlo", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.14: MedFictionIllDeathNeolibEra", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065.15: Cameras and Crisis", "department": "Spanish", "layup": 0},
+    {"name": "SPAN065: Hispanic Performance, Media, and the Arts", "department": "Spanish", "layup": 0},
+    {"name": "SPAN070.01: Great Works of Hispanic Literature: Don Quijote", "department": "Spanish", "layup": -2},
+    {"name": "SPAN070.02: One Hundred Years of Solitude", "department": "Spanish", "layup": 1},
+    {"name": "SPAN070: Great Works of Hispanic Literature: Don Quixote and One Hundred Years of Solitude", "department": "Spanish", "layup": -2},
+    {"name": "SPAN072: Latin American and Latina Women: Gender, Culture, Literature", "department": "Spanish", "layup": 0},
+    {"name": "SPAN073.04: Todo Borges", "department": "Spanish", "layup": 1},
+    {"name": "SPAN073.05: Utopia is Alive and Kicking", "department": "Spanish", "layup": 0},
+    {"name": "SPAN073.06: Outsiders: The Aesthetics of Deviance in Contemporary Argentina", "department": "Spanish", "layup": 0},
+    {"name": "SPAN073.08: Nietzsche in Argentine Literature", "department": "Spanish", "layup": 0},
+    {"name": "SPAN073.09: George Ticknor: The Legacy of a Dartmouth Hispanist", "department": "Spanish", "layup": 0},
+    {"name": "SPAN073.11: Obscene Images: Intro to Visual Studies in Latin America", "department": "Spanish", "layup": 0},
+    {"name": "SPAN073: Special Topics in Hispanic Literary and Cultural Production", "department": "Spanish", "layup": 0},
+    {"name": "SPAN075.01: Writing the Short Story", "department": "Spanish", "layup": 0},
+    {"name": "SPAN075: Creative Writing in Spanish", "department": "Spanish", "layup": 0},
+    {"name": "SPAN077.03: Paradigmas Mexicanos: Elena Garro y Octavio Paz", "department": "Spanish", "layup": 0},
+    {"name": "SPAN077.04: The Present that Was: Newspapers and the Modern Public Sphere in Spain", "department": "Spanish", "layup": 0},
+    {"name": "SPAN077.05: Advanced Writing with Federico García Lorca", "department": "Spanish", "layup": 0},
+    {"name": "SPAN077: Texts and Contexts: Topics in Writing", "department": "Spanish", "layup": 0},
+    {"name": "SPAN078: Living in the Borderlands: Latino/a Culture and Identity", "department": "Spanish", "layup": 0},
+    {"name": "SPAN079: Latino/a Literature: Between Literary Traditions, Languages, and Cultures", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.05: Senior Seminar-Latin Amer", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.09: One Hundred Years of Solitude", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.10: Tell Me a Story! The Modern Spanish Short Story", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.11: New Sexual and Social Identity in Film and Literature in Post-Franco Spain", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.12: The Aesthetics of Peronism", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.13: Hispanophilia and Hispanophobia, then and now", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.14: Slaves from the past, slaves next door", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.15: Indignant Spain Today: Crisis and New Social Movements", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.16: Planeta Paraguay. Power and Poetics of a 'land without evil'", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.17: Spain Reset! Rethinking Democracy and Culture", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.18: Luis Buñuel: Cinema of Desire", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.19: Archives in Unequal World", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.20: The 'Spanish Craze': Hispanic Culture in the United States", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.21: The Boricua Gaze: Decolonialism in Puerto Rican Visual Cultures", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.22: The Boom Novels of Spanish America", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080.23: Bullets and Letters: Basque Terrorism and the Arts", "department": "Spanish", "layup": 0},
+    {"name": "SPAN080: Senior Seminar in Hispanic Studies", "department": "Spanish", "layup": 0},
+    {"name": "SPAN083: Independent Study", "department": "Spanish", "layup": 0},
+    {"name": "SPAN090: Honors Course", "department": "Spanish", "layup": 0},
+    {"name": "SPAN091: Honors Seminar", "department": "Spanish", "layup": 0},
+    {
+      "name": "RUSS001: Introductory Russian",
+      "department": "Russian Language and Literature",
+      "layup": 5
+  },
+  {
+      "name": "RUSS002: Introductory Russian",
+      "department": "Russian Language and Literature",
+      "layup": 2
+  },
+  {
+      "name": "RUSS003: Introductory Russian",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS007.01: Who is the Terrorist?",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS007.02: Peoples of Former U.S.S.R.",
+      "department": "Russian Language and Literature",
+      "layup": -2
+  },
+  {
+      "name": "RUSS007.05: Scapegoats",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS007.06: Doing Things with Words",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS007: First-Year Seminar in Russian",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS010: Introduction to Russian Civilization",
+      "department": "Russian Language and Literature",
+      "layup": 11
+  },
+  {
+      "name": "RUSS011.03: How the Hammer and Sickle Gave Way to McDonalds",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS011.04: Topics in Music History: Russian Music",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS011: Special Topics in Russian Culture",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS012: Ethnicity and Nationalism in Russia and the Neighboring States",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS013: Slavic Folklore: Vampires, Witches and Firebirds",
+      "department": "Russian Language and Literature",
+      "layup": 107
+  },
+  {
+      "name": "RUSS014: The Age of Brainwashing: A History of Russian and Eastern European Film",
+      "department": "Russian Language and Literature",
+      "layup": 3
+  },
+  {
+      "name": "RUSS015: Russia and the West: From Early Times to Present Day",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS017: Russian Fairy Tales",
+      "department": "Russian Language and Literature",
+      "layup": 2
+  },
+  {
+      "name": "RUSS018: Russian Theater",
+      "department": "Russian Language and Literature",
+      "layup": 2
+  },
+  {
+      "name": "RUSS019: Understanding the Russians: The Role of Language and Culture in Communication",
+      "department": "Russian Language and Literature",
+      "layup": 2
+  },
+  {
+      "name": "RUSS021: Russian Civilization: Study Abroad",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS022: The Russian Language: Study Abroad",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS023: The Russian Language: Study Abroad",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS027: Intermediate Russian I",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS028: Intermediate Russian II",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS029: Intermediate Russian III",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS031: The World as Word: 19th Century Russian Fiction",
+      "department": "Russian Language and Literature",
+      "layup": 6
+  },
+  {
+      "name": "RUSS032: Reading Red: 20th Century Russian Fiction",
+      "department": "Russian Language and Literature",
+      "layup": 3
+  },
+  {
+      "name": "RUSS033: Reading Russia Today: Avant-Gardes, Dystopias and Dreamers",
+      "department": "Russian Language and Literature",
+      "layup": 6
+  },
+  {
+      "name": "RUSS035: Dostoevsky and the Problem of Evil",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS036: The Seer of the Flesh: Tolstoy's Art and Thought",
+      "department": "Russian Language and Literature",
+      "layup": 3
+  },
+  {
+      "name": "RUSS037: Western Thought and the Russian Dialogic Imagination",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.01: The Sound of Silence: A Chekhov Writing Workshop",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.04: Madmen, Holy Fools, & Fanatics in Imperial Russia",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.05: Russian Fairy Tales",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.06: Nothing is True and Everything is Possible: Politics, Media, and Religion in Post-Soviet Russia",
+      "department": "Russian Language and Literature",
+      "layup": 3
+  },
+  {
+      "name": "RUSS038.08: The 'New Man' on the Moon: Science Fiction Under Socialism",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.09: Creative Writing in Russian: Russian and Ukrainian Short Story",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.10: Modern Conspiracy: The Russian and American Conspiracist Traditions",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS038.12: History of Attention",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.14: Other Christs: Introduction to Eastern Christianity",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.15: Homelands and Diasporas: Russian Jews on Three Continents",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.16: Putin's Sacred Reign",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.17: Modern Russ & its Culture",
+      "department": "Russian Language and Literature",
+      "layup": 7
+  },
+  {
+      "name": "RUSS038.18: Taboo Russia",
+      "department": "Russian Language and Literature",
+      "layup": 2
+  },
+  {
+      "name": "RUSS038.19: The Good Doctor",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038.20: Poetry After War",
+      "department": "Russian Language and Literature",
+      "layup": 2
+  },
+  {
+      "name": "RUSS038.21: Translation and Censorship",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS038: Special Topics in Russian Literature, Culture and Area Studies",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS041: Advanced Conversation and Composition",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS042: Advanced Russian through History, Press and Film",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS043: Advanced Grammar II",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS045: Special Topics in Russian Language",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS048: Structure of Modern Russian",
+      "department": "Russian Language and Literature",
+      "layup": 2
+  },
+  {
+      "name": "RUSS050.01: Russia and the West: From Early Times to Present Day",
+      "department": "Russian Language and Literature",
+      "layup": -1
+  },
+  {
+      "name": "RUSS050.02: The Russian Revolution",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS050.03: Twentieth-Century Russia",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS050: Special Topics in Russian History",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS071.01: Med Res & Creative Writ",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS071: Advanced Seminar in Russian Culture",
+      "department": "Russian Language and Literature",
+      "layup": 0
+  },
+  {
+      "name": "RUSS085: Independent Reading",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS086: Independent Reading and Research in Russian",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+  {
+      "name": "RUSS087: Thesis",
+      "department": "Russian Language and Literature",
+      "layup": 1
+  },
+      
+  
+    {
+        "name": "REL001.01: What Matters",
+        "department": "Religion",
+        "layup": 12
+    },
+    {
+        "name": "REL001.02: Contemporary Religion",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL001.03: Patterns of Religious Experience",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL001.04: Beginnings and Ends of Time",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL001.05: Religion and Gender",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL001.06: Getting Religion",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL001.07: Getting It: Sex and Religion",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL001.08: The Religion of Things",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL001.09: Religion and Drugs",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL001.10: Religion and Social Struggle",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL001.11: Sisters, Sages, Seekers: Women and Religion",
+        "department": "Religion",
+        "layup": 4
+    },
+    {
+        "name": "REL001: Topics in the Study of Religion",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL002.01: Religions of Southeast Asia",
+        "department": "Religion",
+        "layup": 5
+    },
+    {
+        "name": "REL002: Topics in the Religions of Southeast Asia",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL003.01: Indigenous Religions in the Colonial Americas",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL003: Topics in Indigenous Religions",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL004: Religion of Israel: The Hebrew Bible (Old Testament)",
+        "department": "Religion",
+        "layup": 3
+    },
+    {
+        "name": "REL005: Early Christianity: The New Testament",
+        "department": "Religion",
+        "layup": 8
+    },
+    {
+        "name": "REL006: Introduction to Judaism",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL007.05: The English Bible",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL007.06: Hindus and Muslims in India",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL007.07: Sin, Guilt, and Debt",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL007.08: Is Dartmouth a Religion?",
+        "department": "Religion",
+        "layup": -10
+    },
+    {
+        "name": "REL007.09: Living with the Dead",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL007.10: Women/Monasticism/Buddhism",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL007: First-Year Seminars in Religion",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL008: Introduction to Islam",
+        "department": "Religion",
+        "layup": 5
+    },
+    {
+        "name": "REL009: Hinduism",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL010: The Religions of China",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL011.01: God and Money",
+        "department": "Religion",
+        "layup": 3
+    },
+    {
+        "name": "REL011.02: Modern Religious and Anti-Religious Thinkers",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL011: Religion and Morality",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL012: Religion in North America",
+        "department": "Religion",
+        "layup": 14
+    },
+    {
+        "name": "REL013: Sports, Ethics & Religion",
+        "department": "Religion",
+        "layup": -4
+    },
+    {
+        "name": "REL014: Introduction to African Religions",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL015.01: Other Christs: Introduction to Eastern Christianity",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL015: Christians, Christianity, Christendom: A History",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL016.01: An Introduction to Islam",
+        "department": "Religion",
+        "layup": 3
+    },
+    {
+        "name": "REL016.02: Modern Islam",
+        "department": "Religion",
+        "layup": -3
+    },
+    {
+        "name": "REL016.03: Islam in America",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL016.04: Radical Islam: Jihadis, Salafīs, and Radical Reformists in the 20th and 21st Century",
+        "department": "Religion",
+        "layup": -3
+    },
+    {
+        "name": "REL016.05: The Qur'an and the Prophet",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL016.06: Islamic Spirituality: Sufism, Mysticism, Asceticism",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL016.07: Islam and Medicine from the Medieval to Modern Eras",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL016.08: Shi`i Islam",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL016.09: Magic, Miracles, and the Prophet Muhammad",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL016: Intermediate Courses in the Islamic Religious Traditions",
+        "department": "Religion",
+        "layup": -2
+    },
+    {
+        "name": "REL017: African Religions of the Americas",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL018: Indian Buddhism",
+        "department": "Religion",
+        "layup": 7
+    },
+    {
+        "name": "REL019.03: Rethinking the Divine",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.06: Modern Hinduism",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.13: Divine Love: Desire, Sex, and Romance in Traditions of India",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.14: Cosmos, Justice, and Evil",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.15: God and Money",
+        "department": "Religion",
+        "layup": 5
+    },
+    {
+        "name": "REL019.16: Idols And Fetishes: Material Things In Religious Life",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.17: Religion in World Politics",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.18: From the Sacred to Salvation: The Place of Religion in Human Societies",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.19: Religion and Technology",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL019.20: Lost Books of the Bible",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.21: Tibetan Buddhism",
+        "department": "Religion",
+        "layup": -3
+    },
+    {
+        "name": "REL019.22: Gender and Judaism",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL019.23: Ecology, Ethics and Religion",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.24: Ancient Magic and Religion",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL019.25: Religions of the Caribbean",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.26: Pentecostalism & Social Change",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.27: Female Saints and ‘Feminine’ Spirituality",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.28: Material Religion",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.29: Women and Religion in Japan",
+        "department": "Religion",
+        "layup": 3
+    },
+    {
+        "name": "REL019.30: Islam And Medicine from the Medieval to Modern Eras",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.31: Religions of Japan",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.32: Shinto: Foundations, Festivals, and Fox Shrines",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL019.33: Religion, Politics, and Secularism",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.34: Disease and Desire in Medieval Islam",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL019.35: Magic, Miracles, and the Prophet Muhammad",
+        "department": "Religion",
+        "layup": 3
+    },
+    {
+        "name": "REL019.36: Putin's Sacred Reign",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL019: Special Topics in Religion-Introductory Level",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL020.01: Classic Works in the Study of Religion",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL020.02: Magic, Science, and Religion",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL020.03: Reason and Religious Belief",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL020.04: Theoretical Approaches to the Study of Myth: Interpreting Ancient Near Eastern Mythology",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL020.05: What is Religion?",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL020.06: Shamanism: The Agony and the Ecstasy",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL020.07: Archaeologies of Religion",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL021.01: Religion and Social Capital",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL021.02: Gods and Kings",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL021.03: Religion and the Rise of Capitalism",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL021: Religion and Western Thought",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL022: Modern Judaism",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL023: Jewish Mysticism",
+        "department": "Religion",
+        "layup": 4
+    },
+    {
+        "name": "REL024: Infinity and Ethics: Modern Jewish Mysticism and Philosophy",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL025: Islamic Mysticism (Sufism)",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL026: Islam in America",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL027: The Qur'an and the Prophet",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL028.02: The Islam of Morocco",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL028.03: Muslim Feminism",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL028.04: Gender in Islam",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL028.05: Shī`ī Islam",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL028.06: Medical Ethics and Islam",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL028.07: Disease and Desire in Medieval Islam",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL028: Intermediate Courses in the Islamic Religious Traditions",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL029.01: Religion in the Modern World",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL029.02: Is God Back? Religion in Modern Europe",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL029: Modern Religion",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL030.01: Sacred Cities: Rome",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL030.02: Sacred Cities: Jerusalem",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL030: Sacred Cities",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL031: Sex, Celibacy, and the Problem of Purity: Asceticism and the Human Body in Late Antiquity",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL032.01: Christianity in Korea",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL032.02: Into and Beyond Dante's Inferno",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL032.04: Spiritualities of the Christian Church",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL032.05: Second Vatican Council and its Theologians",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL032.06: Jewish Views of Christianity",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL032.07: Medieval Practices of Ascension",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL032.08: Catholicism & Orthodoxy in the Americas",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL032.09: Heresy and Authority",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL032: Topics in the Christian Tradition",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL033: Christians, Jews, and Muslims in the Age of the Crusades",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL034: Christianity and Conversion in the Northern World: Vikings, Celts, and Anglo-Saxons",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL035: Religion and Science",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL036: Sin and Story",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL037: Mountain Gods, Mummies and Messiahs: Religions of the Andes",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL038: Spiritual Autobiography",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL039: Magic, Madwomen, and Mystics",
+        "department": "Religion",
+        "layup": 11
+    },
+    {
+        "name": "REL040.01: Gods, Demons, and Monkeys: The Ramayana Epic of India",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL040.04: Hindu Hierarchies: Caste in Theory and Practice",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL040.05: God’s Fools: Saints, Music, And Mysticism In South Asia",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL040.06: Food and Religion in South Asia: The Raw, the Cooked, and the Leftovers",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL040.07: Hindus and Muslims in India",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL040: Topics in the Religions of South and Southeast Asia",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL041.01: Mahayana Buddhist Texts",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL041.02: Buddhism and Film",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL041.03: The Struggle for Liberation: Women, Monasticism, and Buddhism",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL041.04: Buddhist Meditation Theory",
+        "department": "Religion",
+        "layup": -4
+    },
+    {
+        "name": "REL041.05: Tibetan Buddhism",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL041.06: Buddhism in Korea and Japan: From Tribute Missions to Temple Tourism",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL041.07: Buddhism, Sexuality, & Gender in Southeast Asia",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL041: Topics in the Study of Buddhism",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL042: Goddesses of India",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL043: Buddhism in America",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL046: Daoism: Transformations of Tradition",
+        "department": "Religion",
+        "layup": 10
+    },
+    {
+        "name": "REL047: Buddhism in China",
+        "department": "Religion",
+        "layup": 4
+    },
+    {
+        "name": "REL048: Body and Sex in Chinese Religions",
+        "department": "Religion",
+        "layup": 8
+    },
+    {
+        "name": "REL049.01: Apocalyptic Thought",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL049: Topics in East Asian Religions",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL050: Talking to the Dead",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL051: The Virgin of Guadalupe: From Tilma to Tattoo",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL052: Religion and Music in Cuba",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL053: Religion, Healing, and Medicine",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL054: African American Religion and Culture in Jim Crow America",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL055: Ancient Egyptian Religion",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL056: Women and the Bible",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL057.01: The End of the World",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL057.02: The Jewish Jesus",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL057.06: History of Heaven",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL057.07: Apocalyptic Imagination",
+        "department": "Religion",
+        "layup": -1
+    },
+    {
+        "name": "REL057: Readings in the Biblical Tradition",
+        "department": "Religion",
+        "layup": 5
+    },
+    {
+        "name": "REL058: Topics in the Bible and Archaeology",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL060: Reformations: Protestant and Catholic",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL061: Religion and the Civil Rights Movement",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL062: Religion, Politics, and the Presidency",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL063: Mormonism",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL064: Evangelicalism",
+        "department": "Religion",
+        "layup": 3
+    },
+    {
+        "name": "REL065: Sports, Ethics & Religion",
+        "department": "Religion",
+        "layup": 3
+    },
+    {
+        "name": "REL066: Women, Religion, and Social Change in Africa",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL067: Religion And Imperialism",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL069: Religion and World Politics",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL070: Foreign Study in Religion I",
+        "department": "Religion",
+        "layup": 2
+    },
+    {
+        "name": "REL071: Foreign Study in Religion II",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL074.07: Ritual in Post-Modern Great Britain",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL074.08: Religion and Social Capital",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.09: Religious Minorities in Britain",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.10: Religion and Politics in the Ancient and Medieval World",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.11: The English Bible",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.12: Merchant of Venice: The Jew in the Protestant Imagination",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.13: Religion and the Rise of Capitalism",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.14: Religion and Social Struggle",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.15: African Religions, Health, and Healing Traditions",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.16: Revolutionary Imagination: Religion, Modernity, and the Otherwise",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.17: Islam in Africa",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074.18: Judaism and Ecology",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL074: Special Topics in Religion-Intermediate Level",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL080.01: Prophetism in the Black World",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL080.02: Spirituality and Health",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL080.04: Sacred Time",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL080.06: The Creation of Buddhism",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL080.07: Religion and Health",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL080.08: Maimonides",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL080.09: Bible, Sex, and Sexuality",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL080.10: Messengers of God: Prophetism in Historical and Comparative Perspective",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL080.11: Modern Black Spiritualities",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL080: Seminars",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL081.04: Buddho-Daoism: Religious Competition and Interaction in Traditional China",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL081: Dickinson Distinguished Scholar Seminar",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL082: Joint Research in Religious Studies",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL083: Independent Study in Religion",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL084: Advanced Independent Study in Religion",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL085.01: Senior Colloquium",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL085.02: Senior Colloquium for Honors Program",
+        "department": "Religion",
+        "layup": 0
+    },
+    {
+        "name": "REL085: Senior Colloquium",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL086: Honors I (Research)",
+        "department": "Religion",
+        "layup": 1
+    },
+    {
+        "name": "REL087: Honors",
+        "department": "Religion",
+        "layup": 1
+    }
+
+
+
           
           
         
