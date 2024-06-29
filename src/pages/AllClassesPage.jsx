@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, List, ListItem, ListItemText, Alert } from '@mui/material';
+import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper } from '@mui/material';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
+import departmentMapping from '../classstructure/departmentMapping';
 
 const AllClassesPage = () => {
   const [departments, setDepartments] = useState([]);
@@ -34,23 +35,48 @@ const AllClassesPage = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'radial-gradient(circle, #571CE0 0%, #571CE0 40%, black 70%)',
+        backgroundColor: '#571CE0',
         color: '#fff',
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
+        padding: '20px'
       }}
     >
       <Container>
         <Typography variant="h4" gutterBottom>Departments</Typography>
         {error && <Alert severity="error">{error}</Alert>}
         {departments.length > 0 ? (
-          <List>
-            {departments.map((department, index) => (
-              <ListItem button key={index} component={Link} to={`/departments/${department}`}>
-                <ListItemText primary={department} />
-              </ListItem>
-            ))}
-          </List>
+          <TableContainer component={Paper} sx={{ backgroundColor: '#571CE0', margin: '20px 0' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Code</TableCell>
+                  <TableCell sx={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Department Name</TableCell>
+                  <TableCell sx={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Undergrad Courses</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {departments.map((department, index) => (
+                  <TableRow
+                    key={index}
+                    component={Link}
+                    to={`/departments/${department}`}
+                    sx={{
+                      '&:nth-of-type(odd)': { backgroundColor: '#5A1FCC' },
+                      '&:hover': { backgroundColor: '#4A18A3' },
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      color: 'inherit'
+                    }}
+                  >
+                    <TableCell sx={{ color: 'white', padding: '10px', textAlign: 'center' }}>{department}</TableCell>
+                    <TableCell sx={{ color: 'white', padding: '10px', textAlign: 'center' }}>{departmentMapping[department]?.name || department}</TableCell>
+                    <TableCell sx={{ color: 'white', padding: '10px', textAlign: 'center' }}>{departmentMapping[department]?.courses || 'N/A'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         ) : (
           <Typography>No departments available</Typography>
         )}

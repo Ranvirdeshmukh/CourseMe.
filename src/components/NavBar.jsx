@@ -3,25 +3,19 @@ import React from 'react';
 import { AppBar, Toolbar, Button, Typography, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import '../styles/custom.css';  // Import the custom CSS
 
 const NavBar = () => {
   const { currentUser } = useAuth();
 
   return (
-    <AppBar
-      position="static"
-      sx={{
-        background: 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
-        boxShadow: 'none',
-      }}
-    >
-      <Toolbar>
+    <AppBar position="static" className="navbar">
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Typography
           variant="h6"
           component={Link}
           to="/"
           sx={{ 
-            flexGrow: 1, 
             fontFamily: 'SF Pro Display, sans-serif',
             fontStyle: 'bold',
             textDecoration: 'none',
@@ -34,18 +28,15 @@ const NavBar = () => {
         <Box>
           {currentUser ? (
             <>
-              <Button color="inherit" component={Link} to="/profile" sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
-                Profile
-              </Button>
-              <Button color="inherit" component={Link} to="/classes" sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
+              <Button className="navbar-link" component={Link} to="/classes">
                 All Classes
               </Button>
-              <Button color="inherit" component={Link} to="/easy-classes" sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
-                Easy Classes
+              <Button className="navbar-link" component={Link} to="/profile">
+                Profile
               </Button>
             </>
           ) : (
-            <Button color="inherit" component={Link} to="/login" sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
+            <Button className="navbar-link" component={Link} to="/login">
               Log In
             </Button>
           )}
