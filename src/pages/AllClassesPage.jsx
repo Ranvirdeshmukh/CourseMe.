@@ -43,7 +43,7 @@ const AllClassesPage = () => {
       }}
     >
       <Container>
-        <Typography variant="h4" gutterBottom>Departments</Typography>
+        <Typography variant="h4" gutterBottom></Typography>
         {error && <Alert severity="error">{error}</Alert>}
         {departments.length > 0 ? (
           <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
