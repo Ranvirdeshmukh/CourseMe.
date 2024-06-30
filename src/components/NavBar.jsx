@@ -16,7 +16,7 @@ const NavBar = () => {
       position="static"
       className="navbar"
       sx={{
-        background: isAllClassesPage ? '#571CE0' : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
+        background: isAllClassesPage ? '#E4E2DD' : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
         boxShadow: 'none',
       }}
     >
@@ -29,7 +29,7 @@ const NavBar = () => {
             fontFamily: 'SF Pro Display, sans-serif',
             fontStyle: 'bold',
             textDecoration: 'none',
-            color: 'inherit',
+            color: isAllClassesPage ? '#571CE0' : 'inherit',
             cursor: 'pointer'
           }}
         >
@@ -44,7 +44,7 @@ const NavBar = () => {
                 to="/classes"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: 'inherit',
+                  // color: isAllClassesPage ? '#571CE0' : '#FFFFFF',
                 }}
               >
                 All Classes
@@ -55,7 +55,7 @@ const NavBar = () => {
                 to="/profile"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: 'inherit',
+                  
                 }}
               >
                 Profile
@@ -68,7 +68,7 @@ const NavBar = () => {
               to="/login"
               sx={{
                 fontFamily: 'SF Pro Display, sans-serif',
-                color: 'inherit',
+                color: isAllClassesPage ? '#571CE0' : '#FFFFFF',
               }}
             >
               Log In

@@ -35,8 +35,8 @@ const AllClassesPage = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#571CE0',
-        color: '#fff',
+        backgroundColor: '#E4E2DD', // Light background color
+        color: '#571CE0', // Purple text color
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
         padding: '20px'
@@ -46,13 +46,13 @@ const AllClassesPage = () => {
         <Typography variant="h4" gutterBottom>Departments</Typography>
         {error && <Alert severity="error">{error}</Alert>}
         {departments.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#571CE0', margin: '20px 0' }}>
+          <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Code</TableCell>
-                  <TableCell sx={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Department Name</TableCell>
-                  <TableCell sx={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>Undergrad Courses</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Code</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Department Name</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Undergrad Courses</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -62,16 +62,16 @@ const AllClassesPage = () => {
                     component={Link}
                     to={`/departments/${department}`}
                     sx={{
-                      '&:nth-of-type(odd)': { backgroundColor: '#5A1FCC' },
-                      '&:hover': { backgroundColor: '#4A18A3' },
+                      '&:nth-of-type(odd)': { backgroundColor: '#F5F5F5' },
+                      '&:hover': { backgroundColor: '#D3D3D3' },
                       cursor: 'pointer',
                       textDecoration: 'none',
                       color: 'inherit'
                     }}
                   >
-                    <TableCell sx={{ color: 'white', padding: '10px', textAlign: 'center' }}>{department}</TableCell>
-                    <TableCell sx={{ color: 'white', padding: '10px', textAlign: 'center' }}>{departmentMapping[department]?.name || department}</TableCell>
-                    <TableCell sx={{ color: 'white', padding: '10px', textAlign: 'center' }}>{departmentMapping[department]?.courses || 'N/A'}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{department}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{departmentMapping[department]?.name || department}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{departmentMapping[department]?.courses || 'N/A'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

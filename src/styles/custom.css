@@ -4,7 +4,7 @@
   }
   
   .navbar-link {
-    color: white !important; /* Ensure the links are white */
+    /* color: white !important; Ensure the links are white */
     /* font-family: 'SF Pro Display' !important; */
     margin-left: 10px;
   }
