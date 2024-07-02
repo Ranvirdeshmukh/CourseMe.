@@ -9,14 +9,14 @@ const NavBar = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
 
-  const isAllClassesPage = location.pathname === '/classes';
+  const isAllClassesOrDepartmentPage = location.pathname === '/classes' || location.pathname.startsWith('/departments');
 
   return (
     <AppBar
       position="static"
       className="navbar"
       sx={{
-        background: isAllClassesPage ? '#E4E2DD' : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
+        background: isAllClassesOrDepartmentPage ? '#E4E2DD' : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
         boxShadow: 'none',
       }}
     >
@@ -29,11 +29,11 @@ const NavBar = () => {
             fontFamily: 'SF Pro Display, sans-serif',
             fontStyle: 'bold',
             textDecoration: 'none',
-            color: isAllClassesPage ? '#571CE0' : 'inherit',
+            color: isAllClassesOrDepartmentPage ? '#571CE0' : 'inherit',
             cursor: 'pointer'
           }}
         >
-          CourseReview.
+          CourseMe.
         </Typography>
         <Box>
           {currentUser ? (
@@ -44,7 +44,7 @@ const NavBar = () => {
                 to="/classes"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  // color: isAllClassesPage ? '#571CE0' : '#FFFFFF',
+                  color: isAllClassesOrDepartmentPage ? '#571CE0' : '#FFFFFF',
                 }}
               >
                 All Classes
@@ -55,7 +55,7 @@ const NavBar = () => {
                 to="/profile"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  
+                  color: isAllClassesOrDepartmentPage ? '#571CE0' : '#FFFFFF',
                 }}
               >
                 Profile
@@ -68,7 +68,7 @@ const NavBar = () => {
               to="/login"
               sx={{
                 fontFamily: 'SF Pro Display, sans-serif',
-                color: isAllClassesPage ? '#571CE0' : '#FFFFFF',
+                color: isAllClassesOrDepartmentPage ? '#571CE0' : '#FFFFFF',
               }}
             >
               Log In

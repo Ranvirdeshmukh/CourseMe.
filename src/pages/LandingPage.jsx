@@ -27,7 +27,7 @@ const LandingPage = () => (
       }}
     >
       <Typography variant="h2" gutterBottom>
-        CourseReview.
+        CourseMe.
       </Typography>
       <Typography variant="h5" gutterBottom>
         AI Search Feature
