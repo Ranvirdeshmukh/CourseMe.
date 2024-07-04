@@ -1,7 +1,6 @@
-
 // src/pages/DepartmentCoursesPage.jsx
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper } from '@mui/material';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -15,13 +14,20 @@ const DepartmentCoursesPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log(`Fetching courses for department: ${department}`);
         const q = query(collection(db, 'courses'), where('department', '==', department));
         const querySnapshot = await getDocs(q);
-        const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setCourses(coursesData);
+        if (!querySnapshot.empty) {
+          const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          console.log('Fetched courses data:', coursesData);
+          setCourses(coursesData);
+        } else {
+          console.log('No courses found for this department.');
+          setError('No courses found for this department.');
+        }
       } catch (error) {
-        setError('Failed to fetch courses.');
         console.error('Error fetching courses:', error);
+        setError('Failed to fetch courses.');
       }
     };
 
@@ -62,6 +68,8 @@ const DepartmentCoursesPage = () => {
                 {courses.map((course, index) => (
                   <TableRow
                     key={index}
+                    component={Link}
+                    to={`/departments/${department}/courses/${course.id}`}
                     sx={{
                       '&:nth-of-type(odd)': { backgroundColor: '#F5F5F5' },
                       '&:hover': { backgroundColor: '#D3D3D3' },

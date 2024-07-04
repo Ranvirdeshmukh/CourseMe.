@@ -1,6 +1,7 @@
 const admin = require('firebase-admin');
+const fs = require('fs');
+const path = require('path');
 const serviceAccount = require('../data/coursereview-98a89-firebase-adminsdk-2yc5i-6b25ddf051.json');
-const coursesData = require('../data/courses.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -13,28 +14,22 @@ const sanitizeId = (id) => {
 };
 
 const importData = async () => {
-  const batch = db.batch();
+  const classDataPath = path.join(__dirname, '../data/classData');
+  const files = fs.readdirSync(classDataPath);
 
-  for (const department in coursesData) {
-    if (department !== "Template") {
-      const departmentCourses = coursesData[department];
-      departmentCourses.forEach(course => {
-        const courseId = sanitizeId(`${department}_${course["class name"]}`);
-        const docRef = db.collection('courses').doc(courseId);
-        batch.set(docRef, {
-          department: department,
-          name: course["class name"],
-          distribs: course["distribs"],
-          numOfReviews: course["num of reviews"],
-          quality: course["quality"],
-          layup: course["layup"]
-        });
-      });
+  for (const file of files) {
+    const filePath = path.join(classDataPath, file);
+    const reviewsData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+    for (const courseId in reviewsData) {
+      const sanitizedCourseId = sanitizeId(courseId); // Use full course ID without splitting
+      const courseReviews = reviewsData[courseId];
+      const docRef = db.collection('reviews').doc(sanitizedCourseId);
+      await docRef.set(courseReviews);
     }
   }
 
-  await batch.commit();
-  console.log('Data imported successfully');
+  console.log('Review data imported successfully');
 };
 
 importData().catch(console.error);
