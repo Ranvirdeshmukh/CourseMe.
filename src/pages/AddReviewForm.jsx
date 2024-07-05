@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Alert, Autocomplete } from '@mui/material';
+import { TextField, Button, Container, Typography, Alert, Autocomplete, createFilterOptions } from '@mui/material';
 import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -64,6 +64,11 @@ const AddReviewForm = ({ onReviewAdded }) => {
         }),
       });
 
+      // If the professor is new, add to the professorsList state
+      if (!professorsList.includes(professor)) {
+        setProfessorsList([...professorsList, professor]);
+      }
+
       onReviewAdded();
       setTerm('');
       setProfessor('');
@@ -74,6 +79,11 @@ const AddReviewForm = ({ onReviewAdded }) => {
       setError('Failed to add review. Error: ' + error.message);
     }
   };
+
+  const filterOptions = createFilterOptions({
+    matchFrom: 'start',
+    stringify: (option) => option,
+  });
 
   return (
     <Container>
@@ -87,14 +97,26 @@ const AddReviewForm = ({ onReviewAdded }) => {
           fullWidth
           margin="normal"
           required
-          placeholder="e.g., 24W"
+          placeholder="e.g., 24F"
+          InputProps={{
+            sx: {
+              backgroundColor: 'white',
+              color: 'black',
+              borderRadius: '4px',
+            }
+          }}
         />
         <Autocomplete
           options={professorsList}
+          filterOptions={filterOptions}
           getOptionLabel={(option) => option}
+          freeSolo
           value={professor}
           onChange={(event, newValue) => {
             setProfessor(newValue);
+          }}
+          onInputChange={(event, newInputValue) => {
+            setProfessor(newInputValue);
           }}
           renderInput={(params) => (
             <TextField
@@ -104,6 +126,14 @@ const AddReviewForm = ({ onReviewAdded }) => {
               required
               placeholder="Select or type a professor"
               fullWidth
+              InputProps={{
+                ...params.InputProps,
+                sx: {
+                  backgroundColor: 'white',
+                  color: 'black',
+                  borderRadius: '4px',
+                }
+              }}
             />
           )}
         />
@@ -116,6 +146,13 @@ const AddReviewForm = ({ onReviewAdded }) => {
           multiline
           rows={4}
           required
+          InputProps={{
+            sx: {
+              backgroundColor: 'white',
+              color: 'black',
+              borderRadius: '4px',
+            }
+          }}
         />
         <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
           Submit

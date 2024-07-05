@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Button, List, ListItem, ListItemText } from '@mui/material';
+import { Container, Typography, Box, Button, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import { Delete } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayRemove, setDoc } from 'firebase/firestore';
 
 const ProfilePage = () => {
   const { currentUser } = useAuth();
@@ -32,6 +33,40 @@ const ProfilePage = () => {
       navigate('/login');
     } catch (error) {
       console.error("Failed to log out:", error);
+    }
+  };
+
+  const handleDeleteReview = async (review) => {
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const sanitizedCourseId = review.courseId;
+      const courseDocRef = doc(db, 'reviews', sanitizedCourseId);
+
+      // Remove review from user's profile
+      await updateDoc(userDocRef, {
+        reviews: arrayRemove(review),
+      });
+
+      // Remove review from course's reviews
+      const courseDocSnap = await getDoc(courseDocRef);
+      if (courseDocSnap.exists()) {
+        const courseData = courseDocSnap.data();
+        const updatedReviews = courseData[review.professor].filter(r => r !== `review: "${review.term} with ${review.professor}: ${review.review}"`);
+        if (updatedReviews.length === 0) {
+          delete courseData[review.professor];
+        } else {
+          courseData[review.professor] = updatedReviews;
+        }
+        await setDoc(courseDocRef, courseData);
+      }
+
+      // Update the frontend state
+      setProfileData(prevState => ({
+        ...prevState,
+        reviews: prevState.reviews.filter(r => r !== review),
+      }));
+    } catch (error) {
+      console.error("Failed to delete review:", error);
     }
   };
 
@@ -78,6 +113,14 @@ const ProfilePage = () => {
                       </>
                     }
                   />
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => handleDeleteReview(review)}
+                    sx={{ color: '#571CE0' }}
+                  >
+                    <Delete />
+                  </IconButton>
                 </ListItem>
               ))}
             </List>

@@ -200,7 +200,7 @@ const CourseReviewsPage = () => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: '#E4E2DD', // Light background color
         color: '#571CE0', // Purple text color
@@ -258,8 +258,22 @@ const CourseReviewsPage = () => {
         ) : (
           <Typography>No reviews available</Typography>
         )}
-        <AddReviewForm onReviewAdded={fetchReviews} /> {/* Add the AddReviewForm component */}
       </Container>
+      <Box
+        sx={{
+          background: 'linear-gradient(to left, #000000, #571CE0)', // Gradient background
+          padding: '20px',
+          borderRadius: '8px',
+          marginTop: '20px',
+          width: '100%',
+          color: '#fff',
+        }}
+      >
+        <Container maxWidth="sm">
+          <Typography variant="h5" gutterBottom sx={{ color: '#fff' }}></Typography>
+          <AddReviewForm onReviewAdded={fetchReviews} /> {/* Add the AddReviewForm component */}
+        </Container>
+      </Box>
     </Box>
   );
 };
