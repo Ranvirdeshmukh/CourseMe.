@@ -56,13 +56,22 @@ const CourseReviewsPage = () => {
     const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
     const currentReviews = allReviews.slice(indexOfFirstReview, indexOfLastReview);
 
+    let lastInstructor = '';
+
     return (
       <List>
         {currentReviews.map((item, idx) => {
           const { prefix, rest } = splitReviewText(item.review);
+          const showInstructor = item.instructor !== lastInstructor;
+          lastInstructor = item.instructor;
+
           return (
             <React.Fragment key={idx}>
-              <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0' }}>{item.instructor}</Typography>
+              {showInstructor && (
+                <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0' }}>
+                  {item.instructor}
+                </Typography>
+              )}
               <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
                 <ListItemText
                   primary={
