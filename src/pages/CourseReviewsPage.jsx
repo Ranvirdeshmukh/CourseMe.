@@ -1,11 +1,10 @@
-// src/pages/CourseReviewsPage.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-// import departmentMapping from '../classstructure/departmentMapping';
+import AddReviewForm from './AddReviewForm'; // Import the AddReviewForm component
 
 const CourseReviewsPage = () => {
   const { department, courseId } = useParams();
@@ -14,29 +13,29 @@ const CourseReviewsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 5;
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const sanitizedCourseId = courseId.split('_')[1]; // Get the actual course code part (e.g., COSC001)
-        console.log(`Fetching reviews for document path: reviews/${sanitizedCourseId}`);
-        const docRef = doc(db, 'reviews', sanitizedCourseId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          console.log('Document data:', data);
-          setReviews(data);
-        } else {
-          console.log('No such document!');
-          setError('No reviews found for this course.');
-        }
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-        setError('Failed to fetch reviews.');
+  const fetchReviews = useCallback(async () => {
+    try {
+      const sanitizedCourseId = courseId.split('_')[1]; // Get the actual course code part (e.g., COSC001)
+      console.log(`Fetching reviews for document path: reviews/${sanitizedCourseId}`);
+      const docRef = doc(db, 'reviews', sanitizedCourseId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        console.log('Document data:', data);
+        setReviews(data);
+      } else {
+        console.log('No such document!');
+        setError('No reviews found for this course.');
       }
-    };
-
-    fetchReviews();
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      setError('Failed to fetch reviews.');
+    }
   }, [courseId]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
 
   const handleChangePage = (newPage) => {
     setCurrentPage(newPage);
@@ -259,6 +258,7 @@ const CourseReviewsPage = () => {
         ) : (
           <Typography>No reviews available</Typography>
         )}
+        <AddReviewForm onReviewAdded={fetchReviews} /> {/* Add the AddReviewForm component */}
       </Container>
     </Box>
   );

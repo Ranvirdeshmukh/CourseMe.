@@ -1,6 +1,5 @@
-// src/pages/ProfilePage.jsx
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Button } from '@mui/material';
+import { Container, Typography, Box, Button, List, ListItem, ListItemText } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
@@ -10,7 +9,7 @@ import { doc, getDoc } from 'firebase/firestore';
 const ProfilePage = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [profileData, setProfileData] = useState({ major: '', classYear: '' });
+  const [profileData, setProfileData] = useState({ major: '', classYear: '', reviews: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,6 +62,25 @@ const ProfilePage = () => {
           <>
             <Typography>Major: {profileData.major}</Typography>
             <Typography>Class Year: {profileData.classYear}</Typography>
+            <Typography variant="h5" gutterBottom>My Reviews</Typography>
+            <List>
+              {profileData.reviews.map((review, idx) => (
+                <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
+                  <ListItemText
+                    primary={
+                      <>
+                        <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                          {review.term} with {review.professor}:
+                        </Typography>{' '}
+                        <Typography component="span" sx={{ color: 'black' }}>
+                          {review.review}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
           </>
         )}
         <Button
