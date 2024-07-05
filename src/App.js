@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage';
 import DepartmentCoursesPage from './pages/DepartmentCoursesPage';
 import CourseReviewsPage from './pages/CourseReviewsPage';
 import ProfessorReviewsPage from './pages/ProfessorReviewsPage'; // Import the new page
+import CompleteProfilePage from './pages/CompleteProfilePage'; // Import the new complete profile page
 
 const App = () => (
   <AuthProvider>
@@ -24,7 +25,8 @@ const App = () => (
         <Route path="/login" element={<LoginPage />} />
         <Route path="/departments/:department" element={<DepartmentCoursesPage />} />
         <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage />} />
-        <Route path="/departments/:department/courses/:courseId/professors/:professor" element={<ProfessorReviewsPage />} /> {/* New route */}
+        <Route path="/departments/:department/courses/:courseId/professors/:professor" element={<ProfessorReviewsPage />} />
+        <Route path="/complete-profile" element={<CompleteProfilePage />} /> {/* New route */}
       </Routes>
     </Router>
   </AuthProvider>

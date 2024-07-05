@@ -1,14 +1,31 @@
 // src/pages/ProfilePage.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Typography, Box, Button } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const ProfilePage = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const [profileData, setProfileData] = useState({ major: '', classYear: '' });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          setProfileData(userDocSnap.data());
+        }
+        setLoading(false);
+      }
+    };
+    fetchProfileData();
+  }, [currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -40,6 +57,14 @@ const ProfilePage = () => {
       <Container>
         <Typography variant="h4" gutterBottom>Profile Page</Typography>
         <Typography>Welcome, {currentUser.email}!</Typography>
+        {loading ? (
+          <Typography>Loading...</Typography>
+        ) : (
+          <>
+            <Typography>Major: {profileData.major}</Typography>
+            <Typography>Class Year: {profileData.classYear}</Typography>
+          </>
+        )}
         <Button
           variant="contained"
           color="primary"

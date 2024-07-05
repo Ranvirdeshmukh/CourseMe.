@@ -35,6 +35,11 @@ const ProfessorReviewsPage = () => {
     fetchReviews();
   }, [courseId, professor]);
 
+  const splitReviewText = (review) => {
+    const [prefix, rest] = review.match(/(.*?: .*?: )([\s\S]*)/).slice(1, 3);
+    return { prefix, rest };
+  };
+
   return (
     <Box
       sx={{
@@ -55,11 +60,25 @@ const ProfessorReviewsPage = () => {
         {error && <Alert severity="error">{error}</Alert>}
         {reviews.length > 0 ? (
           <List>
-            {reviews.map((review, idx) => (
-              <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
-                <ListItemText primary={review} />
-              </ListItem>
-            ))}
+            {reviews.map((review, idx) => {
+              const { prefix, rest } = splitReviewText(review);
+              return (
+                <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
+                  <ListItemText
+                    primary={
+                      <>
+                        <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                          {prefix}
+                        </Typography>{' '}
+                        <Typography component="span" sx={{ color: 'black' }}>
+                          {rest}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </ListItem>
+              );
+            })}
           </List>
         ) : (
           <Typography>No reviews available</Typography>

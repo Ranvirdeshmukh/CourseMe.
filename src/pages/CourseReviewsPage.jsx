@@ -1,10 +1,11 @@
+// src/pages/CourseReviewsPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import departmentMapping from '../classstructure/departmentMapping';
+// import departmentMapping from '../classstructure/departmentMapping';
 
 const CourseReviewsPage = () => {
   const { department, courseId } = useParams();
@@ -41,8 +42,13 @@ const CourseReviewsPage = () => {
     setCurrentPage(newPage);
   };
 
+  const splitReviewText = (review) => {
+    const [prefix, rest] = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/).slice(1, 3);
+    return { prefix, rest };
+  };
+
   const renderReviews = () => {
-    const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) => 
+    const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) =>
       reviewList.map(review => ({ instructor, review }))
     );
 
@@ -52,20 +58,133 @@ const CourseReviewsPage = () => {
 
     return (
       <List>
-        {currentReviews.map((item, idx) => (
-          <React.Fragment key={idx}>
-            <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0' }}>{item.instructor}</Typography>
-            <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
-              <ListItemText primary={item.review} />
-            </ListItem>
-          </React.Fragment>
-        ))}
+        {currentReviews.map((item, idx) => {
+          const { prefix, rest } = splitReviewText(item.review);
+          return (
+            <React.Fragment key={idx}>
+              <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0' }}>{item.instructor}</Typography>
+              <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
+                <ListItemText
+                  primary={
+                    <>
+                      <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                        {prefix}
+                      </Typography>{' '}
+                      <Typography component="span" sx={{ color: 'black' }}>
+                        {rest}
+                      </Typography>
+                    </>
+                  }
+                />
+              </ListItem>
+            </React.Fragment>
+          );
+        })}
       </List>
     );
   };
 
   const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) => reviewList);
   const totalPages = Math.ceil(allReviews.length / reviewsPerPage);
+
+  const renderPageButtons = () => {
+    let pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(
+          <Button
+            key={i}
+            onClick={() => handleChangePage(i)}
+            disabled={currentPage === i}
+          >
+            {i}
+          </Button>
+        );
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(
+            <Button
+              key={i}
+              onClick={() => handleChangePage(i)}
+              disabled={currentPage === i}
+            >
+              {i}
+            </Button>
+          );
+        }
+        pages.push(<Button key="ellipsis" disabled>...</Button>);
+        pages.push(
+          <Button
+            key={totalPages}
+            onClick={() => handleChangePage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            {totalPages}
+          </Button>
+        );
+      } else if (currentPage > totalPages - 3) {
+        pages.push(
+          <Button
+            key={1}
+            onClick={() => handleChangePage(1)}
+            disabled={currentPage === 1}
+          >
+            1
+          </Button>
+        );
+        pages.push(<Button key="ellipsis" disabled>...</Button>);
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(
+            <Button
+              key={i}
+              onClick={() => handleChangePage(i)}
+              disabled={currentPage === i}
+            >
+              {i}
+            </Button>
+          );
+        }
+      } else {
+        pages.push(
+          <Button
+            key={1}
+            onClick={() => handleChangePage(1)}
+            disabled={currentPage === 1}
+          >
+            1
+          </Button>
+        );
+        pages.push(<Button key="ellipsis1" disabled>...</Button>);
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(
+            <Button
+              key={i}
+              onClick={() => handleChangePage(i)}
+              disabled={currentPage === i}
+            >
+              {i}
+            </Button>
+          );
+        }
+        pages.push(<Button key="ellipsis2" disabled>...</Button>);
+        pages.push(
+          <Button
+            key={totalPages}
+            onClick={() => handleChangePage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            {totalPages}
+          </Button>
+        );
+      }
+    }
+    return pages;
+  };
+
+  // Extract the course name from the courseId (assuming the format is consistent)
+  const courseName = courseId.split('__')[1]?.replace(/_/g, ' ') || courseId;
 
   return (
     <Box
@@ -83,7 +202,7 @@ const CourseReviewsPage = () => {
       }}
     >
       <Container>
-        <Typography variant="h4" gutterBottom>Reviews for {department}_{courseId} in {departmentMapping[department]?.name || department}</Typography>
+        <Typography variant="h4" gutterBottom>Reviews for {courseName}</Typography>
         {error && <Alert severity="error">{error}</Alert>}
         {Object.keys(reviews).length > 0 ? (
           <>
@@ -118,15 +237,7 @@ const CourseReviewsPage = () => {
                 <ArrowBack />
               </IconButton>
               <ButtonGroup variant="text" color="primary">
-                {Array.from({ length: totalPages }, (_, idx) => (
-                  <Button
-                    key={idx + 1}
-                    onClick={() => handleChangePage(idx + 1)}
-                    disabled={currentPage === idx + 1}
-                  >
-                    {idx + 1}
-                  </Button>
-                ))}
+                {renderPageButtons()}
               </ButtonGroup>
               <IconButton
                 onClick={() => handleChangePage(currentPage + 1)}

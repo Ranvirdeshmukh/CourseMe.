@@ -1,4 +1,4 @@
-// src/pages/LoginPage.js
+// src/pages/LoginPage.jsx
 import React, { useRef, useState } from 'react';
 import { Container, Typography, Box, TextField, Button, InputAdornment, Link } from '@mui/material';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
@@ -26,8 +26,24 @@ const LoginPage = () => {
     try {
       setError('');
       setLoading(true);
-      await signInWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value);
-      navigate('/');
+      const userCredential = await signInWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value);
+      const user = userCredential.user;
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+      if (!userDoc.exists()) {
+        await setDoc(doc(db, 'users', user.uid), {
+          email: user.email,
+          createdAt: new Date(),
+        });
+        navigate('/complete-profile');
+      } else {
+        const userData = userDoc.data();
+        if (!userData.major || !userData.classYear) {
+          navigate('/complete-profile');
+        } else {
+          navigate('/');
+        }
+      }
     } catch {
       setError('Failed to sign in');
     }
@@ -47,9 +63,15 @@ const LoginPage = () => {
           email: user.email,
           createdAt: new Date(),
         });
+        navigate('/complete-profile');
+      } else {
+        const userData = userDoc.data();
+        if (!userData.major || !userData.classYear) {
+          navigate('/complete-profile');
+        } else {
+          navigate('/');
+        }
       }
-
-      navigate('/');
     } catch (error) {
       setError('Failed to sign in with Google');
       console.error('Error signing in with Google:', error);
@@ -148,7 +170,7 @@ const LoginPage = () => {
                     onClick={handleClickShowPassword}
                     edge="end"
                   >
-                    {showPassword ? <Visibility/> : <VisibilityOff />}
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
                 </InputAdornment>
               ),

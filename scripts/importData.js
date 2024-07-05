@@ -22,9 +22,8 @@ const importData = async () => {
     const reviewsData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
     for (const courseId in reviewsData) {
-      const sanitizedCourseId = sanitizeId(courseId); // Use full course ID without splitting
       const courseReviews = reviewsData[courseId];
-      const docRef = db.collection('reviews').doc(sanitizedCourseId);
+      const docRef = db.collection('reviews').doc(sanitizeId(courseId));
       await docRef.set(courseReviews);
     }
   }

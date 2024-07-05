@@ -1,4 +1,4 @@
-// src/pages/SignUpPage.js
+// src/pages/SignUpPage.jsx
 import React, { useRef, useState } from 'react';
 import { Container, Typography, Box, TextField, Button, InputAdornment, Grid } from '@mui/material';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
@@ -48,8 +48,8 @@ const SignUpPage = () => {
         createdAt: new Date()
       });
       
-      // Navigate to LandingPage
-      navigate('/');
+      // Navigate to profile completion page
+      navigate('/complete-profile');
     } catch (error) {
       setError('Failed to create an account');
       console.error('Error creating user:', error);
@@ -70,9 +70,15 @@ const SignUpPage = () => {
           email: user.email,
           createdAt: new Date(),
         });
+        navigate('/complete-profile');
+      } else {
+        const userData = userDoc.data();
+        if (!userData.major || !userData.classYear) {
+          navigate('/complete-profile');
+        } else {
+          navigate('/');
+        }
       }
-
-      navigate('/');
     } catch (error) {
       setError('Failed to sign in with Google');
       console.error('Error signing in with Google:', error);
