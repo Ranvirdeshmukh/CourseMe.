@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Alert } from '@mui/material';
-import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { TextField, Button, Container, Typography, Alert, Autocomplete } from '@mui/material';
+import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -12,8 +12,29 @@ const AddReviewForm = ({ onReviewAdded }) => {
   const [professor, setProfessor] = useState('');
   const [review, setReview] = useState('');
   const [error, setError] = useState(null);
+  const [professorsList, setProfessorsList] = useState([]);
 
   const sanitizedCourseId = courseId.split('_')[1];
+
+  useEffect(() => {
+    const fetchProfessors = async () => {
+      try {
+        const docRef = doc(db, 'reviews', sanitizedCourseId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const professors = Object.keys(data);
+          setProfessorsList(professors);
+        } else {
+          console.log('No such document!');
+        }
+      } catch (error) {
+        console.error('Error fetching professors:', error);
+      }
+    };
+
+    fetchProfessors();
+  }, [sanitizedCourseId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,14 +89,23 @@ const AddReviewForm = ({ onReviewAdded }) => {
           required
           placeholder="e.g., 24W"
         />
-        <TextField
-          label="Professor"
+        <Autocomplete
+          options={professorsList}
+          getOptionLabel={(option) => option}
           value={professor}
-          onChange={(e) => setProfessor(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-          placeholder="Full name please, e.g., John Smith"
+          onChange={(event, newValue) => {
+            setProfessor(newValue);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Professor"
+              margin="normal"
+              required
+              placeholder="Select or type a professor"
+              fullWidth
+            />
+          )}
         />
         <TextField
           label="Review"
