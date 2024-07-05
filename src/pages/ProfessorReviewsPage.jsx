@@ -4,10 +4,10 @@ import { useParams } from 'react-router-dom';
 import { Container, Typography, Box, Alert, List, ListItem, ListItemText } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import departmentMapping from '../classstructure/departmentMapping';
+// import departmentMapping from '../classstructure/departmentMapping';
 
 const ProfessorReviewsPage = () => {
-  const { department, courseId, professor } = useParams();
+  const { courseId, professor } = useParams();
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null);
 
@@ -40,6 +40,35 @@ const ProfessorReviewsPage = () => {
     return { prefix, rest };
   };
 
+  const renderReviews = () => {
+    return (
+      <List>
+        {reviews.map((review, idx) => {
+          const { prefix, rest } = splitReviewText(review);
+          return (
+            <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
+              <ListItemText
+                primary={
+                  <>
+                    <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                      {prefix}
+                    </Typography>{' '}
+                    <Typography component="span" sx={{ color: 'black' }}>
+                      {rest}
+                    </Typography>
+                  </>
+                }
+              />
+            </ListItem>
+          );
+        })}
+      </List>
+    );
+  };
+
+  // Extract the course name from the courseId (assuming the format is consistent)
+  const courseName = courseId.split('__')[1]?.replace(/_/g, ' ') || courseId;
+
   return (
     <Box
       sx={{
@@ -56,31 +85,9 @@ const ProfessorReviewsPage = () => {
       }}
     >
       <Container>
-        <Typography variant="h4" gutterBottom>Reviews for {professor} in {department}_{courseId} in {departmentMapping[department]?.name || department}</Typography>
+        <Typography variant="h4" gutterBottom>Reviews for {professor} in Class- {courseName} </Typography>
         {error && <Alert severity="error">{error}</Alert>}
-        {reviews.length > 0 ? (
-          <List>
-            {reviews.map((review, idx) => {
-              const { prefix, rest } = splitReviewText(review);
-              return (
-                <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
-                  <ListItemText
-                    primary={
-                      <>
-                        <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
-                          {prefix}
-                        </Typography>{' '}
-                        <Typography component="span" sx={{ color: 'black' }}>
-                          {rest}
-                        </Typography>
-                      </>
-                    }
-                  />
-                </ListItem>
-              );
-            })}
-          </List>
-        ) : (
+        {reviews.length > 0 ? renderReviews() : (
           <Typography>No reviews available</Typography>
         )}
       </Container>
