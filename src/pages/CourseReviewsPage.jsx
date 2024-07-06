@@ -256,7 +256,12 @@ const CourseReviewsPage = () => {
             </Box>
           </>
         ) : (
-          <Typography>No reviews available</Typography>
+          <Box>
+            <Typography>No reviews available</Typography>
+            <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0' }}>
+              Don't be shy, be the first one to add a review!
+            </Typography>
+          </Box>
         )}
       </Container>
       <Box
