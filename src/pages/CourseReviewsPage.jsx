@@ -58,7 +58,7 @@ const CourseReviewsPage = () => {
     let lastInstructor = '';
 
     return (
-      <List>
+      <List sx={{ maxWidth: '70%', margin: '0 auto' }}> {/* Adjusted review list width */}
         {currentReviews.map((item, idx) => {
           const { prefix, rest } = splitReviewText(item.review);
           const showInstructor = item.instructor !== lastInstructor;
@@ -202,10 +202,10 @@ const CourseReviewsPage = () => {
         flexDirection: 'column',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#E4E2DD', // Light background color
+        background: 'linear-gradient(to bottom, #E4E2DD 10%, #E4E2DD 30%, #571CE0 100%)', // Gradient background
         color: '#571CE0', // Purple text color
         textAlign: 'center',
-        fontFamily: 'SF Pro Display, sans-serif',
+        fontFamily: 'SF Pro Display',
         padding: '20px'
       }}
     >
@@ -261,16 +261,16 @@ const CourseReviewsPage = () => {
       </Container>
       <Box
         sx={{
-          background: 'linear-gradient(to left, #000000, #571CE0)', // Gradient background
+          background: '', // Gradient background remains the same
           padding: '20px',
           borderRadius: '8px',
           marginTop: '20px',
           width: '100%',
+          maxWidth: '100', // Increased form container width
           color: '#fff',
         }}
       >
-        <Container maxWidth="sm">
-          <Typography variant="h5" gutterBottom sx={{ color: '#fff' }}></Typography>
+        <Container maxWidth="md"> {/* Changed maxWidth to 'md' */}
           <AddReviewForm onReviewAdded={fetchReviews} /> {/* Add the AddReviewForm component */}
         </Container>
       </Box>
