@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Alert, Autocomplete, createFilterOptions } from '@mui/material';
-import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -49,6 +49,13 @@ const AddReviewForm = ({ onReviewAdded }) => {
 
       // Add review to the course's reviews collection
       const courseDocRef = doc(db, 'reviews', sanitizedCourseId);
+      const courseDocSnap = await getDoc(courseDocRef);
+
+      if (!courseDocSnap.exists()) {
+        // If the document doesn't exist, create it
+        await setDoc(courseDocRef, { [professor]: [] });
+      }
+
       await updateDoc(courseDocRef, {
         [professor]: arrayUnion(reviewData),
       });
