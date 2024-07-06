@@ -42,8 +42,17 @@ const CourseReviewsPage = () => {
   };
 
   const splitReviewText = (review) => {
-    const [prefix, rest] = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/).slice(1, 3);
-    return { prefix, rest };
+    if (!review) {
+      return { prefix: '', rest: '' };
+    }
+
+    const match = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/);
+    if (match) {
+      const [prefix, rest] = match.slice(1, 3);
+      return { prefix, rest };
+    } else {
+      return { prefix: '', rest: review }; // Return the whole review if it doesn't match the pattern
+    }
   };
 
   const renderReviews = () => {
@@ -98,7 +107,9 @@ const CourseReviewsPage = () => {
     );
   };
 
-  const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) => reviewList);
+  const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) => 
+    Array.isArray(reviewList) ? reviewList : []
+  );
   const totalPages = Math.ceil(allReviews.length / reviewsPerPage);
 
   const renderPageButtons = () => {
