@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Button, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import { Container, Typography, Box, Button, List, ListItem, ListItemText, IconButton, Divider, Card, Avatar } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -80,52 +80,70 @@ const ProfilePage = () => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
         alignItems: 'center',
-        background: 'radial-gradient(circle, #571CE0 0%, #571CE0 40%, black 70%)',
-        color: '#fff',
+        backgroundColor: '#E4E2DD',
+        color: '#571CE0',
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
+        paddingTop: 4
       }}
     >
-      <Container>
-        <Typography variant="h4" gutterBottom>Profile Page</Typography>
-        <Typography>Welcome, {currentUser.email}!</Typography>
-        {loading ? (
-          <Typography>Loading...</Typography>
-        ) : (
-          <>
-            <Typography>Major: {profileData.major}</Typography>
-            <Typography>Class Year: {profileData.classYear}</Typography>
-            <Typography variant="h5" gutterBottom>My Reviews</Typography>
-            <List>
-              {profileData.reviews.map((review, idx) => (
-                <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
-                  <ListItemText
-                    primary={
-                      <>
-                        <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
-                          {review.term} with {review.professor}:
-                        </Typography>{' '}
-                        <Typography component="span" sx={{ color: 'black' }}>
-                          {review.review}
-                        </Typography>
-                      </>
-                    }
-                  />
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => handleDeleteReview(review)}
-                    sx={{ color: '#571CE0' }}
-                  >
-                    <Delete />
-                  </IconButton>
-                </ListItem>
-              ))}
-            </List>
-          </>
-        )}
+      <Container maxWidth="md">
+        <Card sx={{ marginBottom: 4, padding: 4, backgroundColor: '#fff', color: '#571CE0' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+            <Avatar sx={{ bgcolor: '#571CE0', width: 56, height: 56, marginRight: 2 }}>
+              {currentUser.email.charAt(0).toUpperCase()}
+            </Avatar>
+            <Box sx={{ textAlign: 'left' }}>
+              <Typography variant="h4" gutterBottom>{currentUser.email}</Typography>
+              <Typography variant="h6">Welcome to your profile!</Typography>
+            </Box>
+          </Box>
+          <Divider />
+          <Box sx={{ textAlign: 'left', marginTop: 2 }}>
+            {loading ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              <>
+                <Typography variant="h6" gutterBottom>Profile Information</Typography>
+                <Typography>Major: {profileData.major}</Typography>
+                <Typography>Class Year: {profileData.classYear}</Typography>
+              </>
+            )}
+          </Box>
+        </Card>
+        
+        <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0' }}>
+          <Typography variant="h5" gutterBottom>My Reviews</Typography>
+          <Divider />
+          <List>
+            {profileData.reviews.map((review, idx) => (
+              <ListItem key={idx} sx={{ backgroundColor: '#E4E2DD', margin: '10px 0', borderRadius: '8px' }}>
+                <ListItemText
+                  primary={
+                    <>
+                      <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                        {review.term} with {review.professor}:
+                      </Typography>{' '}
+                      <Typography component="span" sx={{ color: 'black' }}>
+                        {review.review}
+                      </Typography>
+                    </>
+                  }
+                />
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => handleDeleteReview(review)}
+                  sx={{ color: '#571CE0' }}
+                >
+                  <Delete />
+                </IconButton>
+              </ListItem>
+            ))}
+          </List>
+        </Card>
+
         <Button
           variant="contained"
           color="primary"

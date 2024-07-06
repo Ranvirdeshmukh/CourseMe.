@@ -9,7 +9,9 @@ const NavBar = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
 
-  const isAllClassesOrDepartmentPage = location.pathname === '/classes' || location.pathname.startsWith('/departments');
+  const isAllClassesOrDepartmentPage = location.pathname === '/classes' || 
+  location.pathname.startsWith('/departments') || 
+  location.pathname === '/profile';
 
   return (
     <AppBar
