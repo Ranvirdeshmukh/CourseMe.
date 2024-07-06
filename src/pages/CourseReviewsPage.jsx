@@ -47,9 +47,15 @@ const CourseReviewsPage = () => {
   };
 
   const renderReviews = () => {
-    const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) =>
-      reviewList.map(review => ({ instructor, review }))
-    );
+    const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) => {
+      // Ensure reviewList is an array
+      if (Array.isArray(reviewList)) {
+        return reviewList.map(review => ({ instructor, review }));
+      } else {
+        console.error(`Expected reviewList to be an array but got:`, reviewList);
+        return [];
+      }
+    });
 
     const indexOfLastReview = currentPage * reviewsPerPage;
     const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
@@ -229,7 +235,9 @@ const CourseReviewsPage = () => {
                       <TableCell sx={{ color: '#571CE0', textAlign: 'center' }}>
                         <Link to={`/departments/${department}/courses/${courseId}/professors/${instructor}`} style={{ textDecoration: 'none', color: '#571CE0' }}>{instructor}</Link>
                       </TableCell>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'center' }}>{reviewList.length}</TableCell>
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'center' }}>
+                        {Array.isArray(reviewList) ? reviewList.length : 0}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

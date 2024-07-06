@@ -29,6 +29,7 @@ const DepartmentCoursesPage = () => {
         console.error('Error fetching courses:', error);
         setError('Failed to fetch courses.');
       }
+    
     };
 
     fetchData();
