@@ -19,7 +19,12 @@ const ProfilePage = () => {
         const userDocRef = doc(db, 'users', currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
-          setProfileData(userDocSnap.data());
+          const userData = userDocSnap.data();
+          setProfileData({
+            major: userData.major || '',
+            classYear: userData.classYear || '',
+            reviews: userData.reviews || [] // Ensure reviews is always an array
+          });
         }
         setLoading(false);
       }
@@ -51,7 +56,7 @@ const ProfilePage = () => {
       const courseDocSnap = await getDoc(courseDocRef);
       if (courseDocSnap.exists()) {
         const courseData = courseDocSnap.data();
-        const updatedReviews = courseData[review.professor].filter(r => r !== `review: "${review.term} with ${review.professor}: ${review.review}"`);
+        const updatedReviews = courseData[review.professor]?.filter(r => r !== `review: "${review.term} with ${review.professor}: ${review.review}"`);
         if (updatedReviews.length === 0) {
           delete courseData[review.professor];
         } else {
@@ -117,7 +122,7 @@ const ProfilePage = () => {
           <Typography variant="h5" gutterBottom>My Reviews</Typography>
           <Divider />
           <List>
-            {profileData.reviews.map((review, idx) => (
+            {profileData.reviews?.map((review, idx) => (
               <ListItem key={idx} sx={{ backgroundColor: '#E4E2DD', margin: '10px 0', borderRadius: '8px' }}>
                 <ListItemText
                   primary={
