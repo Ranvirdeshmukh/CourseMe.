@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Button, List, ListItem, ListItemText, IconButton, Divider, Card, Avatar } from '@mui/material';
+import { Container, Typography, Box, Button, List, ListItem, ListItemText, IconButton, Divider, Card, Avatar, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -10,8 +10,10 @@ import { doc, getDoc, updateDoc, arrayRemove, setDoc } from 'firebase/firestore'
 const ProfilePage = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [profileData, setProfileData] = useState({ major: '', classYear: '', reviews: [] });
+  const [profileData, setProfileData] = useState({ major: '', classYear: '', reviews: [], firstName: '', lastName: '' });
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [newProfileData, setNewProfileData] = useState({});
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -23,7 +25,9 @@ const ProfilePage = () => {
           setProfileData({
             major: userData.major || '',
             classYear: userData.classYear || '',
-            reviews: userData.reviews || [] // Ensure reviews is always an array
+            reviews: userData.reviews || [], // Ensure reviews is always an array
+            firstName: userData.firstName || '',
+            lastName: userData.lastName || ''
           });
         }
         setLoading(false);
@@ -75,6 +79,30 @@ const ProfilePage = () => {
     }
   };
 
+  const handleEditProfile = () => {
+    setEditing(true);
+    setNewProfileData({ firstName: profileData.firstName, lastName: profileData.lastName, major: profileData.major, classYear: profileData.classYear });
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userDocRef, newProfileData);
+
+      setProfileData(prevState => ({
+        ...prevState,
+        ...newProfileData
+      }));
+      setEditing(false);
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+    }
+  };
+
+  const handleClose = () => {
+    setEditing(false);
+  };
+
   if (!currentUser) {
     return <Navigate to="/login" />;
   }
@@ -94,7 +122,7 @@ const ProfilePage = () => {
       }}
     >
       <Container maxWidth="md">
-        <Card sx={{ marginBottom: 4, padding: 4, backgroundColor: '#fff', color: '#571CE0' }}>
+        <Card sx={{ marginBottom: 4, padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
             <Avatar sx={{ bgcolor: '#571CE0', width: 56, height: 56, marginRight: 2 }}>
               {currentUser.email.charAt(0).toUpperCase()}
@@ -111,24 +139,75 @@ const ProfilePage = () => {
             ) : (
               <>
                 <Typography variant="h6" gutterBottom>Profile Information</Typography>
+                <Typography>First Name: {profileData.firstName}</Typography>
+                <Typography>Last Name: {profileData.lastName}</Typography>
                 <Typography>Major: {profileData.major}</Typography>
                 <Typography>Class Year: {profileData.classYear}</Typography>
+                <Button variant="contained" color="primary" onClick={handleEditProfile} sx={{ mt: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+                  Edit Profile
+                </Button>
               </>
             )}
           </Box>
         </Card>
+
+        <Dialog open={editing} onClose={handleClose}>
+          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="dense"
+              label="First Name"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={newProfileData.firstName}
+              onChange={(e) => setNewProfileData({ ...newProfileData, firstName: e.target.value })}
+            />
+            <TextField
+              margin="dense"
+              label="Last Name"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={newProfileData.lastName}
+              onChange={(e) => setNewProfileData({ ...newProfileData, lastName: e.target.value })}
+            />
+            <TextField
+              margin="dense"
+              label="Major"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={newProfileData.major}
+              onChange={(e) => setNewProfileData({ ...newProfileData, major: e.target.value })}
+            />
+            <TextField
+              margin="dense"
+              label="Class Year"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={newProfileData.classYear}
+              onChange={(e) => setNewProfileData({ ...newProfileData, classYear: e.target.value })}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleSaveProfile}>Save</Button>
+          </DialogActions>
+        </Dialog>
         
-        <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0' }}>
+        <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
           <Typography variant="h5" gutterBottom>My Reviews</Typography>
           <Divider />
           <List>
             {profileData.reviews?.map((review, idx) => (
-              <ListItem key={idx} sx={{ backgroundColor: '#E4E2DD', margin: '10px 0', borderRadius: '8px' }}>
+              <ListItem key={idx} sx={{ backgroundColor: '#E4E2DD', margin: '10px 0', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
                 <ListItemText
                   primary={
                     <>
                       <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
-                        {review.term} with {review.professor}:
+                        {review.term} with {review.professor} for {review.courseId}:
                       </Typography>{' '}
                       <Typography component="span" sx={{ color: 'black' }}>
                         {review.review}
@@ -157,6 +236,7 @@ const ProfilePage = () => {
             mt: 2,
             background: 'linear-gradient(90deg, rgba(87,28,224,1) 0%, rgba(144,19,254,1) 100%)',
             borderRadius: '25px',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
           }}
         >
           Log Out
