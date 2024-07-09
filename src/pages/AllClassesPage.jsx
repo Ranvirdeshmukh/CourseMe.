@@ -1,7 +1,6 @@
-// src/pages/AllClassesPage.jsx
 import { Alert, Box, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import departmentOverview from '../classstructure/departmentOverview';
 
@@ -10,10 +9,15 @@ const AllClassesPage = () => {
   const [filteredDepartments, setFilteredDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
+  const exampleIndexRef = useRef(0);
+  const charIndexRef = useRef(0);
+  const forwardRef = useRef(true);
+  const [placeholder, setPlaceholder] = useState('');
+
+  const departmentExamples = useMemo(() => ['Computer Science', 'Biology', 'Chemistry', 'History', 'Mathematics'], []);
 
   useEffect(() => {
     try {
-      // Get department codes from departmentOverview
       const departmentCodes = Object.keys(departmentOverview);
       setDepartments(departmentCodes);
       setFilteredDepartments(departmentCodes);
@@ -23,12 +27,44 @@ const AllClassesPage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    let timeout;
+
+    const type = () => {
+      if (forwardRef.current) {
+        if (charIndexRef.current < departmentExamples[exampleIndexRef.current].length) {
+          setPlaceholder((prev) => prev + departmentExamples[exampleIndexRef.current].charAt(charIndexRef.current));
+          charIndexRef.current++;
+          timeout = setTimeout(type, 100);
+        } else {
+          forwardRef.current = false;
+          timeout = setTimeout(type, 1000);
+        }
+      } else {
+        if (charIndexRef.current > 0) {
+          setPlaceholder((prev) => prev.slice(0, -1));
+          charIndexRef.current--;
+          timeout = setTimeout(type, 50);
+        } else {
+          forwardRef.current = true;
+          exampleIndexRef.current = (exampleIndexRef.current + 1) % departmentExamples.length;
+          timeout = setTimeout(type, 500);
+        }
+      }
+    };
+
+    timeout = setTimeout(type, 500); // Start the typing animation after a brief delay
+
+    // Clear timeout on component unmount
+    return () => clearTimeout(timeout);
+  }, [departmentExamples]);
+
   const handleSearch = (event) => {
     const term = event.target.value.toLowerCase();
     setSearchTerm(term);
 
-    const filtered = departments.filter((department) => 
-      department.toLowerCase().includes(term) || 
+    const filtered = departments.filter((department) =>
+      department.toLowerCase().includes(term) ||
       departmentOverview[department]?.name.toLowerCase().includes(term)
     );
 
@@ -54,12 +90,12 @@ const AllClassesPage = () => {
           <Typography variant="h4" gutterBottom>
             All Departments at <span style={{ color: 'green' }}>Dartmouth</span>
           </Typography>
-          <TextField 
-            variant="outlined" 
-            placeholder="Search Department" 
-            value={searchTerm} 
-            onChange={handleSearch} 
-            sx={{ 
+          <TextField
+            variant="outlined"
+            placeholder={placeholder}
+            value={searchTerm}
+            onChange={handleSearch}
+            sx={{
               width: '300px',
               height: '40px',
               borderRadius: '20px',
@@ -77,7 +113,7 @@ const AllClassesPage = () => {
                 borderRadius: '20px', // Make the corners round
                 height: '40px', // Reduce the height of the input
               },
-            }} 
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -89,7 +125,7 @@ const AllClassesPage = () => {
         </Box>
         {error && <Alert severity="error">{error}</Alert>}
         {filteredDepartments.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', mt: 2 }}>
+          <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', marginTop: '20px' }}>
             <Table>
               <TableHead>
                 <TableRow>
