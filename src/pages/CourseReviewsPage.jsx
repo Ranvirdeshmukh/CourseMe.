@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton } from '@mui/material';
+import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -42,17 +42,8 @@ const CourseReviewsPage = () => {
   };
 
   const splitReviewText = (review) => {
-    if (!review) {
-      return { prefix: '', rest: '' };
-    }
-
-    const match = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/);
-    if (match) {
-      const [prefix, rest] = match.slice(1, 3);
-      return { prefix, rest };
-    } else {
-      return { prefix: '', rest: review }; // Return the whole review if it doesn't match the pattern
-    }
+    const [prefix, rest] = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/).slice(1, 3);
+    return { prefix, rest };
   };
 
   const renderReviews = () => {
@@ -107,9 +98,7 @@ const CourseReviewsPage = () => {
     );
   };
 
-  const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) => 
-    Array.isArray(reviewList) ? reviewList : []
-  );
+  const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) => reviewList);
   const totalPages = Math.ceil(allReviews.length / reviewsPerPage);
 
   const renderPageButtons = () => {
@@ -121,6 +110,18 @@ const CourseReviewsPage = () => {
             key={i}
             onClick={() => handleChangePage(i)}
             disabled={currentPage === i}
+            sx={{
+              color: '#fff',
+              backgroundColor: currentPage === i ? '#000' : '#A074E8',
+              '&:hover': {
+                backgroundColor: '#fff',
+              },
+              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+              margin: '0 2px',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+            }}
           >
             {i}
           </Button>
@@ -134,17 +135,41 @@ const CourseReviewsPage = () => {
               key={i}
               onClick={() => handleChangePage(i)}
               disabled={currentPage === i}
+              sx={{
+                color: '#fff',
+                backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
+                '&:hover': {
+                  backgroundColor: '#7E55CC',
+                },
+                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                margin: '0 2px',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+              }}
             >
               {i}
             </Button>
           );
         }
-        pages.push(<Button key="ellipsis" disabled>...</Button>);
+        pages.push(<Button key="ellipsis" disabled sx={{ color: '#fff', margin: '0 2px' }}>...</Button>);
         pages.push(
           <Button
             key={totalPages}
             onClick={() => handleChangePage(totalPages)}
             disabled={currentPage === totalPages}
+            sx={{
+              color: '#fff',
+              backgroundColor: currentPage === totalPages ? '#571CE0' : '#A074E8',
+              '&:hover': {
+                backgroundColor: '#7E55CC',
+              },
+              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+              margin: '0 2px',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+            }}
           >
             {totalPages}
           </Button>
@@ -155,17 +180,41 @@ const CourseReviewsPage = () => {
             key={1}
             onClick={() => handleChangePage(1)}
             disabled={currentPage === 1}
+            sx={{
+              color: '#fff',
+              backgroundColor: currentPage === 1 ? '#571CE0' : '#A074E8',
+              '&:hover': {
+                backgroundColor: '#7E55CC',
+              },
+              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+              margin: '0 2px',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+            }}
           >
             1
           </Button>
         );
-        pages.push(<Button key="ellipsis" disabled>...</Button>);
+        pages.push(<Button key="ellipsis" disabled sx={{ color: '#fff', margin: '0 2px' }}>...</Button>);
         for (let i = totalPages - 3; i <= totalPages; i++) {
           pages.push(
             <Button
               key={i}
               onClick={() => handleChangePage(i)}
               disabled={currentPage === i}
+              sx={{
+                color: '#fff',
+                backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
+                '&:hover': {
+                  backgroundColor: '#7E55CC',
+                },
+                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                margin: '0 2px',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+              }}
             >
               {i}
             </Button>
@@ -177,28 +226,64 @@ const CourseReviewsPage = () => {
             key={1}
             onClick={() => handleChangePage(1)}
             disabled={currentPage === 1}
+            sx={{
+              color: '#fff',
+              backgroundColor: currentPage === 1 ? '#571CE0' : '#A074E8',
+              '&:hover': {
+                backgroundColor: '#7E55CC',
+              },
+              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+              margin: '0 2px',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+            }}
           >
             1
           </Button>
         );
-        pages.push(<Button key="ellipsis1" disabled>...</Button>);
+        pages.push(<Button key="ellipsis1" disabled sx={{ color: '#fff', margin: '0 2px' }}>...</Button>);
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
           pages.push(
             <Button
               key={i}
               onClick={() => handleChangePage(i)}
               disabled={currentPage === i}
+              sx={{
+                color: '#fff',
+                backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
+                '&:hover': {
+                  backgroundColor: '#7E55CC',
+                },
+                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                margin: '0 2px',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+              }}
             >
               {i}
             </Button>
           );
         }
-        pages.push(<Button key="ellipsis2" disabled>...</Button>);
+        pages.push(<Button key="ellipsis2" disabled sx={{ color: '#fff', margin: '0 2px' }}>...</Button>);
         pages.push(
           <Button
             key={totalPages}
             onClick={() => handleChangePage(totalPages)}
             disabled={currentPage === totalPages}
+            sx={{
+              color: '#fff',
+              backgroundColor: currentPage === totalPages ? '#571CE0' : '#A074E8',
+              '&:hover': {
+                backgroundColor: '#7E55CC',
+              },
+              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+              margin: '0 2px',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+            }}
           >
             {totalPages}
           </Button>
@@ -257,21 +342,43 @@ const CourseReviewsPage = () => {
             <Typography variant="h5" gutterBottom>Reviews</Typography>
             {renderReviews()}
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
-              <IconButton
-                onClick={() => handleChangePage(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                <ArrowBack />
-              </IconButton>
+              <Tooltip title="Previous Page" placement="top">
+                <IconButton
+                  onClick={() => handleChangePage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  sx={{
+                    color: '#fff',
+                    backgroundColor: '#A074E8',
+                    '&:hover': {
+                      backgroundColor: '#7E55CC',
+                    },
+                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                    margin: '0 2px',
+                  }}
+                >
+                  <ArrowBack />
+                </IconButton>
+              </Tooltip>
               <ButtonGroup variant="text" color="primary">
                 {renderPageButtons()}
               </ButtonGroup>
-              <IconButton
-                onClick={() => handleChangePage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                <ArrowForward />
-              </IconButton>
+              <Tooltip title="Next Page" placement="top">
+                <IconButton
+                  onClick={() => handleChangePage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  sx={{
+                    color: '#fff',
+                    backgroundColor: '#A074E8',
+                    '&:hover': {
+                      backgroundColor: '#7E55CC',
+                    },
+                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                    margin: '0 2px',
+                  }}
+                >
+                  <ArrowForward />
+                </IconButton>
+              </Tooltip>
             </Box>
           </>
         ) : (
