@@ -8,21 +8,35 @@ import AddReviewForm from './AddReviewForm'; // Import the AddReviewForm compone
 
 const CourseReviewsPage = () => {
   const { department, courseId } = useParams();
-  const [reviews, setReviews] = useState({});
+  const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 5;
 
   const fetchReviews = useCallback(async () => {
     try {
-      const sanitizedCourseId = courseId.split('_')[1]; // Get the actual course code part (e.g., COSC001)
-      console.log(`Fetching reviews for document path: reviews/${sanitizedCourseId}`);
-      const docRef = doc(db, 'reviews', sanitizedCourseId);
+      // Transform the courseId to match the structure in the reviews collection
+      const transformedCourseId = courseId.match(/([A-Z]+\d{3}_\d{2})/)[0];
+      const documentPath = `reviews/${transformedCourseId}`;
+      console.log(`Fetching reviews for document path: ${documentPath}`);
+      const docRef = doc(db, documentPath);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
         console.log('Document data:', data);
-        setReviews(data);
+
+        // Flatten the reviews into a single array
+        const reviewsArray = Object.entries(data).flatMap(([instructor, reviewList]) => {
+          // Ensure reviewList is an array
+          if (Array.isArray(reviewList)) {
+            return reviewList.map(review => ({ instructor, review }));
+          } else {
+            console.error(`Expected reviewList to be an array but got:`, reviewList);
+            return [];
+          }
+        });
+
+        setReviews(reviewsArray);
       } else {
         console.log('No such document!');
         setError('No reviews found for this course.');
@@ -42,24 +56,19 @@ const CourseReviewsPage = () => {
   };
 
   const splitReviewText = (review) => {
-    const [prefix, rest] = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/).slice(1, 3);
-    return { prefix, rest };
+    const match = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/);
+    if (match) {
+      const [prefix, rest] = match.slice(1, 3);
+      return { prefix, rest };
+    } else {
+      return { prefix: '', rest: review };
+    }
   };
 
   const renderReviews = () => {
-    const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) => {
-      // Ensure reviewList is an array
-      if (Array.isArray(reviewList)) {
-        return reviewList.map(review => ({ instructor, review }));
-      } else {
-        console.error(`Expected reviewList to be an array but got:`, reviewList);
-        return [];
-      }
-    });
-
     const indexOfLastReview = currentPage * reviewsPerPage;
     const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
-    const currentReviews = allReviews.slice(indexOfFirstReview, indexOfLastReview);
+    const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
 
     let lastInstructor = '';
 
@@ -98,8 +107,7 @@ const CourseReviewsPage = () => {
     );
   };
 
-  const allReviews = Object.entries(reviews).flatMap(([instructor, reviewList]) => reviewList);
-  const totalPages = Math.ceil(allReviews.length / reviewsPerPage);
+  const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
   const renderPageButtons = () => {
     let pages = [];
@@ -294,7 +302,7 @@ const CourseReviewsPage = () => {
   };
 
   // Extract the course name from the courseId (assuming the format is consistent)
-  const courseName = courseId.split('__')[1]?.replace(/_/g, ' ') || courseId;
+  const courseName = courseId.replace(/_/g, ' ');
 
   return (
     <Box
@@ -314,7 +322,7 @@ const CourseReviewsPage = () => {
       <Container>
         <Typography variant="h4" gutterBottom>Reviews for {courseName}</Typography>
         {error && <Alert severity="error">{error}</Alert>}
-        {Object.keys(reviews).length > 0 ? (
+        {reviews.length > 0 ? (
           <>
             <Typography variant="h5" gutterBottom>Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
@@ -326,7 +334,14 @@ const CourseReviewsPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Object.entries(reviews).map(([instructor, reviewList], index) => (
+                  {Object.entries(reviews.reduce((acc, review) => {
+                    const { instructor } = review;
+                    if (!acc[instructor]) {
+                      acc[instructor] = [];
+                    }
+                    acc[instructor].push(review);
+                    return acc;
+                  }, {})).map(([instructor, reviewList], index) => (
                     <TableRow key={index}>
                       <TableCell sx={{ color: '#571CE0', textAlign: 'center' }}>
                         <Link to={`/departments/${department}/courses/${courseId}/professors/${instructor}`} style={{ textDecoration: 'none', color: '#571CE0' }}>{instructor}</Link>
@@ -343,41 +358,45 @@ const CourseReviewsPage = () => {
             {renderReviews()}
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
               <Tooltip title="Previous Page" placement="top">
-                <IconButton
-                  onClick={() => handleChangePage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  sx={{
-                    color: '#fff',
-                    backgroundColor: '#A074E8',
-                    '&:hover': {
-                      backgroundColor: '#7E55CC',
-                    },
-                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                    margin: '0 2px',
-                  }}
-                >
-                  <ArrowBack />
-                </IconButton>
+                <span>
+                  <IconButton
+                    onClick={() => handleChangePage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    sx={{
+                      color: '#fff',
+                      backgroundColor: currentPage === 1 ? '#A074E8' : '#A074E8',
+                      '&:hover': {
+                        backgroundColor: currentPage === 1 ? '#A074E8' : '#7E55CC',
+                      },
+                      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                      margin: '0 2px',
+                    }}
+                  >
+                    <ArrowBack />
+                  </IconButton>
+                </span>
               </Tooltip>
               <ButtonGroup variant="text" color="primary">
                 {renderPageButtons()}
               </ButtonGroup>
               <Tooltip title="Next Page" placement="top">
-                <IconButton
-                  onClick={() => handleChangePage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  sx={{
-                    color: '#fff',
-                    backgroundColor: '#A074E8',
-                    '&:hover': {
-                      backgroundColor: '#7E55CC',
-                    },
-                    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                    margin: '0 2px',
-                  }}
-                >
-                  <ArrowForward />
-                </IconButton>
+                <span>
+                  <IconButton
+                    onClick={() => handleChangePage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    sx={{
+                      color: '#fff',
+                      backgroundColor: currentPage === totalPages ? '#A074E8' : '#A074E8',
+                      '&:hover': {
+                        backgroundColor: currentPage === totalPages ? '#A074E8' : '#7E55CC',
+                      },
+                      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                      margin: '0 2px',
+                    }}
+                  >
+                    <ArrowForward />
+                  </IconButton>
+                </span>
               </Tooltip>
             </Box>
           </>
