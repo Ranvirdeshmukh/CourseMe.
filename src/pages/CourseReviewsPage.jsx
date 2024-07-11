@@ -14,15 +14,32 @@ const CourseReviewsPage = () => {
   const reviewsPerPage = 5;
 
   const fetchReviews = useCallback(async () => {
-    try {
-      // Transform the courseId to match the structure in the reviews collection
-      const transformedCourseId = courseId.match(/([A-Z]+\d{3}_\d{2})/)[0];
-      const documentPath = `reviews/${transformedCourseId}`;
-      console.log(`Fetching reviews for document path: ${documentPath}`);
-      const docRef = doc(db, documentPath);
+    const fetchDocument = async (path) => {
+      console.log(`Fetching reviews for document path: ${path}`);
+      const docRef = doc(db, path);
       const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+      return docSnap.exists() ? docSnap.data() : null;
+    };
+
+    try {
+      let data = null;
+
+      // First, try to match specific course ID with instructor code
+      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+      
+      if (transformedCourseId) {
+        data = await fetchDocument(`reviews/${transformedCourseId}`);
+      }
+
+      // If no data found, try fetching by the sanitized course ID
+      if (!data) {
+        const sanitizedCourseId = courseId.split('_')[1]; // Get the actual course code part (e.g., COSC001)
+        console.log(`Fetching reviews for document path: reviews/${sanitizedCourseId}`);
+        data = await fetchDocument(`reviews/${sanitizedCourseId}`);
+      }
+
+      if (data) {
         console.log('Document data:', data);
 
         // Flatten the reviews into a single array
