@@ -90,7 +90,7 @@ const CourseReviewsPage = () => {
     let lastInstructor = '';
 
     return (
-      <List sx={{ maxWidth: '70%', margin: '0 auto' }}> {/* Adjusted review list width */}
+      <List sx={{ maxWidth: '100%', margin: '0' }}> {/* Adjusted review list width and removed auto margin */}
         {currentReviews.map((item, idx) => {
           const { prefix, rest } = splitReviewText(item.review);
           const showInstructor = item.instructor !== lastInstructor;
@@ -99,7 +99,7 @@ const CourseReviewsPage = () => {
           return (
             <React.Fragment key={idx}>
               {showInstructor && (
-                <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0' }}>
+                <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0', textAlign: 'left' }}>
                   {item.instructor}
                 </Typography>
               )}
@@ -137,9 +137,9 @@ const CourseReviewsPage = () => {
             disabled={currentPage === i}
             sx={{
               color: '#fff',
-              backgroundColor: currentPage === i ? '#000' : '#A074E8',
+              backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
               '&:hover': {
-                backgroundColor: '#fff',
+                backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
               },
               boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
               margin: '0 2px',
@@ -164,7 +164,7 @@ const CourseReviewsPage = () => {
                 color: '#fff',
                 backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
                 '&:hover': {
-                  backgroundColor: '#7E55CC',
+                  backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
                 },
                 boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                 margin: '0 2px',
@@ -187,7 +187,7 @@ const CourseReviewsPage = () => {
               color: '#fff',
               backgroundColor: currentPage === totalPages ? '#571CE0' : '#A074E8',
               '&:hover': {
-                backgroundColor: '#7E55CC',
+                backgroundColor: currentPage === totalPages ? '#7E55CC' : '#7E55CC',
               },
               boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
               margin: '0 2px',
@@ -209,7 +209,7 @@ const CourseReviewsPage = () => {
               color: '#fff',
               backgroundColor: currentPage === 1 ? '#571CE0' : '#A074E8',
               '&:hover': {
-                backgroundColor: '#7E55CC',
+                backgroundColor: currentPage === 1 ? '#7E55CC' : '#7E55CC',
               },
               boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
               margin: '0 2px',
@@ -232,7 +232,7 @@ const CourseReviewsPage = () => {
                 color: '#fff',
                 backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
                 '&:hover': {
-                  backgroundColor: '#7E55CC',
+                  backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
                 },
                 boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                 margin: '0 2px',
@@ -255,7 +255,7 @@ const CourseReviewsPage = () => {
               color: '#fff',
               backgroundColor: currentPage === 1 ? '#571CE0' : '#A074E8',
               '&:hover': {
-                backgroundColor: '#7E55CC',
+                backgroundColor: currentPage === 1 ? '#7E55CC' : '#7E55CC',
               },
               boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
               margin: '0 2px',
@@ -278,7 +278,7 @@ const CourseReviewsPage = () => {
                 color: '#fff',
                 backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
                 '&:hover': {
-                  backgroundColor: '#7E55CC',
+                  backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
                 },
                 boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                 margin: '0 2px',
@@ -301,7 +301,7 @@ const CourseReviewsPage = () => {
               color: '#fff',
               backgroundColor: currentPage === totalPages ? '#571CE0' : '#A074E8',
               '&:hover': {
-                backgroundColor: '#7E55CC',
+                backgroundColor: currentPage === totalPages ? '#7E55CC' : '#7E55CC',
               },
               boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
               margin: '0 2px',
@@ -319,7 +319,7 @@ const CourseReviewsPage = () => {
   };
 
   // Extract the course name from the courseId (assuming the format is consistent)
-  const courseName = courseId.replace(/_/g, ' ');
+  const courseName = courseId.split('_')[1];
 
   return (
     <Box
@@ -327,29 +327,29 @@ const CourseReviewsPage = () => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        justifyContent: 'flex-start', // Align items to the start (left-aligned)
+        alignItems: 'flex-start', // Ensure items are aligned to the left
         background: 'linear-gradient(to bottom, #E4E2DD 10%, #E4E2DD 30%, #571CE0 100%)', // Gradient background
         color: '#571CE0', // Purple text color
-        textAlign: 'center',
+        textAlign: 'left', // Align text to the left
         fontFamily: 'SF Pro Display',
         padding: '20px'
       }}
     >
       <Container>
-        <Typography variant="h4" gutterBottom>Reviews for {courseName}</Typography>
-        {error && <Alert severity="error">{error}</Alert>}
+        <Typography variant="h4" gutterBottom textAlign="center">Reviews for {courseName}</Typography>
+        {error && <Alert severity="error" sx={{ textAlign: 'left' }}>{error}</Alert>}
         {reviews.length > 0 ? (
           <>
-            <Typography variant="h5" gutterBottom>Professors</Typography>
+            <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
               <Table sx={{ minWidth: 300 }}> {/* Adjusted table width */}
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold', padding: '8px' }}> {/* Adjusted padding */}
+                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', padding: '8px' }}> {/* Adjusted padding */}
                       Name
                     </TableCell>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold', padding: '8px' }}> {/* Adjusted padding */}
+                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', padding: '8px' }}> {/* Adjusted padding */}
                       Reviews
                     </TableCell>
                   </TableRow>
@@ -364,10 +364,10 @@ const CourseReviewsPage = () => {
                     return acc;
                   }, {})).map(([instructor, reviewList], index) => (
                     <TableRow key={index}>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'center', padding: '8px' }}> {/* Adjusted padding */}
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', padding: '8px' }}> {/* Adjusted padding */}
                         <Link to={`/departments/${department}/courses/${courseId}/professors/${instructor}`} style={{ textDecoration: 'none', color: '#571CE0' }}>{instructor}</Link>
                       </TableCell>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'center', padding: '8px' }}> {/* Adjusted padding */}
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', padding: '8px' }}> {/* Adjusted padding */}
                         {Array.isArray(reviewList) ? reviewList.length : 0}
                       </TableCell>
                     </TableRow>
@@ -375,9 +375,9 @@ const CourseReviewsPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Typography variant="h5" gutterBottom>Reviews</Typography>
+            <Typography variant="h4" gutterBottom textAlign="left">Reviews</Typography>
             {renderReviews()}
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', width: '100%' }}> {/* Centered pagination controls */}
               <Tooltip title="Previous Page" placement="top">
                 <span>
                   <IconButton
@@ -423,8 +423,8 @@ const CourseReviewsPage = () => {
           </>
         ) : (
           <Box>
-            <Typography>No reviews available</Typography>
-            <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0' }}>
+            <Typography textAlign="center">No reviews available</Typography>
+            <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0', textAlign: 'center' }}>
               Don't be shy, be the first one to add a review!
             </Typography>
           </Box>
