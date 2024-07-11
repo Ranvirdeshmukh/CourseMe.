@@ -93,7 +93,7 @@ const AddReviewForm = ({ onReviewAdded }) => {
   });
 
   return (
-    <Container>
+    <Container sx={{ textAlign: 'left', maxWidth: 'md', padding: '20px 0' }}> {/* Ensure container is left-aligned */}
       <Typography variant="h5" gutterBottom>Write a Review for {sanitizedCourseId}</Typography>
       {error && <Alert severity="error">{error}</Alert>}
       <form onSubmit={handleSubmit}>

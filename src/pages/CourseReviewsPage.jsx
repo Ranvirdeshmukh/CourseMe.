@@ -27,7 +27,7 @@ const CourseReviewsPage = () => {
       // First, try to match specific course ID with instructor code
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
-      
+
       if (transformedCourseId) {
         data = await fetchDocument(`reviews/${transformedCourseId}`);
       }
@@ -343,11 +343,15 @@ const CourseReviewsPage = () => {
           <>
             <Typography variant="h5" gutterBottom>Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
-              <Table>
+              <Table sx={{ minWidth: 300 }}> {/* Adjusted table width */}
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Name</TableCell>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Reviews</TableCell>
+                    <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold', padding: '8px' }}> {/* Adjusted padding */}
+                      Name
+                    </TableCell>
+                    <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold', padding: '8px' }}> {/* Adjusted padding */}
+                      Reviews
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -360,10 +364,10 @@ const CourseReviewsPage = () => {
                     return acc;
                   }, {})).map(([instructor, reviewList], index) => (
                     <TableRow key={index}>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'center' }}>
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'center', padding: '8px' }}> {/* Adjusted padding */}
                         <Link to={`/departments/${department}/courses/${courseId}/professors/${instructor}`} style={{ textDecoration: 'none', color: '#571CE0' }}>{instructor}</Link>
                       </TableCell>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'center' }}>
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'center', padding: '8px' }}> {/* Adjusted padding */}
                         {Array.isArray(reviewList) ? reviewList.length : 0}
                       </TableCell>
                     </TableRow>
