@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip } from '@mui/material';
+import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -11,6 +11,7 @@ const CourseReviewsPage = () => {
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedProfessor, setSelectedProfessor] = useState(''); // State to manage selected professor
   const reviewsPerPage = 5;
 
   const fetchReviews = useCallback(async () => {
@@ -72,6 +73,11 @@ const CourseReviewsPage = () => {
     setCurrentPage(newPage);
   };
 
+  const handleProfessorChange = (event) => {
+    setSelectedProfessor(event.target.value);
+    setCurrentPage(1);
+  };
+
   const splitReviewText = (review) => {
     const match = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/);
     if (match) {
@@ -83,9 +89,10 @@ const CourseReviewsPage = () => {
   };
 
   const renderReviews = () => {
+    const filteredReviews = selectedProfessor ? reviews.filter(item => item.instructor === selectedProfessor) : reviews;
     const indexOfLastReview = currentPage * reviewsPerPage;
     const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
-    const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
+    const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
 
     let lastInstructor = '';
 
@@ -98,6 +105,7 @@ const CourseReviewsPage = () => {
 
           return (
             <React.Fragment key={idx}>
+              
               {showInstructor && (
                 <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0', textAlign: 'left' }}>
                   {item.instructor}
@@ -321,6 +329,9 @@ const CourseReviewsPage = () => {
   // Extract the course name from the courseId (assuming the format is consistent)
   const courseName = courseId.split('_')[1];
 
+  // Get the list of unique professors from the reviews
+  const uniqueProfessors = [...new Set(reviews.map(item => item.instructor))];
+
   return (
     <Box
       sx={{
@@ -375,7 +386,30 @@ const CourseReviewsPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Typography variant="h4" gutterBottom textAlign="left">Reviews</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+  <Typography variant="h4" gutterBottom textAlign="left">
+    Reviews
+  </Typography>
+  <FormControl size="small" sx={{ minWidth: 120, backgroundColor: '#fff', borderRadius: '4px' }}>
+    <InputLabel id="select-professor-label">Professor</InputLabel>
+    <Select
+      labelId="select-professor-label"
+      value={selectedProfessor}
+      onChange={handleProfessorChange}
+      label="Professor"
+    >
+      <MenuItem value="">
+        <em>All</em>
+      </MenuItem>
+      {uniqueProfessors.map((professor, index) => (
+        <MenuItem key={index} value={professor}>
+          {professor}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+</Box>
+
             {renderReviews()}
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', width: '100%' }}> {/* Centered pagination controls */}
               <Tooltip title="Previous Page" placement="top">
