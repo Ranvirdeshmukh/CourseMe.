@@ -387,28 +387,28 @@ const CourseReviewsPage = () => {
               </Table>
             </TableContainer>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-  <Typography variant="h4" gutterBottom textAlign="left">
-    Reviews
-  </Typography>
-  <FormControl size="small" sx={{ minWidth: 120, backgroundColor: '#fff', borderRadius: '4px' }}>
-    <InputLabel id="select-professor-label">Professor</InputLabel>
-    <Select
-      labelId="select-professor-label"
-      value={selectedProfessor}
-      onChange={handleProfessorChange}
-      label="Professor"
-    >
-      <MenuItem value="">
-        <em>All</em>
-      </MenuItem>
-      {uniqueProfessors.map((professor, index) => (
-        <MenuItem key={index} value={professor}>
-          {professor}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-</Box>
+              <Typography variant="h4" gutterBottom textAlign="left">
+                Reviews
+              </Typography>
+              <FormControl size="small" sx={{ minWidth: 120, backgroundColor: '#fff', borderRadius: '4px' }}>
+                <InputLabel id="select-professor-label">Professor</InputLabel>
+                <Select
+                  labelId="select-professor-label"
+                  value={selectedProfessor}
+                  onChange={handleProfessorChange}
+                  label="Professor"
+                >
+                  <MenuItem value="">
+                    <em>All</em>
+                  </MenuItem>
+                  {uniqueProfessors.map((professor, index) => (
+                    <MenuItem key={index} value={professor}>
+                      {professor}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
 
             {renderReviews()}
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', width: '100%' }}> {/* Centered pagination controls */}
@@ -456,29 +456,35 @@ const CourseReviewsPage = () => {
             </Box>
           </>
         ) : (
-          <Box>
-            <Typography textAlign="center">No reviews available</Typography>
-            <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0', textAlign: 'center' }}>
-              Don't be shy, be the first one to add a review!
-            </Typography>
-          </Box>
+          <>
+            <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
+              <Typography variant="h6" sx={{ marginBottom: '20px', color: '#571CE0' }}>
+                No reviews available
+              </Typography>
+              <Typography variant="h6" sx={{ color: '#571CE0' }}>
+                Don't be shy, be the first one to add a review!
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
+                <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnYzdG9sMWVoa2p5aWY3NmF2cTM5c2UzNnI3c20waWRjYTF5b2drOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/USbM2BJpAg7Di/giphy.gif" alt="No Reviews" style={{ width: '500px', height: '500px' }} />
+              </Box>
+            </Box>
+            <Box
+              sx={{
+                background: '', // Gradient background remains the same
+                padding: '20px',
+                borderRadius: '8px',
+                width: '100%',
+                maxWidth: '100%', // Increased form container width
+                color: '#fff',
+              }}
+            >
+              <Container maxWidth="md"> {/* Changed maxWidth to 'md' */}
+                <AddReviewForm onReviewAdded={fetchReviews} /> {/* Add the AddReviewForm component */}
+              </Container>
+            </Box>
+          </>
         )}
       </Container>
-      <Box
-        sx={{
-          background: '', // Gradient background remains the same
-          padding: '20px',
-          borderRadius: '8px',
-          marginTop: '20px',
-          width: '100%',
-          maxWidth: '100', // Increased form container width
-          color: '#fff',
-        }}
-      >
-        <Container maxWidth="md"> {/* Changed maxWidth to 'md' */}
-          <AddReviewForm onReviewAdded={fetchReviews} /> {/* Add the AddReviewForm component */}
-        </Container>
-      </Box>
     </Box>
   );
 };
