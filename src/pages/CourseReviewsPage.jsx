@@ -1,24 +1,27 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip, MenuItem, Select, FormControl, InputLabel, CircularProgress } from '@mui/material';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
-import { doc, getDoc } from 'firebase/firestore';
+import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward } from '@mui/icons-material';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext'; // Assuming you have an AuthContext
 import { db } from '../firebase';
-import AddReviewForm from './AddReviewForm'; // Import the AddReviewForm component
+import AddReviewForm from './AddReviewForm';
 
 const CourseReviewsPage = () => {
   const { department, courseId } = useParams();
+  const { currentUser } = useAuth(); // Get the current user
   const [reviews, setReviews] = useState([]);
+  const [course, setCourse] = useState(null);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedProfessor, setSelectedProfessor] = useState(''); // State to manage selected professor
-  const [loading, setLoading] = useState(true); // State to manage loading
+  const [selectedProfessor, setSelectedProfessor] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [vote, setVote] = useState(null); // Track the user's current vote
   const reviewsPerPage = 5;
 
   const fetchReviews = useCallback(async () => {
-    setLoading(true); // Set loading to true when starting to fetch
+    setLoading(true);
     const fetchDocument = async (path) => {
-      console.log(`Fetching reviews for document path: ${path}`);
       const docRef = doc(db, path);
       const docSnap = await getDoc(docRef);
       return docSnap.exists() ? docSnap.data() : null;
@@ -26,8 +29,6 @@ const CourseReviewsPage = () => {
 
     try {
       let data = null;
-
-      // First, try to match specific course ID with instructor code
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
 
@@ -35,51 +36,92 @@ const CourseReviewsPage = () => {
         data = await fetchDocument(`reviews/${transformedCourseId}`);
       }
 
-      // If no data found, try fetching by the sanitized course ID
       if (!data) {
-        const sanitizedCourseId = courseId.split('_')[1]; // Get the actual course code part (e.g., COSC001)
-        console.log(`Fetching reviews for document path: reviews/${sanitizedCourseId}`);
+        const sanitizedCourseId = courseId.split('_')[1];
         data = await fetchDocument(`reviews/${sanitizedCourseId}`);
       }
 
       if (data) {
-        console.log('Document data:', data);
-
-        // Flatten the reviews into a single array
         const reviewsArray = Object.entries(data).flatMap(([instructor, reviewList]) => {
-          // Ensure reviewList is an array
           if (Array.isArray(reviewList)) {
             return reviewList.map(review => ({ instructor, review }));
           } else {
-            console.error(`Expected reviewList to be an array but got:`, reviewList);
             return [];
           }
         });
 
         setReviews(reviewsArray);
       } else {
-        console.log('No such document!');
         setError('No reviews found for this course.');
       }
     } catch (error) {
-      console.error('Error fetching reviews:', error);
       setError('Failed to fetch reviews.');
     } finally {
-      setLoading(false); // Set loading to false once the reviews are fetched
+      setLoading(false);
     }
   }, [courseId]);
 
+  const fetchCourse = useCallback(async () => {
+    setLoading(true);
+    try {
+      const docRef = doc(db, 'courses', courseId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setCourse(docSnap.data());
+      } else {
+        setError('Course not found.');
+      }
+    } catch (error) {
+      setError('Failed to fetch course.');
+    } finally {
+      setLoading(false);
+    }
+  }, [courseId]);
+
+  const fetchUserVote = useCallback(async () => {
+    if (!currentUser) return;
+    const userDocRef = doc(db, 'users', currentUser.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      const userVote = userData.votes ? userData.votes[courseId] : null;
+      setVote(userVote);
+    }
+  }, [currentUser, courseId]);
+
   useEffect(() => {
+    fetchCourse();
     fetchReviews();
-  }, [fetchReviews]);
+    fetchUserVote();
+  }, [fetchCourse, fetchReviews, fetchUserVote]);
 
-  const handleChangePage = (newPage) => {
-    setCurrentPage(newPage);
-  };
+  const handleVote = async (voteType) => {
+    if (!course || !currentUser) return;
+    const userDocRef = doc(db, 'users', currentUser.uid);
+    const courseRef = doc(db, 'courses', courseId);
 
-  const handleProfessorChange = (event) => {
-    setSelectedProfessor(event.target.value);
-    setCurrentPage(1);
+    let newLayup = course.layup || 0;
+    if (vote === voteType) {
+      // If the user is clicking the same vote again, it means they want to reset their vote
+      newLayup = voteType === 'upvote' ? newLayup - 1 : newLayup + 1;
+      await updateDoc(courseRef, { layup: newLayup });
+      await setDoc(userDocRef, { votes: { [courseId]: null } }, { merge: true });
+      setVote(null);
+    } else {
+      if (vote === 'upvote') {
+        newLayup -= 1; // Remove the previous upvote
+      } else if (vote === 'downvote') {
+        newLayup += 1; // Remove the previous downvote
+      }
+      newLayup = voteType === 'upvote' ? newLayup + 1 : newLayup - 1;
+
+      await updateDoc(courseRef, { layup: newLayup });
+      await setDoc(userDocRef, { votes: { [courseId]: voteType } }, { merge: true });
+      setVote(voteType);
+    }
+
+    setCourse(prev => ({ ...prev, layup: newLayup }));
   };
 
   const splitReviewText = (review) => {
@@ -92,6 +134,15 @@ const CourseReviewsPage = () => {
     }
   };
 
+  const handleChangePage = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleProfessorChange = (event) => {
+    setSelectedProfessor(event.target.value);
+    setCurrentPage(1);
+  };
+
   const renderReviews = () => {
     const filteredReviews = selectedProfessor ? reviews.filter(item => item.instructor === selectedProfessor) : reviews;
     const indexOfLastReview = currentPage * reviewsPerPage;
@@ -101,7 +152,7 @@ const CourseReviewsPage = () => {
     let lastInstructor = '';
 
     return (
-      <List sx={{ maxWidth: '100%', margin: '0' }}> {/* Adjusted review list width and removed auto margin */}
+      <List sx={{ maxWidth: '100%', margin: '0' }}>
         {currentReviews.map((item, idx) => {
           const { prefix, rest } = splitReviewText(item.review);
           const showInstructor = item.instructor !== lastInstructor;
@@ -109,7 +160,6 @@ const CourseReviewsPage = () => {
 
           return (
             <React.Fragment key={idx}>
-              
               {showInstructor && (
                 <Typography variant="h6" sx={{ marginTop: '20px', color: '#571CE0', textAlign: 'left' }}>
                   {item.instructor}
@@ -330,10 +380,8 @@ const CourseReviewsPage = () => {
     return pages;
   };
 
-  // Extract the course name from the courseId (assuming the format is consistent)
   const courseName = courseId.split('_')[1];
 
-  // Get the list of unique professors from the reviews
   const uniqueProfessors = [...new Set(reviews.map(item => item.instructor))];
 
   return (
@@ -342,18 +390,18 @@ const CourseReviewsPage = () => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'flex-start', // Align items to the start (left-aligned)
-        alignItems: 'flex-start', // Ensure items are aligned to the left
-        background: 'linear-gradient(to bottom, #E4E2DD 10%, #E4E2DD 30%, #571CE0 100%)', // Gradient background
-        color: '#571CE0', // Purple text color
-        textAlign: 'left', // Align text to the left
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        background: 'linear-gradient(to bottom, #E4E2DD 10%, #E4E2DD 30%, #571CE0 100%)',
+        color: '#571CE0',
+        textAlign: 'left',
         fontFamily: 'SF Pro Display',
         padding: '20px'
       }}
     >
       <Container>
         <Typography variant="h4" gutterBottom textAlign="center">Reviews for {courseName}</Typography>
-        {loading ? ( // Conditionally render loading spinner
+        {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress sx={{ color: '#571CE0' }} />
           </Box>
@@ -361,15 +409,45 @@ const CourseReviewsPage = () => {
           <Alert severity="error" sx={{ textAlign: 'left' }}>{error}</Alert>
         ) : reviews.length > 0 ? (
           <>
+            {course && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
+                <Box sx={{ 
+  display: 'flex', 
+  flexDirection: 'row', 
+  alignItems: 'center', 
+  border: '1px solid #571CE0', 
+  borderRadius: '8px', 
+  padding: '10px', 
+  backgroundColor: '#E4E2DD',
+  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+  gap: '20px',
+  justifyContent: 'space-around'
+}}>
+  <Tooltip title="Upvote">
+    <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}>
+      <ArrowUpward sx={{ fontSize: 30 }} />
+    </IconButton>
+  </Tooltip>
+  <Typography variant="h4" sx={{ margin: '0 20px', color: '#571CE0' }}>{course.layup || 0}</Typography>
+  <Tooltip title="Downvote">
+    <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}>
+      <ArrowDownward sx={{ fontSize: 30 }} />
+    </IconButton>
+  </Tooltip>
+  <Typography variant="caption" sx={{ color: '#571CE0' }}>called it a layup</Typography>
+</Box>
+
+              </Box>
+            )}
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
-              <Table sx={{ minWidth: 300 }}> {/* Adjusted table width */}
+              <Table sx={{ minWidth: 300 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', padding: '8px' }}> {/* Adjusted padding */}
+                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', padding: '8px' }}>
                       Name
                     </TableCell>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', padding: '8px' }}> {/* Adjusted padding */}
+                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', padding: '8px' }}>
                       Reviews
                     </TableCell>
                   </TableRow>
@@ -384,10 +462,10 @@ const CourseReviewsPage = () => {
                     return acc;
                   }, {})).map(([instructor, reviewList], index) => (
                     <TableRow key={index}>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', padding: '8px' }}> {/* Adjusted padding */}
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', padding: '8px' }}>
                         <Link to={`/departments/${department}/courses/${courseId}/professors/${instructor}`} style={{ textDecoration: 'none', color: '#571CE0' }}>{instructor}</Link>
                       </TableCell>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', padding: '8px' }}> {/* Adjusted padding */}
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', padding: '8px' }}>
                         {Array.isArray(reviewList) ? reviewList.length : 0}
                       </TableCell>
                     </TableRow>
@@ -420,7 +498,7 @@ const CourseReviewsPage = () => {
             </Box>
 
             {renderReviews()}
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', width: '100%' }}> {/* Centered pagination controls */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', width: '100%' }}>
               <Tooltip title="Previous Page" placement="top">
                 <span>
                   <IconButton
@@ -481,16 +559,16 @@ const CourseReviewsPage = () => {
         )}
         <Box
           sx={{
-            background: '', // Gradient background remains the same
+            background: '',
             padding: '20px',
             borderRadius: '8px',
             width: '100%',
-            maxWidth: '100%', // Increased form container width
+            maxWidth: '100%',
             color: '#fff',
           }}
         >
-          <Container maxWidth="md"> {/* Changed maxWidth to 'md' */}
-            <AddReviewForm onReviewAdded={fetchReviews} /> {/* Add the AddReviewForm component */}
+          <Container maxWidth="md">
+            <AddReviewForm onReviewAdded={fetchReviews} />
           </Container>
         </Box>
       </Container>

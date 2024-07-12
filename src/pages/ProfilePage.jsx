@@ -25,7 +25,7 @@ const ProfilePage = () => {
           setProfileData({
             major: userData.major || '',
             classYear: userData.classYear || '',
-            reviews: userData.reviews || [], // Ensure reviews is always an array
+            reviews: userData.reviews || [], 
             firstName: userData.firstName || '',
             lastName: userData.lastName || ''
           });
