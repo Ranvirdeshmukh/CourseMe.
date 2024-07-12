@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip, MenuItem, Select, FormControl, InputLabel, CircularProgress } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -12,9 +12,11 @@ const CourseReviewsPage = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProfessor, setSelectedProfessor] = useState(''); // State to manage selected professor
+  const [loading, setLoading] = useState(true); // State to manage loading
   const reviewsPerPage = 5;
 
   const fetchReviews = useCallback(async () => {
+    setLoading(true); // Set loading to true when starting to fetch
     const fetchDocument = async (path) => {
       console.log(`Fetching reviews for document path: ${path}`);
       const docRef = doc(db, path);
@@ -62,6 +64,8 @@ const CourseReviewsPage = () => {
     } catch (error) {
       console.error('Error fetching reviews:', error);
       setError('Failed to fetch reviews.');
+    } finally {
+      setLoading(false); // Set loading to false once the reviews are fetched
     }
   }, [courseId]);
 
@@ -349,8 +353,13 @@ const CourseReviewsPage = () => {
     >
       <Container>
         <Typography variant="h4" gutterBottom textAlign="center">Reviews for {courseName}</Typography>
-        {error && <Alert severity="error" sx={{ textAlign: 'left' }}>{error}</Alert>}
-        {reviews.length > 0 ? (
+        {loading ? ( // Conditionally render loading spinner
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+            <CircularProgress sx={{ color: '#571CE0' }} />
+          </Box>
+        ) : error ? (
+          <Alert severity="error" sx={{ textAlign: 'left' }}>{error}</Alert>
+        ) : reviews.length > 0 ? (
           <>
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
