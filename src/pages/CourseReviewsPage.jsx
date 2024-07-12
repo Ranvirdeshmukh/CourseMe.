@@ -465,25 +465,25 @@ const CourseReviewsPage = () => {
                 Don't be shy, be the first one to add a review!
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
-                <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnYzdG9sMWVoa2p5aWY3NmF2cTM5c2UzNnI3c20waWRjYTF5b2drOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/USbM2BJpAg7Di/giphy.gif" alt="No Reviews" style={{ width: '500px', height: '500px' }} />
+                <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnYzdG9sMWVoa2p5aWY3NmF2cTM5c2UzNnI3c20waWRjYTF5b2drOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/USbM2BJpAg7Di/giphy.gif" alt="No Reviews" style={{ width: '300px', height: '300px' }} />
               </Box>
-            </Box>
-            <Box
-              sx={{
-                background: '', // Gradient background remains the same
-                padding: '20px',
-                borderRadius: '8px',
-                width: '100%',
-                maxWidth: '100%', // Increased form container width
-                color: '#fff',
-              }}
-            >
-              <Container maxWidth="md"> {/* Changed maxWidth to 'md' */}
-                <AddReviewForm onReviewAdded={fetchReviews} /> {/* Add the AddReviewForm component */}
-              </Container>
             </Box>
           </>
         )}
+        <Box
+          sx={{
+            background: '', // Gradient background remains the same
+            padding: '20px',
+            borderRadius: '8px',
+            width: '100%',
+            maxWidth: '100%', // Increased form container width
+            color: '#fff',
+          }}
+        >
+          <Container maxWidth="md"> {/* Changed maxWidth to 'md' */}
+            <AddReviewForm onReviewAdded={fetchReviews} /> {/* Add the AddReviewForm component */}
+          </Container>
+        </Box>
       </Container>
     </Box>
   );
