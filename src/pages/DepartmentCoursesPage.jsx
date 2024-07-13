@@ -58,10 +58,10 @@ const DepartmentCoursesPage = () => {
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Distribs</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Num of Reviews</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Quality</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Layup</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Num of Reviews</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Quality</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Layup</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -79,10 +79,10 @@ const DepartmentCoursesPage = () => {
                     }}
                   >
                     <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{course.name}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{course.distribs}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{course.numOfReviews}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{course.quality}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{course.layup}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.quality}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.layup}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

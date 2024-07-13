@@ -434,7 +434,7 @@ const CourseReviewsPage = () => {
       <ArrowDownward sx={{ fontSize: 30 }} />
     </IconButton>
   </Tooltip>
-  <Typography variant="caption" sx={{ color: '#571CE0' }}>called it a layup</Typography>
+  <Typography variant="caption" sx={{ color: '#571CE0' }}>Is it a layup?</Typography>
 </Box>
 
               </Box>
