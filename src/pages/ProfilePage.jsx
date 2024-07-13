@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Button, List, ListItem, ListItemText, IconButton, Divider, Card, Avatar, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Container, Typography, Box, Button, List, ListItem, ListItemText, IconButton, Divider, Card, Avatar, TextField, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -122,22 +122,24 @@ const ProfilePage = () => {
       }}
     >
       <Container maxWidth="md">
-        <Card sx={{ marginBottom: 4, padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-            <Avatar sx={{ bgcolor: '#571CE0', width: 56, height: 56, marginRight: 2 }}>
-              {currentUser.email.charAt(0).toUpperCase()}
-            </Avatar>
-            <Box sx={{ textAlign: 'left' }}>
-              <Typography variant="h4" gutterBottom>{currentUser.email}</Typography>
-              <Typography variant="h6">Welcome to your profile!</Typography>
-            </Box>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+            <CircularProgress sx={{ color: '#571CE0' }} />
           </Box>
-          <Divider />
-          <Box sx={{ textAlign: 'left', marginTop: 2 }}>
-            {loading ? (
-              <Typography>Loading...</Typography>
-            ) : (
-              <>
+        ) : (
+          <>
+            <Card sx={{ marginBottom: 4, padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                <Avatar sx={{ bgcolor: '#571CE0', width: 56, height: 56, marginRight: 2 }}>
+                  {currentUser.email.charAt(0).toUpperCase()}
+                </Avatar>
+                <Box sx={{ textAlign: 'left' }}>
+                  <Typography variant="h4" gutterBottom>{currentUser.email}</Typography>
+                  <Typography variant="h6">Welcome to your profile!</Typography>
+                </Box>
+              </Box>
+              <Divider />
+              <Box sx={{ textAlign: 'left', marginTop: 2 }}>
                 <Typography variant="h6" gutterBottom>Profile Information</Typography>
                 <Typography>First Name: {profileData.firstName}</Typography>
                 <Typography>Last Name: {profileData.lastName}</Typography>
@@ -146,101 +148,101 @@ const ProfilePage = () => {
                 <Button variant="contained" color="primary" onClick={handleEditProfile} sx={{ mt: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
                   Edit Profile
                 </Button>
-              </>
-            )}
-          </Box>
-        </Card>
+              </Box>
+            </Card>
 
-        <Dialog open={editing} onClose={handleClose}>
-          <DialogTitle>Edit Profile</DialogTitle>
-          <DialogContent>
-            <TextField
-              margin="dense"
-              label="First Name"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={newProfileData.firstName}
-              onChange={(e) => setNewProfileData({ ...newProfileData, firstName: e.target.value })}
-            />
-            <TextField
-              margin="dense"
-              label="Last Name"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={newProfileData.lastName}
-              onChange={(e) => setNewProfileData({ ...newProfileData, lastName: e.target.value })}
-            />
-            <TextField
-              margin="dense"
-              label="Major"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={newProfileData.major}
-              onChange={(e) => setNewProfileData({ ...newProfileData, major: e.target.value })}
-            />
-            <TextField
-              margin="dense"
-              label="Class Year"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={newProfileData.classYear}
-              onChange={(e) => setNewProfileData({ ...newProfileData, classYear: e.target.value })}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleSaveProfile}>Save</Button>
-          </DialogActions>
-        </Dialog>
-        
-        <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
-          <Typography variant="h5" gutterBottom>My Reviews</Typography>
-          <Divider />
-          <List>
-            {profileData.reviews?.map((review, idx) => (
-              <ListItem key={idx} sx={{ backgroundColor: '#E4E2DD', margin: '10px 0', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
-                <ListItemText
-                  primary={
-                    <>
-                      <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
-                        {review.term} with {review.professor} for {review.courseId}:
-                      </Typography>{' '}
-                      <Typography component="span" sx={{ color: 'black' }}>
-                        {review.review}
-                      </Typography>
-                    </>
-                  }
+            <Dialog open={editing} onClose={handleClose}>
+              <DialogTitle>Edit Profile</DialogTitle>
+              <DialogContent>
+                <TextField
+                  margin="dense"
+                  label="First Name"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  value={newProfileData.firstName}
+                  onChange={(e) => setNewProfileData({ ...newProfileData, firstName: e.target.value })}
                 />
-                <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => handleDeleteReview(review)}
-                  sx={{ color: '#571CE0' }}
-                >
-                  <Delete />
-                </IconButton>
-              </ListItem>
-            ))}
-          </List>
-        </Card>
+                <TextField
+                  margin="dense"
+                  label="Last Name"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  value={newProfileData.lastName}
+                  onChange={(e) => setNewProfileData({ ...newProfileData, lastName: e.target.value })}
+                />
+                <TextField
+                  margin="dense"
+                  label="Major"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  value={newProfileData.major}
+                  onChange={(e) => setNewProfileData({ ...newProfileData, major: e.target.value })}
+                />
+                <TextField
+                  margin="dense"
+                  label="Class Year"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  value={newProfileData.classYear}
+                  onChange={(e) => setNewProfileData({ ...newProfileData, classYear: e.target.value })}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose}>Cancel</Button>
+                <Button onClick={handleSaveProfile}>Save</Button>
+              </DialogActions>
+            </Dialog>
+            
+            <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+              <Typography variant="h5" gutterBottom>My Reviews</Typography>
+              <Divider />
+              <List>
+                {profileData.reviews?.map((review, idx) => (
+                  <ListItem key={idx} sx={{ backgroundColor: '#E4E2DD', margin: '10px 0', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+                    <ListItemText
+                      primary={
+                        <>
+                          <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                            {review.term} with {review.professor} for {review.courseId}:
+                          </Typography>{' '}
+                          <Typography component="span" sx={{ color: 'black' }}>
+                            {review.review}
+                          </Typography>
+                        </>
+                      }
+                    />
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleDeleteReview(review)}
+                      sx={{ color: '#571CE0' }}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Card>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleLogout}
-          sx={{
-            mt: 2,
-            background: 'linear-gradient(90deg, rgba(87,28,224,1) 0%, rgba(144,19,254,1) 100%)',
-            borderRadius: '25px',
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-          }}
-        >
-          Log Out
-        </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleLogout}
+              sx={{
+                mt: 2,
+                background: 'linear-gradient(90deg, rgba(87,28,224,1) 0%, rgba(144,19,254,1) 100%)',
+                borderRadius: '25px',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+              }}
+            >
+              Log Out
+            </Button>
+          </>
+        )}
       </Container>
     </Box>
   );
