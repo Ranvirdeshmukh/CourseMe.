@@ -129,9 +129,9 @@ const AllClassesPage = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Code</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Department Name</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Undergrad Courses</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Code</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Department Name</TableCell>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Undergrad Courses</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -148,9 +148,9 @@ const AllClassesPage = () => {
                       color: 'inherit'
                     }}
                   >
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{department}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{departmentOverview[department]?.name || department}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{departmentOverview[department]?.courses || 'N/A'}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{department}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.name || department}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.courses || 'N/A'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
