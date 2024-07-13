@@ -3,7 +3,7 @@
 const admin = require('firebase-admin');
 
 // Replace this path with the path to your Firebase admin SDK JSON file
-const serviceAccount = require('../data/coursereview-98a89-firebase-adminsdk-2yc5i-738511ebab.json');
+const serviceAccount = require('../data/coursereview-98a89-firebase-adminsdk-2yc5i-320058ff1a.json');
 
 
 admin.initializeApp({
