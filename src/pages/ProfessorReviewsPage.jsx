@@ -1,10 +1,8 @@
-// src/pages/ProfessorReviewsPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Typography, Box, Alert, List, ListItem, ListItemText } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-// import departmentMapping from '../classstructure/departmentMapping';
 
 const ProfessorReviewsPage = () => {
   const { courseId, professor } = useParams();
@@ -75,7 +73,7 @@ const ProfessorReviewsPage = () => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'flex-start', // Align items at the top
         alignItems: 'center',
         backgroundColor: '#E4E2DD', // Light background color
         color: '#571CE0', // Purple text color
@@ -85,7 +83,7 @@ const ProfessorReviewsPage = () => {
       }}
     >
       <Container>
-        <Typography variant="h4" gutterBottom>Reviews for {professor} in Class- {courseName} </Typography>
+        <Typography variant="h4" gutterBottom>Reviews for {professor} in Class- {courseName}</Typography>
         {error && <Alert severity="error">{error}</Alert>}
         {reviews.length > 0 ? renderReviews() : (
           <Typography>No reviews available</Typography>
