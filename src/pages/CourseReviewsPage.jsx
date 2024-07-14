@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip, MenuItem, Select, FormControl, InputLabel, CircularProgress } from '@mui/material';
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward } from '@mui/icons-material';
+import { useInView } from 'react-intersection-observer';
+import { motion } from 'framer-motion';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext'; // Assuming you have an AuthContext
 import { db } from '../firebase';
@@ -142,22 +144,53 @@ const CourseReviewsPage = () => {
     setSelectedProfessor(event.target.value);
     setCurrentPage(1);
   };
+  const ReviewItem = ({ instructor, prefix, rest }) => {
+    const { ref, inView } = useInView({
+      threshold: 0.1,
+    });
+  
+    return (
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        style={{ margin: '10px 0', borderRadius: '8px', overflow: 'hidden' }}
+      >
+        <ListItem sx={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', padding: '10px', fontFamily: 'SF Pro Display, sans-serif' }}>
+          <ListItemText
+            primary={
+              <>
+                <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold', fontSize: '1rem' }}>
+                  {prefix}
+                </Typography>{' '}
+                <Typography component="span" sx={{ color: 'black', fontSize: '0.9rem' }}>
+                  {rest}
+                </Typography>
+              </>
+            }
+          />
+        </ListItem>
+      </motion.div>
+    );
+  };
+  
 
   const renderReviews = () => {
     const filteredReviews = selectedProfessor ? reviews.filter(item => item.instructor === selectedProfessor) : reviews;
     const indexOfLastReview = currentPage * reviewsPerPage;
     const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
     const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
-
+  
     let lastInstructor = '';
-
+  
     return (
       <List sx={{ maxWidth: '100%', margin: '0' }}>
         {currentReviews.map((item, idx) => {
           const { prefix, rest } = splitReviewText(item.review);
           const showInstructor = item.instructor !== lastInstructor;
           lastInstructor = item.instructor;
-
+  
           return (
             <React.Fragment key={idx}>
               {showInstructor && (
@@ -165,26 +198,14 @@ const CourseReviewsPage = () => {
                   {item.instructor}
                 </Typography>
               )}
-              <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
-                <ListItemText
-                  primary={
-                    <>
-                      <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
-                        {prefix}
-                      </Typography>{' '}
-                      <Typography component="span" sx={{ color: 'black' }}>
-                        {rest}
-                      </Typography>
-                    </>
-                  }
-                />
-              </ListItem>
+              <ReviewItem key={idx} prefix={prefix} rest={rest} />
             </React.Fragment>
           );
         })}
       </List>
     );
   };
+  
 
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
