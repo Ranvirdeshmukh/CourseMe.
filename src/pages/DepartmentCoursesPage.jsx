@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper } from '@mui/material';
+import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper, CircularProgress } from '@mui/material';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import departmentMapping from '../classstructure/departmentMapping';
@@ -9,6 +9,7 @@ const DepartmentCoursesPage = () => {
   const { department } = useParams();
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,8 +28,9 @@ const DepartmentCoursesPage = () => {
       } catch (error) {
         console.error('Error fetching courses:', error);
         setError('Failed to fetch courses.');
+      } finally {
+        setLoading(false); // Set loading to false once data is fetched
       }
-    
     };
 
     fetchData();
@@ -50,9 +52,12 @@ const DepartmentCoursesPage = () => {
       }}
     >
       <Container>
-        <Typography variant="h4" gutterBottom>Courses in {departmentMapping[department]?.name || department}</Typography>
-        {error && <Alert severity="error">{error}</Alert>}
-        {courses.length > 0 ? (
+        <Typography variant="h4" align='left' gutterBottom>Courses in {departmentMapping[department]?.name || department}</Typography>
+        {loading ? (
+          <CircularProgress sx={{ color: '#571CE0' }} /> // Display loading spinner while data is being fetched
+        ) : error ? (
+          <Alert severity="error">{error}</Alert>
+        ) : courses.length > 0 ? (
           <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
             <Table>
               <TableHead>
@@ -95,5 +100,6 @@ const DepartmentCoursesPage = () => {
     </Box>
   );
 };
+
 
 export default DepartmentCoursesPage;
