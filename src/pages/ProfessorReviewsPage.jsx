@@ -8,25 +8,41 @@ const ProfessorReviewsPage = () => {
   const { courseId, professor } = useParams();
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchReviews = async () => {
+      setLoading(true);
       try {
-        const sanitizedCourseId = courseId.split('_')[1]; // Get the actual course code part (e.g., COSC001)
-        console.log(`Fetching reviews for document path: reviews/${sanitizedCourseId}`);
-        const docRef = doc(db, 'reviews', sanitizedCourseId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          console.log('Document data:', data);
+        const fetchDocument = async (path) => {
+          const docRef = doc(db, path);
+          const docSnap = await getDoc(docRef);
+          return docSnap.exists() ? docSnap.data() : null;
+        };
+
+        let data = null;
+        const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+        const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+
+        if (transformedCourseId) {
+          data = await fetchDocument(`reviews/${transformedCourseId}`);
+        }
+
+        if (!data) {
+          const sanitizedCourseId = courseId.split('_')[1];
+          data = await fetchDocument(`reviews/${sanitizedCourseId}`);
+        }
+
+        if (data) {
           setReviews(data[professor] || []);
         } else {
-          console.log('No such document!');
           setError('No reviews found for this course.');
         }
       } catch (error) {
         console.error('Error fetching reviews:', error);
         setError('Failed to fetch reviews.');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -84,8 +100,11 @@ const ProfessorReviewsPage = () => {
     >
       <Container>
         <Typography variant="h4" gutterBottom>Reviews for {professor} in Class- {courseName}</Typography>
-        {error && <Alert severity="error">{error}</Alert>}
-        {reviews.length > 0 ? renderReviews() : (
+        {loading ? (
+          <Typography>Loading...</Typography>
+        ) : error ? (
+          <Alert severity="error">{error}</Alert>
+        ) : reviews.length > 0 ? renderReviews() : (
           <Typography>No reviews available</Typography>
         )}
       </Container>
