@@ -71,7 +71,7 @@ const ProfessorReviewsPage = () => {
 
   const ReviewItem = ({ prefix, rest }) => {
     const { ref, inView } = useInView({
-      triggerOnce: true,
+      // triggerOnce: true,
       threshold: 0.1,
     });
 
