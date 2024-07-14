@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { Container, Typography, Box, Alert, List, ListItem, ListItemText } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useInView } from 'react-intersection-observer';
+import { motion } from 'framer-motion';
 
 const ProfessorReviewsPage = () => {
   const { courseId, professor } = useParams();
@@ -60,23 +62,42 @@ const ProfessorReviewsPage = () => {
         {reviews.map((review, idx) => {
           const { prefix, rest } = splitReviewText(review);
           return (
-            <ListItem key={idx} sx={{ backgroundColor: '#fff', margin: '10px 0', borderRadius: '8px' }}>
-              <ListItemText
-                primary={
-                  <>
-                    <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
-                      {prefix}
-                    </Typography>{' '}
-                    <Typography component="span" sx={{ color: 'black' }}>
-                      {rest}
-                    </Typography>
-                  </>
-                }
-              />
-            </ListItem>
+            <ReviewItem key={idx} prefix={prefix} rest={rest} />
           );
         })}
       </List>
+    );
+  };
+
+  const ReviewItem = ({ prefix, rest }) => {
+    const { ref, inView } = useInView({
+      triggerOnce: true,
+      threshold: 0.1,
+    });
+
+    return (
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        style={{ margin: '10px 0', borderRadius: '8px', overflow: 'hidden' }}
+      >
+        <ListItem sx={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', padding: '10px', fontFamily: 'SF Pro Display, sans-serif' }}>
+          <ListItemText
+            primary={
+              <>
+                <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold', fontSize: '1rem' }}>
+                  {prefix}
+                </Typography>{' '}
+                <Typography component="span" sx={{ color: 'black', fontSize: '0.9rem' }}>
+                  {rest}
+                </Typography>
+              </>
+            }
+          />
+        </ListItem>
+      </motion.div>
     );
   };
 
