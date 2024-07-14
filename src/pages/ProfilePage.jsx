@@ -1,3 +1,4 @@
+// src/pages/ProfilePage.jsx
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, Box, Button, List, ListItem, ListItemText, IconButton, Divider, Card, Avatar, TextField, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress } from '@mui/material';
 import { Delete } from '@mui/icons-material';
@@ -6,6 +7,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, arrayRemove, setDoc } from 'firebase/firestore';
+import Footer from '../components/Footer'; // Import Footer component
 
 const ProfilePage = () => {
   const { currentUser } = useAuth();
@@ -118,7 +120,9 @@ const ProfilePage = () => {
         color: '#571CE0',
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
-        paddingTop: 4
+        paddingTop: 4,
+        position: 'relative',
+        paddingBottom: '80px' // Make space for the footer
       }}
     >
       <Container maxWidth="md">
@@ -244,6 +248,7 @@ const ProfilePage = () => {
           </>
         )}
       </Container>
+      <Footer /> {/* Add Footer component */}
     </Box>
   );
 };
