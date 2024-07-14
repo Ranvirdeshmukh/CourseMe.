@@ -109,7 +109,7 @@ const SignUpPage = () => {
         }}
       >
         <Typography variant="h2" gutterBottom>
-          CourseReview.
+          CourseMe.
         </Typography>
         <Typography variant="h5" gutterBottom>
           Sign Up
