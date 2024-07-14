@@ -1,4 +1,4 @@
-import { Alert, Box, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, TextField, InputAdornment } from '@mui/material';
+import { Alert, Box, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, TextField, InputAdornment, useMediaQuery } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -13,6 +13,7 @@ const AllClassesPage = () => {
   const charIndexRef = useRef(0);
   const forwardRef = useRef(true);
   const [placeholder, setPlaceholder] = useState('');
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   const departmentExamples = useMemo(() => ['Computer Science', 'Biology', 'Chemistry', 'History', 'Mathematics'], []);
 
@@ -78,15 +79,15 @@ const AllClassesPage = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#E4E2DD', // Light background color
-        color: '#571CE0', // Purple text color
+        backgroundColor: '#E4E2DD',
+        color: '#571CE0',
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
         padding: '20px'
       }}
     >
       <Container>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
+        <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
           <Typography variant="h4" gutterBottom>
             All Departments at <span style={{ color: 'green' }}>Dartmouth</span>
           </Typography>
@@ -96,7 +97,7 @@ const AllClassesPage = () => {
             value={searchTerm}
             onChange={handleSearch}
             sx={{
-              width: '300px',
+              width: isMobile ? '100%' : '300px',
               height: '40px',
               borderRadius: '20px',
               boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
@@ -110,8 +111,8 @@ const AllClassesPage = () => {
                 '&.Mui-focused fieldset': {
                   borderColor: '#571CE0',
                 },
-                borderRadius: '20px', // Make the corners round
-                height: '40px', // Reduce the height of the input
+                borderRadius: '20px',
+                height: '40px',
               },
             }}
             InputProps={{
@@ -131,7 +132,7 @@ const AllClassesPage = () => {
                 <TableRow>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Code</TableCell>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Department Name</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Undergrad Courses</TableCell>
+                  {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Undergrad Courses</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -150,7 +151,7 @@ const AllClassesPage = () => {
                   >
                     <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{department}</TableCell>
                     <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.name || department}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.courses || 'N/A'}</TableCell>
+                    {!isMobile && <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.courses || 'N/A'}</TableCell>}
                   </TableRow>
                 ))}
               </TableBody>

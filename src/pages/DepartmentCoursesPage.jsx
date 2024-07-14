@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper, CircularProgress } from '@mui/material';
+import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper, CircularProgress, useMediaQuery } from '@mui/material';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import departmentMapping from '../classstructure/departmentMapping';
@@ -9,7 +9,8 @@ const DepartmentCoursesPage = () => {
   const { department } = useParams();
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +30,7 @@ const DepartmentCoursesPage = () => {
         console.error('Error fetching courses:', error);
         setError('Failed to fetch courses.');
       } finally {
-        setLoading(false); // Set loading to false once data is fetched
+        setLoading(false);
       }
     };
 
@@ -44,8 +45,8 @@ const DepartmentCoursesPage = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#E4E2DD', // Light background color
-        color: '#571CE0', // Purple text color
+        backgroundColor: '#E4E2DD',
+        color: '#571CE0',
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
         padding: '20px'
@@ -54,7 +55,7 @@ const DepartmentCoursesPage = () => {
       <Container>
         <Typography variant="h4" align='left' gutterBottom>Courses in {departmentMapping[department]?.name || department}</Typography>
         {loading ? (
-          <CircularProgress sx={{ color: '#571CE0' }} /> // Display loading spinner while data is being fetched
+          <CircularProgress sx={{ color: '#571CE0' }} />
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : courses.length > 0 ? (
@@ -63,7 +64,7 @@ const DepartmentCoursesPage = () => {
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>
+                  {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>}
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Num of Reviews</TableCell>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Quality</TableCell>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Layup</TableCell>
@@ -83,11 +84,11 @@ const DepartmentCoursesPage = () => {
                       color: 'inherit'
                     }}
                   >
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{course.name}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.quality}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.layup}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
+                    {!isMobile && <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
+                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.quality}</TableCell>
+                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -100,6 +101,5 @@ const DepartmentCoursesPage = () => {
     </Box>
   );
 };
-
 
 export default DepartmentCoursesPage;
