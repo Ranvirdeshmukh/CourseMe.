@@ -9,7 +9,7 @@ const LayupsPage = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const isMobile = useMediaQuery('(max-width:600px)');
-  const pageSize = 15; // Fetch top 15 courses
+  const initialPageSize = 30; // Fetch more than 15 courses initially to ensure enough unique courses
 
   const fetchCoursesRef = useRef();
 
@@ -20,23 +20,32 @@ const LayupsPage = () => {
       const q = query(
         collection(db, 'courses'),
         orderBy('layup', 'desc'),
-        limit(pageSize)
+        limit(initialPageSize)
       );
 
       const querySnapshot = await getDocs(q);
       const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // Use a Set to filter out duplicate courses based on a unique combination of course name and department
+      console.log('Fetched courses data:', coursesData); // Log fetched data
+
+      // Use a Set to filter out duplicate courses based on a unique combination of normalized course name
       const uniqueCoursesSet = new Set();
       const uniqueCourses = [];
 
       coursesData.forEach(course => {
-        const uniqueKey = `${course.name}-${course.department}`;
-        if (!uniqueCoursesSet.has(uniqueKey)) {
+        // Normalize course name to avoid duplicates
+        const normalizedCourseName = course.name.trim().toLowerCase();
+        const uniqueKey = `${normalizedCourseName}`;
+        
+        if (!uniqueCoursesSet.has(uniqueKey) && uniqueCourses.length < 15) {
           uniqueCoursesSet.add(uniqueKey);
           uniqueCourses.push(course);
+        } else {
+          console.log('Duplicate found or limit reached:', uniqueKey); // Log duplicates found or if limit reached
         }
       });
+
+      console.log('Unique courses:', uniqueCourses); // Log unique courses
 
       setCourses(uniqueCourses);
     } catch (error) {
@@ -45,7 +54,7 @@ const LayupsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [pageSize]);
+  }, [initialPageSize]);
 
   fetchCoursesRef.current = fetchCourses;
 
@@ -89,7 +98,7 @@ const LayupsPage = () => {
               <TableBody>
                 {courses.map((course, index) => (
                   <TableRow
-                    key={index}
+                    key={course.id}
                     component={Link}
                     to={`/departments/${course.department}/courses/${course.id}`}
                     sx={{
