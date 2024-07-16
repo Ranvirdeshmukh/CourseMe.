@@ -163,6 +163,8 @@ const AllClassesPage = () => {
       </Container>
     </Box>
   );
+
 };
+
 
 export default AllClassesPage;

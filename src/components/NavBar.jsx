@@ -1,4 +1,3 @@
-// src/components/NavBar.jsx
 import React from 'react';
 import { AppBar, Toolbar, Button, Typography, Box } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
@@ -10,8 +9,9 @@ const NavBar = () => {
   const location = useLocation();
 
   const isAllClassesOrDepartmentPage = location.pathname === '/classes' || 
-  location.pathname.startsWith('/departments') || 
-  location.pathname === '/profile';
+    location.pathname.startsWith('/departments') || 
+    location.pathname === '/profile' || 
+    location.pathname === '/layups'; // Add layups to the condition
 
   return (
     <AppBar
@@ -50,6 +50,17 @@ const NavBar = () => {
                 }}
               >
                 All Classes
+              </Button>
+              <Button
+                className="navbar-link"
+                component={Link}
+                to="/layups"
+                sx={{
+                  fontFamily: 'SF Pro Display, sans-serif',
+                  color: isAllClassesOrDepartmentPage ? '#571CE0' : '#FFFFFF',
+                }}
+              >
+                Layups
               </Button>
               <Button
                 className="navbar-link"
