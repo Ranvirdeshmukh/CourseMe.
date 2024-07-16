@@ -77,7 +77,7 @@ const LayupsPage = () => {
       }}
     >
       <Container>
-        <Typography variant="h4" align='left' gutterBottom>Top Layup Courses</Typography>
+        <Typography variant="h4" align='left' gutterBottom>The Biggest Layups Of All Time</Typography>
         {loading ? (
           <CircularProgress sx={{ color: '#571CE0' }} />
         ) : error ? (
@@ -91,7 +91,7 @@ const LayupsPage = () => {
                   <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
                   {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>}
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Num of Reviews</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Quality</TableCell>
+                  {/* <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Quality</TableCell> */}
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Layup</TableCell>
                 </TableRow>
               </TableHead>
@@ -113,7 +113,7 @@ const LayupsPage = () => {
                     <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
                     {!isMobile && <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
                     <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.quality}</TableCell>
+                    {/* <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.quality}</TableCell> */}
                     <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
                   </TableRow>
                 ))}
