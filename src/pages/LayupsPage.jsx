@@ -197,13 +197,13 @@ const LayupsPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
               <Typography sx={{ marginRight: '10px', fontWeight: 'bold', color: '#571CE0' }}>Dept:</Typography>
               <FormControl sx={{ minWidth: 200, '& .MuiInputBase-input': { paddingTop: '10px', paddingBottom: '10px' } }}>
-                <InputLabel id="department-label" sx={{ top: '50%', transform: 'translateY(-50%)' }}> Department</InputLabel>
+                <InputLabel id="department-label" sx={{ color: '#571CE0' }} shrink={!!selectedDepartment}>Department</InputLabel>
                 <Select
                   labelId="department-label"
                   value={selectedDepartment}
                   label="Department"
                   onChange={handleDepartmentChange}
-                  sx={{ height: '40px', backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center' }}
+                  sx={{ height: '40px', backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', color: '#571CE0' }}
                   MenuProps={{
                     PaperProps: {
                       style: {
