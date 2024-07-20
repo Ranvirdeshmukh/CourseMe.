@@ -1,17 +1,21 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper, CircularProgress, useMediaQuery } from '@mui/material';
-import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper, CircularProgress, useMediaQuery, FormControl, InputLabel, Select, MenuItem, Card, CardContent } from '@mui/material';
+import { collection, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const LayupsPage = () => {
   const [courses, setCourses] = useState([]);
+  const [departmentCourses, setDepartmentCourses] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const isMobile = useMediaQuery('(max-width:600px)');
   const initialPageSize = 30; // Fetch more than 15 courses initially to ensure enough unique courses
 
   const fetchCoursesRef = useRef();
+  const fetchDepartmentsRef = useRef();
 
   const fetchCourses = useCallback(async () => {
     try {
@@ -26,7 +30,8 @@ const LayupsPage = () => {
       const querySnapshot = await getDocs(q);
       const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      console.log('Fetched courses data:', coursesData); // Log fetched data
+      // Log fetched data
+      console.log('Fetched courses data:', coursesData);
 
       // Use a Set to filter out duplicate courses based on a unique combination of normalized course name
       const uniqueCoursesSet = new Set();
@@ -56,11 +61,57 @@ const LayupsPage = () => {
     }
   }, [initialPageSize]);
 
+  const fetchDepartmentCourses = useCallback(async (department) => {
+    try {
+      setLoading(true);
+      const q = query(
+        collection(db, 'courses'),
+        where('department', '==', department),
+        orderBy('layup', 'desc'),
+        limit(5)
+      );
+
+      const querySnapshot = await getDocs(q);
+      const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      console.log('Fetched department courses data:', coursesData);
+
+      setDepartmentCourses(coursesData);
+    } catch (error) {
+      console.error('Error fetching department courses:', error);
+      setError('Failed to fetch department courses.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchDepartments = useCallback(async () => {
+    try {
+      const q = query(collection(db, 'courses'));
+      const querySnapshot = await getDocs(q);
+      const departmentsData = querySnapshot.docs.map(doc => doc.data().department);
+      const uniqueDepartments = [...new Set(departmentsData)];
+
+      setDepartments(uniqueDepartments);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+      setError('Failed to fetch departments.');
+    }
+  }, []);
+
   fetchCoursesRef.current = fetchCourses;
+  fetchDepartmentsRef.current = fetchDepartments;
 
   useEffect(() => {
+    fetchDepartmentsRef.current();
     fetchCoursesRef.current();
   }, []);
+
+  const handleDepartmentChange = (event) => {
+    const department = event.target.value;
+    setSelectedDepartment(department);
+    fetchDepartmentCourses(department);
+  };
 
   return (
     <Box
@@ -78,6 +129,7 @@ const LayupsPage = () => {
     >
       <Container>
         <Typography variant="h4" align='left' gutterBottom>The Biggest Layups Of All Time</Typography>
+        
         {loading ? (
           <CircularProgress sx={{ color: '#571CE0' }} />
         ) : error ? (
@@ -91,7 +143,6 @@ const LayupsPage = () => {
                   <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
                   {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>}
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Num of Reviews</TableCell>
-                  {/* <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Quality</TableCell> */}
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Layup</TableCell>
                 </TableRow>
               </TableHead>
@@ -113,7 +164,6 @@ const LayupsPage = () => {
                     <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
                     {!isMobile && <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
                     <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                    {/* <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.quality}</TableCell> */}
                     <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
                   </TableRow>
                 ))}
@@ -123,6 +173,75 @@ const LayupsPage = () => {
         ) : (
           <Typography>No courses available</Typography>
         )}
+      </Container>
+
+      <Container>
+        <Card sx={{ width: '100%', marginTop: '20px' }}>
+          <CardContent>
+            <Typography variant="h4" align='left' gutterBottom>Find the Layups by Department</Typography>
+            
+            <FormControl fullWidth sx={{ marginBottom: '20px' }}>
+              <InputLabel id="department-label">Department</InputLabel>
+              <Select
+                labelId="department-label"
+                value={selectedDepartment}
+                label="Department"
+                onChange={handleDepartmentChange}
+              >
+                <MenuItem value="">
+                  <em>All Departments</em>
+                </MenuItem>
+                {departments.map((department, index) => (
+                  <MenuItem key={index} value={department}>{department}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {loading ? (
+              <CircularProgress sx={{ color: '#571CE0' }} />
+            ) : error ? (
+              <Alert severity="error">{error}</Alert>
+            ) : departmentCourses.length > 0 ? (
+              <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>#</TableCell>
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
+                      {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>}
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Num of Reviews</TableCell>
+                      <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Layup</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {departmentCourses.map((course, index) => (
+                      <TableRow
+                        key={course.id}
+                        component={Link}
+                        to={`/departments/${course.department}/courses/${course.id}`}
+                        sx={{
+                          backgroundColor: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : index % 2 === 0 ? '#FFFFFF' : '#F5F5F5',
+                          '&:hover': { backgroundColor: '#D3D3D3' },
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          color: 'inherit'
+                        }}
+                      >
+                        <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{index + 1}</TableCell>
+                        <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
+                        {!isMobile && <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
+                        <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
+                        <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Typography>No courses available</Typography>
+            )}
+          </CardContent>
+        </Card>
       </Container>
     </Box>
   );
