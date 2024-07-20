@@ -28,7 +28,14 @@ const LayupsPage = () => {
       );
 
       const querySnapshot = await getDocs(q);
-      const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const coursesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name,
+        department: doc.data().department,
+        distribs: doc.data().distribs,
+        numOfReviews: doc.data().numOfReviews,
+        layup: doc.data().layup
+      }));
 
       // Log fetched data
       console.log('Fetched courses data:', coursesData);
@@ -72,7 +79,14 @@ const LayupsPage = () => {
       );
 
       const querySnapshot = await getDocs(q);
-      const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const coursesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name,
+        department: doc.data().department,
+        distribs: doc.data().distribs,
+        numOfReviews: doc.data().numOfReviews,
+        layup: doc.data().layup
+      }));
 
       console.log('Fetched department courses data:', coursesData);
 
@@ -180,22 +194,34 @@ const LayupsPage = () => {
           <CardContent>
             <Typography variant="h4" align='left' gutterBottom>Find the Layups by Department</Typography>
             
-            <FormControl fullWidth sx={{ marginBottom: '20px' }}>
-              <InputLabel id="department-label">Department</InputLabel>
-              <Select
-                labelId="department-label"
-                value={selectedDepartment}
-                label="Department"
-                onChange={handleDepartmentChange}
-              >
-                <MenuItem value="">
-                  <em>All Departments</em>
-                </MenuItem>
-                {departments.map((department, index) => (
-                  <MenuItem key={index} value={department}>{department}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+              <Typography sx={{ marginRight: '10px', fontWeight: 'bold', color: '#571CE0' }}>Dept:</Typography>
+              <FormControl sx={{ minWidth: 200, '& .MuiInputBase-input': { paddingTop: '10px', paddingBottom: '10px' } }}>
+                <InputLabel id="department-label" sx={{ top: '50%', transform: 'translateY(-50%)' }}> Department</InputLabel>
+                <Select
+                  labelId="department-label"
+                  value={selectedDepartment}
+                  label="Department"
+                  onChange={handleDepartmentChange}
+                  sx={{ height: '40px', backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center' }}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                        width: 250,
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>All Departments</em>
+                  </MenuItem>
+                  {departments.map((department, index) => (
+                    <MenuItem key={index} value={department}>{department}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
 
             {loading ? (
               <CircularProgress sx={{ color: '#571CE0' }} />
@@ -238,7 +264,7 @@ const LayupsPage = () => {
                 </Table>
               </TableContainer>
             ) : (
-              <Typography>No courses available</Typography>
+              <Typography>Select the department to see the Biggest layups</Typography>
             )}
           </CardContent>
         </Card>
