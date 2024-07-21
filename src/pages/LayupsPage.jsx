@@ -1,6 +1,26 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper, CircularProgress, useMediaQuery, FormControl, InputLabel, Select, MenuItem, Card, CardContent } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Alert,
+  Paper,
+  CircularProgress,
+  useMediaQuery,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Card,
+  CardContent
+} from '@mui/material';
 import { collection, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -11,11 +31,9 @@ const LayupsPage = () => {
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [departmentLoading, setDepartmentLoading] = useState(false); // Separate loading state for department courses
   const isMobile = useMediaQuery('(max-width:600px)');
   const initialPageSize = 30; // Fetch more than 15 courses initially to ensure enough unique courses
-
-  const fetchCoursesRef = useRef();
-  const fetchDepartmentsRef = useRef();
 
   const fetchCourses = useCallback(async () => {
     try {
@@ -70,7 +88,7 @@ const LayupsPage = () => {
 
   const fetchDepartmentCourses = useCallback(async (department) => {
     try {
-      setLoading(true);
+      setDepartmentLoading(true);
       const q = query(
         collection(db, 'courses'),
         where('department', '==', department),
@@ -95,7 +113,7 @@ const LayupsPage = () => {
       console.error('Error fetching department courses:', error);
       setError('Failed to fetch department courses.');
     } finally {
-      setLoading(false);
+      setDepartmentLoading(false);
     }
   }, []);
 
@@ -113,18 +131,19 @@ const LayupsPage = () => {
     }
   }, []);
 
-  fetchCoursesRef.current = fetchCourses;
-  fetchDepartmentsRef.current = fetchDepartments;
-
   useEffect(() => {
-    fetchDepartmentsRef.current();
-    fetchCoursesRef.current();
-  }, []);
+    fetchDepartments();
+    fetchCourses();
+  }, [fetchCourses, fetchDepartments]);
 
   const handleDepartmentChange = (event) => {
     const department = event.target.value;
     setSelectedDepartment(department);
-    fetchDepartmentCourses(department);
+    if (department) {
+      fetchDepartmentCourses(department);
+    } else {
+      setDepartmentCourses([]);
+    }
   };
 
   return (
@@ -133,31 +152,30 @@ const LayupsPage = () => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         backgroundColor: '#E4E2DD',
-        color: '#571CE0',
-        textAlign: 'center',
-        fontFamily: 'SF Pro Display, sans-serif',
         padding: '20px'
       }}
     >
-      <Container>
-        <Typography variant="h4" align='left' gutterBottom>The Biggest Layups Of All Time</Typography>
+      <Container maxWidth="lg">
+        <Typography variant="h4" align='left' gutterBottom color="primary" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
+          The Biggest Layups Of All Time
+        </Typography>
         
         {loading ? (
-          <CircularProgress sx={{ color: '#571CE0' }} />
+          <CircularProgress color="primary" />
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : courses.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
+          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginBottom: '20px', boxShadow: 3 }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>#</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
-                  {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>}
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Num of Reviews</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Layup</TableCell>
+                  <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>#</TableCell>
+                  <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>Course Name</TableCell>
+                  {!isMobile && <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Distribs</TableCell>}
+                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Num of Reviews</TableCell>
+                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Layup</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -167,18 +185,18 @@ const LayupsPage = () => {
                     component={Link}
                     to={`/departments/${course.department}/courses/${course.id}`}
                     sx={{
-                      backgroundColor: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : index % 2 === 0 ? '#FFFFFF' : '#F5F5F5',
-                      '&:hover': { backgroundColor: '#D3D3D3' },
+                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                      '&:hover': { backgroundColor: '#e0e0e0' },
                       cursor: 'pointer',
                       textDecoration: 'none',
                       color: 'inherit'
                     }}
                   >
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{index + 1}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
-                    {!isMobile && <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
+                    <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{index + 1}</TableCell>
+                    <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
+                    {!isMobile && <TableCell sx={{ padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
+                    <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
+                    <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -189,21 +207,23 @@ const LayupsPage = () => {
         )}
       </Container>
 
-      <Container>
-        <Card sx={{ width: '100%', marginTop: '20px' }}>
+      <Container maxWidth="lg">
+        <Card sx={{ width: '100%', marginTop: '20px', boxShadow: 3 }}>
           <CardContent>
-            <Typography variant="h4" align='left' gutterBottom>Find the Layups by Department</Typography>
+            <Typography variant="h5" align='left' gutterBottom color="primary" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
+              Find the Layups by Department
+            </Typography>
             
             <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <Typography sx={{ marginRight: '10px', fontWeight: 'bold', color: '#571CE0' }}>Dept:</Typography>
+              <Typography sx={{ marginRight: '10px', fontWeight: 'bold', color: 'primary.main' }}>Dept:</Typography>
               <FormControl sx={{ minWidth: 200, '& .MuiInputBase-input': { paddingTop: '10px', paddingBottom: '10px' } }}>
-                <InputLabel id="department-label" sx={{ color: '#571CE0' }} shrink={!!selectedDepartment}>Department</InputLabel>
+                <InputLabel id="department-label" sx={{ color: 'primary.main' }} shrink={!!selectedDepartment}>Department</InputLabel>
                 <Select
                   labelId="department-label"
                   value={selectedDepartment}
                   label="Department"
                   onChange={handleDepartmentChange}
-                  sx={{ height: '40px', backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', color: '#571CE0' }}
+                  sx={{ height: '40px', backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', color: 'primary.main' }}
                   MenuProps={{
                     PaperProps: {
                       style: {
@@ -223,20 +243,20 @@ const LayupsPage = () => {
               </FormControl>
             </Box>
 
-            {loading ? (
-              <CircularProgress sx={{ color: '#571CE0' }} />
+            {departmentLoading ? (
+              <CircularProgress color="primary" />
             ) : error ? (
               <Alert severity="error">{error}</Alert>
             ) : departmentCourses.length > 0 ? (
-              <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
+              <TableContainer component={Paper} sx={{ backgroundColor: '#fff', boxShadow: 3 }}>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>#</TableCell>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
-                      {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>}
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Num of Reviews</TableCell>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Layup</TableCell>
+                      <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>#</TableCell>
+                      <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>Course Name</TableCell>
+                      {!isMobile && <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Distribs</TableCell>}
+                      <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Num of Reviews</TableCell>
+                      <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Layup</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -246,18 +266,18 @@ const LayupsPage = () => {
                         component={Link}
                         to={`/departments/${course.department}/courses/${course.id}`}
                         sx={{
-                          backgroundColor: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : index % 2 === 0 ? '#FFFFFF' : '#F5F5F5',
-                          '&:hover': { backgroundColor: '#D3D3D3' },
+                          backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                          '&:hover': { backgroundColor: '#e0e0e0' },
                           cursor: 'pointer',
                           textDecoration: 'none',
                           color: 'inherit'
                         }}
                       >
-                        <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{index + 1}</TableCell>
-                        <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
-                        {!isMobile && <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
-                        <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                        <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{index + 1}</TableCell>
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
+                        {!isMobile && <TableCell sx={{ padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
