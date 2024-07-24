@@ -1,13 +1,31 @@
-// src/pages/ProfilePage.jsx
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Button, List, ListItem, ListItemText, IconButton, Divider, Card, Avatar, TextField, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Box,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Divider,
+  Card,
+  Avatar,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  CircularProgress,
+  Alert
+} from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, arrayRemove, setDoc } from 'firebase/firestore';
-import Footer from '../components/Footer'; // Import Footer component
+import Footer from '../components/Footer';
 
 const ProfilePage = () => {
   const { currentUser } = useAuth();
@@ -16,6 +34,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [newProfileData, setNewProfileData] = useState({});
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -31,6 +50,8 @@ const ProfilePage = () => {
             firstName: userData.firstName || '',
             lastName: userData.lastName || ''
           });
+        } else {
+          setError('Failed to fetch profile data.');
         }
         setLoading(false);
       }
@@ -53,12 +74,10 @@ const ProfilePage = () => {
       const sanitizedCourseId = review.courseId;
       const courseDocRef = doc(db, 'reviews', sanitizedCourseId);
 
-      // Remove review from user's profile
       await updateDoc(userDocRef, {
         reviews: arrayRemove(review),
       });
 
-      // Remove review from course's reviews
       const courseDocSnap = await getDoc(courseDocRef);
       if (courseDocSnap.exists()) {
         const courseData = courseDocSnap.data();
@@ -71,7 +90,6 @@ const ProfilePage = () => {
         await setDoc(courseDocRef, courseData);
       }
 
-      // Update the frontend state
       setProfileData(prevState => ({
         ...prevState,
         reviews: prevState.reviews.filter(r => r !== review),
@@ -117,22 +135,19 @@ const ProfilePage = () => {
         flexDirection: 'column',
         alignItems: 'center',
         backgroundColor: '#E4E2DD',
-        color: '#571CE0',
-        textAlign: 'center',
-        fontFamily: 'SF Pro Display, sans-serif',
-        paddingTop: 4,
-        position: 'relative',
-        paddingBottom: '80px' // Make space for the footer
+        padding: '20px'
       }}
     >
       <Container maxWidth="md">
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-            <CircularProgress sx={{ color: '#571CE0' }} />
+            <CircularProgress color="primary" />
           </Box>
+        ) : error ? (
+          <Alert severity="error">{error}</Alert>
         ) : (
           <>
-            <Card sx={{ marginBottom: 4, padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+            <Card sx={{ marginBottom: 4, padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
                 <Avatar sx={{ bgcolor: '#571CE0', width: 56, height: 56, marginRight: 2 }}>
                   {currentUser.email.charAt(0).toUpperCase()}
@@ -149,7 +164,7 @@ const ProfilePage = () => {
                 <Typography>Last Name: {profileData.lastName}</Typography>
                 <Typography>Major: {profileData.major}</Typography>
                 <Typography>Class Year: {profileData.classYear}</Typography>
-                <Button variant="contained" color="primary" onClick={handleEditProfile} sx={{ mt: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+                <Button variant="contained" color="primary" onClick={handleEditProfile} sx={{ mt: 2, boxShadow: 3 }}>
                   Edit Profile
                 </Button>
               </Box>
@@ -201,12 +216,12 @@ const ProfilePage = () => {
               </DialogActions>
             </Dialog>
             
-            <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+            <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3 }}>
               <Typography variant="h5" gutterBottom>My Reviews</Typography>
               <Divider />
               <List>
                 {profileData.reviews?.map((review, idx) => (
-                  <ListItem key={idx} sx={{ backgroundColor: '#E4E2DD', margin: '10px 0', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+                  <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
                     <ListItemText
                       primary={
                         <>
@@ -240,7 +255,7 @@ const ProfilePage = () => {
                 mt: 2,
                 background: 'linear-gradient(90deg, rgba(87,28,224,1) 0%, rgba(144,19,254,1) 100%)',
                 borderRadius: '25px',
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                boxShadow: 3
               }}
             >
               Log Out
@@ -248,7 +263,7 @@ const ProfilePage = () => {
           </>
         )}
       </Container>
-      <Footer /> {/* Add Footer component */}
+      <Footer />
     </Box>
   );
 };

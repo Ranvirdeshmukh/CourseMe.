@@ -1,7 +1,10 @@
 
-# Dart-course-review
+CourseMe. 
+Launching Fall 2024
 
 Made for Dartmouth Students by Dartmouth students.
+
+https://courseme-62h3.onrender.com
 
 
 ![alt text](<public/ss/Screenshot 2024-07-06 at 7.07.27 PM.png>) 
