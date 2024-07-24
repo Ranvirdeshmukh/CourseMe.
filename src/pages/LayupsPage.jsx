@@ -215,7 +215,7 @@ const LayupsPage = () => {
             </Typography>
             
             <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <Typography sx={{ marginRight: '10px', fontWeight: 'bold', color: 'primary.main' }}>Dept:</Typography>
+              {/* <Typography sx={{ marginRight: '10px', fontWeight: 'bold', color: 'primary.main' }}>Dept:</Typography> */}
               <FormControl sx={{ minWidth: 200, '& .MuiInputBase-input': { paddingTop: '10px', paddingBottom: '10px' } }}>
                 <InputLabel id="department-label" sx={{ color: 'primary.main' }} shrink={!!selectedDepartment}>Department</InputLabel>
                 <Select
