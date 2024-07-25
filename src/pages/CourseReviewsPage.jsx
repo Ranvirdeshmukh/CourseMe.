@@ -461,62 +461,67 @@ const CourseReviewsPage = () => {
               </Box>
             )}
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
-            <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
-              <Table sx={{ minWidth: 300 }}>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', padding: '8px' }}>
-                      Name
-                    </TableCell>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', padding: '8px' }}>
-                      Reviews
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Object.entries(reviews.reduce((acc, review) => {
-                    const { instructor } = review;
-                    if (!acc[instructor]) {
-                      acc[instructor] = [];
-                    }
-                    acc[instructor].push(review);
-                    return acc;
-                  }, {})).map(([instructor, reviewList], index) => (
-                    <TableRow key={index}>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', padding: '8px' }}>
-                        <Link to={`/departments/${department}/courses/${courseId}/professors/${instructor}`} style={{ textDecoration: 'none', color: '#571CE0' }}>{instructor}</Link>
-                      </TableCell>
-                      <TableCell sx={{ color: '#571CE0', textAlign: 'left', padding: '8px' }}>
-                        {Array.isArray(reviewList) ? reviewList.length : 0}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Name</TableCell>
+        <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Reviews</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {Object.entries(reviews.reduce((acc, review) => {
+        const { instructor } = review;
+        if (!acc[instructor]) {
+          acc[instructor] = [];
+        }
+        acc[instructor].push(review);
+        return acc;
+      }, {})).map(([instructor, reviewList], index) => (
+        <TableRow
+          key={index}
+          component={Link}
+          to={`/departments/${department}/courses/${courseId}/professors/${instructor}`}
+          sx={{
+            backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+            '&:hover': { backgroundColor: '#e0e0e0' },
+            cursor: 'pointer',
+            textDecoration: 'none',
+            color: 'inherit'
+          }}
+        >
+          <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{instructor}</TableCell>
+          <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{Array.isArray(reviewList) ? reviewList.length : 0}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+
             </TableContainer>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <Typography variant="h4" gutterBottom textAlign="left">
-                Reviews
-              </Typography>
-              <FormControl size="small" sx={{ minWidth: 120, backgroundColor: '#fff', borderRadius: '4px' }}>
-                <InputLabel id="select-professor-label">Professor</InputLabel>
-                <Select
-                  labelId="select-professor-label"
-                  value={selectedProfessor}
-                  onChange={handleProfessorChange}
-                  label="Professor"
-                >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
-                  {uniqueProfessors.map((professor, index) => (
-                    <MenuItem key={index} value={professor}>
-                      {professor}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '-10px', marginTop: '60px' }}>
+  <Typography variant="h4" gutterBottom textAlign="left">
+    Reviews
+  </Typography>
+  <FormControl size="small" sx={{ minWidth: 120, backgroundColor: '#fff', borderRadius: '4px' }}>
+    <InputLabel id="select-professor-label">Professor</InputLabel>
+    <Select
+      labelId="select-professor-label"
+      value={selectedProfessor}
+      onChange={handleProfessorChange}
+      label="Professor"
+    >
+      <MenuItem value="">
+        <em>All</em>
+      </MenuItem>
+      {uniqueProfessors.map((professor, index) => (
+        <MenuItem key={index} value={professor}>
+          {professor}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+</Box>
+
 
             {renderReviews()}
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', width: '100%' }}>
