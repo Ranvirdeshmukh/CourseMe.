@@ -1,7 +1,23 @@
-import { Alert, Box, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, TextField, InputAdornment, useMediaQuery } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { 
+  Alert, 
+  Box, 
+  Container, 
+  Paper, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Typography, 
+  TextField, 
+  InputAdornment, 
+  useMediaQuery, 
+  CircularProgress 
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import departmentOverview from '../classstructure/departmentOverview';
 
 const AllClassesPage = () => {
@@ -9,13 +25,14 @@ const AllClassesPage = () => {
   const [filteredDepartments, setFilteredDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const exampleIndexRef = useRef(0);
   const charIndexRef = useRef(0);
   const forwardRef = useRef(true);
   const [placeholder, setPlaceholder] = useState('');
   const isMobile = useMediaQuery('(max-width:600px)');
 
-  const departmentExamples = useMemo(() => ['Computer Science', 'Biology', 'Chemistry', 'History', 'Mathematics'], []);
+  const departmentExamples = useMemo(() => ['Search Departments', 'Computer Science', 'Biology', 'Chemistry', 'History', 'Mathematics'], []);
 
   useEffect(() => {
     try {
@@ -25,6 +42,8 @@ const AllClassesPage = () => {
     } catch (error) {
       setError('Failed to fetch departments.');
       console.error('Error fetching departments:', error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -80,15 +99,12 @@ const AllClassesPage = () => {
         flexDirection: 'column',
         alignItems: 'center',
         backgroundColor: '#E4E2DD',
-        color: '#571CE0',
-        textAlign: 'center',
-        fontFamily: 'SF Pro Display, sans-serif',
         padding: '20px'
       }}
     >
-      <Container>
-        <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
-          <Typography variant="h4" gutterBottom>
+      <Container maxWidth="lg">
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
+          <Typography variant="h4" align='left' color="primary" sx={{ fontWeight: 'bold' }}>
             All Departments at <span style={{ color: 'green' }}>Dartmouth</span>
           </Typography>
           <TextField
@@ -124,9 +140,13 @@ const AllClassesPage = () => {
             }}
           />
         </Box>
-        {error && <Alert severity="error">{error}</Alert>}
-        {filteredDepartments.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', marginTop: '20px' }}>
+
+        {loading ? (
+          <CircularProgress color="primary" />
+        ) : error ? (
+          <Alert severity="error">{error}</Alert>
+        ) : filteredDepartments.length > 0 ? (
+          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -142,8 +162,8 @@ const AllClassesPage = () => {
                     component={Link}
                     to={`/departments/${department}`}
                     sx={{
-                      '&:nth-of-type(odd)': { backgroundColor: '#F5F5F5' },
-                      '&:hover': { backgroundColor: '#D3D3D3' },
+                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                      '&:hover': { backgroundColor: '#e0e0e0' },
                       cursor: 'pointer',
                       textDecoration: 'none',
                       color: 'inherit'
@@ -163,8 +183,6 @@ const AllClassesPage = () => {
       </Container>
     </Box>
   );
-
 };
-
 
 export default AllClassesPage;

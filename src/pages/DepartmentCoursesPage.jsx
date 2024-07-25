@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Paper, CircularProgress, useMediaQuery } from '@mui/material';
+import { 
+  Container, 
+  Typography, 
+  Box, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Alert, 
+  Paper, 
+  CircularProgress, 
+  useMediaQuery 
+} from '@mui/material';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import departmentMapping from '../classstructure/departmentMapping';
@@ -43,23 +57,24 @@ const DepartmentCoursesPage = () => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#E4E2DD',
-        color: '#571CE0',
-        textAlign: 'center',
-        fontFamily: 'SF Pro Display, sans-serif',
         padding: '20px'
       }}
     >
-      <Container>
-        <Typography variant="h4" align='left' gutterBottom>Courses in {departmentMapping[department]?.name || department}</Typography>
+      <Container maxWidth="lg">
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
+          <Typography variant="h4" align='left' color="primary" sx={{ fontWeight: 'bold' }}>
+            Courses in {departmentMapping[department]?.name || department}
+          </Typography>
+        </Box>
+
         {loading ? (
-          <CircularProgress sx={{ color: '#571CE0' }} />
+          <CircularProgress color="primary" />
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : courses.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#E4E2DD', margin: '20px 0' }}>
+          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -77,8 +92,8 @@ const DepartmentCoursesPage = () => {
                     component={Link}
                     to={`/departments/${department}/courses/${course.id}`}
                     sx={{
-                      '&:nth-of-type(odd)': { backgroundColor: '#F5F5F5' },
-                      '&:hover': { backgroundColor: '#D3D3D3' },
+                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                      '&:hover': { backgroundColor: '#e0e0e0' },
                       cursor: 'pointer',
                       textDecoration: 'none',
                       color: 'inherit'
