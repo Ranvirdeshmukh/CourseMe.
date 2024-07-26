@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext'; // Assuming you have an AuthC
 import { db } from '../firebase';
 import AddReviewForm from './AddReviewForm';
 
+
 const CourseReviewsPage = () => {
   const { department, courseId } = useParams();
   const { currentUser } = useAuth(); // Get the current user
@@ -21,6 +22,8 @@ const CourseReviewsPage = () => {
   const [selectedProfessor, setSelectedProfessor] = useState('');
   const [loading, setLoading] = useState(true);
   const [vote, setVote] = useState(null); // Track the user's current vote
+  const [courseDescription, setCourseDescription] = useState('');
+
   const reviewsPerPage = 5;
 
   const fetchReviews = useCallback(async () => {
@@ -84,6 +87,7 @@ const CourseReviewsPage = () => {
     }
   }, [courseId]);
 
+
   const fetchUserVote = useCallback(async () => {
     if (!currentUser) return;
     const userDocRef = doc(db, 'users', currentUser.uid);
@@ -94,6 +98,28 @@ const CourseReviewsPage = () => {
       setVote(userVote);
     }
   }, [currentUser, courseId]);
+
+useEffect(() => {
+  const fetchCourseDescription = async () => {
+    try {
+      const threeChars = courseName.slice(-3);
+      const response = await fetch(`/api/dart/groucho/course_desc.display_course_desc?term=202409&subj=${department}&numb=${threeChars}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
+      const data = await response.text();
+      setCourseDescription(data);
+    } catch (error) {
+      console.error('Error fetching course description:', error);
+      setError(error.message);
+    }
+    setLoading(false);
+  };
+
+  fetchCourseDescription();
+}, [department]);
+  
+  
 
   useEffect(() => {
     fetchCourse();
@@ -548,6 +574,18 @@ const CourseReviewsPage = () => {
     >
       <Container>
         <Typography variant="h4" gutterBottom textAlign="center">Reviews for {courseName}</Typography>
+        
+        {/* Display the course description */}
+        {/* Display the course description */}
+{/* Display the course description */}
+{courseDescription && (
+  <Box sx={{ textAlign: 'left', marginBottom: '20px', color: 'black' }}>
+    <Typography variant="body1" sx={{ fontSize: '0.875rem', color: 'black', textAlign: 'left' }} dangerouslySetInnerHTML={{ __html: courseDescription }} />
+  </Box>
+)}
+
+
+  
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress sx={{ color: '#571CE0' }} />
@@ -559,33 +597,33 @@ const CourseReviewsPage = () => {
             {course && (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
                 <Box sx={{ 
-  display: 'flex', 
-  flexDirection: 'row', 
-  alignItems: 'center', 
-  border: '1px solid #571CE0', 
-  borderRadius: '8px', 
-  padding: '10px', 
-  backgroundColor: '#E4E2DD',
-  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-  gap: '20px',
-  justifyContent: 'space-around'
-}}>
-  <Tooltip title="Upvote">
-    <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}>
-      <ArrowUpward sx={{ fontSize: 30 }} />
-    </IconButton>
-  </Tooltip>
-  <Typography variant="h4" sx={{ margin: '0 20px', color: '#571CE0' }}>{course.layup || 0}</Typography>
-  <Tooltip title="Downvote">
-    <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}>
-      <ArrowDownward sx={{ fontSize: 30 }} />
-    </IconButton>
-  </Tooltip>
-  <Typography variant="caption" sx={{ color: '#571CE0' }}>Is it a layup?</Typography>
-</Box>
-
+                  display: 'flex', 
+                  flexDirection: 'row', 
+                  alignItems: 'center', 
+                  border: '1px solid #571CE0', 
+                  borderRadius: '8px', 
+                  padding: '10px', 
+                  backgroundColor: '#E4E2DD',
+                  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                  gap: '20px',
+                  justifyContent: 'space-around'
+                }}>
+                  <Tooltip title="Upvote">
+                    <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}>
+                      <ArrowUpward sx={{ fontSize: 30 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="h4" sx={{ margin: '0 20px', color: '#571CE0' }}>{course.layup || 0}</Typography>
+                  <Tooltip title="Downvote">
+                    <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}>
+                      <ArrowDownward sx={{ fontSize: 30 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="caption" sx={{ color: '#571CE0' }}>Is it a layup?</Typography>
+                </Box>
               </Box>
             )}
+            
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
   <Table>
@@ -650,6 +688,7 @@ const CourseReviewsPage = () => {
 
 
             {renderReviews()}
+  
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', width: '100%' }}>
               <Tooltip title="Previous Page" placement="top">
                 <span>
