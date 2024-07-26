@@ -1,10 +1,12 @@
-import { ArrowBack, ArrowDownward, ArrowForward, ArrowUpward } from '@mui/icons-material';
-import { Alert, Box, Button, ButtonGroup, CircularProgress, Container, FormControl, IconButton, InputLabel, List, ListItem, ListItemText, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { motion } from 'framer-motion';
-import React, { useCallback, useEffect, useState } from 'react';
+
+
+import React, { useEffect, useState, useCallback } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { Container, Typography, Box, Alert, Table, TableBody,TextField, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip, MenuItem, Select, FormControl, InputLabel, CircularProgress } from '@mui/material';
+import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
-import { Link, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { doc, getDoc, updateDoc, setDoc, collection, getDocs, addDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext'; // Assuming you have an AuthContext
 import { db } from '../firebase';
 import AddReviewForm from './AddReviewForm';
@@ -19,8 +21,6 @@ const CourseReviewsPage = () => {
   const [selectedProfessor, setSelectedProfessor] = useState('');
   const [loading, setLoading] = useState(true);
   const [vote, setVote] = useState(null); // Track the user's current vote
-  const [courseDescription, setCourseDescription] = useState('');
-
   const reviewsPerPage = 5;
 
   const fetchReviews = useCallback(async () => {
@@ -30,30 +30,30 @@ const CourseReviewsPage = () => {
       const docSnap = await getDoc(docRef);
       return docSnap.exists() ? docSnap.data() : null;
     };
-
+  
     try {
       let data = null;
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
-
+  
       if (transformedCourseId) {
         data = await fetchDocument(`reviews/${transformedCourseId}`);
       }
-
+  
       if (!data) {
         const sanitizedCourseId = courseId.split('_')[1];
         data = await fetchDocument(`reviews/${sanitizedCourseId}`);
       }
-
+  
       if (data) {
         const reviewsArray = Object.entries(data).flatMap(([instructor, reviewList]) => {
           if (Array.isArray(reviewList)) {
-            return reviewList.map(review => ({ instructor, review }));
+            return reviewList.map((review, index) => ({ instructor, review, reviewIndex: index, courseId }));
           } else {
             return [];
           }
         });
-
+  
         setReviews(reviewsArray);
       } else {
         setError('No reviews found for this course.');
@@ -64,6 +64,7 @@ const CourseReviewsPage = () => {
       setLoading(false);
     }
   }, [courseId]);
+  
 
   const fetchCourse = useCallback(async () => {
     setLoading(true);
@@ -83,7 +84,6 @@ const CourseReviewsPage = () => {
     }
   }, [courseId]);
 
-
   const fetchUserVote = useCallback(async () => {
     if (!currentUser) return;
     const userDocRef = doc(db, 'users', currentUser.uid);
@@ -94,28 +94,6 @@ const CourseReviewsPage = () => {
       setVote(userVote);
     }
   }, [currentUser, courseId]);
-
-useEffect(() => {
-  const fetchCourseDescription = async () => {
-    try {
-      const threeChars = courseName.slice(-3);
-      const response = await fetch(`/api/dart/groucho/course_desc.display_course_desc?term=202409&subj=${department}&numb=${threeChars}`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
-      }
-      const data = await response.text();
-      setCourseDescription(data);
-    } catch (error) {
-      console.error('Error fetching course description:', error);
-      setError(error.message);
-    }
-    setLoading(false);
-  };
-
-  fetchCourseDescription();
-}, [department]);
-  
-  
 
   useEffect(() => {
     fetchCourse();
@@ -152,6 +130,7 @@ useEffect(() => {
   };
 
   const splitReviewText = (review) => {
+    if (!review) return { prefix: '', rest: '' };
     const match = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/);
     if (match) {
       const [prefix, rest] = match.slice(1, 3);
@@ -160,6 +139,7 @@ useEffect(() => {
       return { prefix: '', rest: review };
     }
   };
+  
 
   const handleChangePage = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -169,10 +149,27 @@ useEffect(() => {
     setSelectedProfessor(event.target.value);
     setCurrentPage(1);
   };
-  const ReviewItem = ({ instructor, prefix, rest }) => {
-    const { ref, inView } = useInView({
-      threshold: 0.1,
-    });
+  
+  const ReviewItem = ({ instructor, prefix, rest, courseId, reviewIndex, onReplyAdded }) => {
+    const { ref, inView } = useInView({ threshold: 0.1 });
+    const [replies, setReplies] = useState([]);
+  
+    const fetchReplies = async () => {
+      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+      const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
+      const sanitizedInstructor = instructor.replace(/\./g, '_');
+  
+      const repliesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_replies`);
+      const replyDocs = await getDocs(repliesCollectionRef);
+  
+      const fetchedReplies = replyDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setReplies(fetchedReplies);
+    };
+  
+    useEffect(() => {
+      fetchReplies();
+    }, [courseId, instructor, reviewIndex]);
   
     return (
       <motion.div
@@ -196,11 +193,45 @@ useEffect(() => {
             }
           />
         </ListItem>
+        {replies.length > 0 && (
+          <List sx={{ pl: 4 }}>
+            {replies.map((reply, index) => (
+              <ListItem key={index} sx={{ backgroundColor: '#f9f9f9', borderRadius: '8px', marginTop: '10px' }}>
+                <ListItemText
+                  primary={
+                    <>
+                      <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                        {reply.author}:
+                      </Typography>{' '}
+                      <Typography component="span" sx={{ color: 'black', fontSize: '0.8rem' }}>
+                        {reply.reply}
+                      </Typography>
+                      <Typography component="span" sx={{ color: 'grey', fontSize: '0.7rem', marginLeft: '10px' }}>
+                        {new Date(reply.timestamp).toLocaleString()}
+                      </Typography>
+                    </>
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+        )}
+        <AddReplyForm
+          reviewData={{ instructor, reviewIndex }}
+          courseId={courseId}
+          onReplyAdded={() => {
+            fetchReplies(); // Refresh replies
+            onReplyAdded(); // Refresh reviews
+          }}
+        />
       </motion.div>
     );
   };
   
-
+  
+  
+  
+  
   const renderReviews = () => {
     const filteredReviews = selectedProfessor ? reviews.filter(item => item.instructor === selectedProfessor) : reviews;
     const indexOfLastReview = currentPage * reviewsPerPage;
@@ -212,9 +243,11 @@ useEffect(() => {
     return (
       <List sx={{ maxWidth: '100%', margin: '0' }}>
         {currentReviews.map((item, idx) => {
-          const { prefix, rest } = splitReviewText(item.review);
           const showInstructor = item.instructor !== lastInstructor;
           lastInstructor = item.instructor;
+  
+          const { prefix, rest } = splitReviewText(item.review);
+          const replies = item.replies || [];  // Correctly use item.replies
   
           return (
             <React.Fragment key={idx}>
@@ -223,7 +256,16 @@ useEffect(() => {
                   {item.instructor}
                 </Typography>
               )}
-              <ReviewItem key={idx} prefix={prefix} rest={rest} />
+              <ReviewItem
+                key={idx}
+                instructor={item.instructor}
+                prefix={prefix}
+                rest={rest}
+                replies={replies}
+                courseId={courseId}
+                reviewIndex={item.reviewIndex}
+                onReplyAdded={fetchReviews} // Ensure fetchReviews is called to update UI
+              />
             </React.Fragment>
           );
         })}
@@ -231,7 +273,66 @@ useEffect(() => {
     );
   };
   
-
+  
+  
+    
+  const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
+    const [reply, setReply] = useState('');
+    const { currentUser } = useAuth();
+  
+    const handleReplySubmit = async (e) => {
+      e.preventDefault();
+      if (!currentUser || !reply) return;
+  
+      const newReply = {
+        reply,
+        author: currentUser.displayName,
+        timestamp: new Date().toISOString(),
+      };
+  
+      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+      const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
+  
+      const reviewRef = doc(db, 'reviews', sanitizedCourseId);
+      const docSnap = await getDoc(reviewRef);
+  
+      if (docSnap.exists()) {
+        const { instructor, reviewIndex } = reviewData;
+        const sanitizedInstructor = instructor.replace(/\./g, '_');
+  
+        const repliesCollectionRef = collection(reviewRef, `${sanitizedInstructor}_${reviewIndex}_replies`);
+  
+        try {
+          await addDoc(repliesCollectionRef, newReply);
+          setReply('');
+          onReplyAdded(); // Refresh the reviews
+        } catch (error) {
+          console.error('Error adding reply:', error);
+        }
+      } else {
+        console.error('Review document does not exist');
+      }
+    };
+  
+    return (
+      <form onSubmit={handleReplySubmit}>
+        <TextField
+          value={reply}
+          onChange={(e) => setReply(e.target.value)}
+          label="Add a reply"
+          fullWidth
+          multiline
+          rows={2}
+          variant="outlined"
+          sx={{ margin: '10px 0' }}
+        />
+        <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '10px' }}>
+          Submit Reply
+        </Button>
+      </form>
+    );
+  };
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
   const renderPageButtons = () => {
@@ -447,14 +548,6 @@ useEffect(() => {
     >
       <Container>
         <Typography variant="h4" gutterBottom textAlign="center">Reviews for {courseName}</Typography>
-        
-        {/* Display the course description */}
-        {courseDescription && (
-          <Box sx={{ textAlign: 'center', marginBottom: '20px', color: '#571CE0', backgroundColor: 'transparent !important' }}>
-            <Typography variant="body1" sx={{ fontSize: '0.875rem', backgroundColor: 'transparent !important' }} dangerouslySetInnerHTML={{ __html: courseDescription }} />
-          </Box>
-        )}
-  
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress sx={{ color: '#571CE0' }} />
@@ -466,33 +559,33 @@ useEffect(() => {
             {course && (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
                 <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'row', 
-                  alignItems: 'center', 
-                  border: '1px solid #571CE0', 
-                  borderRadius: '8px', 
-                  padding: '10px', 
-                  backgroundColor: '#E4E2DD',
-                  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                  gap: '20px',
-                  justifyContent: 'space-around'
-                }}>
-                  <Tooltip title="Upvote">
-                    <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}>
-                      <ArrowUpward sx={{ fontSize: 30 }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Typography variant="h4" sx={{ margin: '0 20px', color: '#571CE0' }}>{course.layup || 0}</Typography>
-                  <Tooltip title="Downvote">
-                    <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}>
-                      <ArrowDownward sx={{ fontSize: 30 }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Typography variant="caption" sx={{ color: '#571CE0' }}>Is it a layup?</Typography>
-                </Box>
+  display: 'flex', 
+  flexDirection: 'row', 
+  alignItems: 'center', 
+  border: '1px solid #571CE0', 
+  borderRadius: '8px', 
+  padding: '10px', 
+  backgroundColor: '#E4E2DD',
+  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+  gap: '20px',
+  justifyContent: 'space-around'
+}}>
+  <Tooltip title="Upvote">
+    <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}>
+      <ArrowUpward sx={{ fontSize: 30 }} />
+    </IconButton>
+  </Tooltip>
+  <Typography variant="h4" sx={{ margin: '0 20px', color: '#571CE0' }}>{course.layup || 0}</Typography>
+  <Tooltip title="Downvote">
+    <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}>
+      <ArrowDownward sx={{ fontSize: 30 }} />
+    </IconButton>
+  </Tooltip>
+  <Typography variant="caption" sx={{ color: '#571CE0' }}>Is it a layup?</Typography>
+</Box>
+
               </Box>
             )}
-            
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
   <Table>
@@ -531,7 +624,6 @@ useEffect(() => {
   </Table>
 
             </TableContainer>
-<<<<<<< HEAD
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '-10px', marginTop: '60px' }}>
   <Typography variant="h4" gutterBottom textAlign="left">
     Reviews
@@ -557,35 +649,7 @@ useEffect(() => {
 </Box>
 
 
-=======
-  
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <Typography variant="h4" gutterBottom textAlign="left">
-                Reviews
-              </Typography>
-              <FormControl size="small" sx={{ minWidth: 120, backgroundColor: '#fff', borderRadius: '4px' }}>
-                <InputLabel id="select-professor-label">Professor</InputLabel>
-                <Select
-                  labelId="select-professor-label"
-                  value={selectedProfessor}
-                  onChange={handleProfessorChange}
-                  label="Professor"
-                >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
-                  {uniqueProfessors.map((professor, index) => (
-                    <MenuItem key={index} value={professor}>
-                      {professor}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-  
->>>>>>> 599b404 (added dynamic course)
             {renderReviews()}
-  
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', width: '100%' }}>
               <Tooltip title="Previous Page" placement="top">
                 <span>
@@ -640,12 +704,11 @@ useEffect(() => {
                 Don't be shy, be the first one to add a review!
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
-                {/* <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnYzdG9sMWVoa2p5aWY3NmF2cTM5c2UzNnI3c20waWRjYTF5b2drOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/USbM2BJpAg7Di/giphy.gif" alt="No Reviews" style={{ width: '300px', height: '300px' }} /> */}
+                <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnYzdG9sMWVoa2p5aWY3NmF2cTM5c2UzNnI3c20waWRjYTF5b2drOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/USbM2BJpAg7Di/giphy.gif" alt="No Reviews" style={{ width: '300px', height: '300px' }} />
               </Box>
             </Box>
           </>
         )}
-  
         <Box
           sx={{
             background: '',
@@ -663,7 +726,6 @@ useEffect(() => {
       </Container>
     </Box>
   );
-  
 };
 
 export default CourseReviewsPage;

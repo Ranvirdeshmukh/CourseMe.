@@ -36,6 +36,10 @@ const AddReviewForm = ({ onReviewAdded }) => {
     fetchProfessors();
   }, [sanitizedCourseId]);
 
+  const sanitizeFieldPath = (path) => {
+    return path.replace(/\./g, '_');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -45,6 +49,7 @@ const AddReviewForm = ({ onReviewAdded }) => {
     }
 
     try {
+      const sanitizedProfessor = sanitizeFieldPath(professor);
       const reviewData = `review: "${term} with ${professor}: ${review}"`;
 
       // Add review to the course's reviews collection
@@ -53,11 +58,11 @@ const AddReviewForm = ({ onReviewAdded }) => {
 
       if (!courseDocSnap.exists()) {
         // If the document doesn't exist, create it
-        await setDoc(courseDocRef, { [professor]: [] });
+        await setDoc(courseDocRef, { [sanitizedProfessor]: [] });
       }
 
       await updateDoc(courseDocRef, {
-        [professor]: arrayUnion(reviewData),
+        [sanitizedProfessor]: arrayUnion(reviewData),
       });
 
       // Add review to the user's profile
@@ -93,7 +98,7 @@ const AddReviewForm = ({ onReviewAdded }) => {
   });
 
   return (
-    <Container sx={{ textAlign: 'left', maxWidth: 'md', padding: '20px 0' }}> {/* Ensure container is left-aligned */}
+    <Container sx={{ textAlign: 'left', maxWidth: 'md', padding: '20px 0' }}>
       <Typography variant="h5" gutterBottom>Write a Review for {sanitizedCourseId}</Typography>
       {error && <Alert severity="error">{error}</Alert>}
       <form onSubmit={handleSubmit}>
