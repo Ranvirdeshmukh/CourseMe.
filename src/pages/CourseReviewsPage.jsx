@@ -6,7 +6,7 @@ import { Container, Typography, Box, Alert, Table, TableBody,TextField, TableCel
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
-import { doc, getDoc, updateDoc, setDoc, collection, getDocs, addDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc, collection, getDocs,deleteDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext'; // Assuming you have an AuthContext
 import { db } from '../firebase';
 import AddReviewForm from './AddReviewForm';
@@ -183,9 +183,12 @@ useEffect(() => {
   
   const ReviewItem = ({ instructor, prefix, rest, courseId, reviewIndex, onReplyAdded }) => {
     const { ref, inView } = useInView({ threshold: 0.1 });
+    const { currentUser } = useAuth();
     const [replies, setReplies] = useState([]);
     const [showReplies, setShowReplies] = useState(false);
     const [replyCount, setReplyCount] = useState(0);
+    const [likeCount, setLikeCount] = useState(0);
+    const [hasLiked, setHasLiked] = useState(false);
   
     const fetchReplies = async () => {
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -201,12 +204,51 @@ useEffect(() => {
       setReplyCount(fetchedReplies.length);
     };
   
+    const fetchLikes = async () => {
+      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+      const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
+      const sanitizedInstructor = instructor.replace(/\./g, '_');
+  
+      const likesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_likes`);
+      const likeDocs = await getDocs(likesCollectionRef);
+  
+      const fetchedLikes = likeDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setLikeCount(fetchedLikes.length);
+  
+      if (currentUser) {
+        const userLike = fetchedLikes.find(like => like.userId === currentUser.uid);
+        setHasLiked(!!userLike);
+      }
+    };
+  
     useEffect(() => {
       fetchReplies();
+      fetchLikes();
     }, [courseId, instructor, reviewIndex]);
   
     const toggleReplies = () => {
       setShowReplies(!showReplies);
+    };
+  
+    const handleLike = async () => {
+      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+      const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
+      const sanitizedInstructor = instructor.replace(/\./g, '_');
+  
+      const likesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_likes`);
+      const likeDocRef = doc(likesCollectionRef, currentUser.uid);
+  
+      if (hasLiked) {
+        await deleteDoc(likeDocRef);
+        setLikeCount(likeCount - 1);
+        setHasLiked(false);
+      } else {
+        await setDoc(likeDocRef, { userId: currentUser.uid });
+        setLikeCount(likeCount + 1);
+        setHasLiked(true);
+      }
     };
   
     return (
@@ -231,6 +273,14 @@ useEffect(() => {
             }
           />
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={handleLike} sx={{ marginLeft: '10px', color: hasLiked ? '#571CE0' : 'grey' }}>
+              <Typography variant="body2" sx={{ fontSize: '1.5rem' }}>
+                🔥
+              </Typography>
+              <Typography variant="body2" sx={{ marginLeft: '5px' }}>
+                {likeCount}
+              </Typography>
+            </IconButton>
             <IconButton onClick={toggleReplies} sx={{ marginLeft: '10px', color: '#571CE0' }}>
               <ChatBubbleOutlineIcon />
               <Typography variant="body2" sx={{ marginLeft: '5px' }}>
@@ -275,6 +325,9 @@ useEffect(() => {
       </motion.div>
     );
   };
+  
+  
+  
 
   const renderReviews = () => {
     const filteredReviews = selectedProfessor ? reviews.filter(item => item.instructor === selectedProfessor) : reviews;

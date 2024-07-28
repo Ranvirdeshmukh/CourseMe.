@@ -30,7 +30,6 @@ const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
       const sanitizedInstructor = instructor.replace(/\./g, '_');
 
       const repliesCollectionRef = collection(reviewRef, `${sanitizedInstructor}_${reviewIndex}_replies`);
-      
 
       try {
         await addDoc(repliesCollectionRef, newReply);
@@ -43,7 +42,7 @@ const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
       console.error('Review document does not exist');
     }
   };
-
+  
 
   return (
     <form onSubmit={handleReplySubmit}>
