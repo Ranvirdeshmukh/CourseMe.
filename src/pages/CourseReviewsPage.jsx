@@ -314,14 +314,14 @@ const CourseReviewsPage = () => {
               ))}
             </List>
             <AddReplyForm
-  reviewData={{ instructor, reviewIndex }}
-  courseId={courseId}
-  onReplyAdded={(newReply) => {
-    addReplyLocally(reviewIndex, newReply);
-    setReplies(prevReplies => [...prevReplies, newReply]); // Update local replies state
-    setReplyCount(replyCount + 1); // Update reply count
-  }}
-/>
+              reviewData={{ instructor, reviewIndex }}
+                courseId={courseId}
+                onReplyAdded={(newReply) => {
+              addReplyLocally(reviewIndex, newReply);
+              setReplies(prevReplies => [...prevReplies, newReply]); // Update local replies state
+              setReplyCount(replyCount + 1); // Update reply count
+            }}
+            />
 
           </>
         )}
@@ -587,14 +587,31 @@ const CourseReviewsPage = () => {
       }}
     >
       <Container>
-        <Typography variant="h4" gutterBottom textAlign="center">Reviews for {courseName}</Typography>
+        <Typography variant="h4" gutterBottom textAlign="left">Reviews for {courseName}</Typography>
         
-        {/* Display the course description */}
         {courseDescription && (
-          <Box sx={{ textAlign: 'left', marginBottom: '20px', color: 'black' }}>
-            <Typography variant="body1" sx={{ fontSize: '0.875rem', color: 'black', textAlign: 'left' }} dangerouslySetInnerHTML={{ __html: courseDescription }} />
-          </Box>
-        )}
+  <Box sx={{ 
+    textAlign: 'left', 
+    marginBottom: '20px', 
+    backgroundColor: 'transparent', // Set background to transparent
+    color: 'black', 
+    padding: '20px', 
+    borderRadius: '8px', 
+    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.5)', // Optional: Add shadow for a better look
+    '& *': { // Reset background for all child elements
+      backgroundColor: 'transparent !important',
+      textAlign: 'left' // Ensure text is left-aligned
+    }
+  }}>
+    
+    <Typography variant="body1" sx={{ fontSize: '0.875rem', color: 'black', textAlign: 'left' }} dangerouslySetInnerHTML={{ __html: courseDescription }} />
+  </Box>
+)}
+
+
+
+
+
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
