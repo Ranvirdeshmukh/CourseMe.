@@ -10,6 +10,11 @@ import { doc, getDoc, updateDoc, setDoc, collection, getDocs, addDoc } from 'fir
 import { useAuth } from '../contexts/AuthContext'; // Assuming you have an AuthContext
 import { db } from '../firebase';
 import AddReviewForm from './AddReviewForm';
+import AddReplyForm from './AddReplyForm'; // Import the new component
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+
+
 
 
 const CourseReviewsPage = () => {
@@ -179,6 +184,8 @@ useEffect(() => {
   const ReviewItem = ({ instructor, prefix, rest, courseId, reviewIndex, onReplyAdded }) => {
     const { ref, inView } = useInView({ threshold: 0.1 });
     const [replies, setReplies] = useState([]);
+    const [showReplies, setShowReplies] = useState(false);
+    const [replyCount, setReplyCount] = useState(0);
   
     const fetchReplies = async () => {
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -191,11 +198,16 @@ useEffect(() => {
   
       const fetchedReplies = replyDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReplies(fetchedReplies);
+      setReplyCount(fetchedReplies.length);
     };
   
     useEffect(() => {
       fetchReplies();
     }, [courseId, instructor, reviewIndex]);
+  
+    const toggleReplies = () => {
+      setShowReplies(!showReplies);
+    };
   
     return (
       <motion.div
@@ -218,46 +230,52 @@ useEffect(() => {
               </>
             }
           />
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton onClick={toggleReplies} sx={{ marginLeft: '10px', color: '#571CE0' }}>
+              <ChatBubbleOutlineIcon />
+              <Typography variant="body2" sx={{ marginLeft: '5px' }}>
+                {replyCount}
+              </Typography>
+            </IconButton>
+          </Box>
         </ListItem>
-        {replies.length > 0 && (
-          <List sx={{ pl: 4 }}>
-            {replies.map((reply, index) => (
-              <ListItem key={index} sx={{ backgroundColor: '#f9f9f9', borderRadius: '8px', marginTop: '10px' }}>
-                <ListItemText
-                  primary={
-                    <>
-                      <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                        {reply.author}:
-                      </Typography>{' '}
-                      <Typography component="span" sx={{ color: 'black', fontSize: '0.8rem' }}>
-                        {reply.reply}
-                      </Typography>
-                      <Typography component="span" sx={{ color: 'grey', fontSize: '0.7rem', marginLeft: '10px' }}>
-                        {new Date(reply.timestamp).toLocaleString()}
-                      </Typography>
-                    </>
-                  }
-                />
-              </ListItem>
-            ))}
-          </List>
+        {showReplies && (
+          <>
+            <List sx={{ pl: 4 }}>
+              {replies.map((reply, index) => (
+                <ListItem key={index} sx={{ backgroundColor: '#f9f9f9', borderRadius: '8px', marginTop: '10px' }}>
+                  <ListItemText
+                    primary={
+                      <>
+                        <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                          Reply:
+                        </Typography>{' '}
+                        <Typography component="span" sx={{ color: 'black', fontSize: '0.8rem' }}>
+                          {reply.reply}
+                        </Typography>
+                        <Typography component="span" sx={{ color: 'grey', fontSize: '0.7rem', marginLeft: '10px' }}>
+                          {new Date(reply.timestamp).toLocaleString()}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+            <AddReplyForm
+              reviewData={{ instructor, reviewIndex }}
+              courseId={courseId}
+              onReplyAdded={() => {
+                fetchReplies(); // Refresh replies
+                onReplyAdded(); // Refresh reviews
+              }}
+            />
+          </>
         )}
-        <AddReplyForm
-          reviewData={{ instructor, reviewIndex }}
-          courseId={courseId}
-          onReplyAdded={() => {
-            fetchReplies(); // Refresh replies
-            onReplyAdded(); // Refresh reviews
-          }}
-        />
       </motion.div>
     );
   };
-  
-  
-  
-  
-  
+
   const renderReviews = () => {
     const filteredReviews = selectedProfessor ? reviews.filter(item => item.instructor === selectedProfessor) : reviews;
     const indexOfLastReview = currentPage * reviewsPerPage;
@@ -300,65 +318,7 @@ useEffect(() => {
   };
   
   
-  
-    
-  const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
-    const [reply, setReply] = useState('');
-    const { currentUser } = useAuth();
-  
-    const handleReplySubmit = async (e) => {
-      e.preventDefault();
-      if (!currentUser || !reply) return;
-  
-      const newReply = {
-        reply,
-        author: currentUser.displayName,
-        timestamp: new Date().toISOString(),
-      };
-  
-      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
-      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
-      const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
-  
-      const reviewRef = doc(db, 'reviews', sanitizedCourseId);
-      const docSnap = await getDoc(reviewRef);
-  
-      if (docSnap.exists()) {
-        const { instructor, reviewIndex } = reviewData;
-        const sanitizedInstructor = instructor.replace(/\./g, '_');
-  
-        const repliesCollectionRef = collection(reviewRef, `${sanitizedInstructor}_${reviewIndex}_replies`);
-  
-        try {
-          await addDoc(repliesCollectionRef, newReply);
-          setReply('');
-          onReplyAdded(); // Refresh the reviews
-        } catch (error) {
-          console.error('Error adding reply:', error);
-        }
-      } else {
-        console.error('Review document does not exist');
-      }
-    };
-  
-    return (
-      <form onSubmit={handleReplySubmit}>
-        <TextField
-          value={reply}
-          onChange={(e) => setReply(e.target.value)}
-          label="Add a reply"
-          fullWidth
-          multiline
-          rows={2}
-          variant="outlined"
-          sx={{ margin: '10px 0' }}
-        />
-        <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '10px' }}>
-          Submit Reply
-        </Button>
-      </form>
-    );
-  };
+
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
   const renderPageButtons = () => {
