@@ -1,21 +1,15 @@
-
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Typography, Box, Alert, Table, TableBody,TextField, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip, MenuItem, Select, FormControl, InputLabel, CircularProgress } from '@mui/material';
+import { Container, Typography, Box, Alert, Table, TableBody, TextField, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip, MenuItem, Select, FormControl, InputLabel, CircularProgress } from '@mui/material';
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
-import { doc, getDoc, updateDoc, setDoc, collection, getDocs,deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext'; // Assuming you have an AuthContext
 import { db } from '../firebase';
 import AddReviewForm from './AddReviewForm';
 import AddReplyForm from './AddReplyForm'; // Import the new component
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-
-
-
 
 const CourseReviewsPage = () => {
   const { department, courseId } = useParams();
@@ -38,21 +32,21 @@ const CourseReviewsPage = () => {
       const docSnap = await getDoc(docRef);
       return docSnap.exists() ? docSnap.data() : null;
     };
-  
+
     try {
       let data = null;
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
-  
+
       if (transformedCourseId) {
         data = await fetchDocument(`reviews/${transformedCourseId}`);
       }
-  
+
       if (!data) {
         const sanitizedCourseId = courseId.split('_')[1];
         data = await fetchDocument(`reviews/${sanitizedCourseId}`);
       }
-  
+
       if (data) {
         const reviewsArray = Object.entries(data).flatMap(([instructor, reviewList]) => {
           if (Array.isArray(reviewList)) {
@@ -61,7 +55,7 @@ const CourseReviewsPage = () => {
             return [];
           }
         });
-  
+
         setReviews(reviewsArray);
       } else {
         setError('No reviews found for this course.');
@@ -72,7 +66,6 @@ const CourseReviewsPage = () => {
       setLoading(false);
     }
   }, [courseId]);
-  
 
   const fetchCourse = useCallback(async () => {
     setLoading(true);
@@ -92,7 +85,6 @@ const CourseReviewsPage = () => {
     }
   }, [courseId]);
 
-
   const fetchUserVote = useCallback(async () => {
     if (!currentUser) return;
     const userDocRef = doc(db, 'users', currentUser.uid);
@@ -104,27 +96,25 @@ const CourseReviewsPage = () => {
     }
   }, [currentUser, courseId]);
 
-useEffect(() => {
-  const fetchCourseDescription = async () => {
-    try {
-      const threeChars = courseName.slice(-3);
-      const response = await fetch(`/api/dart/groucho/course_desc.display_course_desc?term=202409&subj=${department}&numb=${threeChars}`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
+  useEffect(() => {
+    const fetchCourseDescription = async () => {
+      try {
+        const threeChars = courseName.slice(-3);
+        const response = await fetch(`/api/dart/groucho/course_desc.display_course_desc?term=202409&subj=${department}&numb=${threeChars}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        const data = await response.text();
+        setCourseDescription(data);
+      } catch (error) {
+        console.error('Error fetching course description:', error);
+        setError(error.message);
       }
-      const data = await response.text();
-      setCourseDescription(data);
-    } catch (error) {
-      console.error('Error fetching course description:', error);
-      setError(error.message);
-    }
-    setLoading(false);
-  };
+      setLoading(false);
+    };
 
-  fetchCourseDescription();
-}, [department]);
-  
-  
+    fetchCourseDescription();
+  }, [department]);
 
   useEffect(() => {
     fetchCourse();
@@ -147,7 +137,7 @@ useEffect(() => {
     } else {
       if (vote === 'upvote') {
         newLayup -= 1; // Remove the previous upvote
-      } else if (vote === 'downvote') {
+      } else if ( vote === 'downvote') {
         newLayup += 1; // Remove the previous downvote
       }
       newLayup = voteType === 'upvote' ? newLayup + 1 : newLayup - 1;
@@ -170,7 +160,6 @@ useEffect(() => {
       return { prefix: '', rest: review };
     }
   };
-  
 
   const handleChangePage = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -180,7 +169,19 @@ useEffect(() => {
     setSelectedProfessor(event.target.value);
     setCurrentPage(1);
   };
+
+  const addReplyLocally = (reviewIndex, newReply) => {
+    setReviews(prevReviews =>
+      prevReviews.map(review =>
+        review.reviewIndex === reviewIndex
+          ? { ...review, replies: Array.isArray(review.replies) ? [...review.replies, newReply] : [newReply] }
+          : review
+      )
+    );
+  };
   
+  
+
   const ReviewItem = ({ instructor, prefix, rest, courseId, reviewIndex, onReplyAdded }) => {
     const { ref, inView } = useInView({ threshold: 0.1 });
     const { currentUser } = useAuth();
@@ -272,8 +273,8 @@ useEffect(() => {
               </>
             }
           />
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={handleLike} sx={{ marginLeft: '10px', color: hasLiked ? '#571CE0' : 'grey' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+            <IconButton onClick={handleLike} sx={{ color: hasLiked ? '#571CE0' : 'grey' }}>
               <Typography variant="body2" sx={{ fontSize: '1.5rem' }}>
                 🔥
               </Typography>
@@ -281,7 +282,7 @@ useEffect(() => {
                 {likeCount}
               </Typography>
             </IconButton>
-            <IconButton onClick={toggleReplies} sx={{ marginLeft: '10px', color: '#571CE0' }}>
+            <IconButton onClick={toggleReplies} sx={{ color: '#571CE0' }}>
               <ChatBubbleOutlineIcon />
               <Typography variant="body2" sx={{ marginLeft: '5px' }}>
                 {replyCount}
@@ -313,19 +314,20 @@ useEffect(() => {
               ))}
             </List>
             <AddReplyForm
-              reviewData={{ instructor, reviewIndex }}
-              courseId={courseId}
-              onReplyAdded={() => {
-                fetchReplies(); // Refresh replies
-                onReplyAdded(); // Refresh reviews
-              }}
-            />
+  reviewData={{ instructor, reviewIndex }}
+  courseId={courseId}
+  onReplyAdded={(newReply) => {
+    addReplyLocally(reviewIndex, newReply);
+    setReplies(prevReplies => [...prevReplies, newReply]); // Update local replies state
+    setReplyCount(replyCount + 1); // Update reply count
+  }}
+/>
+
           </>
         )}
       </motion.div>
     );
   };
-  
   
   
 
@@ -344,7 +346,7 @@ useEffect(() => {
           lastInstructor = item.instructor;
   
           const { prefix, rest } = splitReviewText(item.review);
-          const replies = item.replies || [];  // Correctly use item.replies
+          const replies = Array.isArray(item.replies) ? item.replies : [];  // Ensure replies is an array
   
           return (
             <React.Fragment key={idx}>
@@ -369,7 +371,6 @@ useEffect(() => {
       </List>
     );
   };
-  
   
 
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
@@ -589,16 +590,12 @@ useEffect(() => {
         <Typography variant="h4" gutterBottom textAlign="center">Reviews for {courseName}</Typography>
         
         {/* Display the course description */}
-        {/* Display the course description */}
-{/* Display the course description */}
-{courseDescription && (
-  <Box sx={{ textAlign: 'left', marginBottom: '20px', color: 'black' }}>
-    <Typography variant="body1" sx={{ fontSize: '0.875rem', color: 'black', textAlign: 'left' }} dangerouslySetInnerHTML={{ __html: courseDescription }} />
-  </Box>
-)}
+        {courseDescription && (
+          <Box sx={{ textAlign: 'left', marginBottom: '20px', color: 'black' }}>
+            <Typography variant="body1" sx={{ fontSize: '0.875rem', color: 'black', textAlign: 'left' }} dangerouslySetInnerHTML={{ __html: courseDescription }} />
+          </Box>
+        )}
 
-
-  
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress sx={{ color: '#571CE0' }} />
@@ -639,69 +636,65 @@ useEffect(() => {
             
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
-  <Table>
-    <TableHead>
-      <TableRow>
-        <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Name</TableCell>
-        <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Reviews</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {Object.entries(reviews.reduce((acc, review) => {
-        const { instructor } = review;
-        if (!acc[instructor]) {
-          acc[instructor] = [];
-        }
-        acc[instructor].push(review);
-        return acc;
-      }, {})).map(([instructor, reviewList], index) => (
-        <TableRow
-          key={index}
-          component={Link}
-          to={`/departments/${department}/courses/${courseId}/professors/${instructor}`}
-          sx={{
-            backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-            '&:hover': { backgroundColor: '#e0e0e0' },
-            cursor: 'pointer',
-            textDecoration: 'none',
-            color: 'inherit'
-          }}
-        >
-          <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{instructor}</TableCell>
-          <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{Array.isArray(reviewList) ? reviewList.length : 0}</TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
-
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Name</TableCell>
+                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Reviews</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Object.entries(reviews.reduce((acc, review) => {
+                    const { instructor } = review;
+                    if (!acc[instructor]) {
+                      acc[instructor] = [];
+                    }
+                    acc[instructor].push(review);
+                    return acc;
+                  }, {})).map(([instructor, reviewList], index) => (
+                    <TableRow
+                      key={index}
+                      component={Link}
+                      to={`/departments/${department}/courses/${courseId}/professors/${instructor}`}
+                      sx={{
+                        backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                        '&:hover': { backgroundColor: '#e0e0e0' },
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        color: 'inherit'
+                      }}
+                    >
+                      <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{instructor}</TableCell>
+                      <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{Array.isArray(reviewList) ? reviewList.length : 0}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </TableContainer>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '-10px', marginTop: '60px' }}>
-  <Typography variant="h4" gutterBottom textAlign="left">
-    Reviews
-  </Typography>
-  <FormControl size="small" sx={{ minWidth: 120, backgroundColor: '#fff', borderRadius: '4px' }}>
-    <InputLabel id="select-professor-label">Professor</InputLabel>
-    <Select
-      labelId="select-professor-label"
-      value={selectedProfessor}
-      onChange={handleProfessorChange}
-      label="Professor"
-    >
-      <MenuItem value="">
-        <em>All</em>
-      </MenuItem>
-      {uniqueProfessors.map((professor, index) => (
-        <MenuItem key={index} value={professor}>
-          {professor}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-</Box>
-
+              <Typography variant="h4" gutterBottom textAlign="left">Reviews</Typography>
+              <FormControl size="small" sx={{ minWidth: 120, backgroundColor: '#fff', borderRadius: '4px' }}>
+                <InputLabel id="select-professor-label">Professor</InputLabel>
+                <Select
+                  labelId="select-professor-label"
+                  value={selectedProfessor}
+                  onChange={handleProfessorChange}
+                  label="Professor"
+                >
+                  <MenuItem value="">
+                    <em>All</em>
+                  </MenuItem>
+                  {uniqueProfessors.map((professor, index) => (
+                    <MenuItem key={index} value={professor}>
+                      {professor}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
 
             {renderReviews()}
-  
+
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px', width: '100%' }}>
               <Tooltip title="Previous Page" placement="top">
                 <span>
