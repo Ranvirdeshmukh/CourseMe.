@@ -618,42 +618,46 @@ const CourseReviewsPage = () => {
   <Box sx={{
     position: 'fixed',
     top: '100px',
-    left: '150px',
+    left: '20px',
     display: { xs: 'none', sm: 'flex' }, // Hide on mobile
     flexDirection: 'column',
     alignItems: 'center',
-    borderRadius: '50%',
-    backgroundColor: 'transparent', // Make the inside transparent
-    border: '2px solid #571CE0', // Purple border
-    boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.4)', // Denser shadow
-    padding: '10px', // Adjusted padding
-    width: '140px', // Circle size
-    height: '140px', // Circle size
-    justifyContent: 'space-around', // Space out the content evenly
-    boxSizing: 'border-box'
+    // Adjust the entire container's positioning
   }}>
-    <Tooltip title="Upvote">
-      <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}>
-        <ArrowUpward sx={{ fontSize: 24 }} />
-      </IconButton>
-    </Tooltip>
-    <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem' }}>{course.layup || 0}</Typography>
-    <Tooltip title="Downvote">
-      <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}>
-        <ArrowDownward sx={{ fontSize: 24 }} />
-      </IconButton>
-    </Tooltip>
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      borderRadius: '50%',
+      backgroundColor: 'transparent', // Make the inside transparent
+      border: '2px solid #571CE0', // Purple border
+      boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.4)', // Denser shadow
+      padding: '10px', // Adjusted padding
+      width: '140px', // Circle size
+      height: '140px', // Circle size
+      justifyContent: 'space-around', // Space out the content evenly
+      boxSizing: 'border-box'
+    }}>
+      <Tooltip title="Upvote">
+        <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}>
+          <ArrowUpward sx={{ fontSize: 24 }} />
+        </IconButton>
+      </Tooltip>
+      <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem' }}>{course.layup || 0}</Typography>
+      <Tooltip title="Downvote">
+        <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}>
+          <ArrowDownward sx={{ fontSize: 24 }} />
+        </IconButton>
+      </Tooltip>
+    </Box>
+    <Typography variant="caption" sx={{
+      color: '#571CE0',
+      marginTop: '10px',
+      textAlign: 'center'
+    }}>Is it a layup?</Typography>
   </Box>
 )}
-<Typography variant="caption" sx={{
-  color: '#571CE0',
-  marginTop: '10px',
-  textAlign: 'center',
-  position: 'fixed',
-  top: '240px',
-  left: '180px',
-  display: { xs: 'none', sm: 'block' } // Hide on mobile
-}}>Is it a layup?</Typography>
+
 
 
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
