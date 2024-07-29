@@ -123,16 +123,15 @@ const CourseReviewsPage = () => {
 
     let newLayup = course.layup || 0;
     if (vote === voteType) {
-      // If the user is clicking the same vote again, it means they want to reset their vote
       newLayup = voteType === 'upvote' ? newLayup - 1 : newLayup + 1;
       await updateDoc(courseRef, { layup: newLayup });
       await setDoc(userDocRef, { votes: { [courseId]: null } }, { merge: true });
       setVote(null);
     } else {
       if (vote === 'upvote') {
-        newLayup -= 1; // Remove the previous upvote
+        newLayup -= 1;
       } else if (vote === 'downvote') {
-        newLayup += 1; // Remove the previous downvote
+        newLayup += 1;
       }
       newLayup = voteType === 'upvote' ? newLayup + 1 : newLayup - 1;
 
@@ -605,35 +604,41 @@ const CourseReviewsPage = () => {
           <Alert severity="error" sx={{ textAlign: 'left' }}>{error}</Alert>
         ) : reviews.length > 0 ? (
           <>
-            {course && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
-                <Box sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  border: '1px solid #571CE0',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  backgroundColor: '#E4E2DD',
-                  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                  gap: '20px',
-                  justifyContent: 'space-around'
-                }}>
-                  <Tooltip title="Upvote">
-                    <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}>
-                      <ArrowUpward sx={{ fontSize: 30 }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Typography variant="h4" sx={{ margin: '0 20px', color: '#571CE0' }}>{course.layup || 0}</Typography>
-                  <Tooltip title="Downvote">
-                    <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}>
-                      <ArrowDownward sx={{ fontSize: 30 }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Typography variant="caption" sx={{ color: '#571CE0' }}>Is it a layup?</Typography>
-                </Box>
-              </Box>
-            )}
+{course && (
+  <Box sx={{
+    position: 'fixed', // Keep it fixed
+    top: '100px',
+    left: '150px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center', // Center content vertically
+    borderRadius: '50%',
+    backgroundColor: 'transparent', // Make the inside transparent
+    border: '2px solid #571CE0', // Purple border
+    boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.4)', // Denser shadow
+    width: '140px', // Circle size
+    height: '140px', // Circle size
+    boxSizing: 'border-box',
+    textAlign: 'center' // Center text horizontally
+  }}>
+    <Tooltip title="Upvote">
+      <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}>
+        <ArrowUpward sx={{ fontSize: 24 }} />
+      </IconButton>
+    </Tooltip>
+    <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', margin: '10px 0' }}>{course.layup || 0}</Typography>
+    <Tooltip title="Downvote">
+      <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}>
+        <ArrowDownward sx={{ fontSize: 24 }} />
+      </IconButton>
+    </Tooltip>
+  </Box>
+)}
+<Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', position: 'fixed', top: '240px', left: '180px' }}>Is it a layup?</Typography>
+
+
+
 
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
@@ -665,8 +670,8 @@ const CourseReviewsPage = () => {
                         color: 'inherit'
                       }}
                     >
-                      <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{instructor}</TableCell>
-                      <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{Array.isArray(reviewList) ? reviewList.length : 0}</TableCell>
+                      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{instructor}</TableCell>
+                      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{Array.isArray(reviewList) ? reviewList.length : 0}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
