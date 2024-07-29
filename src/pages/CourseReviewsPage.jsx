@@ -27,6 +27,7 @@ const CourseReviewsPage = () => {
 
   const fetchReviews = useCallback(async () => {
     setLoading(true);
+    console.log('Fetching reviews...');
     const fetchDocument = async (path) => {
       const docRef = doc(db, path);
       const docSnap = await getDoc(docRef);
@@ -61,12 +62,17 @@ const CourseReviewsPage = () => {
         setError('No reviews found for this course.');
       }
     } catch (error) {
+      console.error('Error fetching reviews:', error);
       setError('Failed to fetch reviews.');
+    } finally {
+      setLoading(false);
+      console.log('Finished fetching reviews');
     }
   }, [courseId]);
 
   const fetchCourse = useCallback(async () => {
     setLoading(true);
+    console.log('Fetching course...');
     try {
       const docRef = doc(db, 'courses', courseId);
       const docSnap = await getDoc(docRef);
@@ -81,9 +87,11 @@ const CourseReviewsPage = () => {
         setError('Course not found.');
       }
     } catch (error) {
+      console.error('Error fetching course:', error);
       setError('Failed to fetch course.');
     } finally {
       setLoading(false);
+      console.log('Finished fetching course');
     }
   }, [courseId]);
 
@@ -115,8 +123,14 @@ const CourseReviewsPage = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
-    setLoading(false);
+    try {
+      await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+      console.log('Finished fetching all data');
+    }
   };
 
   useEffect(() => {
@@ -125,12 +139,12 @@ const CourseReviewsPage = () => {
 
   const handleVote = async (voteType) => {
     if (!course || !currentUser) return;
-  
+
     const userDocRef = doc(db, 'users', currentUser.uid);
     const courseRef = doc(db, 'courses', courseId);
-  
+
     let newLayup = course.layup !== undefined ? course.layup : 0; // Initialize layup to 0 if it doesn't exist
-  
+
     if (vote === voteType) {
       newLayup = voteType === 'upvote' ? newLayup - 1 : newLayup + 1;
       await updateDoc(courseRef, { layup: newLayup });
@@ -143,15 +157,14 @@ const CourseReviewsPage = () => {
         newLayup += 1;
       }
       newLayup = voteType === 'upvote' ? newLayup + 1 : newLayup - 1;
-  
+
       await updateDoc(courseRef, { layup: newLayup });
       await setDoc(userDocRef, { votes: { [courseId]: voteType } }, { merge: true });
       setVote(voteType);
     }
-  
+
     setCourse(prev => ({ ...prev, layup: newLayup }));
   };
-  
 
   const splitReviewText = (review) => {
     if (!review) return { prefix: '', rest: '' };
