@@ -62,13 +62,10 @@ const CourseReviewsPage = () => {
       }
     } catch (error) {
       setError('Failed to fetch reviews.');
-    } finally {
-      setLoading(false);
     }
   }, [courseId]);
 
   const fetchCourse = useCallback(async () => {
-    setLoading(true);
     try {
       const docRef = doc(db, 'courses', courseId);
       const docSnap = await getDoc(docRef);
@@ -80,8 +77,6 @@ const CourseReviewsPage = () => {
       }
     } catch (error) {
       setError('Failed to fetch course.');
-    } finally {
-      setLoading(false);
     }
   }, [courseId]);
 
@@ -96,31 +91,30 @@ const CourseReviewsPage = () => {
     }
   }, [currentUser, courseId]);
 
-  useEffect(() => {
-    const fetchCourseDescription = async () => {
-      try {
-        const threeChars = courseName.slice(-3);
-        const response = await fetch(`/api/dart/groucho/course_desc.display_course_desc?term=202409&subj=${department}&numb=${threeChars}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok ' + response.statusText);
-        }
-        const data = await response.text();
-        setCourseDescription(data);
-      } catch (error) {
-        console.error('Error fetching course description:', error);
-        setError(error.message);
+  const fetchCourseDescription = async () => {
+    try {
+      const threeChars = courseName.slice(-3);
+      const response = await fetch(`/api/dart/groucho/course_desc.display_course_desc?term=202409&subj=${department}&numb=${threeChars}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
       }
-      setLoading(false);
-    };
+      const data = await response.text();
+      setCourseDescription(data);
+    } catch (error) {
+      console.error('Error fetching course description:', error);
+      setError(error.message);
+    }
+  };
 
-    fetchCourseDescription();
-  }, [department]);
+  const fetchData = async () => {
+    setLoading(true);
+    await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    fetchCourse();
-    fetchReviews();
-    fetchUserVote();
-  }, [fetchCourse, fetchReviews, fetchUserVote]);
+    fetchData();
+  }, [courseId, department]);
 
   const handleVote = async (voteType) => {
     if (!course || !currentUser) return;
@@ -137,7 +131,7 @@ const CourseReviewsPage = () => {
     } else {
       if (vote === 'upvote') {
         newLayup -= 1; // Remove the previous upvote
-      } else if ( vote === 'downvote') {
+      } else if (vote === 'downvote') {
         newLayup += 1; // Remove the previous downvote
       }
       newLayup = voteType === 'upvote' ? newLayup + 1 : newLayup - 1;
@@ -179,8 +173,6 @@ const CourseReviewsPage = () => {
       )
     );
   };
-  
-  
 
   const ReviewItem = ({ instructor, prefix, rest, courseId, reviewIndex, onReplyAdded }) => {
     const { ref, inView } = useInView({ threshold: 0.1 });
@@ -190,57 +182,57 @@ const CourseReviewsPage = () => {
     const [replyCount, setReplyCount] = useState(0);
     const [likeCount, setLikeCount] = useState(0);
     const [hasLiked, setHasLiked] = useState(false);
-  
+
     const fetchReplies = async () => {
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
       const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
       const sanitizedInstructor = instructor.replace(/\./g, '_');
-  
+
       const repliesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_replies`);
       const replyDocs = await getDocs(repliesCollectionRef);
-  
+
       const fetchedReplies = replyDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReplies(fetchedReplies);
       setReplyCount(fetchedReplies.length);
     };
-  
+
     const fetchLikes = async () => {
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
       const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
       const sanitizedInstructor = instructor.replace(/\./g, '_');
-  
+
       const likesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_likes`);
       const likeDocs = await getDocs(likesCollectionRef);
-  
+
       const fetchedLikes = likeDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setLikeCount(fetchedLikes.length);
-  
+
       if (currentUser) {
         const userLike = fetchedLikes.find(like => like.userId === currentUser.uid);
         setHasLiked(!!userLike);
       }
     };
-  
+
     useEffect(() => {
       fetchReplies();
       fetchLikes();
     }, [courseId, instructor, reviewIndex]);
-  
+
     const toggleReplies = () => {
       setShowReplies(!showReplies);
     };
-  
+
     const handleLike = async () => {
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
       const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
       const sanitizedInstructor = instructor.replace(/\./g, '_');
-  
+
       const likesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_likes`);
       const likeDocRef = doc(likesCollectionRef, currentUser.uid);
-  
+
       if (hasLiked) {
         await deleteDoc(likeDocRef);
         setLikeCount(likeCount - 1);
@@ -251,7 +243,7 @@ const CourseReviewsPage = () => {
         setHasLiked(true);
       }
     };
-  
+
     return (
       <motion.div
         ref={ref}
@@ -328,26 +320,24 @@ const CourseReviewsPage = () => {
       </motion.div>
     );
   };
-  
-  
 
   const renderReviews = () => {
     const filteredReviews = selectedProfessor ? reviews.filter(item => item.instructor === selectedProfessor) : reviews;
     const indexOfLastReview = currentPage * reviewsPerPage;
     const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
     const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
-  
+
     let lastInstructor = '';
-  
+
     return (
       <List sx={{ maxWidth: '100%', margin: '0' }}>
         {currentReviews.map((item, idx) => {
           const showInstructor = item.instructor !== lastInstructor;
           lastInstructor = item.instructor;
-  
+
           const { prefix, rest } = splitReviewText(item.review);
           const replies = Array.isArray(item.replies) ? item.replies : [];  // Ensure replies is an array
-  
+
           return (
             <React.Fragment key={idx}>
               {showInstructor && (
@@ -371,7 +361,6 @@ const CourseReviewsPage = () => {
       </List>
     );
   };
-  
 
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
@@ -588,30 +577,25 @@ const CourseReviewsPage = () => {
     >
       <Container>
         <Typography variant="h4" gutterBottom textAlign="left">Reviews for {courseName}</Typography>
-        
+
         {courseDescription && (
-  <Box sx={{ 
-    textAlign: 'left', 
-    marginBottom: '20px', 
-    backgroundColor: 'transparent', // Set background to transparent
-    color: 'black', 
-    padding: '20px', 
-    borderRadius: '8px', 
-    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.5)', // Optional: Add shadow for a better look
-    '& *': { // Reset background for all child elements
-      backgroundColor: 'transparent !important',
-      textAlign: 'left' // Ensure text is left-aligned
-    }
-  }}>
-    
-    <Typography variant="body1" sx={{ fontSize: '0.875rem', color: 'black', textAlign: 'left' }} dangerouslySetInnerHTML={{ __html: courseDescription }} />
-  </Box>
-)}
+          <Box sx={{
+            textAlign: 'left',
+            marginBottom: '20px',
+            backgroundColor: 'transparent', // Set background to transparent
+            color: 'black',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.5)', // Optional: Add shadow for a better look
+            '& *': { // Reset background for all child elements
+              backgroundColor: 'transparent !important',
+              textAlign: 'left' // Ensure text is left-aligned
+            }
+          }}>
 
-
-
-
-
+            <Typography variant="body1" sx={{ fontSize: '0.875rem', color: 'black', textAlign: 'left' }} dangerouslySetInnerHTML={{ __html: courseDescription }} />
+          </Box>
+        )}
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -623,13 +607,13 @@ const CourseReviewsPage = () => {
           <>
             {course && (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'row', 
-                  alignItems: 'center', 
-                  border: '1px solid #571CE0', 
-                  borderRadius: '8px', 
-                  padding: '10px', 
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  border: '1px solid #571CE0',
+                  borderRadius: '8px',
+                  padding: '10px',
                   backgroundColor: '#E4E2DD',
                   boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                   gap: '20px',
@@ -650,7 +634,7 @@ const CourseReviewsPage = () => {
                 </Box>
               </Box>
             )}
-            
+
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
               <Table>
