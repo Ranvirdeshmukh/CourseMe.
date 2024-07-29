@@ -619,7 +619,7 @@ const CourseReviewsPage = () => {
     position: 'fixed',
     top: '100px',
     left: '150px',
-    display: 'flex',
+    display: { xs: 'none', sm: 'flex' }, // Hide on mobile
     flexDirection: 'column',
     alignItems: 'center',
     borderRadius: '50%',
@@ -645,7 +645,15 @@ const CourseReviewsPage = () => {
     </Tooltip>
   </Box>
 )}
-<Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', position: 'fixed', top: '240px', left: '180px' }}>Is it a layup?</Typography>
+<Typography variant="caption" sx={{
+  color: '#571CE0',
+  marginTop: '10px',
+  textAlign: 'center',
+  position: 'fixed',
+  top: '240px',
+  left: '180px',
+  display: { xs: 'none', sm: 'block' } // Hide on mobile
+}}>Is it a layup?</Typography>
 
 
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
