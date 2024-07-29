@@ -630,21 +630,7 @@ const CourseReviewsPage = () => {
     width: '140px', // Circle size
     height: '140px', // Circle size
     justifyContent: 'space-around', // Space out the content evenly
-    boxSizing: 'border-box',
-    zIndex: 1000, // Ensure it is above other elements
-    '@media (max-width: 600px)': { // Media query for small screens
-      width: '100px',
-      height: '100px',
-      top: '20px',
-      left: 'calc(50% - 50px)', // Center horizontally on small screens
-      padding: '5px',
-      '& .MuiTypography-root': {
-        fontSize: '1rem',
-      },
-      '& .MuiSvgIcon-root': {
-        fontSize: '20px',
-      }
-    }
+    boxSizing: 'border-box'
   }}>
     <Tooltip title="Upvote">
       <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}>
@@ -659,20 +645,7 @@ const CourseReviewsPage = () => {
     </Tooltip>
   </Box>
 )}
-<Typography variant="caption" sx={{
-  color: '#571CE0',
-  marginTop: '10px',
-  textAlign: 'center',
-  position: 'fixed',
-  top: '240px',
-  left: '180px',
-  zIndex: 1000, // Ensure it is above other elements
-  '@media (max-width: 600px)': { // Media query for small screens
-    top: '140px',
-    left: 'calc(50% - 50px)', // Center horizontally on small screens
-    fontSize: '0.8rem'
-  }
-}}>Is it a layup?</Typography>
+<Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', position: 'fixed', top: '240px', left: '180px' }}>Is it a layup?</Typography>
 
 
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
