@@ -66,17 +66,24 @@ const CourseReviewsPage = () => {
   }, [courseId]);
 
   const fetchCourse = useCallback(async () => {
+    setLoading(true);
     try {
       const docRef = doc(db, 'courses', courseId);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        setCourse(docSnap.data());
+        const courseData = docSnap.data();
+        if (courseData.layup === undefined) {
+          courseData.layup = 0; // Initialize layup to 0 if it doesn't exist
+        }
+        setCourse(courseData);
       } else {
         setError('Course not found.');
       }
     } catch (error) {
       setError('Failed to fetch course.');
+    } finally {
+      setLoading(false);
     }
   }, [courseId]);
 
@@ -118,10 +125,12 @@ const CourseReviewsPage = () => {
 
   const handleVote = async (voteType) => {
     if (!course || !currentUser) return;
+  
     const userDocRef = doc(db, 'users', currentUser.uid);
     const courseRef = doc(db, 'courses', courseId);
-
-    let newLayup = course.layup || 0;
+  
+    let newLayup = course.layup !== undefined ? course.layup : 0; // Initialize layup to 0 if it doesn't exist
+  
     if (vote === voteType) {
       newLayup = voteType === 'upvote' ? newLayup - 1 : newLayup + 1;
       await updateDoc(courseRef, { layup: newLayup });
@@ -134,14 +143,15 @@ const CourseReviewsPage = () => {
         newLayup += 1;
       }
       newLayup = voteType === 'upvote' ? newLayup + 1 : newLayup - 1;
-
+  
       await updateDoc(courseRef, { layup: newLayup });
       await setDoc(userDocRef, { votes: { [courseId]: voteType } }, { merge: true });
       setVote(voteType);
     }
-
+  
     setCourse(prev => ({ ...prev, layup: newLayup }));
   };
+  
 
   const splitReviewText = (review) => {
     if (!review) return { prefix: '', rest: '' };
@@ -606,28 +616,42 @@ const CourseReviewsPage = () => {
           <>
 {course && (
   <Box sx={{
-    position: 'fixed', // Keep it fixed
+    position: 'fixed',
     top: '100px',
     left: '150px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center', // Center content vertically
     borderRadius: '50%',
     backgroundColor: 'transparent', // Make the inside transparent
     border: '2px solid #571CE0', // Purple border
     boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.4)', // Denser shadow
+    padding: '10px', // Adjusted padding
     width: '140px', // Circle size
     height: '140px', // Circle size
+    justifyContent: 'space-around', // Space out the content evenly
     boxSizing: 'border-box',
-    textAlign: 'center' // Center text horizontally
+    zIndex: 1000, // Ensure it is above other elements
+    '@media (max-width: 600px)': { // Media query for small screens
+      width: '100px',
+      height: '100px',
+      top: '20px',
+      left: 'calc(50% - 50px)', // Center horizontally on small screens
+      padding: '5px',
+      '& .MuiTypography-root': {
+        fontSize: '1rem',
+      },
+      '& .MuiSvgIcon-root': {
+        fontSize: '20px',
+      }
+    }
   }}>
     <Tooltip title="Upvote">
       <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}>
         <ArrowUpward sx={{ fontSize: 24 }} />
       </IconButton>
     </Tooltip>
-    <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', margin: '10px 0' }}>{course.layup || 0}</Typography>
+    <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem' }}>{course.layup || 0}</Typography>
     <Tooltip title="Downvote">
       <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}>
         <ArrowDownward sx={{ fontSize: 24 }} />
@@ -635,9 +659,20 @@ const CourseReviewsPage = () => {
     </Tooltip>
   </Box>
 )}
-<Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', position: 'fixed', top: '240px', left: '180px' }}>Is it a layup?</Typography>
-
-
+<Typography variant="caption" sx={{
+  color: '#571CE0',
+  marginTop: '10px',
+  textAlign: 'center',
+  position: 'fixed',
+  top: '240px',
+  left: '180px',
+  zIndex: 1000, // Ensure it is above other elements
+  '@media (max-width: 600px)': { // Media query for small screens
+    top: '140px',
+    left: 'calc(50% - 50px)', // Center horizontally on small screens
+    fontSize: '0.8rem'
+  }
+}}>Is it a layup?</Typography>
 
 
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
