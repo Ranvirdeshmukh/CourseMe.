@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
-import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, addDoc, collection, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
@@ -16,6 +16,8 @@ const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
       reply,
       author: currentUser.displayName,
       timestamp: new Date().toISOString(),
+      courseId,
+      reviewData,
     };
 
     const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -33,6 +35,13 @@ const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
 
       try {
         await addDoc(repliesCollectionRef, newReply);
+
+        // Update the user's profile with the new reply
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userDocRef, {
+          replies: arrayUnion(newReply),
+        });
+
         setReply('');
         onReplyAdded(); // Refresh the reviews
       } catch (error) {
@@ -42,7 +51,6 @@ const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
       console.error('Review document does not exist');
     }
   };
-  
 
   return (
     <form onSubmit={handleReplySubmit}>

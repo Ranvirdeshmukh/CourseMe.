@@ -3,7 +3,6 @@ import {
   Container,
   Typography,
   Box,
-  Button,
   List,
   ListItem,
   ListItemText,
@@ -17,9 +16,12 @@ import {
   DialogContent,
   DialogTitle,
   CircularProgress,
-  Alert
+  Alert,
+  Menu,
+  MenuItem,
+  Button
 } from '@mui/material';
-import { Delete } from '@mui/icons-material';
+import { Delete, ArrowDropDown } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
@@ -30,11 +32,20 @@ import Footer from '../components/Footer';
 const ProfilePage = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [profileData, setProfileData] = useState({ major: '', classYear: '', reviews: [], firstName: '', lastName: '' });
+  const [profileData, setProfileData] = useState({ major: '', classYear: '', reviews: [], replies: [], firstName: '', lastName: '' });
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [newProfileData, setNewProfileData] = useState({});
   const [error, setError] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -46,7 +57,8 @@ const ProfilePage = () => {
           setProfileData({
             major: userData.major || '',
             classYear: userData.classYear || '',
-            reviews: userData.reviews || [], 
+            reviews: userData.reviews || [],
+            replies: userData.replies || [],
             firstName: userData.firstName || '',
             lastName: userData.lastName || ''
           });
@@ -127,6 +139,11 @@ const ProfilePage = () => {
     return <Navigate to="/login" />;
   }
 
+  const getShortCourseId = (courseId) => {
+    const match = courseId.match(/([A-Z]+)\d{3}/);
+    return match ? match[0] : courseId;
+  };
+
   return (
     <Box
       sx={{
@@ -135,7 +152,8 @@ const ProfilePage = () => {
         flexDirection: 'column',
         alignItems: 'center',
         backgroundColor: '#E4E2DD',
-        padding: '20px'
+        padding: '20px',
+        position: 'relative'
       }}
     >
       <Container maxWidth="md">
@@ -148,13 +166,36 @@ const ProfilePage = () => {
         ) : (
           <>
             <Card sx={{ marginBottom: 4, padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-                <Avatar sx={{ bgcolor: '#571CE0', width: 56, height: 56, marginRight: 2 }}>
-                  {currentUser.email.charAt(0).toUpperCase()}
-                </Avatar>
-                <Box sx={{ textAlign: 'left' }}>
-                  <Typography variant="h4" gutterBottom>{currentUser.email}</Typography>
-                  <Typography variant="h6">Welcome to your profile!</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2, justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Avatar sx={{ bgcolor: '#571CE0', width: 56, height: 56, marginRight: 2 }}>
+                    {currentUser.email.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Box sx={{ textAlign: 'left' }}>
+                    <Typography variant="h4" gutterBottom>{currentUser.email}</Typography>
+                    <Typography variant="h6">Welcome to your profile!</Typography>
+                  </Box>
+                </Box>
+                <Box>
+                  <IconButton
+                    onClick={handleMenuClick}
+                    aria-controls="profile-menu"
+                    aria-haspopup="true"
+                    sx={{ color: '#571CE0', padding: '10px', fontSize: '2rem' }}
+                  >
+                    <ArrowDropDown fontSize="large" />
+                  </IconButton>
+                  <Menu
+                    id="profile-menu"
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
+                    sx={{ mt: '40px' }}
+                  >
+                    <MenuItem onClick={handleLogout} sx={{ background: '', borderRadius: 'px', padding: 'px', color: '#571CE0', fontWeight: '' }}>
+                      Log Out
+                    </MenuItem>
+                  </Menu>
                 </Box>
               </Box>
               <Divider />
@@ -226,7 +267,7 @@ const ProfilePage = () => {
                       primary={
                         <>
                           <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
-                            {review.term} with {review.professor} for {review.courseId}:
+                            {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
                           </Typography>{' '}
                           <Typography component="span" sx={{ color: 'black' }}>
                             {review.review}
@@ -247,19 +288,31 @@ const ProfilePage = () => {
               </List>
             </Card>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleLogout}
-              sx={{
-                mt: 2,
-                background: 'linear-gradient(90deg, rgba(87,28,224,1) 0%, rgba(144,19,254,1) 100%)',
-                borderRadius: '25px',
-                boxShadow: 3
-              }}
-            >
-              Log Out
-            </Button>
+            <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3, marginTop: 4 }}>
+              <Typography variant="h5" gutterBottom>My Replies</Typography>
+              <Divider />
+              <List>
+                {profileData.replies?.map((reply, idx) => (
+                  <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
+                    <ListItemText
+                      primary={
+                        <>
+                          <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                            Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
+                          </Typography>{' '}
+                          <Typography component="span" sx={{ color: 'black' }}>
+                            {reply.reply}
+                          </Typography>
+                          <Typography component="span" sx={{ color: 'grey', fontSize: '0.8rem', display: 'block' }}>
+                            {new Date(reply.timestamp).toLocaleString()}
+                          </Typography>
+                        </>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Card>
           </>
         )}
       </Container>
