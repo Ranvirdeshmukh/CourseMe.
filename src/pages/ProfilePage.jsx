@@ -23,7 +23,7 @@ import {
   Grid,
   Toolbar
 } from '@mui/material';
-import { Delete, ArrowDropDown } from '@mui/icons-material';
+import { Delete, ArrowDropDown, BugReport, Logout } from '@mui/icons-material'; // Import the icons
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
@@ -253,11 +253,11 @@ const ProfilePage = () => {
                     onClose={handleMenuClose}
                     sx={{ mt: '40px' }}
                   >
-                    <MenuItem onClick={handleLogout} sx={{ background: '', borderRadius: 'px', padding: 'px', color: '#571CE0', fontWeight: '' }}>
-                      Log Out
-                    </MenuItem>
                     <MenuItem onClick={handleReportBugOpen} sx={{ background: '', borderRadius: 'px', padding: 'px', color: '#571CE0', fontWeight: '' }}>
-                      Report a Bug
+                      <BugReport sx={{ marginRight: 1 }} /> Report a Bug
+                    </MenuItem>
+                    <MenuItem onClick={handleLogout} sx={{ background: '', borderRadius: 'px', padding: 'px', color: '#571CE0', fontWeight: '' }}>
+                      <Logout sx={{ marginRight: 1 }} /> Log Out
                     </MenuItem>
                   </Menu>
                 </Box>
@@ -322,58 +322,56 @@ const ProfilePage = () => {
             </Dialog>
 
             <Dialog open={bugReportOpen} onClose={handleReportBugClose} maxWidth="sm" fullWidth>
-  <DialogTitle>
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <Typography variant="h6" sx={{ textAlign: 'left' }}>Report a Bug</Typography>
-      <Typography
-        variant="h8"
-        sx={{ 
-          fontFamily: 'SF Pro Display, sans-serif',
-          fontWeight: '',
-          textDecoration: 'none',
-          color: '#571CE0',
-          textAlign: 'right'
-        }}
-      >
-        CourseMe.
-      </Typography>
-    </Box>
-  </DialogTitle>
-  <DialogContent>
-    {bugReportError && <Alert severity="error">{bugReportError}</Alert>}
-    <TextField
-      margin="dense"
-      label="Page"
-      type="text"
-      fullWidth
-      variant="standard"
-      value={bugPage}
-      onChange={(e) => setBugPage(e.target.value)}
-      sx={{ marginBottom: 2 }}
-    />
-    <TextField
-      margin="dense"
-      label="Description"
-      type="text"
-      fullWidth
-      variant="standard"
-      value={bugDescription}
-      onChange={(e) => setBugDescription(e.target.value)}
-      multiline
-      rows={4}
-      sx={{ marginBottom: 2 }}
-    />
-    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
-      Enhance your experience by reporting a bug. We will fix it ASAP.
-    </Typography>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={handleReportBugClose} color="secondary">Cancel</Button>
-    <Button onClick={handleReportBugSubmit} variant="contained" color="primary">Submit</Button>
-  </DialogActions>
-</Dialog>
-
-
+              <DialogTitle>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="h6" sx={{ textAlign: 'left' }}>Report a Bug</Typography>
+                  <Typography
+                    variant="h8"
+                    sx={{ 
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontWeight: '',
+                      textDecoration: 'none',
+                      color: '#571CE0',
+                      textAlign: 'right'
+                    }}
+                  >
+                    CourseMe.
+                  </Typography>
+                </Box>
+              </DialogTitle>
+              <DialogContent>
+                {bugReportError && <Alert severity="error">{bugReportError}</Alert>}
+                <TextField
+                  margin="dense"
+                  label="Page"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  value={bugPage}
+                  onChange={(e) => setBugPage(e.target.value)}
+                  sx={{ marginBottom: 2 }}
+                />
+                <TextField
+                  margin="dense"
+                  label="Description"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  value={bugDescription}
+                  onChange={(e) => setBugDescription(e.target.value)}
+                  multiline
+                  rows={4}
+                  sx={{ marginBottom: 2 }}
+                />
+                <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+                  Enhance your experience by reporting a bug. We will fix it ASAP.
+                </Typography>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleReportBugClose} color="secondary">Cancel</Button>
+                <Button onClick={handleReportBugSubmit} variant="contained" color="primary">Submit</Button>
+              </DialogActions>
+            </Dialog>
 
             <Grid container spacing={4}> {/* Increased spacing between columns */}
               <Grid item xs={12} md={6}>
