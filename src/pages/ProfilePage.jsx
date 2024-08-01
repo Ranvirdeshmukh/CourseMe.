@@ -27,7 +27,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { doc, getDoc, updateDoc, arrayRemove, setDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayRemove, deleteDoc, setDoc } from 'firebase/firestore';
 import Footer from '../components/Footer';
 
 const ProfilePage = () => {
@@ -109,6 +109,29 @@ const ProfilePage = () => {
       }));
     } catch (error) {
       console.error("Failed to delete review:", error);
+    }
+  };
+
+  const handleDeleteReply = async (reply) => {
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const { courseId, reviewData, timestamp } = reply;
+      const sanitizedCourseId = courseId.split('_')[1];
+      const sanitizedInstructor = reviewData.instructor.replace(/\./g, '_');
+      const replyDocRef = doc(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewData.reviewIndex}_replies`, timestamp);
+
+      await updateDoc(userDocRef, {
+        replies: arrayRemove(reply),
+      });
+
+      await deleteDoc(replyDocRef);
+
+      setProfileData(prevState => ({
+        ...prevState,
+        replies: prevState.replies.filter(r => r !== reply),
+      }));
+    } catch (error) {
+      console.error("Failed to delete reply:", error);
     }
   };
 
@@ -313,6 +336,14 @@ const ProfilePage = () => {
                             </>
                           }
                         />
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDeleteReply(reply)}
+                          sx={{ color: '#571CE0' }}
+                        >
+                          <Delete />
+                        </IconButton>
                       </ListItem>
                     ))}
                   </List>

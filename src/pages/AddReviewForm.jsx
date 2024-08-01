@@ -14,15 +14,29 @@ const AddReviewForm = ({ onReviewAdded }) => {
   const [error, setError] = useState(null);
   const [professorsList, setProfessorsList] = useState([]);
 
-  const sanitizedCourseId = courseId.split('_')[1];
-
   useEffect(() => {
     const fetchProfessors = async () => {
       try {
-        const docRef = doc(db, 'reviews', sanitizedCourseId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
+        let data = null;
+        const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+        const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+        const sanitizedCourseId = courseId.split('_')[1];
+
+        const fetchDocument = async (path) => {
+          const docRef = doc(db, path);
+          const docSnap = await getDoc(docRef);
+          return docSnap.exists() ? docSnap.data() : null;
+        };
+
+        if (transformedCourseId) {
+          data = await fetchDocument(`reviews/${transformedCourseId}`);
+        }
+
+        if (!data) {
+          data = await fetchDocument(`reviews/${sanitizedCourseId}`);
+        }
+
+        if (data) {
           const professors = Object.keys(data);
           setProfessorsList(professors);
         } else {
@@ -34,7 +48,7 @@ const AddReviewForm = ({ onReviewAdded }) => {
     };
 
     fetchProfessors();
-  }, [sanitizedCourseId]);
+  }, [courseId]);
 
   const sanitizeFieldPath = (path) => {
     return path.replace(/\./g, '_');
@@ -52,12 +66,15 @@ const AddReviewForm = ({ onReviewAdded }) => {
       const sanitizedProfessor = sanitizeFieldPath(professor);
       const reviewData = `review: "${term} with ${professor}: ${review}"`;
 
-      // Add review to the course's reviews collection
-      const courseDocRef = doc(db, 'reviews', sanitizedCourseId);
+      let data = null;
+      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+      const sanitizedCourseId = courseId.split('_')[1];
+
+      const courseDocRef = doc(db, 'reviews', transformedCourseId || sanitizedCourseId);
       const courseDocSnap = await getDoc(courseDocRef);
 
       if (!courseDocSnap.exists()) {
-        // If the document doesn't exist, create it
         await setDoc(courseDocRef, { [sanitizedProfessor]: [] });
       }
 
@@ -65,18 +82,16 @@ const AddReviewForm = ({ onReviewAdded }) => {
         [sanitizedProfessor]: arrayUnion(reviewData),
       });
 
-      // Add review to the user's profile
       const userDocRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userDocRef, {
         reviews: arrayUnion({
-          courseId: sanitizedCourseId,
+          courseId: transformedCourseId || sanitizedCourseId,
           term,
           professor,
           review,
         }),
       });
 
-      // If the professor is new, add to the professorsList state
       if (!professorsList.includes(professor)) {
         setProfessorsList([...professorsList, professor]);
       }
@@ -99,7 +114,7 @@ const AddReviewForm = ({ onReviewAdded }) => {
 
   return (
     <Container sx={{ textAlign: 'left', maxWidth: 'md', padding: '20px 0' }}>
-      <Typography variant="h5" gutterBottom>Write a Review for {sanitizedCourseId}</Typography>
+      <Typography variant="h5" gutterBottom>Write a Review for {courseId.split('_')[1]}</Typography>
       {error && <Alert severity="error">{error}</Alert>}
       <form onSubmit={handleSubmit}>
         <TextField
