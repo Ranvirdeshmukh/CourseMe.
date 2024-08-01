@@ -19,7 +19,8 @@ import {
   Alert,
   Menu,
   MenuItem,
-  Button
+  Button,
+  Grid
 } from '@mui/material';
 import { Delete, ArrowDropDown } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
@@ -256,63 +257,68 @@ const ProfilePage = () => {
                 <Button onClick={handleSaveProfile}>Save</Button>
               </DialogActions>
             </Dialog>
-            
-            <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3 }}>
-              <Typography variant="h5" gutterBottom>My Reviews</Typography>
-              <Divider />
-              <List>
-                {profileData.reviews?.map((review, idx) => (
-                  <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
-                    <ListItemText
-                      primary={
-                        <>
-                          <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
-                            {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
-                          </Typography>{' '}
-                          <Typography component="span" sx={{ color: 'black' }}>
-                            {review.review}
-                          </Typography>
-                        </>
-                      }
-                    />
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => handleDeleteReview(review)}
-                      sx={{ color: '#571CE0' }}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </ListItem>
-                ))}
-              </List>
-            </Card>
 
-            <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3, marginTop: 4 }}>
-              <Typography variant="h5" gutterBottom>My Replies</Typography>
-              <Divider />
-              <List>
-                {profileData.replies?.map((reply, idx) => (
-                  <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
-                    <ListItemText
-                      primary={
-                        <>
-                          <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
-                            Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
-                          </Typography>{' '}
-                          <Typography component="span" sx={{ color: 'black' }}>
-                            {reply.reply}
-                          </Typography>
-                          <Typography component="span" sx={{ color: 'grey', fontSize: '0.8rem', display: 'block' }}>
-                            {new Date(reply.timestamp).toLocaleString()}
-                          </Typography>
-                        </>
-                      }
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Card>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3 }}>
+                  <Typography variant="h5" gutterBottom>My Reviews</Typography>
+                  <Divider />
+                  <List>
+                    {profileData.reviews?.map((review, idx) => (
+                      <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
+                        <ListItemText
+                          primary={
+                            <>
+                              <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                                {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
+                              </Typography>{' '}
+                              <Typography component="span" sx={{ color: 'black' }}>
+                                {review.review}
+                              </Typography>
+                            </>
+                          }
+                        />
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDeleteReview(review)}
+                          sx={{ color: '#571CE0' }}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3 }}>
+                  <Typography variant="h5" gutterBottom>My Replies</Typography>
+                  <Divider />
+                  <List>
+                    {profileData.replies?.map((reply, idx) => (
+                      <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
+                        <ListItemText
+                          primary={
+                            <>
+                              <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                                Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
+                              </Typography>{' '}
+                              <Typography component="span" sx={{ color: 'black' }}>
+                                {reply.reply}
+                              </Typography>
+                              <Typography component="span" sx={{ color: 'grey', fontSize: '0.8rem', display: 'block' }}>
+                                {new Date(reply.timestamp).toLocaleString()}
+                              </Typography>
+                            </>
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Card>
+              </Grid>
+            </Grid>
           </>
         )}
       </Container>
