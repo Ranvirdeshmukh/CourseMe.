@@ -3,152 +3,47 @@
         "Sergey Bratus": []
     },
     "COSC123": {
-        "James Mahoney": [],
-        "COSC089.22: Augmented and Virtual Reality Development": [],
-        "COSC027: Projects in Digital Arts": [],
-        "COSC025.02: Intro to UI/UX Design II": [],
-        "ENGS013: Virtual Medicine and Cybercare": [],
-        "MUS008: Programming for Interactive Audio-Visual Arts": [],
-        "FILM049: Practicum in Digital Culture and New Media Technologies": [],
-        "ENGS075: Product Design": [],
-        "SART017.15: 3D Design and Digital Fabrication": []
+        "James Mahoney": []
     },
     "COSC089.28": {
-        "Sarah Masud Preum": [],
-        "COSC089.27: Security and Privacy of Machine Learning": [],
-        "COSC089.12: Advanced Topics in Machine Learning": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC089.16: Advanced Topics in Deep Learning": [],
-        "QSS030.11: Applied Machine Learning for Social Science": [],
-        "ECON071: Health Economics and Policy": [],
-        "FRIT031: How Languages are Learned": [],
-        "COSC078: Deep Learning": []
+        "Sarah Masud Preum": []
     },
     "COSC125": {
-        "Lorie Loeb": [],
-        "Natalie Svoboda": [],
-        "COSC025.02: Intro to UI/UX Design II": [],
-        "COCO018: Impact Design: The psychology and design of user experiences that engage, delight, and inform": [],
-        "SART017.15: 3D Design and Digital Fabrication": [],
-        "ENGS012: Design Thinking": [],
-        "ENGS065: Engineering Software Design": [],
-        "ENGS044: Sustainable Design": [],
-        "ENGS031: Digital Electronics": [],
-        "SART017.14: Reinventing Architecture: Design and Social Action": []
+        "Lorie Loeb": []
     },
     "COSC049.10": {
         "Deeparnab Chakrabarty": [
             "review 1: \"21S with Deeparnab Chakrabarty: Always take a class w Chakrabarty. One of the best professors at Dartmouth, great lectures and very available. The grading was based on attendance of lectures, solving a set number of problems over the term (some of which were challenging ) with the option to do coding assignments or write a research summary as alternatives.\""
-        ],
-        "COSC049.07: 21st Century Algorithms": [],
-        "COSC031: Algorithms": [],
-        "COSC036: Approximation Algorithms": [],
-        "QSS030.11: Applied Machine Learning for Social Science": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "BIOL005: Fundamental Applied Mathematics for the Sciences": [],
-        "COSC089.27: Security and Privacy of Machine Learning": [],
-        "COSC010: Problem Solving via Object-Oriented Programming": []
+        ]
     },
     "COSC036": {
-        "Deeparnab Chakrabarty": [],
-        "COSC049.07: 21st Century Algorithms": [],
-        "COSC031: Algorithms": [],
-        "COSC049.10: Randomized Algorithms": [],
-        "COSC075: Introduction to Bioinformatics": [],
-        "COSC049: Topics in Algorithms and Complexity": [],
-        "COSC073: Computational Aspects of Digital Photography": [],
-        "COSC087: Rendering Algorithms": [],
-        "COSC010: Problem Solving via Object-Oriented Programming": []
+        "Deeparnab Chakrabarty": []
     },
     "COSC287": {
-        "Wojciech Jarosz": [],
-        "COSC031: Algorithms": [],
-        "COSC049.07: 21st Century Algorithms": [],
-        "COSC036: Approximation Algorithms": [],
-        "COSC073: Computational Aspects of Digital Photography": [],
-        "COSC075: Introduction to Bioinformatics": [],
-        "ENGS065: Engineering Software Design": [],
-        "ENGS050: Software Design and Implementation": [],
-        "COSC049: Topics in Algorithms and Complexity": []
+        "Wojciech Jarosz": []
     },
     "COSC269": {
-        "Alberto Quattrini Li": [],
-        "COSC049: Topics in Algorithms and Complexity": [],
-        "COSC029: Topics in Digital Arts": [],
-        "MUS087: Special Studies in Music Abroad (Individual Instruction on Music FSP)": [],
-        "ENGS010: The Science and Engineering of Digital Imaging": [],
-        "COSC089.23: Network Science and Complex Systems": [],
-        "COSC068: Advanced Operating Systems": [],
-        "BIOL059: Biostatistics II": [],
-        "ENGS022: Systems": []
+        "Alberto Quattrini Li": []
     },
     "COSC257": {
-        "John Brady": [],
-        "COSC059: Principles of Programming Languages": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC089.27: Security and Privacy of Machine Learning": [],
-        "QSS030.11: Applied Machine Learning for Social Science": [],
-        "LING048: Accelerated Computational Linguistics": [],
-        "COSC089.12: Advanced Topics in Machine Learning": [],
-        "COLT019.01: Translation: Theory and Practice": [],
-        "LING028: Computational Linguistics": []
+        "John Brady": []
     },
     "COSC249": {
         "Deeparnab Chakrabarty": [],
-        "Hsien-Chih Chang": [],
-        "COSC049: Topics in Algorithms and Complexity": [],
-        "COSC069: Topics in Computer Systems": [],
-        "COSC029: Topics in Digital Arts": [],
-        "COSC031: Algorithms": [],
-        "COSC049.07: 21st Century Algorithms": [],
-        "MUS087: Special Studies in Music Abroad (Individual Instruction on Music FSP)": [],
-        "PHIL045: Special Topics in Philosophy": [],
-        "COSC036: Approximation Algorithms": []
+        "Hsien-Chih Chang": []
     },
     "COSC240": {
-        "Amit Chakrabarti": [],
-        "COGS050.06: Computational Psych of Language": [],
-        "LING028: Computational Linguistics": [],
-        "PSYC061: Computational neuroscience: from synapses to networks": [],
-        "LING048: Accelerated Computational Linguistics": [],
-        "COSC049.10: Randomized Algorithms": [],
-        "ENGS085.09: Introduction to Computational Materials Science and Engineering": [],
-        "COSC011: Foundations of Applied Computer Science": [],
-        "COSC049.09: Introduction to Computational Topology": []
+        "Amit Chakrabarti": []
     },
     "COSC236": {
-        "Deeparnab Chakrabarty": [],
-        "COSC049.07: 21st Century Algorithms": [],
-        "COSC031: Algorithms": [],
-        "COSC049.10: Randomized Algorithms": [],
-        "COSC075: Introduction to Bioinformatics": [],
-        "COSC049: Topics in Algorithms and Complexity": [],
-        "COSC073: Computational Aspects of Digital Photography": [],
-        "COSC087: Rendering Algorithms": [],
-        "COSC010: Problem Solving via Object-Oriented Programming": []
+        "Deeparnab Chakrabarty": []
     },
     "COSC278": {
-        "Lorenzo Torresani": [],
-        "COSC089.16: Advanced Topics in Deep Learning": [],
-        "QSS030.11: Applied Machine Learning for Social Science": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC089.09: Visual Recognition": [],
-        "COSC089.12: Advanced Topics in Machine Learning": [],
-        "PSYC022: Learning": [],
-        "COSC089.27: Security and Privacy of Machine Learning": [],
-        "LING028: Computational Linguistics": []
+        "Lorenzo Torresani": []
     },
     "COSC277": {
         "Bo Zhu": [],
-        "Wojciech Jarosz": [],
-        "COSC001: Introduction to Programming and Computation": [],
-        "ENGS020: Introduction to Scientific Computing": [],
-        "COSC087: Rendering Algorithms": [],
-        "COSC089.25: GPU Programming and High Performance Computing": [],
-        "COSC011: Foundations of Applied Computer Science": [],
-        "MUS008: Programming for Interactive Audio-Visual Arts": [],
-        "COSC073: Computational Aspects of Digital Photography": [],
-        "MATH042: Differential Geometry I": []
+        "Wojciech Jarosz": []
     },
     "COSC249.08": {
         "Amit Chakrabarti": []
@@ -159,140 +54,51 @@
     "COSC089.27": {
         "Shagufta Mehnaz": [
             "review 1: \"21F with Shagufta Mehnaz: Easy grader. Menhaz is a very understanding professor. Interesting topic. Class was less valuable however because it was on zoom.\""
-        ],
-        "QSS030.11: Applied Machine Learning for Social Science": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC089.12: Advanced Topics in Machine Learning": [],
-        "COSC055: Security and Privacy": [],
-        "COSC078: Deep Learning": [],
-        "COSC089.28: Transforming Healthcare through Machine Learning: Challenges and Opportunities": [],
-        "PSYC022: Learning": [],
-        "COSC089.16: Advanced Topics in Deep Learning": []
+        ]
     },
     "COSC049.08": {
-        "Amit Chakrabarti": [],
-        "GOVT018: Introduction to Political Game Theory": [],
-        "MATH081: Abstract Algebra": [],
-        "ENGS066: Discrete Mathematics in Computer Science": [],
-        "MATH019: Introduction to Set Theory": [],
-        "COSC075: Introduction to Bioinformatics": [],
-        "MATH075: Applied Topics in Number Theory and Algebra": [],
-        "ENGS001.01: Mathematical Concepts in Engineering": [],
-        "ENGS004: Technology of Cyberspace": []
+        "Amit Chakrabarti": []
     },
     "COSC281": {
-        "Alberto Quattrini Li": [],
-        "COSC089.13: Robot Motion Planning": [],
-        "COSC069.15: Robotics Perception Systems": [],
-        "COSC020: Motion Study: Using Motion Analysis for Science, Art and Medicine": [],
-        "PHYS044: Mechanics": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC089.18: Computational Methods for Physical Systems": [],
-        "ENGS005: Healthcare and Biotechnology in the 21st Century": [],
-        "ENGS072: Applied Mechanics: Dynamics": []
+        "Alberto Quattrini Li": []
     },
     "COSC274": {
         "Sarah Masud Preum": [],
         "Soroush Vosoughi": [],
-        "Venkatramanan Subrahmanian": [],
-        "QSS030.11: Applied Machine Learning for Social Science": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC089.27: Security and Privacy of Machine Learning": [],
-        "MATH070: Elements of Multivariate Statistics & Statistical Learning": [],
-        "COSC089.12: Advanced Topics in Machine Learning": [],
-        "COSC078: Deep Learning": [],
-        "MATH050: Introduction to Linear Models": [],
-        "LING028: Computational Linguistics": []
+        "Venkatramanan Subrahmanian": []
     },
     "COSC273": {
-        "Wojciech Jarosz": [],
-        "ENGS010: The Science and Engineering of Digital Imaging": [],
-        "SART030: Photography II - The Nature of Photography": [],
-        "ASCL080.01: Colonial Photography": [],
-        "AMES091.01: Colonial Photography in Asia and the Middle East": [],
-        "ARTH048.02: Histories of Photography": [],
-        "COSC049.07: 21st Century Algorithms": [],
-        "COSC036: Approximation Algorithms": [],
-        "COSC031: Algorithms": []
+        "Wojciech Jarosz": []
     },
     "COSC267": {
         "Temiloluwa Prioleau": [],
-        "Xing-Dong Yang": [],
-        "COSC089.08: Introduction to Human-Computer Interaction": [],
-        "COSC029.05: Digital Fabrication & Rapid Prototyping": [],
-        "ANTH066: Human Biological Variation": [],
-        "GOVT010: Quantitative Political Analysis": [],
-        "QSS030.16: Cultural Analytics": [],
-        "WRIT042: The Art of Science Writing": [],
-        "ENGS075: Product Design": [],
-        "SART017.15: 3D Design and Digital Fabrication": []
+        "Xing-Dong Yang": []
     },
     "COSC249.09": {
         "Hsien-Chih Chang": []
     },
     "COSC089.26": {
-        "David Kotz": [],
-        "COSC055: Security and Privacy": [],
-        "COSC089.27: Security and Privacy of Machine Learning": [],
-        "PHIL031.07: The Social World": [],
-        "COSC069.07: Risks of the Internet of Things to Society (RIOTS)": [],
-        "PSYC051.12: Visual Intelligence": [],
-        "GOVT085.24: National Security Policy and Decision Making": [],
-        "PHIL023.03: Art and Its Nature": [],
-        "GOVT053: International Security": []
+        "David Kotz": []
     },
     "COSC063.01": {
         "James Mahoney": [
             "review 1: \"24W with James Mahoney: Not a fan of this class, to be honest. I will say that I don't think it's as hard as people say it is, though. The reason for this is because Prof. Mahoney is a designer by trade and thus doesn't actually pay attention to any of the developer processes (he's much more concerned with the designers in CS23, which by the way, is the other course CS63 is co-taught with.) I'm sure there are actually some best practices elsewhere, but you can get away with treating Unity as fake coding (arguably, it already was anyways): just drag the game objects into the scene and then attach some messy <40 line C# files where it's needed. A lot of people do indeed tryhard this class (one final project this term made a full-fledged multiplayer card game in 4 weeks --- actually ridiculous), but I did a lot less than everyone else and still got an A. However, if you actually want to learn AR/VR dev best practices, then Prof. Mahoney is a horrible teacher since he makes you figure it all out by yourself (especially so this term since there is this new \"Meta BuildingBlock\" feature released ~2 months before the start of 24W, and he made us all use it without even bothering to test it first.) TAs are similarly useless and don't understand what's going on in the course, despite the fact that they all took it before. The class organization is also a mess --- no Canvas, everything is stored on one singular Google Doc, assignment submissions are through random Google Drive folders, discussion is through Discord (trying to be hip with the kids for some reason), and you don't know what you were graded individually on any of your assignments, besides a midterm cumulative grade update and a final cumulative grade update that Prof. Mahoney DM's you through Discord halfway through the term and at the end of the term, respectively. (I thought profs being sly with the grades was a fate only reserved for humanities majors, but alas.) Prof. Mahoney is also stubbornly \"particular\" in the way you do things --- the documents have to be named with the exact file name, the videos recordings have to be of the exact length, your proposals have to name this exact feature, etc. It's not hard, but it's really annoying to deal with. Two of the three major assignments are also group projects, and that more or less determines how good + difficult your project will be. And of course, there are only 10 slots available for AR/VR devs, so it's hard to justify bidding for it during initial course selection (though 4 people did end up dropping this term, so perhaps you can still get in if you really want to.) I guess one positive is that we are using the Meta Quest 3; might not be the Apple Vision Pro, but still, working with the newest tech is exciting. But all this to say, only take this course if you are actually interested in taking this course. (And you probably shouldn't be, given how most VR devs go into the video game industry, and how shitty the pay and working conditions are there. If you're wondering why I took this course, well... let's just say I had some ulterior motives.) As for the grade breakdown: 15% for the opening Unity project (first 2 weeks, individual, no headset), 15% for the middle XR project (3 weeks, work with a designer in COSC023, headset), 25% for the final project (4 weeks, teams of varying sizes), 15% in-class assignments, 15% \"portfolio\" (this is basically just you submitting a screenshot of your work at the end of each class, so this is basically just attendance), 15% \"know-how\" (a presentation on some advanced CS topic related to AR/VR.) There's also a required 5 minute final presentation held during finals period. (I think it's more or less tracked for attendance, but still annoying asf since it was held at 8am this term.)\"",
             "review 2: \"22F with James Mahoney: Great and unique class. Hard to get into since there's only 10 spots, so definitely worth taking if you manage to get in. Be aware, however, that this course is a LOT of work. There's major projects every other week and the entire class always goes above and beyond with project submissions, so be ready to put in long hours of work into building your projects. In the end, however, I found the long hours spent in the lab to be worth it, as you'll come out of this class with numerous Unity/AR/VR/Oculus projects to add to your portfolio. In terms of the professor, he is knowledgable, but the class lectures are pretty weirdly structured or not too helpful. A lot of the learning will be self-taught or come from asking the TAs - the lectures felt more like an opportunity to get a short glimpse into different AR/VR topics, rather than a chance to learn deeply about something. Overall, I'd recommend anyone interested to take this course, as long as you aren't taking other work-intensive classes with it.\""
-        ],
-        "COSC027: Projects in Digital Arts": [],
-        "COSC028: Advanced Projects in Digital Arts": [],
-        "ENGS013: Virtual Medicine and Cybercare": [],
-        "FILM003: Introduction to Digital Arts and Culture": [],
-        "ENGL054.13: Digital Game Studies": [],
-        "ENGL044: Introduction to Digital Studies": [],
-        "COSC029.05: Digital Fabrication & Rapid Prototyping": [],
-        "COSC025.02: Intro to UI/UX Design II": []
+        ]
     },
     "COSC049.09": {
         "Hsien-chih Chang": [
             "review 1: \"20F with Hsien-chih Chang: Amazing class. This has been the best class I've taken at Dartmouth so far, by far. The materials are super interesting, and the problem sets were just ridiculously fun. Hsien was always open to questions. He was an ok lecturer, but this was his first time teaching so he might get better before you take his class. We had one pset every other week, which won't be the best if you leave things for the last minute. Check homework 0 as a reference: https://hcsoso.github.io/teaching/topology-f20/index.html. If you liked the problems in the 0-th pset, you'll probably enjoy the class. I must say, I took it as an undergrad and found it very, very challenging. Some lectures I didn't understand shit. The class is hard on math, CS people beware.\"",
             "review 2: \"20F with Hsien-chih Chang: Extremely challenging class requiring an extensive mathematical background to understand the material. (e.g. Abstract Algebra, Real Analysis, and ideally another Topology/Geometry course). The professor was nice and open to questions, but made frequent mistakes in lecture which did not help. For reference, the previous reviewer and I are both Math undergrads and TAs for CS 30, and I too attended lectures where I didn't understand shit. Would not recommend if you are a straight CS major, or a Math major that is watching the GPA for law/med school. (The problem sets are quite the time sink!) If topology is truly your passion though-like you are planning on going on to a PhD and this is your area of research-you will find this class fruitful. Applications are aplenty.\""
-        ],
-        "Hsien-Chih Chang": [],
-        "COSC011: Foundations of Applied Computer Science": [],
-        "ENGS020: Introduction to Scientific Computing": [],
-        "MATH073: Metric Spaces and Measure Theory": [],
-        "QSS030.07: Simulating Social Systems: Complexity and Society": [],
-        "LING028: Computational Linguistics": [],
-        "BIOL039: Computational Molecular Biology": [],
-        "COSC049.08: Information Theory in Computer Science": [],
-        "PSYC032: Introduction to Programming for Psychological Scientists": []
+        ]
     },
     "COSC029.05": {
-        "Karolina Kawiaka": [],
-        "SART017.15: 3D Design and Digital Fabrication": [],
-        "COSC028: Advanced Projects in Digital Arts": [],
-        "ENGL044: Introduction to Digital Studies": [],
-        "COSC027: Projects in Digital Arts": [],
-        "ENGS031: Digital Electronics": [],
-        "ENGS010: The Science and Engineering of Digital Imaging": [],
-        "FILM003: Introduction to Digital Arts and Culture": [],
-        "SART029: Photography I - The Intentional Photograph": []
+        "Karolina Kawiaka": []
     },
     "COSC023.01": {
         "James Mahoney": [
             "review 1: \"21F with James Mahoney: This was such a GREAT class, you learn SO MUCH but also know the workload is def on the HIGH side! There are different modules - unity, AR, VR and a final project and you get to create something for each module, great if you want to create a portfolio. It is a new class so the structure is probably going to be tweaked each time it is taught but you learn the basics of how to design AR/VR experiences and get to apply and explore it in your own projects. Exploration is encouraged which is nice since there are so many things you can do with the AR/VR programs that class will not cover it all and you end up creating very cool stuff. It is not fun though if you are on a time crunch to finish the projects so make sure to give them enough time. There are weekly projects (bigger alternating with smaller ones each week) that do take a good amount of time to complete so the workload is def high but def worth it if you take it with a lower workload in other classes - i would've LOVED it if I took it with lower workload classes. Great class overall you learn so so much and get to really work on your skills - it's amazing what ppl create in this class.\""
-        ],
-        "COSC089.22: Augmented and Virtual Reality Development": [],
-        "COSC027: Projects in Digital Arts": [],
-        "COSC025.02: Intro to UI/UX Design II": [],
-        "ENGS013: Virtual Medicine and Cybercare": [],
-        "FILM049: Practicum in Digital Culture and New Media Technologies": [],
-        "ENGS075: Product Design": [],
-        "MUS008: Programming for Interactive Audio-Visual Arts": [],
-        "SART017.15: 3D Design and Digital Fabrication": []
+        ]
     },
     "COSC169.09": {
         "Andrew Campbell": []
@@ -300,61 +106,21 @@
     "COSC089.25": {
         "Bo Zhu": [
             "review 1: \"20S with Bo Zhu: I really enjoyed this course. The material was interesting, and the coding assignments were very fair in length. Prof. Zhu is a great lecturer, very laidback, and very accommodating. If this course is offered again, I would highly recommend it.\""
-        ],
-        "ENGS020: Introduction to Scientific Computing": [],
-        "COSC063: Programming Parallel Systems": [],
-        "COSC011: Foundations of Applied Computer Science": [],
-        "COSC001: Introduction to Programming and Computation": [],
-        "QSS030.21: Social Justice and Computing": [],
-        "QSS020: Modern Statistical Computing": [],
-        "COSC089.18: Computational Methods for Physical Systems": [],
-        "COSC059: Principles of Programming Languages": []
+        ]
     },
     "COSC089.24": {
-        "Venkatramanan Subrahmanian": [],
-        "PHIL032: Intermediate Logic": [],
-        "PHIL029: Philosophy of Logic and Mathematics": [],
-        "PHIL006: Logic and Language": [],
-        "PHIL012.01: Medieval Philosophy of Language and Reality": [],
-        "PHIL026: Philosophy and Computers": [],
-        "ENGS031: Digital Electronics": [],
-        "PHIL003: Reason and Argument": [],
-        "PHIL029.01: Of Time and Necessity: Philosophy of Logic": []
+        "Venkatramanan Subrahmanian": []
     },
     "COSC089.23": {
-        "Soroush Vosoughi": [],
-        "ENVS053: Science for Sustainable Systems": [],
-        "ASCL063.01: Asian Medical Systems": [],
-        "PSYC083.08: Social And Neural Networks": [],
-        "QSS041: Analysis of Social Networks": [],
-        "PHYS031.01: Nonlinear Dynamics of Physical Systems": [],
-        "ENGS068: Introduction to Communication Systems": [],
-        "ENGS022: Systems": [],
-        "COSC068: Advanced Operating Systems": []
+        "Soroush Vosoughi": []
     },
     "COSC069.15": {
-        "Alberto Quattrini Li": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC081: Principles of Robot Design and Programming": [],
-        "PSYC085.04: Development, Learning and Disorders": [],
-        "COSC089.27: Security and Privacy of Machine Learning": [],
-        "COSC089.12: Advanced Topics in Machine Learning": [],
-        "COSC089.28: Transforming Healthcare through Machine Learning: Challenges and Opportunities": [],
-        "ENGS005: Healthcare and Biotechnology in the 21st Century": [],
-        "COSC011: Foundations of Applied Computer Science": []
+        "Alberto Quattrini Li": []
     },
     "COSC069.14": {
         "Sebastiaan Joosten": [
             "review 1: \"20W with Sebastiaan Joosten: Joosten is not the best at explaining concepts clearly during class. However, he is a super nice and approachable person and grades really easily. If you go during office hours he's better at explaining your specific questions and will basically give you the answers to the problem sets as well. The class was an interesting situation where I didn't completely understand a lot of the material but still got a good grade.\""
-        ],
-        "COSC059: Principles of Programming Languages": [],
-        "COSC001: Introduction to Programming and Computation": [],
-        "MUS008: Programming for Interactive Audio-Visual Arts": [],
-        "GEOG050.03: GIS Programming and Databases": [],
-        "ENGS020: Introduction to Scientific Computing": [],
-        "COSC063: Programming Parallel Systems": [],
-        "QSS020: Modern Statistical Computing": [],
-        "ENGS050: Software Design and Implementation": []
+        ]
     },
     "COSC070.01": {
         "Wojciech Jarosz": [
@@ -365,101 +131,37 @@
         ],
         "Bo Zhu": [
             "review 1: \"20W with Bo Zhu: Professor Zhu is the goat. Super smart and kind professor who has very reasonable expectations. The workload for his class is very manageable as long as you pay attention during lectures and actually learn the material.\""
-        ],
-        "LING028: Computational Linguistics": [],
-        "QSS030.11: Applied Machine Learning for Social Science": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC089.25: GPU Programming and High Performance Computing": [],
-        "LING048: Accelerated Computational Linguistics": [],
-        "COSC049.09: Introduction to Computational Topology": [],
-        "COSC089.18: Computational Methods for Physical Systems": [],
-        "ENGS020: Introduction to Scientific Computing": []
+        ]
     },
     "COSC700": {
         "Alberto Quattrini Li": [],
-        "Sean Smith": [],
-        "PHIL036: Metaethics": [],
-        "THEA050: Playwriting I": [],
-        "ENGS020: Introduction to Scientific Computing": [],
-        "ENGS066: Discrete Mathematics in Computer Science": [],
-        "PORT035: Advanced Studies in Brazilian Culture and Society": [],
-        "ENGS010: The Science and Engineering of Digital Imaging": [],
-        "QSS020: Modern Statistical Computing": [],
-        "CHIN023: Intermediate Modern Chinese (Second-year level)": []
+        "Sean Smith": []
     },
     "COSC025.02": {
-        "Lorie Loeb": [],
-        "ENGS044: Sustainable Design": [],
-        "FILM049: Practicum in Digital Culture and New Media Technologies": [],
-        "ENGS089: Engineering Design Methodology and Project Initiation": [],
-        "ENGS012: Design Thinking": [],
-        "ENGS090: Engineering Design Methodology and Project Completion": [],
-        "ENGS021: Introduction to Engineering": [],
-        "SART017.15: 3D Design and Digital Fabrication": [],
-        "THEA043: Scene Design II": []
+        "Lorie Loeb": []
     },
     "COSC089.21": {
         "Soroush Vosoughi": [
             "review 1: \"23F with Soroush Vosoughi: Great class; actually useful and up-to-date material being taught. Professor Vosoughi is incredibly nice and flexible with late days, and as long as you put in effort for the final project, you will do well in this class. There's a reason why crowds of people show up on the first day of his class to try to get off the waitlist, 10/10 would recommend.\"",
             "review 2: \"21W with Soroush Vosoughi: Probably my favorite class I've taken at Dartmouth, at least the only I've felt compelled to write a review for. Material is genuinely useful, workload isn't bad, assignments are super interesting, and the live-coding lectures worked well in an online format. The final project counts for a lot of your grade but is very open ended and fun. Soroush is awesome.\"",
             "review 3: \"19S with Soroush Vosoughi: Super useful class...perhaps the most up-to-date applied CS class. You will basically use pandas and scikit-learn for everything after taking this.\""
-        ],
-        "QSS030.09: Data Wrangling": [],
-        "COSC089.20: Data Science for Health": [],
-        "QSS017: Data Visualization": [],
-        "COSC089.10: Datascapes - Objective and Subjective Cinematic Interpretations of Data": [],
-        "MUS014.02: Datascapes: Objective and Subjective Cinematic Interpretations of Data": [],
-        "COSC061: Database Systems": [],
-        "QSS030.16: Cultural Analytics": [],
-        "QSS045: Data Analysis": []
+        ]
     },
     "COSC089.22": {
-        "James Mahoney": [],
-        "COSC027: Projects in Digital Arts": [],
-        "COSC028: Advanced Projects in Digital Arts": [],
-        "ENGS013: Virtual Medicine and Cybercare": [],
-        "FILM003: Introduction to Digital Arts and Culture": [],
-        "ENGL054.13: Digital Game Studies": [],
-        "COSC029.05: Digital Fabrication & Rapid Prototyping": [],
-        "ENGL044: Introduction to Digital Studies": [],
-        "COSC029: Topics in Digital Arts": []
+        "James Mahoney": []
     },
     "COSC089.20": {
         "Temiloluwa Prioleau": [
             "review 1: \"22W with Temiloluwa Prioleau: So basically, this class is all about giving presentations on different health issues every week. The teacher doesn't do much talking, she does evaluate our presentations. It's kinda like we're teaching the teacher. We also need to read two papers each week and write reports, work in groups to do coding and other tasks, and eventually write a formal paper and build a group website. There are a lot of different parts to this class, and if one part doesn't go well or team members isn't cool, it can affect grade. Sometimes at the end of the class, we need to fill out a questionnaire(part of attence) about what we learned and submit it on Canvas. You automatically believe that the questionnaire should be completed on the same day, but it is scheduled to close half an hour after the end of the class. Attendence score flys away. Overall, this class is interesting cuz it's about the intersection of data and health. Each week we learn about a new health issue and its application, so if you're interested in the medical field, looking for a job or research in this area, you can definitely learn a lot from this class.\""
-        ],
-        "COSC089.17: Health Informatics": [],
-        "COSC089.21: Data Mining and Knowledge Discovery": [],
-        "QSS030.09: Data Wrangling": [],
-        "QSS017: Data Visualization": [],
-        "GEOG051: Remote Sensing": [],
-        "SOCY068: Global Health Systems": [],
-        "QSS045: Data Analysis": [],
-        "QSS030.16: Cultural Analytics": []
+        ]
     },
     "COSC069.13": {
         "Alberto Quattrini Li": [
             "review 1: \"22F with Alberto Quattrini Li: Good class and he cares a lot about the topic. ROS documentation is hard to pick up without guidance. Would recommend\""
-        ],
-        "COSC089.23: Network Science and Complex Systems": [],
-        "ENGS068: Introduction to Communication Systems": [],
-        "ASCL063.01: Asian Medical Systems": [],
-        "ENGS022: Systems": [],
-        "COSC068: Advanced Operating Systems": [],
-        "PSYC065: Systems Neuroscience with Laboratory": [],
-        "GEOG050: Geographical Information Systems (GIS)": [],
-        "PHYS031.01: Nonlinear Dynamics of Physical Systems": []
+        ]
     },
     "COSC029.22": {
-        "James Mahoney": [],
-        "COSC089.22: Augmented and Virtual Reality Development": [],
-        "COSC027: Projects in Digital Arts": [],
-        "COSC028: Advanced Projects in Digital Arts": [],
-        "ENGS013: Virtual Medicine and Cybercare": [],
-        "COSC029.05: Digital Fabrication & Rapid Prototyping": [],
-        "FILM049: Practicum in Digital Culture and New Media Technologies": [],
-        "SART017.15: 3D Design and Digital Fabrication": [],
-        "FILM003: Introduction to Digital Arts and Culture": []
+        "James Mahoney": []
     },
     "COSC025.01": {
         "Lorie Loeb": [
@@ -475,181 +177,69 @@
             "review 2: \"23F with Natalie Svoboda: Great class overall. Natalie has a crazy amount of experience and her lectures were (mostly) really engaging, which I've found to be a rarity in Human-Centered Design classes which often repeat the same five things again and again and again. There's a tiny bit of that here, but just enough to get the CS/Digital Arts students on the same page without numbing the brains that have already taken ENGS12/21/75. Natalie is also much less concerned with busywork than other classes in the \"\"department,\"\" this class requires consistent effort but is less of a grind than other HCD classes I've taken despite giving me At Least the same amount of knowledge. I only really struggled with carving out time during finals, the first 8 weeks of term were not a \"layup\" but the difficulty/workload is nothing crazy. If you pay attention to lecture content and put in some time and thought into your assignments, there's pretty much no way to do poorly. I'm generally not a \"computer person\" but Figma is quite intuitive to learn, for the most part Natalie does a great job breaking it down so we learn a lot without it feeling overwhelming. MAJOR exception to this is components; this is the last thing she teaches us even though it is an extremely valuable tool for making consistent screens and can shorten the time it takes to make your prototypes work by several orders of magnitude.\"",
             "review 3: \"22X with Natalie Svoboda: Loved this class! Natalie's lectures were always well planned and very clearly explained, activities and projects were interesting and you have a lot of freedom in choosing what to do. I'd say work is manageable if you plan it out well and don't start it the night before! Figma is definitely a very useful skill to know, though towards the end of the term it could get tedious. One thing I would say is that the enjoyability of the final project depends HEAVILY on your group. Although it's \"optional\" to suggest people you want to work with, you NEED to. Everyone else does, so if you don't, you'll end up with the crusty person who will do no work on the project\"",
             "review 4: \"22W with Natalie Svoboda: Great class! Natalie is the best!! So sweet and very knowledgeable. Definitely a good amount of work but manageable if you space it out well. 3 main projects broken down into UI, UX, and a final project that's both UI & UX. Learned how to use Figma which is really helpful!!!\""
-        ],
-        "COSC025.02: Intro to UI/UX Design II": [],
-        "COCO018: Impact Design: The psychology and design of user experiences that engage, delight, and inform": [],
-        "ENGS012: Design Thinking": [],
-        "SART017.15: 3D Design and Digital Fabrication": [],
-        "ENGS044: Sustainable Design": [],
-        "ENGS065: Engineering Software Design": [],
-        "ENGS031: Digital Electronics": [],
-        "SART017.14: Reinventing Architecture: Design and Social Action": []
+        ]
     },
     "COSC098.02": {
         "Tim Tregubov": [
             "review 1: \"19S with Tim Tregubov: Overall, COSC 98 took me about six hours of work per week. Most of COSC 98 consisted of students meeting with their team of 4-5 other students in class and working on developing their website / mobile app / game / etc software projects and then working more on their projects outside of class. Depending on what teammates you choose and what project you choose, you may have to put in more or less work in order to get a good grade. I mistakenly chose teammates who put in a lot of work and we picked a project of building a React Native mobile app which Tim was experienced with and thus may have thought our project wasn\u2019t that technically difficult. I also supported choosing a project using mainly web dev technologies when unlike most of my team members, I had never taken COSC 52 web dev. As a result, I needed to put in a lot of work to get a good grade on the project and on my teammate peer evaluations. For contrast, my friend worked on another team with teammates who did not put in a lot of work and they picked a project using blockchain which Tim was unfamiliar with and thus Tim may have judged their project as difficult. As a result, my friend likely did not have to put in a lot of work to get a good grade in COSC 98. I chose the team members and project because I wanted to use COSC 98 as an opportunity to test a startup idea. While the class may have been a decent opportunity to test such an idea, my choices of team and project required a significant work commitment from me. I failed to put in sufficient work, failing to invest the minimum ten hours per week in the course (as emphasized by Tim), I created issues with my team dynamics and ultimately damaged the course experience for myself. In 19W I took a risk and took ENGS 12 concurrently with COSC 98 which was a ton of work and prevented me from putting in the minimum 10 hours of work in COSC 98. I thought that my teammates likely wouldn\u2019t put that much time into the course and even if my teammates did put >= 10 hours in the course I could just put in extra time in the second term of the course, 19S. Unfortunately, things did not work out the way I had assumed they would. In 19S I did have more time and could have worked the >= 10 hours I needed to per week to get a good final grade in the course. But my teammates were far ahead of me in coding the app and were embittered by my lack of help in the winter and as such were reluctant to help me find tasks to work on in our complex codebase. Even so, I should have just put the ten hours per week of work in anyways even if I did not contribute much to developing our app. At least if put in the minimum ten hours of work I could show my teammates and my Professor that I was putting in an honest effort, which probably would have saved my grade. Instead I kept trying to find major parts of the app development to contribute to, but generally could not find areas to work on to contribute the minimum ten hours of work per week. Overall if you are able to contribute to your project, you can likely learn a lot coding your project for COSC 98. The class has some big negative aspects though. Tim never gives you feedback on where your overall personal grade in the course stands unless you ask for it (I recommend asking for it!). Also on a more minor note, the class has 30 minutes of busy work each week in the form of required submissions of a team reflection and notes on what each team member will work on in the following week.\""
         ],
-        "Sebastiaan Joze Joosten": [],
-        "ENGS050: Software Design and Implementation": [],
-        "ENGS065: Engineering Software Design": [],
-        "COSC025.02: Intro to UI/UX Design II": [],
-        "ENGS090: Engineering Design Methodology and Project Completion": [],
-        "FILM093: Major Project": [],
-        "ENGS075: Product Design": [],
-        "ENGS087: Undergraduate Investigations": [],
-        "COSC089.09: Visual Recognition": []
+        "Sebastiaan Joze Joosten": []
     },
     "COSC098.01": {
         "Tim Tregubov": [
             "review 1: \"19W with Tim Tregubov: Overall I thought CS98 part 1 was an alright class. Every year the class becomes less of a layup. Many teams put in a fair amount of hours this term so that Tim Tregubov would give them a good grade. Tim is a decent professor. In this iteration of CS98 (Winter-Spring), Tim had us use the first 4 weeks of the course to research ideas, pitch ideas to the class, and then form teams during week 4. We then spent a week prototyping our UI. Only during week 5 did we start coding. I really liked how we had time to research and design our software projects before we began coding.\""
         ],
-        "Sebastiaan Joosten": [],
-        "Sebastiaan Joze Joosten": [],
-        "FILM093: Major Project": [],
-        "ENGS090: Engineering Design Methodology and Project Completion": [],
-        "ENGS087: Undergraduate Investigations": [],
-        "ENGS050: Software Design and Implementation": [],
-        "ENGS065: Engineering Software Design": [],
-        "COSC025.02: Intro to UI/UX Design II": [],
-        "ENGS075: Product Design": [],
-        "COSC089.09: Visual Recognition": []
+        "Sebastiaan Joosten": []
     },
     "COSC089.19": {
-        "Alberto Quattrini Li": [],
-        "QSS030.11: Applied Machine Learning for Social Science": [],
-        "COSC089.27: Security and Privacy of Machine Learning": [],
-        "COSC089.12: Advanced Topics in Machine Learning": [],
-        "COSC078: Deep Learning": [],
-        "COSC069.15: Robotics Perception Systems": [],
-        "COSC089.16: Advanced Topics in Deep Learning": [],
-        "PSYC022: Learning": [],
-        "COSC089.28: Transforming Healthcare through Machine Learning: Challenges and Opportunities": []
+        "Alberto Quattrini Li": []
     },
     "COSC089.18": {
-        "Bo Zhu": [],
-        "SART017.15: 3D Design and Digital Fabrication": [],
-        "ENGS085.09: Introduction to Computational Materials Science and Engineering": [],
-        "ENGS026: Control Theory": [],
-        "COSC011: Foundations of Applied Computer Science": [],
-        "COSC089.25: GPU Programming and High Performance Computing": [],
-        "ENGS065: Engineering Software Design": [],
-        "ENGS044: Sustainable Design": [],
-        "COSC081: Principles of Robot Design and Programming": []
+        "Bo Zhu": []
     },
     "COSC091": {
-        "Thomas Cormen": [],
-        "THEA040: Technical Production": [],
-        "WRIT044.02: Science and Technology Writing and Presentation": [],
-        "EARS080.03: Technical Computation in the Earth Sciences": [],
-        "ENGS004: Technology of Cyberspace": [],
-        "COSC069.09: Mobile Sensing": [],
-        "ENGL087: Special Topics in Creative Writing": [],
-        "EARS016: Hydrology and Water Resources": [],
-        "FREN008: Exploring French Culture and Language": []
+        "Thomas Cormen": []
     },
     "COSC021": {
         "James Mahoney": [
             "review 1: \"21X with James Mahoney: I loved this class - although it was on zoom the lectures were engaging and prof mahoney is an amazing prof. You learn so much just by attending lecture and listening to him talk about design. We do analysis exercises at the beginning of every class (not graded) where you practice analyzing a given image and you learn so much just listening to your classmates and the prof critique the design. Lots of interesting concepts, the assignments are fun to do (that ~creative flow~) but they do take up a fair amount of time if you want to do them well like any art/design class. There are weekly assignments so workload is on the medium/high side i'd say but super interesting if you like want to learn about 2D design. You learn and practice basic skills in class through 'sprints' that are led by the prof and get to apply them in your projects outside of class. Loved the class overall and its rlly cool to see what your classmates create since there is so much freedom encouraged.\"",
             "review 2: \"21W with James Mahoney: Wouldn't say this is a lay up purely because the design process is quite long. It is an A median but does take up a decent amount of time with weekly projects. TAs and Prof. Mahoney is super helpful and resources do exist. Would take for art distribution, good median and learn some essential design skills on photoshop.\""
-        ],
-        "SART017.15: 3D Design and Digital Fabrication": [],
-        "ENGS031: Digital Electronics": [],
-        "ENGS075: Product Design": [],
-        "ENGS089: Engineering Design Methodology and Project Initiation": [],
-        "ENGS044: Sustainable Design": [],
-        "THEA044: Lighting Design": [],
-        "COSC027: Projects in Digital Arts": [],
-        "THEA048: Costume Design": []
+        ]
     },
     "COSC121": {
-        "James Mahoney": [],
-        "SART017.15: 3D Design and Digital Fabrication": [],
-        "ENGS044: Sustainable Design": [],
-        "ENGS075: Product Design": [],
-        "ENGS031: Digital Electronics": [],
-        "ENGS089: Engineering Design Methodology and Project Initiation": [],
-        "THEA043: Scene Design II": [],
-        "THEA010.25: Music, Design, and Creativity": [],
-        "THEA048: Costume Design": []
+        "James Mahoney": []
     },
     "COSC181": {
         "Alberto Quattrini Li": [],
-        "Devin Balkcom": [],
-        "COSC081: Principles of Robot Design and Programming": [],
-        "COSC089.13: Robot Motion Planning": [],
-        "COSC020: Motion Study: Using Motion Analysis for Science, Art and Medicine": [],
-        "COSC069.15: Robotics Perception Systems": [],
-        "PHYS044: Mechanics": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "ENGS005: Healthcare and Biotechnology in the 21st Century": [],
-        "ENGS072: Applied Mechanics: Dynamics": []
+        "Devin Balkcom": []
     },
     "COSC169.01": {
         "Xia Zhou": []
     },
     "COSC162": {
-        "Sean Smith": [],
-        "MATH063: Real Analysis": [],
-        "PHYS005: Physics for Future Leaders": [],
-        "PBPL005: Introduction to Public Policy": [],
-        "MATH076: Topics in Applied Mathematics": [],
-        "GOVT092.02: Public Policy in Cross-national Perspective": [],
-        "GOVT083.04: Myths and Realities in Public Policy Solutions": [],
-        "MATH025: Number Theory": [],
-        "BIOL039: Computational Molecular Biology": []
+        "Sean Smith": []
     },
     "COSC149.09": {
         "Peter Winkler": []
     },
     "COSC069.11": {
-        "Xia Zhou": [],
-        "COSC069.09: Mobile Sensing": [],
-        "COCO005: Visualizing American Cities: Creating Modern Identities": [],
-        "FILM051: Game Design Studio": [],
-        "PSYC081.05: Technology, Psychology, and Neuroscience": [],
-        "COSC089.11: Cognitive Computing with Watson": [],
-        "COSC069.15: Robotics Perception Systems": [],
-        "FILM046.07: Television and New Media": [],
-        "ARTH063.72: Aesthetics of the Digital": []
+        "Xia Zhou": []
     },
     "COSC062": {
         "Sean Smith": [
             "review 1: \"23W with Sean Smith: DON\u2019T TAKE THIS CLASS. I literally regret nothing more than signing up for this. Sean Smith is an abysmal professor, who, through sheer incompetency, managed to make a course on an interesting and ubiquitous topic into the most boring, frustrating, and aggravating class I have ever taken, and with no understanding of cryptography to show for it. The course isn\u2019t conceptually difficult like 30 or 31, nor is it a lot of work like 50 or 52 - it\u2019s just *stupid*. Each unit has a problem set that together is 50% of your grade, and are assigned weekly (except for the week of the midterm, when he assigns 2). These test you on aggravating stupid things like whether you can find and implement random C libraries online, rather than any actual content related to cryptography. The midterm is worth 20% of your grade, and covers a pretty wide range of topics. Thankfully, Sean Smith released a \u201cstudy guide\u201d with a list of concepts that would be on the midterm. Unfortunately, these are not what is actually on the midterm. It\u2019s hard to stress how little the midterm resembled any of the assigned textbook readings, articles, homework sets, or the practice midterm - he tests exclusively on things you had to be at class to know. This would be alright if not for the absolute dismal quality of his lectures. He has yet to explain a concept clear enough for me to not have to spend hours supplementing whatever he is saying with videos or online articles. He is erratic and disorganized, and lacks even the semblance of a logic flow. They are also not recorded. His office hours were equally unhelpful, and the TA\u2019s could not answer even the simplest questions about the homework sets. Overall, the entire course was borderline dysfunctional. His \u201csyllabus\u201d was a Canvas page copied over from a previous Spring term, with incorrect due dates/times, inconsistencies about number of exams, and what content we would need to know for *any* of the exams. Most of the class by week 5 will have dropped it, and those who didn\u2019t only haven\u2019t because they cannot afford to.\""
-        ],
-        "MATH063: Real Analysis": [],
-        "PHYS005: Physics for Future Leaders": [],
-        "PBPL005: Introduction to Public Policy": [],
-        "MATH076: Topics in Applied Mathematics": [],
-        "GOVT092.02: Public Policy in Cross-national Perspective": [],
-        "GOVT083.04: Myths and Realities in Public Policy Solutions": [],
-        "MATH025: Number Theory": [],
-        "BIOL039: Computational Molecular Biology": []
+        ]
     },
     "COSC049.07": {
         "Deeparnab Chakrabarty": [],
-        "COSC031: Algorithms": [],
-        "COSC036: Approximation Algorithms": [],
-        "COSC049.10: Randomized Algorithms": [],
-        "COSC049: Topics in Algorithms and Complexity": [],
-        "COSC075: Introduction to Bioinformatics": [],
-        "COSC073: Computational Aspects of Digital Photography": [],
-        "COSC087: Rendering Algorithms": [],
-        "LING028: Computational Linguistics": []
+        "COSC031: Algorithms": []
     },
     "COSC029.04": {
         "Lorie Loeb & Thalia Wheatley": [
             "review 1: \"20W with Lorie Loeb & Thalia Wheatley: Best class ever. Manageable work, interesting lectures, badass profs, easy grading, and extremely rewarding. Take this class!!!!!\""
         ],
         "Lorie Loeb": [],
-        "Thalia Wheatley": [],
-        "COCO018: Impact Design: The psychology and design of user experiences that engage, delight, and inform": [],
-        "COCO006: Autism: Science, Story, and Experience": [],
-        "THEA010.25: Music, Design, and Creativity": [],
-        "SOCY049.16: Community: Analysis & Action": [],
-        "ENGS044: Sustainable Design": [],
-        "ENGS012: Design Thinking": [],
-        "SART017.15: 3D Design and Digital Fabrication": [],
-        "FILM051: Game Design Studio": []
+        "Thalia Wheatley": []
     },
     "COSC099.02": {
         "Alberto Quattrini Li": [],
@@ -658,15 +248,7 @@
         "Prasad Jayanti": [],
         "Soroush Vosoughi": [],
         "Thomas Cormen": [],
-        "Xia Zhou": [],
-        "EARS091: Science Communication": [],
-        "COSC025.02: Intro to UI/UX Design II": [],
-        "COSC089.16: Advanced Topics in Deep Learning": [],
-        "ENGS087: Undergraduate Investigations": [],
-        "COSC089.09: Visual Recognition": [],
-        "FILM093: Major Project": [],
-        "ENGS020: Introduction to Scientific Computing": [],
-        "EARS086: Special Projects": []
+        "Xia Zhou": []
     },
     "COSC099.01": {
         "Alberto Quattrini Li": [],
@@ -675,15 +257,7 @@
         "Prasad Jayanti": [],
         "Soroush Vosoughi": [],
         "Thomas Cormen": [],
-        "Xia Zhou": [],
-        "EARS091: Science Communication": [],
-        "COSC025.02: Intro to UI/UX Design II": [],
-        "COSC089.16: Advanced Topics in Deep Learning": [],
-        "ENGS087: Undergraduate Investigations": [],
-        "COSC089.09: Visual Recognition": [],
-        "FILM093: Major Project": [],
-        "ENGS020: Introduction to Scientific Computing": [],
-        "EARS086: Special Projects": []
+        "Xia Zhou": []
     },
     "COSC072": {
         "Rolando Coto Solano": [
@@ -701,65 +275,27 @@
         ],
         "Natalie Schrimpf": [],
         "LING028: Computational Linguistics": [],
-        "COGS050.06: Computational Psych of Language": [],
-        "FRIT031: How Languages are Learned": [],
-        "ANTH012.12: Language, Landscape, and Identity in Native North America The voices of Time Immemorial": [],
-        "FRIT093: Foreign Language Teaching Methods: Theory and Practice": [],
-        "COSC078: Deep Learning": [],
-        "LING005: Topics in the Study of Language": [],
-        "COSC075: Introduction to Bioinformatics": []
+        "COGS050.06: Computational Psych of Language": []
     },
     "COSC176": {
         "Devin Balkcom": [],
-        "Venkatramanan Subrahmanian": [],
-        "COSC089.24: Logic and Artificial Intelligence": [],
-        "PHIL026: Philosophy and Computers": [],
-        "PSYC051.03: Mind and Brain": [],
-        "COSC089.13: Robot Motion Planning": [],
-        "ENGS005: Healthcare and Biotechnology in the 21st Century": [],
-        "COGS002: Cognition": [],
-        "COSC089.11: Cognitive Computing with Watson": [],
-        "COSC020: Motion Study: Using Motion Analysis for Science, Art and Medicine": []
+        "Venkatramanan Subrahmanian": []
     },
     "COSC089.02": {
         "Gevorg Grigoryan": []
     },
     "COSC089.17": {
-        "Inas Khayal": [],
-        "SOCY068: Global Health Systems": [],
-        "HIST036: Health Care in American Society: History and Current Issues": [],
-        "COSC089.20: Data Science for Health": [],
-        "SPEE037: Health Communication": [],
-        "ANTH055: Anthropology of Global Health": [],
-        "GOVT030.14: Health Politics and Policy": [],
-        "COCO015: Introduction to Public Health: An Experiential Approach to Individual, Community, and Population-Based Health": [],
-        "LACS050.10: Health and Disease in Latin American and the Caribbean": []
+        "Inas Khayal": []
     },
     "COSC127": {
         "James Mahoney": [],
         "Lorie Loeb": []
     },
     "COSC089.16": {
-        "Lorenzo Torresani": [],
-        "COSC078: Deep Learning": [],
-        "COSC089.12: Advanced Topics in Machine Learning": [],
-        "COSC089.09: Visual Recognition": [],
-        "PSYC022: Learning": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC089.28: Transforming Healthcare through Machine Learning: Challenges and Opportunities": [],
-        "COSC089.27: Security and Privacy of Machine Learning": [],
-        "EDUC032: Learning and Education Across Cultures": []
+        "Lorenzo Torresani": []
     },
     "COSC049.06": {
-        "Deeparnab Chakrabarty": [],
-        "COSC049.07: 21st Century Algorithms": [],
-        "COSC031: Algorithms": [],
-        "COSC049.10: Randomized Algorithms": [],
-        "COSC075: Introduction to Bioinformatics": [],
-        "COSC010: Problem Solving via Object-Oriented Programming": [],
-        "COSC087: Rendering Algorithms": [],
-        "COSC049: Topics in Algorithms and Complexity": [],
-        "COSC073: Computational Aspects of Digital Photography": []
+        "Deeparnab Chakrabarty": []
     },
     "COSC049.05": {
         "Thomas Cormen": []
@@ -768,71 +304,22 @@
         "David Kotz": [],
         "Devin Balkcom": [],
         "Gevorg Grigoryan": [],
-        "Venkatramanan Subrahmanian": [],
-        "THEA034: Acting for the Camera": [],
-        "CHIN032: Advanced Modern Chinese (Third-year level)": [],
-        "EARS091: Science Communication": [],
-        "COSC089.28: Transforming Healthcare through Machine Learning: Challenges and Opportunities": [],
-        "WRIT042: The Art of Science Writing": [],
-        "COSC069: Topics in Computer Systems": [],
-        "ENGS020: Introduction to Scientific Computing": [],
-        "BIOL039: Computational Molecular Biology": []
+        "Venkatramanan Subrahmanian": []
     },
     "COSC167": {
-        "Xing-Dong Yang": [],
-        "COSC089.08: Introduction to Human-Computer Interaction": [],
-        "COSC029.05: Digital Fabrication & Rapid Prototyping": [],
-        "GOVT010: Quantitative Political Analysis": [],
-        "QSS030.16: Cultural Analytics": [],
-        "WRIT042: The Art of Science Writing": [],
-        "ANTH066: Human Biological Variation": [],
-        "ENGS075: Product Design": [],
-        "ENGL054.40: Literary Culture in an Age of Digital Distraction": []
+        "Xing-Dong Yang": []
     },
     "COSC124": {
-        "Patricia Hannaway": [],
-        "FILM041.09: History of Animation": [],
-        "FILM035: Animation: Principles and Practice": [],
-        "FILM038: Advanced Animation": [],
-        "COSC020: Motion Study: Using Motion Analysis for Science, Art and Medicine": [],
-        "FILM047.08: Cut and Paste Animation": [],
-        "ENGS066: Discrete Mathematics in Computer Science": [],
-        "COSC089.18: Computational Methods for Physical Systems": [],
-        "QSS030.07: Simulating Social Systems: Complexity and Society": []
+        "Patricia Hannaway": []
     },
     "COSC122": {
-        "James Mahoney": [],
-        "Lorie Loeb": [],
-        "EARS006.05: Modeling the Earth": [],
-        "COSC024: Computer Animation: The State of the Art": [],
-        "COSC027: Projects in Digital Arts": [],
-        "ENGS085.09: Introduction to Computational Materials Science and Engineering": [],
-        "THEA044: Lighting Design": [],
-        "FILM044.09: Cinematography I: Lighting and Composition": [],
-        "THEA040: Technical Production": [],
-        "COSC011: Foundations of Applied Computer Science": []
+        "James Mahoney": []
     },
     "COSC049.03": {
-        "Amit Chakrabarti": [],
-        "COLT065: Literature and Science": [],
-        "GOVT063: Foundations of Political Thought: Athens and Jerusalem": [],
-        "COSC049.04: Concurrent Algorithms": [],
-        "COSC036: Approximation Algorithms": [],
-        "COSC049.07: 21st Century Algorithms": [],
-        "ENGS066: Discrete Mathematics in Computer Science": [],
-        "COSC010: Problem Solving via Object-Oriented Programming": [],
-        "GOVT086.26: Prophets on Trial": []
+        "Amit Chakrabarti": []
     },
     "COSC089.14": {
-        "Xing-Dong Yang": [],
-        "COSC089.08: Introduction to Human-Computer Interaction": [],
-        "COSC069.11: Mobile X": [],
-        "ENGS062: Microprocessors in Engineered Systems": [],
-        "COSC069.09: Mobile Sensing": [],
-        "LING080.06: Tone": [],
-        "PSYC063: Experimental Study of Human Interaction": [],
-        "COSC089.25: GPU Programming and High Performance Computing": [],
-        "COSC089.28: Transforming Healthcare through Machine Learning: Challenges and Opportunities": []
+        "Xing-Dong Yang": []
     },
     "COSC011": {
         "Lorenzo Torresani": [
@@ -844,29 +331,13 @@
         "Hany Farid": [
             "review 1: \"18S with Hany Farid: AMAZING PROFESSOR, I'm so glad I was able to take this class with Professor Farid before he left, his lectures were very interesting and he made the material easy to understand, the short assignments were relatively easy, the labs took awhile to get sometimes but in comparison to CS10 labs they were much easier, you have 4 quizzes, he drops the lowest quiz grade that's not the final quiz, the first three quizzes were pretty easy, the final quiz was way harder in my opinion than the other three quizzes, the material on the final quiz was harder but the final quiz in general was just harder than problems from previous quizzes\""
         ],
-        "Wojciech Jarosz": [],
-        "LING028: Computational Linguistics": [],
-        "QSS030.11: Applied Machine Learning for Social Science": [],
-        "COSC089.19: Machine Learning for Robotics": [],
-        "COSC089.25: GPU Programming and High Performance Computing": [],
-        "LING048: Accelerated Computational Linguistics": [],
-        "COSC049.09: Introduction to Computational Topology": [],
-        "COSC089.18: Computational Methods for Physical Systems": [],
-        "ENGS020: Introduction to Scientific Computing": []
+        "Wojciech Jarosz": []
     },
     "COSC029.01": {
         "James Mahoney": []
     },
     "COSC089.13": {
-        "Devin Balkcom": [],
-        "COSC081: Principles of Robot Design and Programming": [],
-        "COSC020: Motion Study: Using Motion Analysis for Science, Art and Medicine": [],
-        "PHYS044: Mechanics": [],
-        "PHIL031.01: Space and Time": [],
-        "COSC049.07: 21st Century Algorithms": [],
-        "ECON015: Political Economy of China": [],
-        "GOVT086.35: Feminist Theory": [],
-        "COSC031: Algorithms": []
+        "Devin Balkcom": []
     },
     "COSC029.03": {
         "Patricia Hannaway": []
