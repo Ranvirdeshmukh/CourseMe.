@@ -83,9 +83,17 @@ const CourseEnrollmentPriorities = () => {
           gutterBottom
           align="left"
           color="primary"
-          sx={{ fontWeight: 'bold', mb: 2 }}
+          sx={{ fontWeight: 'bold', mb: 1 }}
         >
           Course Enrollment Priorities for <span style={{ color: 'green' }}>Fall 24</span>
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          gutterBottom
+          align="left"
+          sx={{ mb: 4, color: '#333' }} // Styling for the subtitle
+        >
+          **Please note:** This page is updated every term. The information below pertains to the Fall 2024 term.
         </Typography>
 
         {loading ? (
