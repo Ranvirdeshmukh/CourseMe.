@@ -8,7 +8,7 @@ const NavBar = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
 
-  // Define a helper function to check if the current path matches any of the given patterns
+  // Helper function to determine if the current path matches any of the specific patterns
   const isSpecialPage = () => {
     const path = location.pathname;
 
@@ -17,7 +17,8 @@ const NavBar = () => {
       '/classes',
       '/profile',
       '/layups',
-      '/course-enrollment-priorities'
+      '/course-enrollment-priorities',
+      '/departments' // Include department-related paths
     ];
 
     // Check if the path matches any special pages or starts with a special prefix
