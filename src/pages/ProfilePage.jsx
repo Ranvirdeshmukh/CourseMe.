@@ -21,20 +21,26 @@ import {
   MenuItem,
   Button,
   Grid,
-  Toolbar
 } from '@mui/material';
-import { Delete, ArrowDropDown, BugReport, Logout } from '@mui/icons-material'; // Import the icons
+import { Delete, ArrowDropDown, BugReport, Logout } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { doc, getDoc, updateDoc, arrayRemove, deleteDoc, setDoc, addDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayRemove, deleteDoc, addDoc, collection } from 'firebase/firestore';
 import Footer from '../components/Footer';
 
 const ProfilePage = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [profileData, setProfileData] = useState({ major: '', classYear: '', reviews: [], replies: [], firstName: '', lastName: '' });
+  const [profileData, setProfileData] = useState({
+    major: '',
+    classYear: '',
+    reviews: [],
+    replies: [],
+    firstName: '',
+    lastName: '',
+  });
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [newProfileData, setNewProfileData] = useState({});
@@ -66,7 +72,7 @@ const ProfilePage = () => {
             reviews: userData.reviews || [],
             replies: userData.replies || [],
             firstName: userData.firstName || '',
-            lastName: userData.lastName || ''
+            lastName: userData.lastName || '',
           });
         } else {
           setError('Failed to fetch profile data.');
@@ -82,7 +88,7 @@ const ProfilePage = () => {
       await signOut(auth);
       navigate('/login');
     } catch (error) {
-      console.error("Failed to log out:", error);
+      console.error('Failed to log out:', error);
     }
   };
 
@@ -99,21 +105,23 @@ const ProfilePage = () => {
       const courseDocSnap = await getDoc(courseDocRef);
       if (courseDocSnap.exists()) {
         const courseData = courseDocSnap.data();
-        const updatedReviews = courseData[review.professor]?.filter(r => r !== `review: "${review.term} with ${review.professor}: ${review.review}"`);
+        const updatedReviews = courseData[review.professor]?.filter(
+          (r) => r !== `review: "${review.term} with ${review.professor}: ${review.review}"`
+        );
         if (updatedReviews.length === 0) {
           delete courseData[review.professor];
         } else {
           courseData[review.professor] = updatedReviews;
         }
-        await setDoc(courseDocRef, courseData);
+        await updateDoc(courseDocRef, courseData);
       }
 
-      setProfileData(prevState => ({
+      setProfileData((prevState) => ({
         ...prevState,
-        reviews: prevState.reviews.filter(r => r !== review),
+        reviews: prevState.reviews.filter((r) => r !== review),
       }));
     } catch (error) {
-      console.error("Failed to delete review:", error);
+      console.error('Failed to delete review:', error);
     }
   };
 
@@ -123,7 +131,13 @@ const ProfilePage = () => {
       const { courseId, reviewData, timestamp } = reply;
       const sanitizedCourseId = courseId.split('_')[1];
       const sanitizedInstructor = reviewData.instructor.replace(/\./g, '_');
-      const replyDocRef = doc(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewData.reviewIndex}_replies`, timestamp);
+      const replyDocRef = doc(
+        db,
+        'reviews',
+        sanitizedCourseId,
+        `${sanitizedInstructor}_${reviewData.reviewIndex}_replies`,
+        timestamp
+      );
 
       await updateDoc(userDocRef, {
         replies: arrayRemove(reply),
@@ -131,18 +145,23 @@ const ProfilePage = () => {
 
       await deleteDoc(replyDocRef);
 
-      setProfileData(prevState => ({
+      setProfileData((prevState) => ({
         ...prevState,
-        replies: prevState.replies.filter(r => r !== reply),
+        replies: prevState.replies.filter((r) => r !== reply),
       }));
     } catch (error) {
-      console.error("Failed to delete reply:", error);
+      console.error('Failed to delete reply:', error);
     }
   };
 
   const handleEditProfile = () => {
     setEditing(true);
-    setNewProfileData({ firstName: profileData.firstName, lastName: profileData.lastName, major: profileData.major, classYear: profileData.classYear });
+    setNewProfileData({
+      firstName: profileData.firstName,
+      lastName: profileData.lastName,
+      major: profileData.major,
+      classYear: profileData.classYear,
+    });
   };
 
   const handleSaveProfile = async () => {
@@ -150,13 +169,13 @@ const ProfilePage = () => {
       const userDocRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userDocRef, newProfileData);
 
-      setProfileData(prevState => ({
+      setProfileData((prevState) => ({
         ...prevState,
-        ...newProfileData
+        ...newProfileData,
       }));
       setEditing(false);
     } catch (error) {
-      console.error("Failed to save profile:", error);
+      console.error('Failed to save profile:', error);
     }
   };
 
@@ -187,11 +206,11 @@ const ProfilePage = () => {
         email: currentUser.email,
         page: bugPage,
         description: bugDescription,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       handleReportBugClose();
     } catch (error) {
-      console.error("Failed to report bug:", error);
+      console.error('Failed to report bug:', error);
       setBugReportError('Failed to report bug. Please try again.');
     }
   };
@@ -218,10 +237,11 @@ const ProfilePage = () => {
         alignItems: 'center',
         backgroundColor: '#E4E2DD',
         padding: '40px', // Increased padding
-        position: 'relative'
+        position: 'relative',
       }}
     >
-      <Container maxWidth="lg"> {/* Changed to lg for larger container */}
+      <Container maxWidth="lg">
+        {/* Changed to lg for larger container */}
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress color="primary" />
@@ -230,15 +250,43 @@ const ProfilePage = () => {
           <Alert severity="error">{error}</Alert>
         ) : (
           <>
-            <Card sx={{ marginBottom: 4, padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3 }}>
+            <Card
+              sx={{
+                marginBottom: 4,
+                padding: 4,
+                backgroundColor: '#f9f9f9',
+                color: '#1D1D1F',
+                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                borderRadius: '12px',
+                width: '100%',
+              }}
+            >
               <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2, justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Avatar sx={{ bgcolor: '#571CE0', width: 56, height: 56, marginRight: 2 }}>
                     {currentUser.email.charAt(0).toUpperCase()}
                   </Avatar>
                   <Box sx={{ textAlign: 'left' }}>
-                    <Typography variant="h4" gutterBottom>{currentUser.email}</Typography>
-                    <Typography variant="h6">Welcome to your profile!</Typography>
+                    <Typography
+                      variant="h4"
+                      gutterBottom
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        fontWeight: 600,
+                        color: '#1D1D1F',
+                      }}
+                    >
+                      {currentUser.email}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        color: '#8E8E93',
+                      }}
+                    >
+                      Welcome to your profile.
+                    </Typography>
                   </Box>
                 </Box>
                 <Box>
@@ -257,30 +305,171 @@ const ProfilePage = () => {
                     onClose={handleMenuClose}
                     sx={{ mt: '40px' }}
                   >
-                    <MenuItem onClick={handleReportBugOpen} sx={{ background: '', borderRadius: 'px', padding: 'px', color: '#571CE0', fontWeight: '' }}>
+                    <MenuItem
+                      onClick={handleReportBugOpen}
+                      sx={{
+                        borderRadius: '4px',
+                        padding: '10px',
+                        color: '#1D1D1F',
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        '&:hover': {
+                          backgroundColor: '#f0f0f0',
+                        },
+                      }}
+                    >
                       <BugReport sx={{ marginRight: 1 }} /> Report a Bug
                     </MenuItem>
-                    <MenuItem onClick={handleLogout} sx={{ background: '', borderRadius: 'px', padding: 'px', color: '#571CE0', fontWeight: '' }}>
+                    <MenuItem
+                      onClick={handleLogout}
+                      sx={{
+                        borderRadius: '4px',
+                        padding: '10px',
+                        color: '#1D1D1F',
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        '&:hover': {
+                          backgroundColor: '#f0f0f0',
+                        },
+                      }}
+                    >
                       <Logout sx={{ marginRight: 1 }} /> Log Out
                     </MenuItem>
                   </Menu>
                 </Box>
               </Box>
-              <Divider />
+              <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
               <Box sx={{ textAlign: 'left', marginTop: 2 }}>
-                <Typography variant="h6" gutterBottom>Profile Information</Typography>
-                <Typography>First Name: {profileData.firstName}</Typography>
-                <Typography>Last Name: {profileData.lastName}</Typography>
-                <Typography>Major: {profileData.major}</Typography>
-                <Typography>Class Year: {profileData.classYear}</Typography>
-                <Button variant="contained" color="primary" onClick={handleEditProfile} sx={{ mt: 2, boxShadow: 3 }}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: '#1D1D1F',
+                  }}
+                >
+                  Profile Information
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: '#8E8E93',
+                    marginBottom: 0.5,
+                  }}
+                >
+                  First Name: {profileData.firstName}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: '#8E8E93',
+                    marginBottom: 0.5,
+                  }}
+                >
+                  Last Name: {profileData.lastName}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: '#8E8E93',
+                    marginBottom: 0.5,
+                  }}
+                >
+                  Major: {profileData.major}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: '#8E8E93',
+                    marginBottom: 0.5,
+                  }}
+                >
+                  Class Year: {profileData.classYear}
+                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={handleEditProfile}
+                  sx={{
+                    mt: 2,
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    fontWeight: 500,
+                    borderRadius: '8px',
+                    boxShadow: 'none',
+                    backgroundColor: '#571CEO',
+                    '&:hover': {
+                      backgroundColor: '#005bb5',
+                    },
+                    textTransform: 'none',
+                    paddingX: 3,
+                    paddingY: 1,
+                  }}
+                >
                   Edit Profile
-                </Button>
-                <Button variant="contained" color="secondary" onClick={handleNavigateToEnrollmentPriorities} sx={{ mt: 2, ml: 2, boxShadow: 3 }}>
-                  Checkout the Fall 24 Course Enrollment Priorities
                 </Button>
               </Box>
             </Card>
+
+            {/* Fall Course Enrollment Card */}
+            <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
+              <Card
+                sx={{
+                  padding: 4,
+                  backgroundColor: '#f9f9f9', // Slightly lighter background
+                  color: '#333',
+                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow
+                  borderRadius: '12px', // Rounded corners for a modern look
+                  width: '50%', // Ensure the card width is 50% of the container
+                  maxWidth: 500,
+                }}
+              >
+                <Typography
+                  variant="h4" // Larger font size
+                  gutterBottom
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    fontWeight: 600, // Bold font weight
+                    color: '#1D1D1F', // Darker, richer text color
+                    textAlign: 'left',
+                    marginBottom: 2,
+                  }}
+                >
+                  Fall 2024 Course Enrollment Priority.
+                </Typography>
+                <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} /> {/* Subtle divider */}
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={handleNavigateToEnrollmentPriorities}
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontWeight: 500,
+                      borderRadius: '8px', // Rounded button
+                      boxShadow: 'none', // Remove button shadow
+                      backgroundColor: '#571CEO', // Apple-style blue
+                      '&:hover': {
+                        backgroundColor: '#005bb5', // Darker blue on hover
+                      },
+                      textTransform: 'none', // Disable uppercase transformation
+                      paddingX: 3,
+                      paddingY: 1,
+                    }}
+                  >
+                    Browse It
+                  </Button>
+                </Box>
+                {/* Disclaimer or Note */}
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: '#8E8E93', // Softer, grey color for note
+                    textAlign: 'left',
+                    marginTop: 2,
+                    display: 'block',
+                  }}
+                >
+                  * Enrollment priorities change every term and will be updated accordingly.
+                </Typography>
+              </Card>
+            </Box>
 
             <Dialog open={editing} onClose={handleClose}>
               <DialogTitle>Edit Profile</DialogTitle>
@@ -334,12 +523,12 @@ const ProfilePage = () => {
                   <Typography variant="h6" sx={{ textAlign: 'left' }}>Report a Bug</Typography>
                   <Typography
                     variant="h8"
-                    sx={{ 
+                    sx={{
                       fontFamily: 'SF Pro Display, sans-serif',
                       fontWeight: '',
                       textDecoration: 'none',
                       color: '#571CE0',
-                      textAlign: 'right'
+                      textAlign: 'right',
                     }}
                   >
                     CourseMe.
@@ -382,20 +571,59 @@ const ProfilePage = () => {
 
             <Grid container spacing={4}> {/* Increased spacing between columns */}
               <Grid item xs={12} md={6}>
-                <Box sx={{ padding: 3, backgroundColor: '#f5f5f5', borderRadius: 2, border: '1px solid #ddd' }}> {/* Added Box for styling */}
-                  <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3 }}>
-                    <Typography variant="h5" gutterBottom>My Reviews</Typography>
-                    <Divider />
+                <Box
+                  sx={{
+                    padding: 3,
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: 2,
+                    border: '1px solid #ddd',
+                  }}
+                >
+                  <Card
+                    sx={{
+                      padding: 4,
+                      backgroundColor: '#f9f9f9',
+                      color: '#1D1D1F',
+                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                      borderRadius: '12px',
+                    }}
+                  >
+                    <Typography
+                      variant="h4"
+                      gutterBottom
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        fontWeight: 600,
+                        color: '#1D1D1F',
+                        marginBottom: 2,
+                      }}
+                    >
+                      My Reviews
+                    </Typography>
+                    <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
                     <List>
                       {profileData.reviews?.map((review, idx) => (
                         <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
                           <ListItemText
                             primary={
                               <>
-                                <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontFamily: 'SF Pro Display, sans-serif',
+                                    color: '#571CE0',
+                                    fontWeight: 600,
+                                  }}
+                                >
                                   {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
                                 </Typography>{' '}
-                                <Typography component="span" sx={{ color: 'black' }}>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontFamily: 'SF Pro Display, sans-serif',
+                                    color: '#1D1D1F',
+                                  }}
+                                >
                                   {review.review}
                                 </Typography>
                               </>
@@ -416,23 +644,70 @@ const ProfilePage = () => {
                 </Box>
               </Grid>
               <Grid item xs={12} md={6}>
-                <Box sx={{ padding: 3, backgroundColor: '#f5f5f5', borderRadius: 2, border: '1px solid #ddd' }}> {/* Added Box for styling */}
-                  <Card sx={{ padding: 4, backgroundColor: '#fff', color: '#571CE0', boxShadow: 3 }}>
-                    <Typography variant="h5" gutterBottom>My Replies</Typography>
-                    <Divider />
+                <Box
+                  sx={{
+                    padding: 3,
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: 2,
+                    border: '1px solid #ddd',
+                  }}
+                >
+                  <Card
+                    sx={{
+                      padding: 4,
+                      backgroundColor: '#f9f9f9',
+                      color: '#1D1D1F',
+                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                      borderRadius: '12px',
+                    }}
+                  >
+                    <Typography
+                      variant="h4"
+                      gutterBottom
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        fontWeight: 600,
+                        color: '#1D1D1F',
+                        marginBottom: 2,
+                      }}
+                    >
+                      My Replies
+                    </Typography>
+                    <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
                     <List>
                       {profileData.replies?.map((reply, idx) => (
                         <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
                           <ListItemText
                             primary={
                               <>
-                                <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold' }}>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontFamily: 'SF Pro Display, sans-serif',
+                                    color: '#571CE0',
+                                    fontWeight: 600,
+                                  }}
+                                >
                                   Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
                                 </Typography>{' '}
-                                <Typography component="span" sx={{ color: 'black' }}>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontFamily: 'SF Pro Display, sans-serif',
+                                    color: '#1D1D1F',
+                                  }}
+                                >
                                   {reply.reply}
                                 </Typography>
-                                <Typography component="span" sx={{ color: 'grey', fontSize: '0.8rem', display: 'block' }}>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontFamily: 'SF Pro Display, sans-serif',
+                                    color: 'grey',
+                                    fontSize: '0.8rem',
+                                    display: 'block',
+                                  }}
+                                >
                                   {new Date(reply.timestamp).toLocaleString()}
                                 </Typography>
                               </>
