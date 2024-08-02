@@ -94,6 +94,11 @@ const ProfilePage = () => {
     }
   };
 
+  const handleNavigateToCourseReview = (courseId) => {
+    const department = courseId.split('_')[0]; // Extract department from courseId
+    navigate(`/departments/${department}/courses/${courseId}`);
+  };
+
   const handleDeleteReview = async (review) => {
     try {
       const userDocRef = doc(db, 'users', currentUser.uid);
@@ -504,83 +509,97 @@ const ProfilePage = () => {
 
   {/* My Saved Courses */}
   <Grid item xs={12} md={6}>
-    <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
-      <Card
-        sx={{
-          padding: 4,
-          backgroundColor: '#f9f9f9', // Slightly lighter background
-          color: '#333',
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow
-          borderRadius: '12px', // Rounded corners for a modern look
-          width: '100%', // Ensure the card takes up the full width of the grid item
-          maxWidth: 500,
-          minHeight: 200, // Set a minimum height for the card
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Box>
-          <Typography
-            variant="h4" // Larger font size
-            gutterBottom
-            sx={{
-              fontFamily: 'SF Pro Display, sans-serif',
-              fontWeight: 600, // Bold font weight
-              color: '#1D1D1F', // Darker, richer text color
-              textAlign: 'left',
-              marginBottom: 2,
-            }}
-          >
-            My Saved Courses.
-          </Typography>
-          <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} /> {/* Subtle divider */}
-          <List>
-            {profileData.pinnedCourses.length === 0 ? (
-              <Typography
-                sx={{
-                  fontFamily: 'SF Pro Display, sans-serif',
-                  color: '#8E8E93',
-                  textAlign: 'left',
-                }}
-              >
-                No courses pinned yet.
-              </Typography>
-            ) : (
-              profileData.pinnedCourses.map((courseId, idx) => (
-                <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
-                  <ListItemText
-                    primary={
-                      <>
-                        <Typography
-                          component="span"
-                          sx={{
-                            fontFamily: 'SF Pro Display, sans-serif',
-                            color: '#571CE0',
-                            fontWeight: 600,
-                          }}
-                        >
-                          {getShortCourseId(courseId)}
-                        </Typography>
-                      </>
-                    }
-                  />
-                  <IconButton
-                    edge="end"
-                    aria-label="unpin"
-                    onClick={() => handleUnpinCourse(courseId)}
-                    sx={{ color: '#571CE0' }}
+      <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
+        <Card
+          sx={{
+            padding: 4,
+            backgroundColor: '#f9f9f9',
+            color: '#333',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: 500,
+            minHeight: 200,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Box>
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontWeight: 600,
+                color: '#1D1D1F',
+                textAlign: 'left',
+                marginBottom: 2,
+              }}
+            >
+              My Saved Courses.
+            </Typography>
+            <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
+            <List>
+              {profileData.pinnedCourses.length === 0 ? (
+                <Typography
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: '#8E8E93',
+                    textAlign: 'left',
+                  }}
+                >
+                  No courses pinned yet.
+                </Typography>
+              ) : (
+                profileData.pinnedCourses.map((courseId, idx) => (
+                  <ListItem 
+                    key={idx} 
+                    sx={{
+                      backgroundColor: '#fafafa',
+                      margin: '10px 0',
+                      borderRadius: '8px',
+                      boxShadow: 3,
+                      cursor: 'pointer', // Add a pointer cursor to indicate clickable item
+                      '&:hover': { backgroundColor: '#f0f0f0' }, // Optional hover effect
+                    }}
+                    onClick={() => handleNavigateToCourseReview(courseId)} // Navigate on click
                   >
-                    <PushPin />
-                  </IconButton>
-                </ListItem>
-              ))
-            )}
-          </List>
-        </Box>
-      </Card>
-    </Box>
-  </Grid>
+                    <ListItemText
+                      primary={
+                        <>
+                          <Typography
+                            component="span"
+                            sx={{
+                              fontFamily: 'SF Pro Display, sans-serif',
+                              color: '#571CE0',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {getShortCourseId(courseId)}
+                          </Typography>
+                        </>
+                      }
+                    />
+                    <IconButton
+                      edge="end"
+                      aria-label="unpin"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent click event from triggering navigation
+                        handleUnpinCourse(courseId);
+                      }}
+                      sx={{ color: '#571CE0' }}
+                    >
+                      <PushPin />
+                    </IconButton>
+                  </ListItem>
+                ))
+              )}
+            </List>
+          </Box>
+        </Card>
+      </Box>
+    </Grid>
 </Grid>
 
 
