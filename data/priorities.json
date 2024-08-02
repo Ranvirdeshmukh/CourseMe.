@@ -1,0 +1,3320 @@
+[
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "11",
+        "Title": "Intro to African Studies",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  AAAS Senior Majors,  AAAS Senior Minors,  AAAS Senior Modifieds2nd:  AAAS Junior Majors,  AAAS Junior Minors,  AAAS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "14",
+        "Title": "PreColonial African History (xlist: HIST 05.01)",
+        "Enrollment Limit": "26",
+        "Priorities": "1st:  AAAS Senior Majors,  HIST Senior Majors,  AAAS Senior Minors,  HIST Senior Minors,  AAAS Senior Modifieds,  HIST Senior Modifieds2nd:  AAAS Junior Majors,  HIST Junior Majors,  AAAS Junior Minors,  HIST Junior Minors,  AAAS Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "19",
+        "Title": "Africa and the World (xlist: HIST 05.08)",
+        "Enrollment Limit": "26",
+        "Priorities": "1st:   First-Years2nd:   Sophomores3rd:  AAAS Senior Majors,  HIST Senior Majors,  AAAS Senior Minors,  HIST Senior Minors,  AAAS Senior Modifieds,  HIST Senior Modifieds4th:  AAAS Junior Majors,  HIST Junior Majors,  AAAS Junior Minors,  HIST Junior Minors,  AAAS Junior Modifieds,  HIST Junior Modifieds"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "40",
+        "Title": "Gender Idnts&Politcs-Africa (xlist: WGSS 34.02)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "42",
+        "Title": "Women, Rlgn, Soc Chg in Afr (xlist: REL 066 / WGSS 44.03)",
+        "Enrollment Limit": "12",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "50",
+        "Title": "Colnlsm,Dvlpmt&Env-Afr&Asia (xlist: ASCL 54.07 / ENVS 045 / HIST 075)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  AAAS Senior Majors,  ASCL Senior Majors,  ENVS Senior Majors,  HIST Senior Majors,  AAAS Senior Minors,  ASCL Senior Minors,  ENVS Senior Minors,  HIST Senior Minors,  AAAS Senior Modifieds,  ASCL Senior Modifieds,  ENVS Senior Modifieds,  HIST Senior Modifieds2nd:  AAAS Junior Majors,  ASCL Junior Majors,  ENVS Junior Majors,  HIST Junior Majors,  AAAS Junior Minors,  ASCL Junior Minors,  ENVS Junior Minors,  HIST Junior Minors,  AAAS Junior Modifieds,  ASCL Junior Modifieds,  ENVS Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "18.03",
+        "Title": "Intro to African Religions (xlist: REL 014)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  AAAS Senior Majors,  REL Senior Majors,  AAAS Senior Minors,  REL Senior Minors,  AAAS Senior Modifieds,  REL Senior Modifieds2nd:  AAAS Junior Majors,  REL Junior Majors,  AAAS Junior Minors,  REL Junior Minors,  AAAS Junior Modifieds,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "21.77",
+        "Title": "Racial Capitalism (xlist: GEOG 72.02)",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  AAAS Senior Majors,  GEOG Senior Majors,  AAAS Senior Minors,  GEOG Senior Minors,  AAAS Senior Modifieds,  GEOG Senior Modifieds2nd:  AAAS Junior Majors,  GEOG Junior Majors,  AAAS Junior Minors,  GEOG Junior Minors,  AAAS Junior Modifieds,  GEOG Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "36.5",
+        "Title": "Rasta and Rastafari",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  AAAS Senior Majors,  AAAS Senior Minors,  AAAS Senior Modifieds2nd:  AAAS Junior Majors,  AAAS Junior Minors,  AAAS Junior Modifieds"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "39.06",
+        "Title": "Hip-Hop in the US (xlist: MUS 18.02)",
+        "Enrollment Limit": "22",
+        "Priorities": "1st:  AAAS Senior Majors,  MUS Senior Majors,  AAAS Senior Minors,  MUS Senior Minors,  AAAS Senior Modifieds,  MUS Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "39.09",
+        "Title": "Music and Social Justice (xlist: MUS 45.04)",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  AAAS Senior Majors,  MUS Senior Majors,  AAAS Senior Minors,  MUS Senior Minors,  AAAS Senior Modifieds,  MUS Senior Modifieds2nd:  AAAS Junior Majors,  MUS Junior Majors,  AAAS Junior Minors,  MUS Junior Minors,  AAAS Junior Modifieds,  MUS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "45.01",
+        "Title": "Env Crises & Human Rights (xlist: COLT 70.07)",
+        "Enrollment Limit": "24",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "60.02",
+        "Title": "BlackandIndigenousSlaveries (xlist: HIST 85.02 / NAIS 054)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  AAAS Senior Majors,  HIST Senior Majors,  NAIS Senior Majors,  AAAS Senior Minors,  HIST Senior Minors,  NAIS Senior Minors,  AAAS Senior Modifieds,  HIST Senior Modifieds,  NAIS Senior Modifieds2nd:  AAAS Junior Majors,  HIST Junior Majors,  NAIS Junior Majors,  AAAS Junior Minors,  HIST Junior Minors,  NAIS Junior Minors,  AAAS Junior Modifieds,  HIST Junior Modifieds,  NAIS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Afr & AfrAmerican Studies",
+        "Course Number": "65.06",
+        "Title": "Jews and Race (xlist: JWST 013 / SOCY 49.25)",
+        "Enrollment Limit": "37",
+        "Priorities": "1st:  AAAS Senior Majors,  JWST Senior Majors,  SOCY Senior Majors,  AAAS Senior Minors,  JWST Senior Minors,  SOCY Senior Minors,  AAAS Senior Modifieds,  JWST Senior Modifieds,  SOCY Senior Modifieds2nd:  AAAS Junior Majors,  JWST Junior Majors,  SOCY Junior Majors,  AAAS Junior Minors,  JWST Junior Minors,  SOCY Junior Minors,  AAAS Junior Modifieds,  JWST Junior Modifieds,  SOCY Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "3",
+        "Title": "Intro-Cultural Anthropology",
+        "Enrollment Limit": "46",
+        "Priorities": "1st:   Sophomores2nd:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds3rd:   First-Years4th:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "6",
+        "Title": "Intro to Biological Anth",
+        "Enrollment Limit": "100",
+        "Priorities": "1st:   Sophomores2nd:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds3rd:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds4th:   First-Years"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "8",
+        "Title": "Rise&Fall Prehist Civzn",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:   Sophomores2nd:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds3rd:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds4th:   First-Years"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "9",
+        "Title": "Language & Culture",
+        "Enrollment Limit": "45",
+        "Priorities": "1st:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds2nd:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds3rd:   First-Years4th:   Sophomores"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "15",
+        "Title": "Political Anthropology",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds2nd:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "18",
+        "Title": "Rsrch Mthds Cultural Anth",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds2nd:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "31",
+        "Title": "Gendr Cross Cltrl Perspctve (xlist: WGSS 36.01)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ANTH Senior Majors,  WGSS Senior Majors,  ANTH Senior Minors,  WGSS Senior Minors,  ANTH Senior Modifieds,  WGSS Senior Modifieds2nd:  ANTH Junior Majors,  WGSS Junior Majors,  ANTH Junior Minors,  WGSS Junior Minors,  ANTH Junior Modifieds,  WGSS Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "34",
+        "Title": "US-Mexican Borderlands (xlist: LATS 045)",
+        "Enrollment Limit": "14",
+        "Priorities": "1st:  ANTH Senior Majors,  LACS Senior Majors,  ANTH Senior Minors,  LACS Senior Minors,  ANTH Senior Modifieds,  LACS Senior Modifieds2nd:  ANTH Junior Majors,  LACS Junior Majors,  ANTH Junior Minors,  LACS Junior Minors,  ANTH Junior Modifieds,  LACS Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "39",
+        "Title": "ArchaeologyOfTheMiddleEast (xlist: MES 03.02)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ANTH Senior Majors,  MES Senior Majors,  ANTH Senior Minors,  MES Senior Minors,  ANTH Senior Modifieds,  MES Senior Modifieds2nd:  ANTH Junior Majors,  MES Junior Majors,  ANTH Junior Minors,  MES Junior Minors,  ANTH Junior Modifieds,  MES Junior Modifieds"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "55",
+        "Title": "Anthropology of Global Hlth",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds2nd:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "64",
+        "Title": "Evolution of Pregnancy",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds2nd:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "77",
+        "Title": "Origins of Inequality",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds2nd:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds"
+    },
+    {
+        "Subject": "Anthropology",
+        "Course Number": "50.4",
+        "Title": "Anthropology of Disaster",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  ANTH Senior Majors,  ANTH Senior Minors,  ANTH Senior Modifieds2nd:  ANTH Junior Majors,  ANTH Junior Minors,  ANTH Junior Modifieds3rd:   Sophomores4th:   First-Years5th:   Senior Other6th:   Junior Other"
+    },
+    {
+        "Subject": "Art History",
+        "Course Number": "1",
+        "Title": "Bodies and Buildings",
+        "Enrollment Limit": "50",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Art History",
+        "Course Number": "11.01",
+        "Title": "Art in Ancient Greece",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Art History",
+        "Course Number": "19.01",
+        "Title": "Fragments of Medieval Art",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Art History",
+        "Course Number": "38.01",
+        "Title": "Sacred Architecture of Asia (xlist: ASCL 70.01)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Art History",
+        "Course Number": "38.04",
+        "Title": "Food & Art: Global History",
+        "Enrollment Limit": "18",
+        "Priorities": "1st:  ARTH Senior Majors,  ARTH Senior Minors,  ARTH Senior Modifieds2nd:  ARTH Junior Majors,  ARTH Junior Minors,  ARTH Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Art History",
+        "Course Number": "42.03",
+        "Title": "Contemporary Design",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Art History",
+        "Course Number": "48.05",
+        "Title": "Satire: Art Polit Critique",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  ARTH Senior Majors,  ARTH Senior Minors,  ARTH Senior Modifieds2nd:  ARTH Junior Majors,  ARTH Junior Minors,  ARTH Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Art History",
+        "Course Number": "89.01",
+        "Title": "Snr Seminar Theory & Method",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "10.02",
+        "Title": "Intro to Korean Culture (xlist: HIST 05.04)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "11.04",
+        "Title": "Introduction to South Asia",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  ASCL Senior Majors,  ASCL Senior Minors,  ASCL Senior Modifieds2nd:  ASCL Junior Majors,  ASCL Junior Minors,  ASCL Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "54.07",
+        "Title": "Colnlsm,Dvlpmt&Env-Afr&Asia (xlist: AAAS 050 / ENVS 045 / HIST 075)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  AAAS Senior Majors,  ASCL Senior Majors,  ENVS Senior Majors,  HIST Senior Majors,  AAAS Senior Minors,  ASCL Senior Minors,  ENVS Senior Minors,  HIST Senior Minors,  AAAS Senior Modifieds,  ASCL Senior Modifieds,  ENVS Senior Modifieds,  HIST Senior Modifieds2nd:  AAAS Junior Majors,  ASCL Junior Majors,  ENVS Junior Majors,  HIST Junior Majors,  AAAS Junior Minors,  ASCL Junior Minors,  ENVS Junior Minors,  HIST Junior Minors,  AAAS Junior Modifieds,  ASCL Junior Modifieds,  ENVS Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "54.09",
+        "Title": "The Vietnam War (xlist: HIST 026)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ASCL Senior Majors,  HIST Senior Majors,  ASCL Senior Minors,  HIST Senior Minors,  ASCL Senior Modifieds,  HIST Senior Modifieds2nd:  ASCL Junior Majors,  HIST Junior Majors,  ASCL Junior Minors,  HIST Junior Minors,  ASCL Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "60.05",
+        "Title": "Love&Desire-Mod Chinese Lit",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "60.1",
+        "Title": "Ghost Stories Premod. China (xlist: COLT 55.03)",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  ASCL Senior Majors,  COLT Senior Majors,  ASCL Senior Minors,  COLT Senior Minors,  ASCL Senior Modifieds,  COLT Senior Modifieds2nd:  ASCL Junior Majors,  COLT Junior Majors,  ASCL Junior Minors,  COLT Junior Minors,  ASCL Junior Modifieds,  COLT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "64.11",
+        "Title": "Emergence of Modern Japan (xlist: HIST 05.05)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "64.16",
+        "Title": "China to 1800 (xlist: HIST 72.04)",
+        "Enrollment Limit": "28",
+        "Priorities": "1st:  ASCL Senior Majors,  HIST Senior Majors,  ASCL Senior Minors,  HIST Senior Minors,  ASCL Senior Modifieds,  HIST Senior Modifieds2nd:  ASCL Junior Majors,  HIST Junior Majors,  ASCL Junior Minors,  HIST Junior Minors,  ASCL Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "67.01",
+        "Title": "Politics of Japan (xlist: GOVT 40.03)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ASCL Senior Majors,  GOVT Senior Majors,  ASCL Senior Minors,  GOVT Senior Minors,  ASCL Senior Modifieds,  GOVT Senior Modifieds2nd:  ASCL Junior Majors,  GOVT Junior Majors,  ASCL Junior Minors,  GOVT Junior Minors,  ASCL Junior Modifieds,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "70.01",
+        "Title": "Sacred Architecture of Asia (xlist: ARTH 38.01)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "70.07",
+        "Title": "Asian Performance (xlist: THEA 024)",
+        "Enrollment Limit": "14",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Asian Soc,Cultures&Lang",
+        "Course Number": "80.2",
+        "Title": "The Tale of Genji",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  ASCL Senior Majors,  ASCL Senior Minors,  ASCL Senior Modifieds2nd:  ASCL Junior Majors,  ASCL Junior Minors,  ASCL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Astronomy",
+        "Course Number": "2",
+        "Title": "Exploring the Universe",
+        "Enrollment Limit": "50",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Biology",
+        "Course Number": "12",
+        "Title": "Cell Structure and Function",
+        "Enrollment Limit": "100",
+        "Priorities": "1st:  BIOL Senior Majors2nd:  BIOL Junior Majors3rd:  BIOL Senior Modifieds4th:  BIOL Senior Minors5th:  BIOL Junior Modifieds6th:  BIOL Junior Minors7th:   Senior Other8th:   Junior Other9th:   Sophomores10th:   First-Years"
+    },
+    {
+        "Subject": "Biology",
+        "Course Number": "25",
+        "Title": "Intro Marine Biol&Ecology",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  BIOL Senior Majors,  BIOL Senior Minors,  BIOL Senior Modifieds2nd:   Senior Other"
+    },
+    {
+        "Subject": "Biology",
+        "Course Number": "47",
+        "Title": "Genomics:From Data-Analysis",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  BIOL Senior Majors,  BIOL Senior Minors,  BIOL Senior Modifieds2nd:  BIOL Junior Majors,  BIOL Junior Minors,  BIOL Junior Modifieds"
+    },
+    {
+        "Subject": "Biology",
+        "Course Number": "72",
+        "Title": "Foundations of Epi. I",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  BIOL Senior Majors,  BIOL Senior Minors,  BIOL Senior Modifieds2nd:   Senior Other3rd:  BIOL Junior Majors,  BIOL Junior Minors,  BIOL Junior Modifieds4th:   Junior Other5th:   Sophomores6th:   Random"
+    },
+    {
+        "Subject": "Biology",
+        "Course Number": "11.07",
+        "Title": "Maj Events Life & Human Gen",
+        "Enrollment Limit": "5",
+        "Priorities": "1st:   First-Years"
+    },
+    {
+        "Subject": "Biology",
+        "Course Number": "74.02",
+        "Title": "Diseases of Nervous System",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  BIOL Senior Majors,  BIOL Senior Minors,  BIOL Senior Modifieds2nd:   Senior Other3rd:  BIOL Junior Majors,  BIOL Junior Minors,  BIOL Junior Modifieds4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Chemistry",
+        "Course Number": "5",
+        "Title": "General Chemistry",
+        "Enrollment Limit": "128",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Chemistry",
+        "Course Number": "11",
+        "Title": "General Chemistry",
+        "Enrollment Limit": "64",
+        "Priorities": "1st:   First-Years"
+    },
+    {
+        "Subject": "Chemistry",
+        "Course Number": "51",
+        "Title": "Organic Chemistry",
+        "Enrollment Limit": "100",
+        "Priorities": "1st:  CHEM Senior Majors,  CHEM Senior Minors,  CHEM Senior Modifieds2nd:  CHEM Junior Majors,  CHEM Junior Minors,  CHEM Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Chinese",
+        "Course Number": "1",
+        "Title": "1st Year Courses in Chinese",
+        "Enrollment Limit": "30",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Chinese",
+        "Course Number": "4",
+        "Title": "Advanced Beginning Chinese",
+        "Enrollment Limit": "45",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Chinese",
+        "Course Number": "31",
+        "Title": "Adv. Chinese (3rd Yr Level)",
+        "Enrollment Limit": "12",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Chinese",
+        "Course Number": "42",
+        "Title": "Adv. Chinese (4th Yr Level)",
+        "Enrollment Limit": "12",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Chinese",
+        "Course Number": "50.01",
+        "Title": "Dream of the Red Chamber",
+        "Enrollment Limit": "12",
+        "Priorities": null
+    },
+    {
+        "Subject": "Classical Studies",
+        "Course Number": "6",
+        "Title": "Intro Classical Archaeology",
+        "Enrollment Limit": "26",
+        "Priorities": "1st:   First-Years2nd:   Sophomores3rd:  CLAS Junior Majors,  CLAS Junior Minors,  CLAS Junior Modifieds4th:  CLAS Senior Majors,  CLAS Senior Minors,  CLAS Senior Modifieds5th:   Junior Other6th:   Senior Other"
+    },
+    {
+        "Subject": "Classical Studies",
+        "Course Number": "11.19",
+        "Title": "Coins as Text (xlist: HIST 94.16)",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  CLAS Senior Majors,  HIST Senior Majors,  CLAS Senior Minors,  HIST Senior Minors,  CLAS Senior Modifieds,  HIST Senior Modifieds2nd:  CLAS Junior Majors,  HIST Junior Majors,  CLAS Junior Minors,  HIST Junior Minors,  CLAS Junior Modifieds,  HIST Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Cognitive Science",
+        "Course Number": "1",
+        "Title": "Intro to Cognitive Science",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:   Sophomores2nd:  COGS Junior Majors,  COGS Junior Minors,  COGS Junior Modifieds3rd:  COGS Senior Majors,  COGS Senior Minors,  COGS Senior Modifieds4th:   Random"
+    },
+    {
+        "Subject": "Cognitive Science",
+        "Course Number": "21",
+        "Title": "Intro Computationl Neurosci (xlist: COSC 016 / PSYC 040)",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  COGS Senior Majors,  COSC Senior Majors,  PSYC Senior Majors,  COGS Senior Minors,  COSC Senior Minors,  PSYC Senior Minors,  COGS Senior Modifieds,  COSC Senior Modifieds,  PSYC Senior Modifieds2nd:  COGS Junior Majors,  COSC Junior Majors,  PSYC Junior Majors,  COGS Junior Minors,  COSC Junior Minors,  PSYC Junior Minors,  COGS Junior Modifieds,  COSC Junior Modifieds,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Cognitive Science",
+        "Course Number": "44",
+        "Title": "Artificial Intelligence (xlist: COSC 076)",
+        "Enrollment Limit": "55",
+        "Priorities": "1st:  COGS Senior Majors,  COSC Senior Majors,  COGS Senior Minors,  COSC Senior Minors,  COGS Senior Modifieds,  COSC Senior Modifieds"
+    },
+    {
+        "Subject": "Cognitive Science",
+        "Course Number": "80",
+        "Title": "Cog Science Major Seminar",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  COGS Senior Majors2nd:  COGS Junior Majors3rd:   Random"
+    },
+    {
+        "Subject": "Cognitive Science",
+        "Course Number": "81",
+        "Title": "Cog Sci Major Seminar II",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  COGS Senior Majors,  COGS Senior Minors,  COGS Senior Modifieds2nd:  COGS Junior Majors,  COGS Junior Minors,  COGS Junior Modifieds"
+    },
+    {
+        "Subject": "Cognitive Science",
+        "Course Number": "11.04",
+        "Title": "Face Perception (xlist: PSYC 51.02)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  COGS Senior Majors,  PSYC Senior Majors,  COGS Senior Minors,  PSYC Senior Minors,  COGS Senior Modifieds,  PSYC Senior Modifieds2nd:  COGS Junior Majors,  PSYC Junior Majors,  COGS Junior Minors,  PSYC Junior Minors,  COGS Junior Modifieds,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Cognitive Science",
+        "Course Number": "50.03",
+        "Title": "Cognitive Linguistics",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  COGS Senior Majors,  COGS Senior Minors,  COGS Senior Modifieds2nd:  COGS Junior Majors,  COGS Junior Minors,  COGS Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Cognitive Science",
+        "Course Number": "50.04",
+        "Title": "Theories of Consciousness (xlist: PHIL 35.01)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Cognitive Science",
+        "Course Number": "50.05",
+        "Title": "Psycholinguistics (xlist: LING 025 / PSYC 51.13)",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  COGS Senior Majors,  LING Senior Majors,  PSYC Senior Majors,  COGS Senior Minors,  LING Senior Minors,  PSYC Senior Minors,  COGS Senior Modifieds,  LING Senior Modifieds,  PSYC Senior Modifieds2nd:  COGS Junior Majors,  LING Junior Majors,  PSYC Junior Majors,  COGS Junior Minors,  LING Junior Minors,  PSYC Junior Minors,  COGS Junior Modifieds,  LING Junior Modifieds,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "1",
+        "Title": "Read the World",
+        "Enrollment Limit": "10",
+        "Priorities": "1st:  COLT Senior Majors,  COLT Senior Minors,  COLT Senior Modifieds2nd:  COLT Junior Majors,  COLT Junior Minors,  COLT Junior Modifieds3rd:   Sophomores4th:   Junior Other5th:   Senior Other6th:   Random"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "10.3",
+        "Title": "Ghosts, Monsters, Psychos",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  COLT Senior Majors,  COLT Senior Minors,  COLT Senior Modifieds2nd:  COLT Junior Majors,  COLT Junior Minors,  COLT Junior Modifieds3rd:   Sophomores4th:   First-Years5th:   Random"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "34.01",
+        "Title": "TheaterofIdeas:Brit&France",
+        "Enrollment Limit": "30",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "35.04",
+        "Title": "Souls Sold to the Devil (xlist: GERM 44.03)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "40.07",
+        "Title": "Video Games&Meaning of Life (xlist: FILM 50.04 / MUS 046)",
+        "Enrollment Limit": "165",
+        "Priorities": "1st:  COLT Senior Majors,  FILM Senior Majors,  MUS Senior Majors,  COLT Senior Minors,  FILM Senior Minors,  MUS Senior Minors,  COLT Senior Modifieds,  FILM Senior Modifieds,  MUS Senior Modifieds2nd:  COLT Junior Majors,  FILM Junior Majors,  MUS Junior Majors,  COLT Junior Minors,  FILM Junior Minors,  MUS Junior Minors,  COLT Junior Modifieds,  FILM Junior Modifieds,  MUS Junior Modifieds"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "55.03",
+        "Title": "Ghost Stories Premod. China (xlist: ASCL 60.10)",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  ASCL Senior Majors,  COLT Senior Majors,  ASCL Senior Minors,  COLT Senior Minors,  ASCL Senior Modifieds,  COLT Senior Modifieds2nd:  ASCL Junior Majors,  COLT Junior Majors,  ASCL Junior Minors,  COLT Junior Minors,  ASCL Junior Modifieds,  COLT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "57.09",
+        "Title": "Fascisms (xlist: ITAL 35.02)",
+        "Enrollment Limit": "30",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "62.04",
+        "Title": "Media & Monstrosity (xlist: ENGL 52.06)",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  COLT Senior Majors,  ENGL Senior Majors,  COLT Senior Minors,  ENGL Senior Minors,  COLT Senior Modifieds,  ENGL Senior Modifieds2nd:  COLT Junior Majors,  ENGL Junior Majors,  COLT Junior Minors,  ENGL Junior Minors,  COLT Junior Modifieds,  ENGL Junior Modifieds"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "70.07",
+        "Title": "Env Crises & Human Rights (xlist: AAAS 45.01)",
+        "Enrollment Limit": "24",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Comparative Literature",
+        "Course Number": "72.01",
+        "Title": "Global Literary Theory",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  COLT Senior Majors,  COLT Senior Minors,  COLT Senior Modifieds2nd:  COLT Junior Majors,  COLT Junior Minors,  COLT Junior Modifieds3rd:   Junior Other4th:   Sophomores"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "1",
+        "Title": "Intro Programming&Computatn",
+        "Enrollment Limit": "100",
+        "Priorities": "1st:   First-Years2nd:   Sophomores3rd:   Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "10",
+        "Title": "ProbSolving:Object-Oriented",
+        "Enrollment Limit": "120",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "16",
+        "Title": "Intro Computationl Neurosci (xlist: COGS 021 / PSYC 040)",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  COGS Senior Majors,  COSC Senior Majors,  PSYC Senior Majors,  COGS Senior Minors,  COSC Senior Minors,  PSYC Senior Minors,  COGS Senior Modifieds,  COSC Senior Modifieds,  PSYC Senior Modifieds2nd:  COGS Junior Majors,  COSC Junior Majors,  PSYC Junior Majors,  COGS Junior Minors,  COSC Junior Minors,  PSYC Junior Minors,  COGS Junior Modifieds,  COSC Junior Modifieds,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "22",
+        "Title": "3-D Digital Modeling",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  COSC Senior Modifieds2nd:  COSC Senior Minors3rd:  COSC Junior Modifieds4th:  COSC Junior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "30",
+        "Title": "Discrete Math Computer Sci (xlist: ENGS 066)",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  COSC Senior Majors,  ENGS Senior Majors2nd:  COSC Senior Modifieds,  ENGS Senior Modifieds3rd:  COSC Senior Minors,  ENGS Senior Minors4th:  COSC Junior Majors,  ENGS Junior Majors5th:  COSC Junior Modifieds,  ENGS Junior Modifieds6th:  COSC Junior Minors,  ENGS Junior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "31",
+        "Title": "Algorithms",
+        "Enrollment Limit": "110",
+        "Priorities": "1st:  COSC Senior Majors2nd:  COSC Senior Modifieds3rd:  COSC Senior Minors4th:  COSC Junior Majors5th:  COSC Junior Modifieds6th:  COSC Junior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "50",
+        "Title": "Software Design&Implement'n (xlist: ENGS 050)",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  COSC Senior Majors,  ENGS Senior Majors2nd:  COSC Senior Modifieds,  ENGS Senior Modifieds3rd:  COSC Senior Minors,  ENGS Senior Minors4th:  COSC Junior Majors,  ENGS Junior Majors5th:  COSC Junior Modifieds,  ENGS Junior Modifieds6th:  COSC Junior Minors,  ENGS Junior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "51",
+        "Title": "Computer Architecture",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  COSC Senior Majors2nd:  COSC Senior Modifieds3rd:  COSC Senior Minors4th:  COSC Junior Majors5th:  COSC Junior Modifieds6th:  COSC Junior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "55",
+        "Title": "Security and Privacy",
+        "Enrollment Limit": "65",
+        "Priorities": "1st:  COSC Senior Majors2nd:  COSC Senior Modifieds3rd:  COSC Senior Minors4th:  COSC Junior Majors5th:  COSC Junior Modifieds6th:  COSC Junior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "59",
+        "Title": "Principles Programming Lang",
+        "Enrollment Limit": "50",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "70",
+        "Title": "Foundations of Applied CS",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  COSC Senior Majors2nd:  COSC Senior Modifieds3rd:  COSC Senior Minors4th:  COSC Junior Majors5th:  COSC Junior Modifieds6th:  COSC Junior Minors7th:   Sophomores8th:   Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "71",
+        "Title": "Numerical Mthds-Computation (xlist: ENGS 091)",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  COSC Senior Majors,  ENGS Senior Majors,  COSC Senior Minors,  ENGS Senior Minors,  COSC Senior Modifieds,  ENGS Senior Modifieds2nd:  COSC Junior Majors,  ENGS Junior Majors,  COSC Junior Minors,  ENGS Junior Minors,  COSC Junior Modifieds,  ENGS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "74",
+        "Title": "Machine Lrng&Stat Analysis",
+        "Enrollment Limit": "70",
+        "Priorities": "1st:  COSC Senior Majors2nd:  COSC Senior Modifieds3rd:  COSC Senior Minors4th:  COSC Junior Majors5th:  COSC Junior Modifieds6th:  COSC Junior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "76",
+        "Title": "Artificial Intelligence (xlist: COGS 044)",
+        "Enrollment Limit": "55",
+        "Priorities": "1st:  COGS Senior Majors,  COSC Senior Majors,  COGS Senior Minors,  COSC Senior Minors,  COGS Senior Modifieds,  COSC Senior Modifieds"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "77",
+        "Title": "Computer Graphics",
+        "Enrollment Limit": "55",
+        "Priorities": "1st:  COSC Senior Modifieds2nd:  COSC Senior Majors3rd:  COSC Junior Modifieds4th:  COSC Junior Majors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "78",
+        "Title": "Deep Learning",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  COSC Senior Majors2nd:  COSC Senior Modifieds3rd:  COSC Senior Minors4th:  COSC Junior Majors5th:  COSC Junior Modifieds6th:  COSC Junior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "87",
+        "Title": "Rendering Algorithms",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  COSC Senior Majors2nd:  COSC Senior Modifieds3rd:  COSC Senior Minors4th:  COSC Junior Majors5th:  COSC Junior Modifieds6th:  COSC Junior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "19.02",
+        "Title": "Security Engineering",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "23.01",
+        "Title": "AR and VR Design",
+        "Enrollment Limit": "10",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "29.06",
+        "Title": "Digital Tangible Interfaces",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  COSC Senior Modifieds2nd:  COSC Senior Minors"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "63.01",
+        "Title": "AR and VR Development",
+        "Enrollment Limit": "10",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "69.18",
+        "Title": "HackLab",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "89.13",
+        "Title": "Robot Motion Planning",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "89.17",
+        "Title": "Health Informatics",
+        "Enrollment Limit": "5",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "89.23",
+        "Title": "Network Science & Compl Sys",
+        "Enrollment Limit": "20",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "89.32",
+        "Title": "Multi-modalities Gen AI",
+        "Enrollment Limit": "20",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Computer Science",
+        "Course Number": "98.01",
+        "Title": "Sr Design&Impl Project I",
+        "Enrollment Limit": "80",
+        "Priorities": "1st:  COSC Senior Majors,  COSC Senior Minors,  COSC Senior Modifieds"
+    },
+    {
+        "Subject": "Creative Writing",
+        "Course Number": "10",
+        "Title": "Writing and Reading Fiction",
+        "Enrollment Limit": "13",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds4th:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds"
+    },
+    {
+        "Subject": "Creative Writing",
+        "Course Number": "11",
+        "Title": "Intro to Creative Nonfic",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:  ENGL Senior Majors4th:  ENGL Junior Majors5th:  ENGL Senior Modifieds6th:  ENGL Junior Modifieds7th:  ENGL Senior Minors8th:  ENGL Junior Minors9th:   Senior Other10th:   Junior Other"
+    },
+    {
+        "Subject": "Creative Writing",
+        "Course Number": "12",
+        "Title": "Introduction to Poetry",
+        "Enrollment Limit": "8",
+        "Priorities": "1st:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds2nd:   Sophomores3rd:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds"
+    },
+    {
+        "Subject": "Creative Writing",
+        "Course Number": "40.01",
+        "Title": "Imaginary Countries",
+        "Enrollment Limit": "18",
+        "Priorities": "1st:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds2nd:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Creative Writing",
+        "Course Number": "40.1",
+        "Title": "James Joyce's Ulysses",
+        "Enrollment Limit": "14",
+        "Priorities": "1st:  ENGL Senior Majors2nd:  ENGL Senior Modifieds3rd:  ENGL Senior Minors4th:  ENGL Junior Majors5th:  ENGL Junior Modifieds6th:  ENGL Junior Minors7th:   Random"
+    },
+    {
+        "Subject": "Earth Sciences",
+        "Course Number": "1",
+        "Title": "How the Earth Works",
+        "Enrollment Limit": "51",
+        "Priorities": "1st:  EARS Senior Majors,  EARS Senior Minors,  EARS Senior Modifieds2nd:  EARS Junior Majors,  EARS Junior Minors,  EARS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Earth Sciences",
+        "Course Number": "6",
+        "Title": "Environmental Change",
+        "Enrollment Limit": "100",
+        "Priorities": "1st:  EARS Senior Majors,  EARS Senior Minors,  EARS Senior Modifieds2nd:  EARS Junior Majors,  EARS Junior Minors,  EARS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Earth Sciences",
+        "Course Number": "8",
+        "Title": "Carbon Sequestration",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:  EARS Junior Majors,  EARS Junior Minors,  EARS Junior Modifieds4th:  EARS Senior Majors,  EARS Senior Minors,  EARS Senior Modifieds"
+    },
+    {
+        "Subject": "Earth Sciences",
+        "Course Number": "14",
+        "Title": "Meteorology",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  EARS Senior Majors,  EARS Senior Minors,  EARS Senior Modifieds2nd:  EARS Junior Majors,  EARS Junior Minors,  EARS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Earth Sciences",
+        "Course Number": "18",
+        "Title": "Environmental Earth Science",
+        "Enrollment Limit": "8",
+        "Priorities": "1st:  EARS Senior Majors,  EARS Senior Minors,  EARS Senior Modifieds2nd:  EARS Junior Majors,  EARS Junior Minors,  EARS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Earth Sciences",
+        "Course Number": "34",
+        "Title": "Biogeochemical Cycles",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  EARS Senior Majors,  EARS Senior Minors,  EARS Senior Modifieds2nd:  EARS Junior Majors,  EARS Junior Minors,  EARS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Earth Sciences",
+        "Course Number": "72",
+        "Title": "Geobiology",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  EARS Senior Majors,  EARS Senior Minors,  EARS Senior Modifieds2nd:  EARS Junior Majors,  EARS Junior Minors,  EARS Junior Modifieds3rd:   Sophomores4th:   Junior Other5th:   Random"
+    },
+    {
+        "Subject": "East European, Eurasian & Russ",
+        "Course Number": "35",
+        "Title": "Dostoevsky-Problem of Evil",
+        "Enrollment Limit": "20",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "East European, Eurasian & Russ",
+        "Course Number": "38.24",
+        "Title": "Jewish Folklore (xlist: JWST 34.05)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  JWST Senior Majors,  RUSS Senior Majors,  JWST Senior Minors,  RUSS Senior Minors,  JWST Senior Modifieds,  RUSS Senior Modifieds2nd:  JWST Junior Majors,  RUSS Junior Majors,  JWST Junior Minors,  RUSS Junior Minors,  JWST Junior Modifieds,  RUSS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "East European, Eurasian & Russ",
+        "Course Number": "38.3",
+        "Title": "Languages of Russia (xlist: LING 11.26)",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "1",
+        "Title": "The Price System",
+        "Enrollment Limit": "80",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:   Seniors4th:   Random"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "5",
+        "Title": "Adam Smith & Political Econ (xlist: GOVT 86.25)",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  ECON Senior Majors,  GOVT Senior Majors,  ECON Senior Minors,  GOVT Senior Minors,  ECON Senior Modifieds,  GOVT Senior Modifieds2nd:  ECON Junior Majors,  GOVT Junior Majors,  ECON Junior Minors,  GOVT Junior Minors,  ECON Junior Modifieds,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "10",
+        "Title": "Intro Statistical Methods",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:   Random"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "20",
+        "Title": "Econometrics",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "21",
+        "Title": "Microeconomics",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "22",
+        "Title": "Macroeconomics",
+        "Enrollment Limit": "90",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "24",
+        "Title": "Development Economics",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "25",
+        "Title": "Competition & Strategy",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "26",
+        "Title": "Intermediaries and Markets",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "27",
+        "Title": "Labor Economics",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "29",
+        "Title": "Intl Fin & Open-Econ Macro",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "32",
+        "Title": "Monetary Policy",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "36",
+        "Title": "Theory of Finance",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "39",
+        "Title": "International Trade",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "57",
+        "Title": "Data Analysis Career&Family",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "76",
+        "Title": "Financial Crisis",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Economics",
+        "Course Number": "80",
+        "Title": "Adv Topics in Econometrics",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  ECON Senior Majors,  ECON Senior Minors,  ECON Senior Modifieds2nd:  ECON Junior Majors,  ECON Junior Minors,  ECON Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Education",
+        "Course Number": "1",
+        "Title": "Introduction to Education",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  EDUC Senior Minors2nd:  EDUC Junior Minors3rd:   First-Years4th:   Sophomores5th:   Junior Other6th:   Senior Other"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "4",
+        "Title": "Technology of Cyberspace",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:   Seniors2nd:   Juniors3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "12",
+        "Title": "Design Thinking",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:   First-Years2nd:   Sophomores3rd:   Juniors4th:   Seniors"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "20",
+        "Title": "Intro Scientific Computing",
+        "Enrollment Limit": "45",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Sophomores4th:   First-Years5th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "21",
+        "Title": "Intro to Engineering",
+        "Enrollment Limit": "56",
+        "Priorities": "1st:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds2nd:  ENGS Senior Minors3rd:   Sophomores4th:  ENGS Senior Majors,  ENGS Senior Modifieds5th:   First-Years6th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "22",
+        "Title": "Systems",
+        "Enrollment Limit": "48",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "23",
+        "Title": "Distributed Systems&Fields",
+        "Enrollment Limit": "48",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "26",
+        "Title": "Control Theory",
+        "Enrollment Limit": "48",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "27",
+        "Title": "Discrete&Probabilistic Syst",
+        "Enrollment Limit": "50",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "32",
+        "Title": "Electrncs:Lnr&Dgtl Circuits (xlist: PHYS 048)",
+        "Enrollment Limit": "36",
+        "Priorities": "1st:  ENGS Senior Majors,  PHYS Senior Majors,  ENGS Senior Minors,  PHYS Senior Minors,  ENGS Senior Modifieds,  PHYS Senior Modifieds2nd:  ENGS Junior Majors,  PHYS Junior Majors,  ENGS Junior Minors,  PHYS Junior Minors,  ENGS Junior Modifieds,  PHYS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "33",
+        "Title": "Solid Mechanics",
+        "Enrollment Limit": "50",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "35",
+        "Title": "Biotechnology&Biochem Engg",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "36",
+        "Title": "Chemical Engineering",
+        "Enrollment Limit": "50",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "37",
+        "Title": "Intro to Environmental Engg",
+        "Enrollment Limit": "50",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "50",
+        "Title": "Software Design&Implement'n (xlist: COSC 050)",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  COSC Senior Majors,  ENGS Senior Majors2nd:  COSC Senior Modifieds,  ENGS Senior Modifieds3rd:  COSC Senior Minors,  ENGS Senior Minors4th:  COSC Junior Majors,  ENGS Junior Majors5th:  COSC Junior Modifieds,  ENGS Junior Modifieds6th:  COSC Junior Minors,  ENGS Junior Minors"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "66",
+        "Title": "Discrete Math Computer Sci (xlist: COSC 030)",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  COSC Senior Majors,  ENGS Senior Majors2nd:  COSC Senior Modifieds,  ENGS Senior Modifieds3rd:  COSC Senior Minors,  ENGS Senior Minors4th:  COSC Junior Majors,  ENGS Junior Majors5th:  COSC Junior Modifieds,  ENGS Junior Modifieds6th:  COSC Junior Minors,  ENGS Junior Minors"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "76",
+        "Title": "Machine Engineering",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  ENGS Senior Majors,  ENGS Senior Minors,  ENGS Senior Modifieds2nd:  ENGS Junior Majors,  ENGS Junior Minors,  ENGS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "91",
+        "Title": "Numerical Mthds-Computation (xlist: COSC 071)",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  COSC Senior Majors,  ENGS Senior Majors,  COSC Senior Minors,  ENGS Senior Minors,  COSC Senior Modifieds,  ENGS Senior Modifieds2nd:  COSC Junior Majors,  ENGS Junior Majors,  COSC Junior Minors,  ENGS Junior Minors,  COSC Junior Modifieds,  ENGS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "92",
+        "Title": "Fourier Transf&Complex Var (xlist: PHYS 070)",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  ENGS Senior Majors,  PHYS Senior Majors,  ENGS Senior Minors,  PHYS Senior Minors,  ENGS Senior Modifieds,  PHYS Senior Modifieds"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "93",
+        "Title": "Statistical Mthds in Engg",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  ENGS Senior Majors2nd:  ENGS Junior Majors3rd:   Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "145",
+        "Title": "Modern Control Theory",
+        "Enrollment Limit": "20",
+        "Priorities": null
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "15.11",
+        "Title": "Design & Education",
+        "Enrollment Limit": "20",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "167",
+        "Title": "Medical Imaging",
+        "Enrollment Limit": "20",
+        "Priorities": null
+    },
+    {
+        "Subject": "Engineering Sciences",
+        "Course Number": "174",
+        "Title": "Energy Conversion",
+        "Enrollment Limit": "40",
+        "Priorities": null
+    },
+    {
+        "Subject": "English",
+        "Course Number": "1",
+        "Title": "Literary History I",
+        "Enrollment Limit": "50",
+        "Priorities": "1st:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds2nd:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Random"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "31",
+        "Title": "Asian American Lit &Culture",
+        "Enrollment Limit": "50",
+        "Priorities": "1st:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds2nd:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "35",
+        "Title": "20th C Am Fiction:1900-WWII",
+        "Enrollment Limit": "50",
+        "Priorities": "1st:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds2nd:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "45",
+        "Title": "Intro to Literary Theory",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds2nd:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "52.06",
+        "Title": "Media & Monstrosity (xlist: COLT 62.04)",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  COLT Senior Majors,  ENGL Senior Majors,  COLT Senior Minors,  ENGL Senior Minors,  COLT Senior Modifieds,  ENGL Senior Modifieds2nd:  COLT Junior Majors,  ENGL Junior Majors,  COLT Junior Minors,  ENGL Junior Minors,  COLT Junior Modifieds,  ENGL Junior Modifieds"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "52.19",
+        "Title": "Poverty in Am Lit 1861-1925",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds2nd:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "53.25",
+        "Title": "Ctmpry Native Am Poetry (xlist: NAIS 047)",
+        "Enrollment Limit": "18",
+        "Priorities": "1st:  ENGL Senior Majors,  NAIS Senior Majors,  ENGL Senior Minors,  NAIS Senior Minors,  ENGL Senior Modifieds,  NAIS Senior Modifieds"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "54.13",
+        "Title": "Digital Game Studies",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds2nd:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "54.41",
+        "Title": "Critical AI",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ENGL Junior Majors,  ENGL Junior Minors,  ENGL Junior Modifieds2nd:  ENGL Senior Majors,  ENGL Senior Minors,  ENGL Senior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "55.01",
+        "Title": "Mod American Women Poets (xlist: WGSS 47.03)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ENGL Senior Majors,  WGSS Senior Majors,  ENGL Senior Minors,  WGSS Senior Minors,  ENGL Senior Modifieds,  WGSS Senior Modifieds2nd:  ENGL Junior Majors,  WGSS Junior Majors,  ENGL Junior Minors,  WGSS Junior Minors,  ENGL Junior Modifieds,  WGSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "62.03",
+        "Title": "19th C Brit Women Writers (xlist: WGSS 48.09)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  ENGL Junior Majors,  WGSS Junior Majors,  ENGL Junior Minors,  WGSS Junior Minors,  ENGL Junior Modifieds,  WGSS Junior Modifieds2nd:  ENGL Senior Majors,  WGSS Senior Majors,  ENGL Senior Minors,  WGSS Senior Minors,  ENGL Senior Modifieds,  WGSS Senior Modifieds3rd:   Junior Other4th:   Senior Other5th:   Random"
+    },
+    {
+        "Subject": "English",
+        "Course Number": "72.13",
+        "Title": "The Brontës",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  ENGL Senior Majors2nd:  ENGL Junior Majors3rd:  ENGL Senior Modifieds4th:  ENGL Junior Modifieds5th:  ENGL Senior Minors6th:  ENGL Junior Minors7th:   Random"
+    },
+    {
+        "Subject": "Environmental Studies",
+        "Course Number": "2",
+        "Title": "Intro Environmental Science",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  ENVS Senior Majors,  ENVS Senior Minors,  ENVS Senior Modifieds2nd:  ENVS Junior Majors,  ENVS Junior Minors,  ENVS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Environmental Studies",
+        "Course Number": "3",
+        "Title": "Environment and Society",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ENVS Senior Majors,  ENVS Senior Minors,  ENVS Senior Modifieds2nd:  ENVS Junior Majors,  ENVS Junior Minors,  ENVS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Environmental Studies",
+        "Course Number": "15",
+        "Title": "EnvironIssue:Earth'sColdRgn",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  ENVS Senior Majors,  ENVS Senior Minors,  ENVS Senior Modifieds2nd:  ENVS Junior Majors,  ENVS Junior Minors,  ENVS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Environmental Studies",
+        "Course Number": "31",
+        "Title": "Forest Ecology and Mgmt",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  ENVS Senior Majors,  ENVS Senior Minors,  ENVS Senior Modifieds2nd:  ENVS Junior Majors,  ENVS Junior Minors,  ENVS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Environmental Studies",
+        "Course Number": "45",
+        "Title": "Colnlsm,Dvlpmt&Env-Afr&Asia (xlist: AAAS 050 / ASCL 54.07 / HIST 075)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  AAAS Senior Majors,  ASCL Senior Majors,  ENVS Senior Majors,  HIST Senior Majors,  AAAS Senior Minors,  ASCL Senior Minors,  ENVS Senior Minors,  HIST Senior Minors,  AAAS Senior Modifieds,  ASCL Senior Modifieds,  ENVS Senior Modifieds,  HIST Senior Modifieds2nd:  AAAS Junior Majors,  ASCL Junior Majors,  ENVS Junior Majors,  HIST Junior Majors,  AAAS Junior Minors,  ASCL Junior Minors,  ENVS Junior Minors,  HIST Junior Minors,  AAAS Junior Modifieds,  ASCL Junior Modifieds,  ENVS Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Environmental Studies",
+        "Course Number": "60",
+        "Title": "Environmental Law",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ENVS Senior Majors,  ENVS Senior Minors,  ENVS Senior Modifieds2nd:  ENVS Junior Majors,  ENVS Junior Minors,  ENVS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Environmental Studies",
+        "Course Number": "62",
+        "Title": "Science Policy & Diplomacy",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ENVS Senior Majors,  ENVS Senior Minors,  ENVS Senior Modifieds2nd:  ENVS Junior Majors,  ENVS Junior Minors,  ENVS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Environmental Studies",
+        "Course Number": "67",
+        "Title": "Political Ecology (xlist: GEOG 47.01)",
+        "Enrollment Limit": "28",
+        "Priorities": "1st:  EEES Senior Majors,  ENVS Senior Majors,  GEOG Senior Majors,  EEES Senior Minors,  ENVS Senior Minors,  GEOG Senior Minors,  EEES Senior Modifieds,  ENVS Senior Modifieds,  GEOG Senior Modifieds2nd:  EEES Junior Majors,  ENVS Junior Majors,  GEOG Junior Majors,  EEES Junior Minors,  ENVS Junior Minors,  GEOG Junior Minors,  EEES Junior Modifieds,  ENVS Junior Modifieds,  GEOG Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other6th:   First-Years"
+    },
+    {
+        "Subject": "Film Studies",
+        "Course Number": "1",
+        "Title": "Introduction to Film",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  FILM Senior Majors,  FILM Senior Minors,  FILM Senior Modifieds2nd:  FILM Junior Majors,  FILM Junior Minors,  FILM Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Film Studies",
+        "Course Number": "20",
+        "Title": "FilmHist I(Silent to Sound)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  FILM Senior Majors,  FILM Senior Minors,  FILM Senior Modifieds2nd:  FILM Junior Majors,  FILM Junior Minors,  FILM Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Film Studies",
+        "Course Number": "31",
+        "Title": "Filmmaking I:Basic Elements",
+        "Enrollment Limit": "10",
+        "Priorities": "1st:  FILM Senior Majors,  FILM Senior Minors,  FILM Senior Modifieds2nd:  FILM Junior Majors,  FILM Junior Minors,  FILM Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Film Studies",
+        "Course Number": "40",
+        "Title": "Thry/Mthdlgy Film/TV Stds",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  FILM Senior Majors,  FILM Senior Minors,  FILM Senior Modifieds2nd:  FILM Junior Majors,  FILM Junior Minors,  FILM Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Film Studies",
+        "Course Number": "45",
+        "Title": "US Television History",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  FILM Senior Majors,  FILM Senior Minors,  FILM Senior Modifieds2nd:  FILM Junior Majors,  FILM Junior Minors,  FILM Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Film Studies",
+        "Course Number": "41.07",
+        "Title": "The Graphic Novel & Film",
+        "Enrollment Limit": "13",
+        "Priorities": "1st:  FILM Senior Majors,  FILM Senior Minors,  FILM Senior Modifieds2nd:  FILM Junior Majors,  FILM Junior Minors,  FILM Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Film Studies",
+        "Course Number": "42.19",
+        "Title": "Middle East in Film (xlist: JWST 44.01 / MES 15.11)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  FILM Senior Majors,  JWST Senior Majors,  MES Senior Majors,  FILM Senior Minors,  JWST Senior Minors,  MES Senior Minors,  FILM Senior Modifieds,  JWST Senior Modifieds,  MES Senior Modifieds2nd:  FILM Junior Majors,  JWST Junior Majors,  MES Junior Majors,  FILM Junior Minors,  JWST Junior Minors,  MES Junior Minors,  FILM Junior Modifieds,  JWST Junior Modifieds,  MES Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Film Studies",
+        "Course Number": "44.09",
+        "Title": "Cinematography I",
+        "Enrollment Limit": "12",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Film Studies",
+        "Course Number": "50.04",
+        "Title": "Video Games&Meaning of Life (xlist: COLT 40.07 / MUS 046)",
+        "Enrollment Limit": "165",
+        "Priorities": "1st:  COLT Senior Majors,  FILM Senior Majors,  MUS Senior Majors,  COLT Senior Minors,  FILM Senior Minors,  MUS Senior Minors,  COLT Senior Modifieds,  FILM Senior Modifieds,  MUS Senior Modifieds2nd:  COLT Junior Majors,  FILM Junior Majors,  MUS Junior Majors,  COLT Junior Minors,  FILM Junior Minors,  MUS Junior Minors,  COLT Junior Modifieds,  FILM Junior Modifieds,  MUS Junior Modifieds"
+    },
+    {
+        "Subject": "French",
+        "Course Number": "1",
+        "Title": "Introductory French I",
+        "Enrollment Limit": "18",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "French",
+        "Course Number": "2",
+        "Title": "Introductory French II",
+        "Enrollment Limit": "36",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "French",
+        "Course Number": "3",
+        "Title": "Intermediate French",
+        "Enrollment Limit": "54",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "French",
+        "Course Number": "8",
+        "Title": "Exploring Fren Culture&Lang",
+        "Enrollment Limit": "36",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "French",
+        "Course Number": "11",
+        "Title": "Intensive French",
+        "Enrollment Limit": "12",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "French",
+        "Course Number": "21",
+        "Title": "Francophone Lit/Culture",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "French",
+        "Course Number": "52",
+        "Title": "Women and Migration",
+        "Enrollment Limit": "20",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "French",
+        "Course Number": "10.08",
+        "Title": "Living in Paris",
+        "Enrollment Limit": "20",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "French",
+        "Course Number": "53.07",
+        "Title": "Confrontations with Death",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "1.02",
+        "Title": "The Natural Environment",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GEOG Senior Majors,  GEOG Senior Minors,  GEOG Senior Modifieds2nd:  GEOG Junior Majors,  GEOG Junior Minors,  GEOG Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "2.01",
+        "Title": "Intro to Human Geography",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  GEOG Senior Majors,  GEOG Senior Minors,  GEOG Senior Modifieds2nd:  GEOG Junior Majors,  GEOG Junior Minors,  GEOG Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "57",
+        "Title": "Urban Applications of GIS",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  GEOG Senior Majors,  GEOG Senior Minors,  GEOG Senior Modifieds2nd:  GEOG Junior Majors,  GEOG Junior Minors,  GEOG Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "6.01",
+        "Title": "Urban Geography",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GEOG Senior Majors,  GEOG Senior Minors,  GEOG Senior Modifieds2nd:  GEOG Junior Majors,  GEOG Junior Minors,  GEOG Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "8.01",
+        "Title": "Intro to Int'l Development (xlist: INTS 016)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  GEOG Senior Majors,  JSDC Senior Majors,  GEOG Senior Minors,  JSDC Senior Minors,  GEOG Senior Modifieds,  JSDC Senior Modifieds2nd:  GEOG Junior Majors,  JSDC Junior Majors,  GEOG Junior Minors,  JSDC Junior Minors,  GEOG Junior Modifieds,  JSDC Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "9.01",
+        "Title": "Geographical Info Systems",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  GEOG Senior Majors,  GEOG Senior Minors,  GEOG Senior Modifieds2nd:  GEOG Junior Majors,  GEOG Junior Minors,  GEOG Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "90",
+        "Title": "Research in Geography",
+        "Enrollment Limit": "32",
+        "Priorities": "1st:  GEOG Senior Majors,  GEOG Senior Minors,  GEOG Senior Modifieds2nd:  GEOG Junior Majors,  GEOG Junior Minors,  GEOG Junior Modifieds"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "12.01",
+        "Title": "Research Design",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  GEOG Senior Majors,  GEOG Senior Minors,  GEOG Senior Modifieds2nd:  GEOG Junior Majors,  GEOG Junior Minors,  GEOG Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "47.01",
+        "Title": "Political Ecology (xlist: ENVS 067)",
+        "Enrollment Limit": "28",
+        "Priorities": "1st:  EEES Senior Majors,  ENVS Senior Majors,  GEOG Senior Majors,  EEES Senior Minors,  ENVS Senior Minors,  GEOG Senior Minors,  EEES Senior Modifieds,  ENVS Senior Modifieds,  GEOG Senior Modifieds2nd:  EEES Junior Majors,  ENVS Junior Majors,  GEOG Junior Majors,  EEES Junior Minors,  ENVS Junior Minors,  GEOG Junior Minors,  EEES Junior Modifieds,  ENVS Junior Modifieds,  GEOG Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other6th:   First-Years"
+    },
+    {
+        "Subject": "Geography",
+        "Course Number": "72.02",
+        "Title": "Racial Capitalism (xlist: AAAS 21.77)",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  GEOG Senior Majors,  GEOG Senior Minors,  GEOG Senior Modifieds2nd:  GEOG Junior Majors,  GEOG Junior Minors,  GEOG Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "German",
+        "Course Number": "1",
+        "Title": "Introductory German",
+        "Enrollment Limit": "54",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "German",
+        "Course Number": "3",
+        "Title": "Introductory German cont.",
+        "Enrollment Limit": "18",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "German",
+        "Course Number": "13",
+        "Title": "Beyond Good and Evil",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "German",
+        "Course Number": "10.01",
+        "Title": "To Be Young and German",
+        "Enrollment Limit": "30",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "German",
+        "Course Number": "44.03",
+        "Title": "Souls Sold to the Devil (xlist: COLT 35.04)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "German",
+        "Course Number": "64.05",
+        "Title": "Black German Writing",
+        "Enrollment Limit": "20",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "3",
+        "Title": "American Political System",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "4",
+        "Title": "Politics of the World",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "5",
+        "Title": "International Politics",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "6",
+        "Title": "Political Ideas",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "10",
+        "Title": "Quantit Political Analysis",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "16",
+        "Title": "Data Visualization (xlist: QSS 017)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  QSS Senior Majors,  GOVT Senior Minors,  QSS Senior Minors,  GOVT Senior Modifieds,  QSS Senior Modifieds2nd:  GOVT Junior Majors,  QSS Junior Majors,  GOVT Junior Minors,  QSS Junior Minors,  GOVT Junior Modifieds,  QSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "26",
+        "Title": "Elections and Reform",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "29",
+        "Title": "Gender&Leadership (xlist: WGSS 66.38)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  WGSS Senior Majors,  GOVT Senior Minors,  WGSS Senior Minors,  GOVT Senior Modifieds,  WGSS Senior Modifieds2nd:  GOVT Junior Majors,  WGSS Junior Majors,  GOVT Junior Minors,  WGSS Junior Minors,  GOVT Junior Modifieds,  WGSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "37",
+        "Title": "Election Polling (xlist: PBPL 044 / QSS 30.20)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  PBPL Senior Majors,  QSS Senior Majors,  GOVT Senior Minors,  PBPL Senior Minors,  QSS Senior Minors,  GOVT Senior Modifieds,  PBPL Senior Modifieds,  QSS Senior Modifieds2nd:  GOVT Junior Majors,  PBPL Junior Majors,  QSS Junior Majors,  GOVT Junior Minors,  PBPL Junior Minors,  QSS Junior Minors,  GOVT Junior Modifieds,  PBPL Junior Modifieds,  QSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "53",
+        "Title": "International Security",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "68",
+        "Title": "The Future of Capitalism",
+        "Enrollment Limit": "45",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "20.11",
+        "Title": "Entrepreneurship&PubPolicy (xlist: PBPL 053)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  PBPL Senior Majors,  GOVT Senior Minors,  PBPL Senior Minors,  GOVT Senior Modifieds,  PBPL Senior Modifieds2nd:  GOVT Junior Majors,  PBPL Junior Majors,  GOVT Junior Minors,  PBPL Junior Minors,  GOVT Junior Modifieds,  PBPL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "30.16",
+        "Title": "Politics of Climate Change",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "30.17",
+        "Title": "The 2024 Election (xlist: PBPL 024)",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  GOVT Senior Majors,  PBPL Senior Majors,  GOVT Senior Minors,  PBPL Senior Minors,  GOVT Senior Modifieds,  PBPL Senior Modifieds2nd:  GOVT Junior Majors,  PBPL Junior Majors,  GOVT Junior Minors,  PBPL Junior Minors,  GOVT Junior Modifieds,  PBPL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "40.03",
+        "Title": "Politics of Japan (xlist: ASCL 67.01)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ASCL Senior Majors,  GOVT Senior Majors,  ASCL Senior Minors,  GOVT Senior Minors,  ASCL Senior Modifieds,  GOVT Senior Modifieds2nd:  ASCL Junior Majors,  GOVT Junior Majors,  ASCL Junior Minors,  GOVT Junior Minors,  ASCL Junior Modifieds,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "40.09",
+        "Title": "Politics Israel & Palestine (xlist: JWST 40.01 / MES 12.09)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  JWST Senior Majors,  MES Senior Majors,  GOVT Senior Minors,  JWST Senior Minors,  MES Senior Minors,  GOVT Senior Modifieds,  JWST Senior Modifieds,  MES Senior Modifieds2nd:  GOVT Junior Majors,  JWST Junior Majors,  MES Junior Majors,  GOVT Junior Minors,  JWST Junior Minors,  MES Junior Minors,  GOVT Junior Modifieds,  JWST Junior Modifieds,  MES Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "40.25",
+        "Title": "Intro Middle East Politics (xlist: MES 08.01)",
+        "Enrollment Limit": "16",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "50.06",
+        "Title": "Nuclear Weapons",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "50.08",
+        "Title": "Psychology&Intl Politics",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "83.05",
+        "Title": "Media&Advertisng: Am Poltcs",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "83.06",
+        "Title": "Political Communication",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "83.29",
+        "Title": "American Judicial System",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "84.38",
+        "Title": "Trading Places (xlist: LACS 83.50)",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  LACS Senior Majors,  GOVT Senior Minors,  LACS Senior Minors,  GOVT Senior Modifieds,  LACS Senior Modifieds2nd:   Senior Other3rd:  GOVT Junior Majors,  LACS Junior Majors,  GOVT Junior Minors,  LACS Junior Minors,  GOVT Junior Modifieds,  LACS Junior Modifieds4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "84.42",
+        "Title": "IdentityPoltcsGlobalPerspec",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "85.12",
+        "Title": "Military Statecraft in IR (xlist: PBPL 82.01)",
+        "Enrollment Limit": "14",
+        "Priorities": "1st:  GOVT Senior Majors,  PBPL Senior Majors,  GOVT Senior Minors,  PBPL Senior Minors,  GOVT Senior Modifieds,  PBPL Senior Modifieds2nd:  GOVT Junior Majors,  PBPL Junior Majors,  GOVT Junior Minors,  PBPL Junior Minors,  GOVT Junior Modifieds,  PBPL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "85.37",
+        "Title": "Resistance & Collaboration",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "85.39",
+        "Title": "PublicOpinion&AmForeignPlcy",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "85.49",
+        "Title": "AppliedForeignPolicyAnalysi",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "85.5",
+        "Title": "Diplomacy in aComplex World (xlist: INTS 80.04)",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  JSDC Senior Majors,  GOVT Senior Minors,  JSDC Senior Minors,  GOVT Senior Modifieds,  JSDC Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "86.18",
+        "Title": "Contemp Readings on Justice",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "86.25",
+        "Title": "Adam Smith & Political Econ (xlist: ECON 005)",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  ECON Senior Majors,  GOVT Senior Majors,  ECON Senior Minors,  GOVT Senior Minors,  ECON Senior Modifieds,  GOVT Senior Modifieds2nd:  ECON Junior Majors,  GOVT Junior Majors,  ECON Junior Minors,  GOVT Junior Minors,  ECON Junior Modifieds,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Government",
+        "Course Number": "86.42",
+        "Title": "Work, Leisure, Good Life",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  GOVT Senior Minors,  GOVT Senior Modifieds2nd:  GOVT Junior Majors,  GOVT Junior Minors,  GOVT Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "19",
+        "Title": "US Political Hist 20th Cent",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:   First-Years2nd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "26",
+        "Title": "The Vietnam War (xlist: ASCL 54.09)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ASCL Senior Majors,  HIST Senior Majors,  ASCL Senior Minors,  HIST Senior Minors,  ASCL Senior Modifieds,  HIST Senior Modifieds2nd:  ASCL Junior Majors,  HIST Junior Majors,  ASCL Junior Minors,  HIST Junior Minors,  ASCL Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "3.01",
+        "Title": "Europe in the Age of Wonder",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:  HIST Senior Majors,  HIST Senior Minors,  HIST Senior Modifieds4th:  HIST Junior Majors,  HIST Junior Minors,  HIST Junior Modifieds"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "36",
+        "Title": "Health Care In Am Society",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  HIST Senior Majors,  HIST Senior Minors,  HIST Senior Modifieds2nd:   Senior Other3rd:  HIST Junior Majors,  HIST Junior Minors,  HIST Junior Modifieds4th:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "4.03",
+        "Title": "Modern Mid East & N Africa (xlist: MES 02.03)",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  HIST Senior Majors,  MES Senior Majors,  HIST Senior Minors,  MES Senior Minors,  HIST Senior Modifieds,  MES Senior Modifieds2nd:  HIST Junior Majors,  MES Junior Majors,  HIST Junior Minors,  MES Junior Minors,  HIST Junior Modifieds,  MES Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "49",
+        "Title": "Early Mod England 1485-1780",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:   First-Years2nd:   Sophomores3rd:  HIST Junior Majors,  HIST Junior Minors,  HIST Junior Modifieds4th:  HIST Senior Majors,  HIST Senior Minors,  HIST Senior Modifieds5th:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "5.01",
+        "Title": "PreColonial African History (xlist: AAAS 014)",
+        "Enrollment Limit": "26",
+        "Priorities": "1st:  AAAS Senior Majors,  HIST Senior Majors,  AAAS Senior Minors,  HIST Senior Minors,  AAAS Senior Modifieds,  HIST Senior Modifieds2nd:  AAAS Junior Majors,  HIST Junior Majors,  AAAS Junior Minors,  HIST Junior Minors,  AAAS Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "5.04",
+        "Title": "Intro to Korean Culture (xlist: ASCL 10.02)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "5.05",
+        "Title": "Emergence of Modern Japan (xlist: ASCL 64.11)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "5.08",
+        "Title": "Africa and the World (xlist: AAAS 019)",
+        "Enrollment Limit": "26",
+        "Priorities": "1st:   First-Years2nd:   Sophomores3rd:  AAAS Senior Majors,  HIST Senior Majors,  AAAS Senior Minors,  HIST Senior Minors,  AAAS Senior Modifieds,  HIST Senior Modifieds4th:  AAAS Junior Majors,  HIST Junior Majors,  AAAS Junior Minors,  HIST Junior Minors,  AAAS Junior Modifieds,  HIST Junior Modifieds"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "5.14",
+        "Title": "Americas: Invasion to Indep",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "58",
+        "Title": "Modern Eastern Europe (xlist: RUSS 051)",
+        "Enrollment Limit": "28",
+        "Priorities": "1st:  HIST Senior Majors,  RUSS Senior Majors,  HIST Senior Minors,  RUSS Senior Minors,  HIST Senior Modifieds,  RUSS Senior Modifieds2nd:  HIST Junior Majors,  RUSS Junior Majors,  HIST Junior Minors,  RUSS Junior Minors,  HIST Junior Modifieds,  RUSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "64",
+        "Title": "The Great War",
+        "Enrollment Limit": "28",
+        "Priorities": "1st:  HIST Senior Majors,  HIST Senior Minors,  HIST Senior Modifieds2nd:  HIST Junior Majors,  HIST Junior Minors,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "75",
+        "Title": "Colnlsm,Dvlpmt&Env-Afr&Asia (xlist: AAAS 050 / ASCL 54.07 / ENVS 045)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  AAAS Senior Majors,  ASCL Senior Majors,  ENVS Senior Majors,  HIST Senior Majors,  AAAS Senior Minors,  ASCL Senior Minors,  ENVS Senior Minors,  HIST Senior Minors,  AAAS Senior Modifieds,  ASCL Senior Modifieds,  ENVS Senior Modifieds,  HIST Senior Modifieds2nd:  AAAS Junior Majors,  ASCL Junior Majors,  ENVS Junior Majors,  HIST Junior Majors,  AAAS Junior Minors,  ASCL Junior Minors,  ENVS Junior Minors,  HIST Junior Minors,  AAAS Junior Modifieds,  ASCL Junior Modifieds,  ENVS Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "8.02",
+        "Title": "Mkng Mod Wrld Econ1800-2014",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "80",
+        "Title": "Hist of Captlsm in Lat Amer (xlist: LACS 50.13)",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  HIST Senior Majors,  LACS Senior Majors,  HIST Senior Minors,  LACS Senior Minors,  HIST Senior Modifieds,  LACS Senior Modifieds2nd:  HIST Junior Majors,  LACS Junior Majors,  HIST Junior Minors,  LACS Junior Minors,  HIST Junior Modifieds,  LACS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "9.05",
+        "Title": "PacificEmpireLaborMigration",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:  HIST Senior Majors,  HIST Senior Minors,  HIST Senior Modifieds4th:  HIST Junior Majors,  HIST Junior Minors,  HIST Junior Modifieds"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "25.03",
+        "Title": "U.S. Empire Since 1945",
+        "Enrollment Limit": "27",
+        "Priorities": "1st:  HIST Senior Majors,  HIST Senior Minors,  HIST Senior Modifieds2nd:  HIST Junior Majors,  HIST Junior Minors,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "31.02",
+        "Title": "Migrant Nation (xlist: LACS 40.10)",
+        "Enrollment Limit": "27",
+        "Priorities": "1st:  HIST Senior Majors,  LACS Senior Majors,  HIST Senior Minors,  LACS Senior Minors,  HIST Senior Modifieds,  LACS Senior Modifieds2nd:  HIST Junior Majors,  LACS Junior Majors,  HIST Junior Minors,  LACS Junior Minors,  HIST Junior Modifieds,  LACS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "72.04",
+        "Title": "China to 1800 (xlist: ASCL 64.16)",
+        "Enrollment Limit": "28",
+        "Priorities": "1st:  ASCL Senior Majors,  HIST Senior Majors,  ASCL Senior Minors,  HIST Senior Minors,  ASCL Senior Modifieds,  HIST Senior Modifieds2nd:  ASCL Junior Majors,  HIST Junior Majors,  ASCL Junior Minors,  HIST Junior Minors,  ASCL Junior Modifieds,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "85.02",
+        "Title": "BlackandIndigenousSlaveries (xlist: AAAS 60.02 / NAIS 054)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  HIST Senior Majors,  HIST Senior Minors,  HIST Senior Modifieds2nd:  HIST Junior Majors,  HIST Junior Minors,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "90.17",
+        "Title": "Medieval Crusading Orders",
+        "Enrollment Limit": "28",
+        "Priorities": "1st:  HIST Senior Majors,  HIST Senior Minors,  HIST Senior Modifieds2nd:  HIST Junior Majors,  HIST Junior Minors,  HIST Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "94.09",
+        "Title": "Hist/Cultre Jews:Mod Period (xlist: JWST 011)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  HIST Senior Majors,  JWST Senior Majors,  HIST Senior Minors,  JWST Senior Minors,  HIST Senior Modifieds,  JWST Senior Modifieds2nd:  HIST Junior Majors,  JWST Junior Majors,  HIST Junior Minors,  JWST Junior Minors,  HIST Junior Modifieds,  JWST Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "History",
+        "Course Number": "94.16",
+        "Title": "Coins as Text (xlist: CLST 11.19)",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  CLAS Senior Majors,  HIST Senior Majors,  CLAS Senior Minors,  HIST Senior Minors,  CLAS Senior Modifieds,  HIST Senior Modifieds2nd:  CLAS Junior Majors,  HIST Junior Majors,  CLAS Junior Minors,  HIST Junior Minors,  CLAS Junior Modifieds,  HIST Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "International Studies",
+        "Course Number": "16",
+        "Title": "Intro to Int'l Development (xlist: GEOG 08.01)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  GEOG Senior Majors,  JSDC Senior Majors,  GEOG Senior Minors,  JSDC Senior Minors,  GEOG Senior Modifieds,  JSDC Senior Modifieds2nd:  GEOG Junior Majors,  JSDC Junior Majors,  GEOG Junior Minors,  JSDC Junior Minors,  GEOG Junior Modifieds,  JSDC Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "International Studies",
+        "Course Number": "80.04",
+        "Title": "Diplomacy in aComplex World (xlist: GOVT 85.50)",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  JSDC Senior Majors,  GOVT Senior Minors,  JSDC Senior Minors,  GOVT Senior Modifieds,  JSDC Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Italian",
+        "Course Number": "1",
+        "Title": "Introductory Italian I",
+        "Enrollment Limit": "54",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Italian",
+        "Course Number": "2",
+        "Title": "Introductory Italian II",
+        "Enrollment Limit": "18",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Italian",
+        "Course Number": "3",
+        "Title": "Introductory Italian III",
+        "Enrollment Limit": "36",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Italian",
+        "Course Number": "9",
+        "Title": "Language Through Culture",
+        "Enrollment Limit": "18",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Italian",
+        "Course Number": "11",
+        "Title": "Intensive Italian",
+        "Enrollment Limit": "12",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Italian",
+        "Course Number": "14",
+        "Title": "Intro to Italian Culture",
+        "Enrollment Limit": "30",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Italian",
+        "Course Number": "25.01",
+        "Title": "Terrorism Made in Italy",
+        "Enrollment Limit": "20",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Italian",
+        "Course Number": "33.01",
+        "Title": "Dante:The Divine Comedy (xlist: REL 32.02)",
+        "Enrollment Limit": "40",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Italian",
+        "Course Number": "35.02",
+        "Title": "Fascisms (xlist: COLT 57.09)",
+        "Enrollment Limit": "30",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Japanese",
+        "Course Number": "1",
+        "Title": "1st-Yr Courses in Japanese",
+        "Enrollment Limit": "30",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Japanese",
+        "Course Number": "32",
+        "Title": "Advanced Japanese",
+        "Enrollment Limit": "10",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Japanese",
+        "Course Number": "42",
+        "Title": "Advanced Japanese",
+        "Enrollment Limit": "12",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Jewish Studies",
+        "Course Number": "4",
+        "Title": "Rel of Israel:Hebrew Bible (xlist: REL 004)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  JWST Senior Majors,  REL Senior Majors,  JWST Senior Minors,  REL Senior Minors,  JWST Senior Modifieds,  REL Senior Modifieds2nd:  JWST Junior Majors,  REL Junior Majors,  JWST Junior Minors,  REL Junior Minors,  JWST Junior Modifieds,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Jewish Studies",
+        "Course Number": "6",
+        "Title": "Introduction to Judaism (xlist: REL 006)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  JWST Senior Majors,  REL Senior Majors,  JWST Senior Minors,  REL Senior Minors,  JWST Senior Modifieds,  REL Senior Modifieds2nd:  JWST Junior Majors,  REL Junior Majors,  JWST Junior Minors,  REL Junior Minors,  JWST Junior Modifieds,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Jewish Studies",
+        "Course Number": "11",
+        "Title": "Hist/Cultre Jews:Mod Period (xlist: HIST 94.09)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  HIST Senior Majors,  JWST Senior Majors,  HIST Senior Minors,  JWST Senior Minors,  HIST Senior Modifieds,  JWST Senior Modifieds2nd:  HIST Junior Majors,  JWST Junior Majors,  HIST Junior Minors,  JWST Junior Minors,  HIST Junior Modifieds,  JWST Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Jewish Studies",
+        "Course Number": "13",
+        "Title": "Jews and Race (xlist: AAAS 65.06 / SOCY 49.25)",
+        "Enrollment Limit": "37",
+        "Priorities": "1st:  AAAS Senior Majors,  JWST Senior Majors,  SOCY Senior Majors,  AAAS Senior Minors,  JWST Senior Minors,  SOCY Senior Minors,  AAAS Senior Modifieds,  JWST Senior Modifieds,  SOCY Senior Modifieds2nd:  AAAS Junior Majors,  JWST Junior Majors,  SOCY Junior Majors,  AAAS Junior Minors,  JWST Junior Minors,  SOCY Junior Minors,  AAAS Junior Modifieds,  JWST Junior Modifieds,  SOCY Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Jewish Studies",
+        "Course Number": "34.05",
+        "Title": "Jewish Folklore (xlist: EEER 38.24)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  JWST Senior Majors,  RUSS Senior Majors,  JWST Senior Minors,  RUSS Senior Minors,  JWST Senior Modifieds,  RUSS Senior Modifieds2nd:  JWST Junior Majors,  RUSS Junior Majors,  JWST Junior Minors,  RUSS Junior Minors,  JWST Junior Modifieds,  RUSS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Jewish Studies",
+        "Course Number": "40.01",
+        "Title": "Politics Israel & Palestine (xlist: GOVT 40.09 / MES 12.09)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  JWST Senior Majors,  MES Senior Majors,  GOVT Senior Minors,  JWST Senior Minors,  MES Senior Minors,  GOVT Senior Modifieds,  JWST Senior Modifieds,  MES Senior Modifieds2nd:  GOVT Junior Majors,  JWST Junior Majors,  MES Junior Majors,  GOVT Junior Minors,  JWST Junior Minors,  MES Junior Minors,  GOVT Junior Modifieds,  JWST Junior Modifieds,  MES Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other"
+    },
+    {
+        "Subject": "Jewish Studies",
+        "Course Number": "44.01",
+        "Title": "Middle East in Film (xlist: FILM 42.19 / MES 15.11)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  FILM Senior Majors,  JWST Senior Majors,  MES Senior Majors,  FILM Senior Minors,  JWST Senior Minors,  MES Senior Minors,  FILM Senior Modifieds,  JWST Senior Modifieds,  MES Senior Modifieds2nd:  FILM Junior Majors,  JWST Junior Majors,  MES Junior Majors,  FILM Junior Minors,  JWST Junior Minors,  MES Junior Minors,  FILM Junior Modifieds,  JWST Junior Modifieds,  MES Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Latin",
+        "Course Number": "1",
+        "Title": "LAT 1",
+        "Enrollment Limit": "24",
+        "Priorities": "1st:   First-Years2nd:   Sophomores3rd:  CLAS Senior Majors,  CLAS Senior Minors,  CLAS Senior Modifieds4th:  CLAS Junior Majors,  CLAS Junior Minors,  CLAS Junior Modifieds5th:   Senior Other6th:   Junior Other"
+    },
+    {
+        "Subject": "Latin",
+        "Course Number": "3",
+        "Title": "LAT 3",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:   First-Years2nd:   Sophomores3rd:   Junior Other4th:  CLAS Junior Majors,  CLAS Junior Minors,  CLAS Junior Modifieds5th:   Random"
+    },
+    {
+        "Subject": "Latin",
+        "Course Number": "10.01",
+        "Title": "Topics in Latin: Landscape",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Latin Am/Caribbean Studies",
+        "Course Number": "1",
+        "Title": "Intro Latin Am & Caribbean",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  LACS Senior Majors,  LACS Senior Minors,  LACS Senior Modifieds2nd:  LACS Junior Majors,  LACS Junior Minors,  LACS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Latin Am/Caribbean Studies",
+        "Course Number": "30.08",
+        "Title": "Race&Gender-Brazilian Film",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  LACS Senior Majors,  LACS Senior Minors,  LACS Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Latin Am/Caribbean Studies",
+        "Course Number": "40.1",
+        "Title": "Migrant Nation (xlist: HIST 31.02)",
+        "Enrollment Limit": "27",
+        "Priorities": "1st:  HIST Senior Majors,  LACS Senior Majors,  HIST Senior Minors,  LACS Senior Minors,  HIST Senior Modifieds,  LACS Senior Modifieds2nd:  HIST Junior Majors,  LACS Junior Majors,  HIST Junior Minors,  LACS Junior Minors,  HIST Junior Modifieds,  LACS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Latin Am/Caribbean Studies",
+        "Course Number": "50.13",
+        "Title": "Hist of Captlsm in Lat Amer (xlist: HIST 080)",
+        "Enrollment Limit": "15",
+        "Priorities": "1st:  HIST Senior Majors,  LACS Senior Majors,  HIST Senior Minors,  LACS Senior Minors,  HIST Senior Modifieds,  LACS Senior Modifieds2nd:  HIST Junior Majors,  LACS Junior Majors,  HIST Junior Minors,  LACS Junior Minors,  HIST Junior Modifieds,  LACS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Latin Am/Caribbean Studies",
+        "Course Number": "83.5",
+        "Title": "Trading Places (xlist: GOVT 84.38)",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  GOVT Senior Majors,  LACS Senior Majors,  GOVT Senior Minors,  LACS Senior Minors,  GOVT Senior Modifieds,  LACS Senior Modifieds2nd:   Senior Other3rd:  GOVT Junior Majors,  LACS Junior Majors,  GOVT Junior Minors,  LACS Junior Minors,  GOVT Junior Modifieds,  LACS Junior Modifieds4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Latino Studies",
+        "Course Number": "3",
+        "Title": "Introd to Latino Studies",
+        "Enrollment Limit": "14",
+        "Priorities": "1st:  LACS Senior Majors,  LACS Senior Minors,  LACS Senior Modifieds2nd:  LACS Junior Majors,  LACS Junior Minors,  LACS Junior Modifieds3rd:   First-Years"
+    },
+    {
+        "Subject": "Latino Studies",
+        "Course Number": "5",
+        "Title": "Complexity Latino Identity",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Latino Studies",
+        "Course Number": "45",
+        "Title": "US-Mexican Borderlands (xlist: ANTH 034)",
+        "Enrollment Limit": "14",
+        "Priorities": "1st:  ANTH Senior Majors,  LACS Senior Majors,  ANTH Senior Minors,  LACS Senior Minors,  ANTH Senior Modifieds,  LACS Senior Modifieds2nd:  ANTH Junior Majors,  LACS Junior Majors,  ANTH Junior Minors,  LACS Junior Minors,  ANTH Junior Modifieds,  LACS Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Linguistics",
+        "Course Number": "1",
+        "Title": "Introductory Linguistics",
+        "Enrollment Limit": "45",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Linguistics",
+        "Course Number": "17",
+        "Title": "Sociolinguistics (xlist: SOCY 49.28)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  LING Junior Majors,  SOCY Junior Majors,  LING Junior Minors,  SOCY Junior Minors,  LING Junior Modifieds,  SOCY Junior Modifieds2nd:   Sophomores3rd:   First-Years4th:   Random"
+    },
+    {
+        "Subject": "Linguistics",
+        "Course Number": "22",
+        "Title": "Syntax",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  LING Senior Majors,  LING Senior Minors,  LING Senior Modifieds2nd:  LING Junior Majors,  LING Junior Minors,  LING Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Linguistics",
+        "Course Number": "25",
+        "Title": "Psycholinguistics (xlist: COGS 50.05 / PSYC 51.13)",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  COGS Senior Majors,  LING Senior Majors,  PSYC Senior Majors,  COGS Senior Minors,  LING Senior Minors,  PSYC Senior Minors,  COGS Senior Modifieds,  LING Senior Modifieds,  PSYC Senior Modifieds2nd:  COGS Junior Majors,  LING Junior Majors,  PSYC Junior Majors,  COGS Junior Minors,  LING Junior Minors,  PSYC Junior Minors,  COGS Junior Modifieds,  LING Junior Modifieds,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Linguistics",
+        "Course Number": "11.26",
+        "Title": "Languages of Russia (xlist: EEER 38.30)",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "1",
+        "Title": "Intro. to Calculus",
+        "Enrollment Limit": "100",
+        "Priorities": "1st:   First-Years"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "3",
+        "Title": "Calculus",
+        "Enrollment Limit": "300",
+        "Priorities": "1st:   First-Years"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "8",
+        "Title": "Calc Func One/Sev Variable",
+        "Enrollment Limit": "150",
+        "Priorities": "1st:   First-Years"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "9",
+        "Title": "Multivar Calc with Lin Alg",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:   First-Years"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "11",
+        "Title": "Accelerated Multivar Calc",
+        "Enrollment Limit": "160",
+        "Priorities": "1st:   First-Years"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "13",
+        "Title": "Calc of Vector-Valued Fctns",
+        "Enrollment Limit": "45",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "20",
+        "Title": "Probability",
+        "Enrollment Limit": "35",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "22",
+        "Title": "Linear Algebra w/Applicatns",
+        "Enrollment Limit": "75",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "23",
+        "Title": "Differential Equations",
+        "Enrollment Limit": "70",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Mathematics",
+        "Course Number": "50",
+        "Title": "Intro to Linear Models",
+        "Enrollment Limit": "70",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Middle Eastern Studies",
+        "Course Number": "1.01",
+        "Title": "Intro to Mid East Studies",
+        "Enrollment Limit": "100",
+        "Priorities": "1st:  MES Senior Majors,  MES Senior Minors,  MES Senior Modifieds2nd:  MES Junior Majors,  MES Junior Minors,  MES Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Middle Eastern Studies",
+        "Course Number": "2.03",
+        "Title": "Modern Mid East & N Africa (xlist: HIST 04.03)",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  HIST Senior Majors,  MES Senior Majors,  HIST Senior Minors,  MES Senior Minors,  HIST Senior Modifieds,  MES Senior Modifieds2nd:  HIST Junior Majors,  MES Junior Majors,  HIST Junior Minors,  MES Junior Minors,  HIST Junior Modifieds,  MES Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Middle Eastern Studies",
+        "Course Number": "3.02",
+        "Title": "ArchaeologyOfTheMiddleEast (xlist: ANTH 039)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ANTH Senior Majors,  MES Senior Majors,  ANTH Senior Minors,  MES Senior Minors,  ANTH Senior Modifieds,  MES Senior Modifieds2nd:  ANTH Junior Majors,  MES Junior Majors,  ANTH Junior Minors,  MES Junior Minors,  ANTH Junior Modifieds,  MES Junior Modifieds"
+    },
+    {
+        "Subject": "Middle Eastern Studies",
+        "Course Number": "8.01",
+        "Title": "Intro Middle East Politics (xlist: GOVT 40.25)",
+        "Enrollment Limit": "16",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Middle Eastern Studies",
+        "Course Number": "12.09",
+        "Title": "Politics Israel & Palestine (xlist: GOVT 40.09 / JWST 40.01)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  JWST Senior Majors,  MES Senior Majors,  GOVT Senior Minors,  JWST Senior Minors,  MES Senior Minors,  GOVT Senior Modifieds,  JWST Senior Modifieds,  MES Senior Modifieds2nd:  GOVT Junior Majors,  JWST Junior Majors,  MES Junior Majors,  GOVT Junior Minors,  JWST Junior Minors,  MES Junior Minors,  GOVT Junior Modifieds,  JWST Junior Modifieds,  MES Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other"
+    },
+    {
+        "Subject": "Middle Eastern Studies",
+        "Course Number": "15.11",
+        "Title": "Middle East in Film (xlist: FILM 42.19 / JWST 44.01)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  FILM Senior Majors,  JWST Senior Majors,  MES Senior Majors,  FILM Senior Minors,  JWST Senior Minors,  MES Senior Minors,  FILM Senior Modifieds,  JWST Senior Modifieds,  MES Senior Modifieds2nd:  FILM Junior Majors,  JWST Junior Majors,  MES Junior Majors,  FILM Junior Minors,  JWST Junior Minors,  MES Junior Minors,  FILM Junior Modifieds,  JWST Junior Modifieds,  MES Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Middle Eastern Studies",
+        "Course Number": "16.3",
+        "Title": "Modern Arab Fiction",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  MES Senior Majors,  MES Senior Minors,  MES Senior Modifieds2nd:  MES Junior Majors,  MES Junior Minors,  MES Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Music",
+        "Course Number": "1",
+        "Title": "Beginning Music Theory",
+        "Enrollment Limit": "18",
+        "Priorities": "1st:  MUS Senior Majors,  MUS Senior Minors,  MUS Senior Modifieds2nd:  MUS Junior Majors,  MUS Junior Minors,  MUS Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Music",
+        "Course Number": "20",
+        "Title": "Creative Music Theory I",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  MUS Junior Majors2nd:  MUS Senior Majors3rd:  MUS Junior Minors4th:  MUS Senior Minors5th:  MUS Junior Modifieds6th:  MUS Senior Modifieds7th:   Sophomores8th:   Random"
+    },
+    {
+        "Subject": "Music",
+        "Course Number": "23",
+        "Title": "Timbre and Form",
+        "Enrollment Limit": "8",
+        "Priorities": "1st:  MUS Senior Majors2nd:  MUS Junior Majors3rd:  MUS Senior Minors4th:  MUS Junior Minors5th:  MUS Senior Modifieds6th:  MUS Junior Modifieds7th:   Sophomores8th:   Senior Other9th:   Junior Other10th:   Random"
+    },
+    {
+        "Subject": "Music",
+        "Course Number": "26",
+        "Title": "Sonic Arts II",
+        "Enrollment Limit": "10",
+        "Priorities": "1st:  MUS Senior Majors,  MUS Senior Minors,  MUS Senior Modifieds2nd:  MUS Junior Majors,  MUS Junior Minors,  MUS Junior Modifieds"
+    },
+    {
+        "Subject": "Music",
+        "Course Number": "46",
+        "Title": "Video Games&Meaning of Life (xlist: COLT 40.07 / FILM 50.04)",
+        "Enrollment Limit": "165",
+        "Priorities": "1st:  COLT Senior Majors,  FILM Senior Majors,  MUS Senior Majors,  COLT Senior Minors,  FILM Senior Minors,  MUS Senior Minors,  COLT Senior Modifieds,  FILM Senior Modifieds,  MUS Senior Modifieds2nd:  COLT Junior Majors,  FILM Junior Majors,  MUS Junior Majors,  COLT Junior Minors,  FILM Junior Minors,  MUS Junior Minors,  COLT Junior Modifieds,  FILM Junior Modifieds,  MUS Junior Modifieds"
+    },
+    {
+        "Subject": "Music",
+        "Course Number": "51",
+        "Title": "Oral Tradition Musicianship",
+        "Enrollment Limit": "17",
+        "Priorities": "1st:  MUS Senior Majors2nd:  MUS Senior Minors,  MUS Senior Modifieds3rd:  MUS Junior Majors4th:  MUS Junior Minors,  MUS Junior Modifieds"
+    },
+    {
+        "Subject": "Music",
+        "Course Number": "18.02",
+        "Title": "Hip-Hop in the US (xlist: AAAS 39.06)",
+        "Enrollment Limit": "22",
+        "Priorities": "1st:  AAAS Senior Majors,  MUS Senior Majors,  AAAS Senior Minors,  MUS Senior Minors,  AAAS Senior Modifieds,  MUS Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Music",
+        "Course Number": "45.04",
+        "Title": "Music and Social Justice (xlist: AAAS 39.09)",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  MUS Senior Majors,  MUS Senior Minors,  MUS Senior Modifieds2nd:  MUS Junior Majors,  MUS Junior Minors,  MUS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Native Amer&Indigenous Studies",
+        "Course Number": "8",
+        "Title": "Perspectives-Nat Am Studies",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  NAIS Senior Majors,  NAIS Senior Minors,  NAIS Senior Modifieds"
+    },
+    {
+        "Subject": "Native Amer&Indigenous Studies",
+        "Course Number": "25",
+        "Title": "Indian Country Today",
+        "Enrollment Limit": "75",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Native Amer&Indigenous Studies",
+        "Course Number": "42",
+        "Title": "Gender Issues-NativeAm Life (xlist: WGSS 40.01)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  NAIS Senior Majors,  WGSS Senior Majors2nd:  NAIS Senior Minors,  WGSS Senior Minors3rd:  NAIS Junior Majors,  WGSS Junior Majors4th:   Sophomores5th:   Random"
+    },
+    {
+        "Subject": "Native Amer&Indigenous Studies",
+        "Course Number": "47",
+        "Title": "Ctmpry Native Am Poetry (xlist: ENGL 53.25)",
+        "Enrollment Limit": "18",
+        "Priorities": "1st:  ENGL Senior Majors,  NAIS Senior Majors,  ENGL Senior Minors,  NAIS Senior Minors,  ENGL Senior Modifieds,  NAIS Senior Modifieds"
+    },
+    {
+        "Subject": "Native Amer&Indigenous Studies",
+        "Course Number": "54",
+        "Title": "BlackandIndigenousSlaveries (xlist: AAAS 60.02 / HIST 85.02)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  HIST Senior Majors,  NAIS Senior Majors,  HIST Senior Minors,  NAIS Senior Minors,  HIST Senior Modifieds,  NAIS Senior Modifieds2nd:  HIST Junior Majors,  NAIS Junior Majors,  HIST Junior Minors,  NAIS Junior Minors,  HIST Junior Modifieds,  NAIS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Native Amer&Indigenous Studies",
+        "Course Number": "60",
+        "Title": "Ecology and Art in Oceania",
+        "Enrollment Limit": "27",
+        "Priorities": "1st:  NAIS Senior Majors,  NAIS Senior Minors,  NAIS Senior Modifieds2nd:  NAIS Junior Majors,  NAIS Junior Minors,  NAIS Junior Modifieds"
+    },
+    {
+        "Subject": "Native Amer&Indigenous Studies",
+        "Course Number": "61",
+        "Title": "Indigenous Guardians",
+        "Enrollment Limit": "22",
+        "Priorities": "1st:  NAIS Senior Majors,  NAIS Senior Minors,  NAIS Senior Modifieds"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "3",
+        "Title": "Reason and Argument",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  PHIL Senior Majors,  PHIL Senior Minors,  PHIL Senior Modifieds2nd:  PHIL Junior Majors,  PHIL Junior Minors,  PHIL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "4",
+        "Title": "Philosophy and Gender (xlist: WGSS 46.01)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  PHIL Senior Majors,  WGSS Senior Majors,  PHIL Senior Minors,  WGSS Senior Minors,  PHIL Senior Modifieds,  WGSS Senior Modifieds2nd:  PHIL Junior Majors,  WGSS Junior Majors,  PHIL Junior Minors,  WGSS Junior Minors,  PHIL Junior Modifieds,  WGSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "6",
+        "Title": "Logic and Language",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  PHIL Senior Majors,  PHIL Senior Minors,  PHIL Senior Modifieds2nd:  PHIL Junior Majors,  PHIL Junior Minors,  PHIL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "1.08",
+        "Title": "Phil of Time & Time Travel",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  PHIL Senior Majors,  PHIL Senior Minors,  PHIL Senior Modifieds2nd:  PHIL Junior Majors,  PHIL Junior Minors,  PHIL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "1.22",
+        "Title": "Africana Philosophy",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  PHIL Senior Majors,  PHIL Senior Minors,  PHIL Senior Modifieds2nd:  PHIL Junior Majors,  PHIL Junior Minors,  PHIL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "23",
+        "Title": "Art and Aesthetics",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  PHIL Senior Majors,  PHIL Senior Minors,  PHIL Senior Modifieds2nd:  PHIL Junior Majors,  PHIL Junior Minors,  PHIL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "30",
+        "Title": "Epistemology & Methodology",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  PHIL Senior Majors,  PHIL Senior Minors,  PHIL Senior Modifieds2nd:  PHIL Junior Majors,  PHIL Junior Minors,  PHIL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "9.01",
+        "Title": "Reproductive Ethics",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  PHIL Senior Majors,  PHIL Senior Minors,  PHIL Senior Modifieds2nd:  PHIL Junior Majors,  PHIL Junior Minors,  PHIL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "19.03",
+        "Title": "Positivism & Ord. Lang Phil",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  PHIL Senior Majors,  PHIL Senior Minors,  PHIL Senior Modifieds2nd:  PHIL Junior Majors,  PHIL Junior Minors,  PHIL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "35.01",
+        "Title": "Theories of Consciousness (xlist: COGS 50.04)",
+        "Enrollment Limit": "25",
+        "Priorities": null
+    },
+    {
+        "Subject": "Philosophy",
+        "Course Number": "50.39",
+        "Title": "Simulation and Reality",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  PHIL Senior Majors,  PHIL Senior Minors,  PHIL Senior Modifieds2nd:  PHIL Junior Majors,  PHIL Junior Minors,  PHIL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Physics",
+        "Course Number": "48",
+        "Title": "Electrncs:Lnr&Dgtl Circuits (xlist: ENGS 032)",
+        "Enrollment Limit": "36",
+        "Priorities": "1st:  ENGS Senior Majors,  PHYS Senior Majors,  ENGS Senior Minors,  PHYS Senior Minors,  ENGS Senior Modifieds,  PHYS Senior Modifieds2nd:  ENGS Junior Majors,  PHYS Junior Majors,  ENGS Junior Minors,  PHYS Junior Minors,  ENGS Junior Modifieds,  PHYS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Physics",
+        "Course Number": "70",
+        "Title": "Fourier Transf&Complex Var (xlist: ENGS 092)",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  ENGS Senior Majors,  PHYS Senior Majors,  ENGS Senior Minors,  PHYS Senior Minors,  ENGS Senior Modifieds,  PHYS Senior Modifieds"
+    },
+    {
+        "Subject": "Portuguese",
+        "Course Number": "11",
+        "Title": "Intensive Portuguese",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:   Random"
+    },
+    {
+        "Subject": "Portuguese",
+        "Course Number": "63.08",
+        "Title": "ManyFacesofBrazilianCinema (xlist: SPAN 63.08)",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  SPAN Senior Majors,  SPAN Senior Minors,  SPAN Senior Modifieds2nd:  SPAN Junior Majors,  SPAN Junior Minors,  SPAN Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "1",
+        "Title": "Introductory Psychology",
+        "Enrollment Limit": "215",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "6",
+        "Title": "Intro to Neuroscience",
+        "Enrollment Limit": "215",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "10",
+        "Title": "Exp Design & Methodology",
+        "Enrollment Limit": "50",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "11",
+        "Title": "Lab in Psyc Science",
+        "Enrollment Limit": "45",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "21",
+        "Title": "Perception",
+        "Enrollment Limit": "75",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "24",
+        "Title": "Abnormal Psychology",
+        "Enrollment Limit": "75",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "25",
+        "Title": "Developmental Psychology",
+        "Enrollment Limit": "75",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Sophomores4th:   Senior Other5th:   Junior Other"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "36",
+        "Title": "Systems Neuroscience w/Lab",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "37",
+        "Title": "Behavioral Neuroscience",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "40",
+        "Title": "Intro Computationl Neurosci (xlist: COGS 021 / COSC 016)",
+        "Enrollment Limit": "40",
+        "Priorities": "1st:  COGS Senior Majors,  COSC Senior Majors,  PSYC Senior Majors,  COGS Senior Minors,  COSC Senior Minors,  PSYC Senior Minors,  COGS Senior Modifieds,  COSC Senior Modifieds,  PSYC Senior Modifieds2nd:  COGS Junior Majors,  COSC Junior Majors,  PSYC Junior Majors,  COGS Junior Minors,  COSC Junior Minors,  PSYC Junior Minors,  COGS Junior Modifieds,  COSC Junior Modifieds,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "43",
+        "Title": "Emotion",
+        "Enrollment Limit": "50",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "50.01",
+        "Title": "Neurosci of Mental Illness",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "51.02",
+        "Title": "Face Perception (xlist: COGS 11.04)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  COGS Senior Majors,  PSYC Senior Majors,  COGS Senior Minors,  PSYC Senior Minors,  COGS Senior Modifieds,  PSYC Senior Modifieds2nd:  COGS Junior Majors,  PSYC Junior Majors,  COGS Junior Minors,  PSYC Junior Minors,  COGS Junior Modifieds,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "51.13",
+        "Title": "Psycholinguistics (xlist: COGS 50.05 / LING 025)",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  COGS Senior Majors,  LING Senior Majors,  PSYC Senior Majors,  COGS Senior Minors,  LING Senior Minors,  PSYC Senior Minors,  COGS Senior Modifieds,  LING Senior Modifieds,  PSYC Senior Modifieds2nd:  COGS Junior Majors,  LING Junior Majors,  PSYC Junior Majors,  COGS Junior Minors,  LING Junior Minors,  PSYC Junior Minors,  COGS Junior Modifieds,  LING Junior Modifieds,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "52.04",
+        "Title": "Adolescent Risk Behaviors",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "53.1",
+        "Title": "Social Affective Decision",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "53.14",
+        "Title": "Social Neurocognition",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  PSYC Senior Majors,  PSYC Senior Minors,  PSYC Senior Modifieds2nd:  PSYC Junior Majors,  PSYC Junior Minors,  PSYC Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Psychological & Brain Sciences",
+        "Course Number": "54.08",
+        "Title": "Leadership (xlist: PBPL 047)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  PBPL Senior Majors,  PSYC Senior Majors,  PBPL Senior Minors,  PSYC Senior Minors,  PBPL Senior Modifieds,  PSYC Senior Modifieds2nd:  PBPL Junior Majors,  PSYC Junior Majors,  PBPL Junior Minors,  PSYC Junior Minors,  PBPL Junior Modifieds,  PSYC Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Public Policy",
+        "Course Number": "24",
+        "Title": "The 2024 Election (xlist: GOVT 30.17)",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  GOVT Senior Majors,  PBPL Senior Majors,  GOVT Senior Minors,  PBPL Senior Minors,  GOVT Senior Modifieds,  PBPL Senior Modifieds2nd:  GOVT Junior Majors,  PBPL Junior Majors,  GOVT Junior Minors,  PBPL Junior Minors,  GOVT Junior Modifieds,  PBPL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Public Policy",
+        "Course Number": "44",
+        "Title": "Election Polling (xlist: GOVT 037 / QSS 30.20)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  PBPL Senior Majors,  QSS Senior Majors,  GOVT Senior Minors,  PBPL Senior Minors,  QSS Senior Minors,  GOVT Senior Modifieds,  PBPL Senior Modifieds,  QSS Senior Modifieds2nd:  GOVT Junior Majors,  PBPL Junior Majors,  QSS Junior Majors,  GOVT Junior Minors,  PBPL Junior Minors,  QSS Junior Minors,  GOVT Junior Modifieds,  PBPL Junior Modifieds,  QSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Public Policy",
+        "Course Number": "45",
+        "Title": "IntroPublic Policy Research",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  PBPL Senior Minors2nd:  PBPL Senior Modifieds3rd:   Senior Other4th:  PBPL Junior Majors,  PBPL Junior Minors,  PBPL Junior Modifieds5th:   Junior Other6th:   Sophomores7th:   First-Years"
+    },
+    {
+        "Subject": "Public Policy",
+        "Course Number": "47",
+        "Title": "Leadership (xlist: PSYC 54.08)",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  PBPL Senior Majors,  PSYC Senior Majors,  PBPL Senior Minors,  PSYC Senior Minors,  PBPL Senior Modifieds,  PSYC Senior Modifieds2nd:  PBPL Junior Majors,  PSYC Junior Majors,  PBPL Junior Minors,  PSYC Junior Minors,  PBPL Junior Modifieds,  PSYC Junior Modifieds3rd:   Sophomores4th:   First-Years"
+    },
+    {
+        "Subject": "Public Policy",
+        "Course Number": "53",
+        "Title": "Entrepreneurship&PubPolicy (xlist: GOVT 20.11)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  PBPL Senior Majors,  GOVT Senior Minors,  PBPL Senior Minors,  GOVT Senior Modifieds,  PBPL Senior Modifieds2nd:  GOVT Junior Majors,  PBPL Junior Majors,  GOVT Junior Minors,  PBPL Junior Minors,  GOVT Junior Modifieds,  PBPL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Public Policy",
+        "Course Number": "40.01",
+        "Title": "ModernStatisticalComputing (xlist: QSS 020)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  PBPL Senior Majors,  QSS Senior Majors,  PBPL Senior Minors,  QSS Senior Minors,  PBPL Senior Modifieds,  QSS Senior Modifieds2nd:  PBPL Junior Majors,  QSS Junior Majors,  PBPL Junior Minors,  QSS Junior Minors,  PBPL Junior Modifieds,  QSS Junior Modifieds"
+    },
+    {
+        "Subject": "Public Policy",
+        "Course Number": "82.01",
+        "Title": "Military Statecraft in IR (xlist: GOVT 85.12)",
+        "Enrollment Limit": "14",
+        "Priorities": "1st:  GOVT Senior Majors,  PBPL Senior Majors,  GOVT Senior Minors,  PBPL Senior Minors,  GOVT Senior Modifieds,  PBPL Senior Modifieds2nd:  GOVT Junior Majors,  PBPL Junior Majors,  GOVT Junior Minors,  PBPL Junior Minors,  GOVT Junior Modifieds,  PBPL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Public Policy",
+        "Course Number": "82.09",
+        "Title": "The Supreme Court",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  PBPL Senior Minors2nd:  PBPL Senior Modifieds3rd:  PBPL Junior Majors,  PBPL Junior Minors,  PBPL Junior Modifieds4th:   Senior Other5th:   Junior Other6th:   Sophomores"
+    },
+    {
+        "Subject": "Quantitative Social Science",
+        "Course Number": "15",
+        "Title": "Intro to Data Analysis",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  QSS Senior Majors,  QSS Senior Minors,  QSS Senior Modifieds2nd:  QSS Junior Majors,  QSS Junior Minors,  QSS Junior Modifieds3rd:   Sophomores4th:   Random"
+    },
+    {
+        "Subject": "Quantitative Social Science",
+        "Course Number": "17",
+        "Title": "Data Visualization (xlist: GOVT 016)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  QSS Senior Majors,  GOVT Senior Minors,  QSS Senior Minors,  GOVT Senior Modifieds,  QSS Senior Modifieds2nd:  GOVT Junior Majors,  QSS Junior Majors,  GOVT Junior Minors,  QSS Junior Minors,  GOVT Junior Modifieds,  QSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Quantitative Social Science",
+        "Course Number": "20",
+        "Title": "ModernStatisticalComputing (xlist: PBPL 40.01)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  PBPL Senior Majors,  QSS Senior Majors,  PBPL Senior Minors,  QSS Senior Minors,  PBPL Senior Modifieds,  QSS Senior Modifieds2nd:  PBPL Junior Majors,  QSS Junior Majors,  PBPL Junior Minors,  QSS Junior Minors,  PBPL Junior Modifieds,  QSS Junior Modifieds"
+    },
+    {
+        "Subject": "Quantitative Social Science",
+        "Course Number": "45",
+        "Title": "AI and Machine Learning",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  QSS Senior Majors2nd:  QSS Senior Minors3rd:  QSS Junior Majors4th:  QSS Junior Minors"
+    },
+    {
+        "Subject": "Quantitative Social Science",
+        "Course Number": "81",
+        "Title": "Major Thesis Research",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  QSS Senior Majors,  QSS Senior Minors,  QSS Senior Modifieds"
+    },
+    {
+        "Subject": "Quantitative Social Science",
+        "Course Number": "82",
+        "Title": "QSS Research Project",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  QSS Senior Majors,  QSS Senior Minors,  QSS Senior Modifieds2nd:  QSS Junior Majors,  QSS Junior Minors,  QSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Quantitative Social Science",
+        "Course Number": "30.01",
+        "Title": "Sports Analytics",
+        "Enrollment Limit": "35",
+        "Priorities": "1st:  QSS Senior Majors,  QSS Senior Minors,  QSS Senior Modifieds2nd:  QSS Junior Majors,  QSS Junior Minors,  QSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Quantitative Social Science",
+        "Course Number": "30.2",
+        "Title": "Election Polling (xlist: GOVT 037 / PBPL 044)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  PBPL Senior Majors,  QSS Senior Majors,  GOVT Senior Minors,  PBPL Senior Minors,  QSS Senior Minors,  GOVT Senior Modifieds,  PBPL Senior Modifieds,  QSS Senior Modifieds2nd:  GOVT Junior Majors,  PBPL Junior Majors,  QSS Junior Majors,  GOVT Junior Minors,  PBPL Junior Minors,  QSS Junior Minors,  GOVT Junior Modifieds,  PBPL Junior Modifieds,  QSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "4",
+        "Title": "Rel of Israel:Hebrew Bible (xlist: JWST 004)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  JWST Senior Majors,  REL Senior Majors,  JWST Senior Minors,  REL Senior Minors,  JWST Senior Modifieds,  REL Senior Modifieds2nd:  JWST Junior Majors,  REL Junior Majors,  JWST Junior Minors,  REL Junior Minors,  JWST Junior Modifieds,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "6",
+        "Title": "Introduction to Judaism (xlist: JWST 006)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  JWST Senior Majors,  REL Senior Majors,  JWST Senior Minors,  REL Senior Minors,  JWST Senior Modifieds,  REL Senior Modifieds2nd:  JWST Junior Majors,  REL Junior Majors,  JWST Junior Minors,  REL Junior Minors,  JWST Junior Modifieds,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "13",
+        "Title": "Sports, Ethics & Religion",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  REL Senior Majors,  REL Senior Minors,  REL Senior Modifieds2nd:  REL Junior Majors,  REL Junior Minors,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "14",
+        "Title": "Intro to African Religions (xlist: AAAS 18.03)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  AAAS Senior Majors,  REL Senior Majors,  AAAS Senior Minors,  REL Senior Minors,  AAAS Senior Modifieds,  REL Senior Modifieds2nd:  AAAS Junior Majors,  REL Junior Majors,  AAAS Junior Minors,  REL Junior Minors,  AAAS Junior Modifieds,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "62",
+        "Title": "Rel, Politics & Presidency",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  REL Senior Majors,  REL Senior Minors,  REL Senior Modifieds2nd:  REL Junior Majors,  REL Junior Minors,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "66",
+        "Title": "Women, Rlgn, Soc Chg in Afr (xlist: AAAS 042 / WGSS 44.03)",
+        "Enrollment Limit": "12",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "19.39",
+        "Title": "Buddhist Auto/Biography",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  REL Senior Majors,  REL Senior Minors,  REL Senior Modifieds2nd:  REL Junior Majors,  REL Junior Minors,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "20.08",
+        "Title": "Ethnography and Religion",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  REL Senior Majors,  REL Senior Minors,  REL Senior Modifieds2nd:  REL Junior Majors,  REL Junior Minors,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "30.02",
+        "Title": "Sacred Cities: Jerusalem",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  REL Senior Majors,  REL Senior Minors,  REL Senior Modifieds2nd:  REL Junior Majors,  REL Junior Minors,  REL Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Religion",
+        "Course Number": "32.02",
+        "Title": "Dante:The Divine Comedy (xlist: ITAL 33.01)",
+        "Enrollment Limit": "40",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Russian",
+        "Course Number": "1",
+        "Title": "Introductory Russian",
+        "Enrollment Limit": "36",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Russian",
+        "Course Number": "27",
+        "Title": "Intermediate Russian I",
+        "Enrollment Limit": "18",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Russian",
+        "Course Number": "42",
+        "Title": "Adv Russian-Hist,Press&Film",
+        "Enrollment Limit": "18",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Russian",
+        "Course Number": "51",
+        "Title": "Modern Eastern Europe (xlist: HIST 058)",
+        "Enrollment Limit": "28",
+        "Priorities": "1st:  HIST Senior Majors,  RUSS Senior Majors,  HIST Senior Minors,  RUSS Senior Minors,  HIST Senior Modifieds,  RUSS Senior Modifieds2nd:  HIST Junior Majors,  RUSS Junior Majors,  HIST Junior Minors,  RUSS Junior Minors,  HIST Junior Modifieds,  RUSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "1",
+        "Title": "Introductory Sociology",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:  SOCY Senior Majors,  SOCY Senior Minors,  SOCY Senior Modifieds2nd:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "10",
+        "Title": "Quant Analysis Social Data",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  SOCY Senior Majors,  SOCY Senior Minors,  SOCY Senior Modifieds2nd:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds3rd:   Senior Other4th:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "15",
+        "Title": "Sociological Classics",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  SOCY Senior Majors,  SOCY Senior Minors,  SOCY Senior Modifieds2nd:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "20",
+        "Title": "Population and Society",
+        "Enrollment Limit": "27",
+        "Priorities": "1st:  SOCY Senior Majors,  SOCY Senior Minors,  SOCY Senior Modifieds2nd:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "23",
+        "Title": "Social Movements",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  SOCY Senior Majors,  SOCY Senior Minors,  SOCY Senior Modifieds2nd:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "26",
+        "Title": "CapitalismProsperity&Crisis",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  SOCY Senior Majors,  SOCY Senior Minors,  SOCY Senior Modifieds2nd:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds3rd:   Senior Other"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "27",
+        "Title": "Organizations in Society",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  SOCY Senior Majors2nd:  SOCY Senior Minors,  SOCY Senior Modifieds3rd:   Senior Other4th:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "35",
+        "Title": "Sociology of Mental Health",
+        "Enrollment Limit": "27",
+        "Priorities": "1st:  SOCY Senior Majors,  SOCY Senior Minors,  SOCY Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "45",
+        "Title": "Inequal and Social Justice",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  SOCY Senior Majors,  SOCY Senior Minors,  SOCY Senior Modifieds2nd:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "60",
+        "Title": "Dangerous Intersections (xlist: WGSS 66.34)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  SOCY Senior Majors,  WGSS Senior Majors,  SOCY Senior Minors,  WGSS Senior Minors,  SOCY Senior Modifieds,  WGSS Senior Modifieds2nd:  SOCY Junior Majors,  WGSS Junior Majors,  SOCY Junior Minors,  WGSS Junior Minors,  SOCY Junior Modifieds,  WGSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "66",
+        "Title": "Markets and Management",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  SOCY Senior Majors2nd:  SOCY Senior Minors,  SOCY Senior Modifieds3rd:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds4th:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "75",
+        "Title": "Neighborhoods and Health",
+        "Enrollment Limit": "16",
+        "Priorities": "1st:  SOCY Senior Majors,  SOCY Senior Minors,  SOCY Senior Modifieds2nd:  SOCY Junior Majors,  SOCY Junior Minors,  SOCY Junior Modifieds3rd:   Senior Other4th:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "49.25",
+        "Title": "Jews and Race (xlist: AAAS 65.06 / JWST 013)",
+        "Enrollment Limit": "37",
+        "Priorities": "1st:  AAAS Senior Majors,  JWST Senior Majors,  SOCY Senior Majors,  AAAS Senior Minors,  JWST Senior Minors,  SOCY Senior Minors,  AAAS Senior Modifieds,  JWST Senior Modifieds,  SOCY Senior Modifieds2nd:  AAAS Junior Majors,  JWST Junior Majors,  SOCY Junior Majors,  AAAS Junior Minors,  JWST Junior Minors,  SOCY Junior Minors,  AAAS Junior Modifieds,  JWST Junior Modifieds,  SOCY Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Sociology",
+        "Course Number": "49.28",
+        "Title": "Sociolinguistics (xlist: LING 017)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  LING Junior Majors,  SOCY Junior Majors,  LING Junior Minors,  SOCY Junior Minors,  LING Junior Modifieds,  SOCY Junior Modifieds2nd:   Sophomores3rd:   First-Years4th:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "1",
+        "Title": "Spanish I",
+        "Enrollment Limit": "72",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "2",
+        "Title": "Spanish II",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "3",
+        "Title": "Spanish III",
+        "Enrollment Limit": "60",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "9",
+        "Title": "Culture and Conversation",
+        "Enrollment Limit": "24",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "15",
+        "Title": "Latinx Writing&Composition",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "20",
+        "Title": "Writ&Read Critical&Cltr App",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:   Sophomores2nd:   First-Years3rd:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "32",
+        "Title": "Intro Hisp. St. III:20-21 C",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  SPAN Senior Majors2nd:  SPAN Senior Modifieds3rd:  SPAN Senior Minors4th:  SPAN Junior Majors5th:  SPAN Junior Modifieds6th:  SPAN Junior Minors7th:   Sophomores8th:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "55.09",
+        "Title": "Revoltosos/as",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:   Sophomores2nd:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "55.15",
+        "Title": "TheSpanishCrazeHispCultinUS",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  SPAN Senior Majors,  SPAN Senior Minors,  SPAN Senior Modifieds2nd:  SPAN Junior Majors,  SPAN Junior Minors,  SPAN Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "63.08",
+        "Title": "ManyFacesofBrazilianCinema (xlist: PORT 63.08)",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  SPAN Senior Majors,  SPAN Senior Minors,  SPAN Senior Modifieds2nd:  SPAN Junior Majors,  SPAN Junior Minors,  SPAN Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Spanish",
+        "Course Number": "70.02",
+        "Title": "100 Years of Solitude",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  SPAN Senior Majors2nd:  SPAN Senior Modifieds3rd:  SPAN Senior Minors4th:  SPAN Junior Majors5th:  SPAN Junior Modifieds6th:  SPAN Junior Minors7th:   Sophomores8th:   Random"
+    },
+    {
+        "Subject": "Speech",
+        "Course Number": "20",
+        "Title": "Public Speaking",
+        "Enrollment Limit": "42",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "15",
+        "Title": "Drawing I",
+        "Enrollment Limit": "25",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "16",
+        "Title": "Sculpture I",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "20",
+        "Title": "Drawing II",
+        "Enrollment Limit": "6",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "21",
+        "Title": "Sculpture II",
+        "Enrollment Limit": "9",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "25",
+        "Title": "Painting I",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "27",
+        "Title": "Printmaking I",
+        "Enrollment Limit": "16",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "29",
+        "Title": "Photography I",
+        "Enrollment Limit": "10",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "30",
+        "Title": "Photography II",
+        "Enrollment Limit": "6",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "65",
+        "Title": "Architecture I",
+        "Enrollment Limit": "12",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "66",
+        "Title": "Architecture II",
+        "Enrollment Limit": "8",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "68",
+        "Title": "Architecture III",
+        "Enrollment Limit": "4",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "71",
+        "Title": "Drawing III",
+        "Enrollment Limit": "4",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "73",
+        "Title": "Sculpture III",
+        "Enrollment Limit": "3",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "75",
+        "Title": "Photography III",
+        "Enrollment Limit": "4",
+        "Priorities": "1st:  SART Senior Majors,  SART Senior Minors,  SART Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "17.18",
+        "Title": "Art & Activism",
+        "Enrollment Limit": "10",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Studio Art",
+        "Course Number": "17.22",
+        "Title": "On Earth: Art   The Anthrop",
+        "Enrollment Limit": "10",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Theater",
+        "Course Number": "15",
+        "Title": "Theatre & Society I",
+        "Enrollment Limit": "13",
+        "Priorities": "1st:  THEA Senior Majors,  THEA Senior Minors,  THEA Senior Modifieds2nd:   Random"
+    },
+    {
+        "Subject": "Theater",
+        "Course Number": "24",
+        "Title": "Asian Performance (xlist: ASCL 70.07)",
+        "Enrollment Limit": "14",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Theater",
+        "Course Number": "26",
+        "Title": "Movement Fundamentals I",
+        "Enrollment Limit": "16",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Theater",
+        "Course Number": "30",
+        "Title": "Acting I",
+        "Enrollment Limit": "32",
+        "Priorities": "1st:  THEA Senior Majors,  THEA Senior Minors,  THEA Senior Modifieds2nd:  THEA Junior Majors,  THEA Junior Minors,  THEA Junior Modifieds3rd:   Senior Other4th:   Sophomores5th:   First-Years6th:   Random"
+    },
+    {
+        "Subject": "Theater",
+        "Course Number": "40",
+        "Title": "Technical Production",
+        "Enrollment Limit": "9",
+        "Priorities": "1st:  THEA Senior Majors,  THEA Senior Minors,  THEA Senior Modifieds2nd:   First-Years3rd:   Random"
+    },
+    {
+        "Subject": "Theater",
+        "Course Number": "42",
+        "Title": "Scene Design I",
+        "Enrollment Limit": "7",
+        "Priorities": "1st:  THEA Junior Majors,  THEA Junior Minors,  THEA Junior Modifieds2nd:   Sophomores3rd:   First-Years4th:   Junior Other5th:  THEA Senior Majors,  THEA Senior Minors,  THEA Senior Modifieds9th:   Senior Other"
+    },
+    {
+        "Subject": "Theater",
+        "Course Number": "50",
+        "Title": "Playwriting I",
+        "Enrollment Limit": "9",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Theater",
+        "Course Number": "10.35",
+        "Title": "Jazz Dance for Theatre",
+        "Enrollment Limit": "16",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Tuck",
+        "Course Number": "2",
+        "Title": "Principles of Marketing",
+        "Enrollment Limit": "120",
+        "Priorities": "1st:   Seniors2nd:   Juniors3rd:   Sophomores"
+    },
+    {
+        "Subject": "Ukrainian",
+        "Course Number": "11",
+        "Title": "Intensive Ukrainian",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Ukrainian",
+        "Course Number": "27",
+        "Title": "Intermediate Ukrainian I",
+        "Enrollment Limit": "15",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "1",
+        "Title": "Intersections",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  WGSS Senior Majors,  WGSS Senior Minors,  WGSS Senior Modifieds2nd:  WGSS Junior Majors,  WGSS Junior Minors,  WGSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "10",
+        "Title": "Sex,Gender and Society",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  WGSS Senior Majors,  WGSS Senior Minors,  WGSS Senior Modifieds2nd:  WGSS Junior Majors,  WGSS Junior Minors,  WGSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "80",
+        "Title": "Seminar",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  WGSS Senior Majors,  WGSS Senior Minors,  WGSS Senior Modifieds2nd:  WGSS Junior Majors,  WGSS Junior Minors,  WGSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "34.02",
+        "Title": "Gender Idnts&Politcs-Africa (xlist: AAAS 040)",
+        "Enrollment Limit": "25",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "36.01",
+        "Title": "Gendr Cross Cltrl Perspctve (xlist: ANTH 031)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ANTH Senior Majors,  WGSS Senior Majors,  ANTH Senior Minors,  WGSS Senior Minors,  ANTH Senior Modifieds,  WGSS Senior Modifieds2nd:  ANTH Junior Majors,  WGSS Junior Majors,  ANTH Junior Minors,  WGSS Junior Minors,  ANTH Junior Modifieds,  WGSS Junior Modifieds3rd:   Sophomores"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "40.01",
+        "Title": "Gender Issues-NativeAm Life (xlist: NAIS 042)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  NAIS Senior Majors,  WGSS Senior Majors2nd:  NAIS Senior Minors,  WGSS Senior Minors3rd:  NAIS Junior Majors,  WGSS Junior Majors4th:   Sophomores5th:   Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "41.06",
+        "Title": "Transnational Feminisms",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  WGSS Senior Majors,  WGSS Senior Minors,  WGSS Senior Modifieds2nd:  WGSS Junior Majors,  WGSS Junior Minors,  WGSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "44.03",
+        "Title": "Women, Rlgn, Soc Chg in Afr (xlist: AAAS 042 / REL 066)",
+        "Enrollment Limit": "12",
+        "Priorities": "Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "46.01",
+        "Title": "Philosophy and Gender (xlist: PHIL 004)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  PHIL Senior Majors,  WGSS Senior Majors,  PHIL Senior Minors,  WGSS Senior Minors,  PHIL Senior Modifieds,  WGSS Senior Modifieds2nd:  PHIL Junior Majors,  WGSS Junior Majors,  PHIL Junior Minors,  WGSS Junior Minors,  PHIL Junior Modifieds,  WGSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores6th:   First-Years"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "47.03",
+        "Title": "Mod American Women Poets (xlist: ENGL 55.01)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  ENGL Senior Majors,  WGSS Senior Majors,  ENGL Senior Minors,  WGSS Senior Minors,  ENGL Senior Modifieds,  WGSS Senior Modifieds2nd:  ENGL Junior Majors,  WGSS Junior Majors,  ENGL Junior Minors,  WGSS Junior Minors,  ENGL Junior Modifieds,  WGSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "48.09",
+        "Title": "19th C Brit Women Writers (xlist: ENGL 62.03)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  ENGL Junior Majors,  WGSS Junior Majors,  ENGL Junior Minors,  WGSS Junior Minors,  ENGL Junior Modifieds,  WGSS Junior Modifieds2nd:  ENGL Senior Majors,  WGSS Senior Majors,  ENGL Senior Minors,  WGSS Senior Minors,  ENGL Senior Modifieds,  WGSS Senior Modifieds3rd:   Junior Other4th:   Senior Other5th:   Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "66.34",
+        "Title": "Dangerous Intersections (xlist: SOCY 060)",
+        "Enrollment Limit": "20",
+        "Priorities": "1st:  SOCY Senior Majors,  WGSS Senior Majors,  SOCY Senior Minors,  WGSS Senior Minors,  SOCY Senior Modifieds,  WGSS Senior Modifieds2nd:  SOCY Junior Majors,  WGSS Junior Majors,  SOCY Junior Minors,  WGSS Junior Minors,  SOCY Junior Modifieds,  WGSS Junior Modifieds3rd:   Random"
+    },
+    {
+        "Subject": "Women's, Gender, and Sexuality",
+        "Course Number": "66.38",
+        "Title": "Gender&Leadership (xlist: GOVT 029)",
+        "Enrollment Limit": "30",
+        "Priorities": "1st:  GOVT Senior Majors,  WGSS Senior Majors,  GOVT Senior Minors,  WGSS Senior Minors,  GOVT Senior Modifieds,  WGSS Senior Modifieds2nd:  GOVT Junior Majors,  WGSS Junior Majors,  GOVT Junior Minors,  WGSS Junior Minors,  GOVT Junior Modifieds,  WGSS Junior Modifieds3rd:   Senior Other4th:   Junior Other5th:   Sophomores"
+    }
+]
