@@ -78,10 +78,10 @@ const DepartmentCoursesPage = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Sr. No.</TableCell>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
                   {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>}
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Num of Reviews</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Quality</TableCell>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Layup</TableCell>
                 </TableRow>
               </TableHead>
@@ -99,11 +99,21 @@ const DepartmentCoursesPage = () => {
                       color: 'inherit'
                     }}
                   >
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
-                    {!isMobile && <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.quality}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                      {index + 1}
+                    </TableCell>
+                    <TableCell sx={{ color: 'black', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                      {course.name}
+                    </TableCell>
+                    {!isMobile && <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'center' }}>
+                      {course.distribs}
+                    </TableCell>}
+                    <TableCell sx={{ color: 'black', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                      {course.numOfReviews}
+                    </TableCell>
+                    <TableCell sx={{ color: 'black', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                      {course.layup}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

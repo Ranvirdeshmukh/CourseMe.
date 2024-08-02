@@ -105,6 +105,7 @@ const CourseEnrollmentPriorities = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Sr. No.</TableCell>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Department</TableCell>
                   <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Number of Courses</TableCell>
                 </TableRow>
@@ -123,10 +124,13 @@ const CourseEnrollmentPriorities = () => {
                       color: 'inherit'
                     }}
                   >
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                    <TableCell sx={{ color: 'BLACK', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                      {index + 1}
+                    </TableCell>
+                    <TableCell sx={{ color: 'BLACK', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
                       {department.name}
                     </TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                    <TableCell sx={{ color: 'BLACK', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
                       {department.courses.length}
                     </TableCell>
                   </TableRow>

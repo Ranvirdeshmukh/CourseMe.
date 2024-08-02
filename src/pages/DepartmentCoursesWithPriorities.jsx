@@ -12,7 +12,7 @@ import {
   TableRow,
   Alert,
   Paper,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -32,10 +32,10 @@ const DepartmentCoursesWithPriorities = () => {
           const coursesList = courseSnapshot.docs
             .map((doc) => ({
               id: doc.id,
-              ...doc.data()
+              ...doc.data(),
             }))
-            .filter(course => course.Department === decodeURIComponent(department));
-          
+            .filter((course) => course.Department === decodeURIComponent(department));
+
           setCourses(coursesList);
         } else {
           setError('No courses found for this department.');
@@ -59,7 +59,7 @@ const DepartmentCoursesWithPriorities = () => {
         flexDirection: 'column',
         alignItems: 'center',
         backgroundColor: '#E4E2DD',
-        padding: '40px'
+        padding: '40px',
       }}
     >
       <Container maxWidth="lg">
@@ -82,10 +82,18 @@ const DepartmentCoursesWithPriorities = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Course Number</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Enrollment Limit</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Priorities</TableCell>
+                  <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: '#571CE0' }}>
+                    Course Name
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: '#571CE0' }}>
+                    Course Number
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: '#571CE0' }}>
+                    Enrollment Limit
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: '#571CE0' }}>
+                    Priorities
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -97,19 +105,61 @@ const DepartmentCoursesWithPriorities = () => {
                       '&:hover': { backgroundColor: '#e0e0e0' },
                     }}
                   >
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{course['Title of the Class']}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course['Course Number']}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'center' }}>{course['Enrollment Limit']}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>
+                    <TableCell sx={{ padding: '10px', textAlign: 'left' }}>
+                      <Typography
+                        sx={{
+                          fontFamily: 'SF Pro Display, sans-serif',
+                          fontWeight: 600,
+                          color: '#1D1D1F',
+                          fontSize: '0.875rem', // Reduced font size
+                        }}
+                      >
+                        {course['Title of the Class']}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ padding: '10px', textAlign: 'center' }}>
+                      <Typography
+                        sx={{
+                          fontFamily: 'SF Pro Display, sans-serif',
+                          fontWeight: 600,
+                          color: '#1D1D1F',
+                          fontSize: '0.875rem', // Reduced font size
+                        }}
+                      >
+                        {course['Course Number']}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ padding: '10px', textAlign: 'center' }}>
+                      <Typography
+                        sx={{
+                          fontFamily: 'SF Pro Display, sans-serif',
+                          fontWeight: 600,
+                          color: '#1D1D1F',
+                          fontSize: '0.875rem', // Reduced font size
+                        }}
+                      >
+                        {course['Enrollment Limit']}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ padding: '10px', textAlign: 'left' }}>
                       <ul style={{ padding: '0', listStyleType: 'none' }}>
-                        {course.Priorities.split(/(\d+[a-z]{2}:\s)/).map((priority, index) => 
-                          priority.trim() && (
-                            <li key={index}>
-                              <Typography component="span" sx={{ color: 'black' }}>
-                                {priority.trim()}
-                              </Typography>
-                            </li>
-                          )
+                        {course.Priorities.split(/(\d+[a-z]{2}:\s)/).map(
+                          (priority, index) =>
+                            priority.trim() && (
+                              <li key={index}>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontFamily: 'SF Pro Display, sans-serif',
+                                    color: '#1D1D1F',
+                                    fontWeight: 600,
+                                    fontSize: '0.875rem', // Reduced font size
+                                  }}
+                                >
+                                  {priority.trim()}
+                                </Typography>
+                              </li>
+                            )
                         )}
                       </ul>
                     </TableCell>

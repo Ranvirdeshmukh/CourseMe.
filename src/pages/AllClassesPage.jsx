@@ -169,9 +169,9 @@ const AllClassesPage = () => {
                       color: 'inherit'
                     }}
                   >
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{department}</TableCell>
-                    <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.name || department}</TableCell>
-                    {!isMobile && <TableCell sx={{ color: '#571CE0', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.courses || 'N/A'}</TableCell>}
+                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{department}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.name || department}</TableCell>
+                    {!isMobile && <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.courses || 'N/A'}</TableCell>}
                   </TableRow>
                 ))}
               </TableBody>
