@@ -196,6 +196,10 @@ const ProfilePage = () => {
     }
   };
 
+  const handleNavigateToEnrollmentPriorities = () => {
+    navigate('/course-enrollment-priorities');
+  };
+
   if (!currentUser) {
     return <Navigate to="/login" />;
   }
@@ -271,6 +275,9 @@ const ProfilePage = () => {
                 <Typography>Class Year: {profileData.classYear}</Typography>
                 <Button variant="contained" color="primary" onClick={handleEditProfile} sx={{ mt: 2, boxShadow: 3 }}>
                   Edit Profile
+                </Button>
+                <Button variant="contained" color="secondary" onClick={handleNavigateToEnrollmentPriorities} sx={{ mt: 2, ml: 2, boxShadow: 3 }}>
+                  Checkout the Fall 24 Course Enrollment Priorities
                 </Button>
               </Box>
             </Card>

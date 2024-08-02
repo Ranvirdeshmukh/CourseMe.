@@ -2,23 +2,38 @@ import React from 'react';
 import { AppBar, Toolbar, Button, Typography, Box } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import '../styles/custom.css';  // Import the custom CSS
+import '../styles/custom.css'; // Import the custom CSS
 
 const NavBar = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
 
-  const isAllClassesOrDepartmentPage = location.pathname === '/classes' || 
-    location.pathname.startsWith('/departments') || 
-    location.pathname === '/profile' || 
-    location.pathname === '/layups'; // Add layups to the condition
+  // Define a helper function to check if the current path matches any of the given patterns
+  const isSpecialPage = () => {
+    const path = location.pathname;
+
+    // List of paths that should have the specific style
+    const specialPages = [
+      '/classes',
+      '/profile',
+      '/layups',
+      '/course-enrollment-priorities'
+    ];
+
+    // Check if the path matches any special pages or starts with a special prefix
+    return specialPages.some(page => path === page || path.startsWith(`${page}/`));
+  };
+
+  const isSpecialPageStyle = isSpecialPage();
 
   return (
     <AppBar
       position="static"
       className="navbar"
       sx={{
-        background: isAllClassesOrDepartmentPage ? '#E4E2DD' : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
+        background: isSpecialPageStyle
+          ? '#E4E2DD'
+          : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
         boxShadow: 'none',
       }}
     >
@@ -27,12 +42,12 @@ const NavBar = () => {
           variant="h6"
           component={Link}
           to="/"
-          sx={{ 
+          sx={{
             fontFamily: 'SF Pro Display, sans-serif',
             fontStyle: 'bold',
             textDecoration: 'none',
-            color: isAllClassesOrDepartmentPage ? '#571CE0' : 'inherit',
-            cursor: 'pointer'
+            color: isSpecialPageStyle ? '#571CE0' : 'inherit',
+            cursor: 'pointer',
           }}
         >
           CourseMe.
@@ -46,7 +61,7 @@ const NavBar = () => {
                 to="/classes"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: isAllClassesOrDepartmentPage ? '#571CE0' : '#FFFFFF',
+                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
                 }}
               >
                 All Classes
@@ -57,18 +72,19 @@ const NavBar = () => {
                 to="/layups"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: isAllClassesOrDepartmentPage ? '#571CE0' : '#FFFFFF',
+                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
                 }}
               >
                 Layups
               </Button>
+              
               <Button
                 className="navbar-link"
                 component={Link}
                 to="/profile"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: isAllClassesOrDepartmentPage ? '#571CE0' : '#FFFFFF',
+                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
                 }}
               >
                 Profile
@@ -81,7 +97,7 @@ const NavBar = () => {
               to="/login"
               sx={{
                 fontFamily: 'SF Pro Display, sans-serif',
-                color: isAllClassesOrDepartmentPage ? '#571CE0' : '#FFFFFF',
+                color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
               }}
             >
               Log In

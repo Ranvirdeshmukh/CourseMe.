@@ -9,9 +9,11 @@ import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import DepartmentCoursesPage from './pages/DepartmentCoursesPage';
 import CourseReviewsPage from './pages/CourseReviewsPage';
-import ProfessorReviewsPage from './pages/ProfessorReviewsPage'; // Import the new page
-import CompleteProfilePage from './pages/CompleteProfilePage'; // Import the new complete profile page
-import LayupsPage from './pages/LayupsPage'; // Import the new Layups page
+import ProfessorReviewsPage from './pages/ProfessorReviewsPage';
+import CompleteProfilePage from './pages/CompleteProfilePage';
+import LayupsPage from './pages/LayupsPage';
+import CourseEnrollmentPrioritiesPage from './pages/CourseEnrollmentPriorities'; // Course Priorities
+import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities'; // Department view for course priorities
 
 const App = () => (
   <AuthProvider>
@@ -27,7 +29,9 @@ const App = () => (
         <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage />} />
         <Route path="/departments/:department/courses/:courseId/professors/:professor" element={<ProfessorReviewsPage />} />
         <Route path="/complete-profile" element={<CompleteProfilePage />} />
-        <Route path="/layups" element={<LayupsPage />} /> {/* New route */}
+        <Route path="/layups" element={<LayupsPage />} />
+        <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage />} /> {/* Main priorities page */}
+        <Route path="/course-enrollment-priorities/:department" element={<DepartmentCoursesWithPriorities />} /> {/* Detailed view */}
       </Routes>
     </Router>
   </AuthProvider>
