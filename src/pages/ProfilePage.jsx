@@ -22,7 +22,7 @@ import {
   Button,
   Grid,
 } from '@mui/material';
-import { Delete, ArrowDropDown, BugReport, Logout } from '@mui/icons-material';
+import { Delete, ArrowDropDown, BugReport, Logout, PushPin } from '@mui/icons-material'; // Add PushPin
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
@@ -40,6 +40,7 @@ const ProfilePage = () => {
     replies: [],
     firstName: '',
     lastName: '',
+    pinnedCourses: [], // Add pinnedCourses state
   });
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -73,6 +74,7 @@ const ProfilePage = () => {
             replies: userData.replies || [],
             firstName: userData.firstName || '',
             lastName: userData.lastName || '',
+            pinnedCourses: userData.pinnedCourses || [], // Add pinnedCourses
           });
         } else {
           setError('Failed to fetch profile data.');
@@ -219,6 +221,25 @@ const ProfilePage = () => {
     navigate('/course-enrollment-priorities');
   };
 
+  const handleUnpinCourse = async (courseId) => {
+    if (!currentUser) return;
+
+    const userDocRef = doc(db, 'users', currentUser.uid);
+
+    try {
+      await updateDoc(userDocRef, {
+        pinnedCourses: arrayRemove(courseId),
+      });
+
+      setProfileData((prevState) => ({
+        ...prevState,
+        pinnedCourses: prevState.pinnedCourses.filter((id) => id !== courseId),
+      }));
+    } catch (error) {
+      console.error('Failed to unpin course:', error);
+    }
+  };
+
   if (!currentUser) {
     return <Navigate to="/login" />;
   }
@@ -258,7 +279,8 @@ const ProfilePage = () => {
                 color: '#1D1D1F',
                 boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                 borderRadius: '12px',
-                width: '100%',
+                maxWidth: 1100,
+                width: '100%', // Ensure the card takes up the full width of the container
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2, justifyContent: 'space-between' }}>
@@ -407,69 +429,161 @@ const ProfilePage = () => {
               </Box>
             </Card>
 
-            {/* Fall Course Enrollment Card */}
-            <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
-              <Card
+     <Grid container spacing={4}> {/* Container for both sections */}
+  {/* Fall Course Enrollment Card */}
+  <Grid item xs={12} md={6}>
+    <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
+      <Card
+        sx={{
+          padding: 4,
+          backgroundColor: '#f9f9f9', // Slightly lighter background
+          color: '#333',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow
+          borderRadius: '12px', // Rounded corners for a modern look
+          width: '100%', // Ensure the card takes up the full width of the grid item
+          maxWidth: 500,
+          minHeight: 200, // Set a minimum height for the card
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h4" // Larger font size
+            gutterBottom
+            sx={{
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontWeight: 600, // Bold font weight
+              color: '#1D1D1F', // Darker, richer text color
+              textAlign: 'left',
+              marginBottom: 2,
+            }}
+          >
+            Fall 2024 Course Enrollment Priority.
+          </Typography>
+          <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} /> {/* Subtle divider */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
+            <Button
+              variant="contained"
+              onClick={handleNavigateToEnrollmentPriorities}
+              sx={{
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontWeight: 500,
+                borderRadius: '8px', // Rounded button
+                boxShadow: 'none', // Remove button shadow
+                backgroundColor: '#571CEO', // Apple-style blue
+                '&:hover': {
+                  backgroundColor: '#005bb5', // Darker blue on hover
+                },
+                textTransform: 'none', // Disable uppercase transformation
+                paddingX: 3,
+                paddingY: 1,
+              }}
+            >
+              Browse It
+            </Button>
+          </Box>
+        </Box>
+        {/* Disclaimer or Note */}
+        <Typography
+          variant="caption"
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#8E8E93', // Softer, grey color for note
+            textAlign: 'left',
+            marginTop: 2,
+            display: 'block',
+          }}
+        >
+          * Enrollment priorities change every term and will be updated accordingly.
+        </Typography>
+      </Card>
+    </Box>
+  </Grid>
+
+  {/* My Saved Courses */}
+  <Grid item xs={12} md={6}>
+    <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
+      <Card
+        sx={{
+          padding: 4,
+          backgroundColor: '#f9f9f9', // Slightly lighter background
+          color: '#333',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow
+          borderRadius: '12px', // Rounded corners for a modern look
+          width: '100%', // Ensure the card takes up the full width of the grid item
+          maxWidth: 500,
+          minHeight: 200, // Set a minimum height for the card
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h4" // Larger font size
+            gutterBottom
+            sx={{
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontWeight: 600, // Bold font weight
+              color: '#1D1D1F', // Darker, richer text color
+              textAlign: 'left',
+              marginBottom: 2,
+            }}
+          >
+            My Saved Courses.
+          </Typography>
+          <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} /> {/* Subtle divider */}
+          <List>
+            {profileData.pinnedCourses.length === 0 ? (
+              <Typography
                 sx={{
-                  padding: 4,
-                  backgroundColor: '#f9f9f9', // Slightly lighter background
-                  color: '#333',
-                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow
-                  borderRadius: '12px', // Rounded corners for a modern look
-                  width: '50%', // Ensure the card width is 50% of the container
-                  maxWidth: 500,
+                  fontFamily: 'SF Pro Display, sans-serif',
+                  color: '#8E8E93',
+                  textAlign: 'left',
                 }}
               >
-                <Typography
-                  variant="h4" // Larger font size
-                  gutterBottom
-                  sx={{
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    fontWeight: 600, // Bold font weight
-                    color: '#1D1D1F', // Darker, richer text color
-                    textAlign: 'left',
-                    marginBottom: 2,
-                  }}
-                >
-                  Fall 2024 Course Enrollment Priority.
-                </Typography>
-                <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} /> {/* Subtle divider */}
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
-                  <Button
-                    variant="contained"
-                    onClick={handleNavigateToEnrollmentPriorities}
-                    sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      fontWeight: 500,
-                      borderRadius: '8px', // Rounded button
-                      boxShadow: 'none', // Remove button shadow
-                      backgroundColor: '#571CEO', // Apple-style blue
-                      '&:hover': {
-                        backgroundColor: '#005bb5', // Darker blue on hover
-                      },
-                      textTransform: 'none', // Disable uppercase transformation
-                      paddingX: 3,
-                      paddingY: 1,
-                    }}
+                No courses pinned yet.
+              </Typography>
+            ) : (
+              profileData.pinnedCourses.map((courseId, idx) => (
+                <ListItem key={idx} sx={{ backgroundColor: '#fafafa', margin: '10px 0', borderRadius: '8px', boxShadow: 3 }}>
+                  <ListItemText
+                    primary={
+                      <>
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontFamily: 'SF Pro Display, sans-serif',
+                            color: '#571CE0',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {getShortCourseId(courseId)}
+                        </Typography>
+                      </>
+                    }
+                  />
+                  <IconButton
+                    edge="end"
+                    aria-label="unpin"
+                    onClick={() => handleUnpinCourse(courseId)}
+                    sx={{ color: '#571CE0' }}
                   >
-                    Browse It
-                  </Button>
-                </Box>
-                {/* Disclaimer or Note */}
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    color: '#8E8E93', // Softer, grey color for note
-                    textAlign: 'left',
-                    marginTop: 2,
-                    display: 'block',
-                  }}
-                >
-                  * Enrollment priorities change every term and will be updated accordingly.
-                </Typography>
-              </Card>
-            </Box>
+                    <PushPin />
+                  </IconButton>
+                </ListItem>
+              ))
+            )}
+          </List>
+        </Box>
+      </Card>
+    </Box>
+  </Grid>
+</Grid>
+
+
 
             <Dialog open={editing} onClose={handleClose}>
               <DialogTitle>Edit Profile</DialogTitle>

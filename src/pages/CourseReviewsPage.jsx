@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Typography, Box, Alert, Table, TableBody, TextField, TableCell, TableContainer, TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip, MenuItem, Select, FormControl, InputLabel, CircularProgress } from '@mui/material';
-import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward } from '@mui/icons-material';
+import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin } from '@mui/icons-material'; // Add PushPin
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
-import { doc, getDoc, updateDoc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc, collection, getDocs, deleteDoc, arrayUnion, arrayRemove } from 'firebase/firestore'; // Add arrayUnion, arrayRemove
 import { useAuth } from '../contexts/AuthContext'; // Assuming you have an AuthContext
 import { db } from '../firebase';
 import AddReviewForm from './AddReviewForm';
@@ -23,6 +22,7 @@ const CourseReviewsPage = () => {
   const [loading, setLoading] = useState(true);
   const [vote, setVote] = useState(null); // Track the user's current vote
   const [courseDescription, setCourseDescription] = useState('');
+  const [pinned, setPinned] = useState(false); // Track if the course is pinned
 
   const reviewsPerPage = 5;
 
@@ -104,6 +104,7 @@ const CourseReviewsPage = () => {
       const userData = userDocSnap.data();
       const userVote = userData.votes ? userData.votes[courseId] : null;
       setVote(userVote);
+      setPinned(userData.pinnedCourses ? userData.pinnedCourses.includes(courseId) : false); // Check if course is pinned
     }
   }, [currentUser, courseId]);
 
@@ -167,6 +168,28 @@ const CourseReviewsPage = () => {
     setCourse(prev => ({ ...prev, layup: newLayup }));
   };
 
+  const handlePinCourse = async () => {
+    if (!currentUser) return;
+
+    const userDocRef = doc(db, 'users', currentUser.uid);
+
+    try {
+      if (pinned) {
+        await updateDoc(userDocRef, {
+          pinnedCourses: arrayRemove(courseId),
+        });
+        setPinned(false);
+      } else {
+        await updateDoc(userDocRef, {
+          pinnedCourses: arrayUnion(courseId),
+        });
+        setPinned(true);
+      }
+    } catch (error) {
+      console.error('Error pinning/unpinning course:', error);
+    }
+  };
+
   const splitReviewText = (review) => {
     if (!review) return { prefix: '', rest: '' };
     const match = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/);
@@ -207,34 +230,44 @@ const CourseReviewsPage = () => {
     const [hasLiked, setHasLiked] = useState(false);
 
     const fetchReplies = async () => {
-      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
-      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
-      const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
-      const sanitizedInstructor = instructor.replace(/\./g, '_');
+      try {
+        const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+        const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+        const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
+        const sanitizedInstructor = instructor.replace(/\./g, '_');
 
-      const repliesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_replies`);
-      const replyDocs = await getDocs(repliesCollectionRef);
+        const repliesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_replies`);
+        const replyDocs = await getDocs(repliesCollectionRef);
 
-      const fetchedReplies = replyDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setReplies(fetchedReplies);
-      setReplyCount(fetchedReplies.length);
+        const fetchedReplies = replyDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setReplies(fetchedReplies);
+        setReplyCount(fetchedReplies.length);
+      } catch (error) {
+        console.error('Error fetching replies:', error);
+        setError('Failed to fetch replies.');
+      }
     };
 
     const fetchLikes = async () => {
-      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
-      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
-      const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
-      const sanitizedInstructor = instructor.replace(/\./g, '_');
+      try {
+        const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+        const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+        const sanitizedCourseId = transformedCourseId ? transformedCourseId : courseId.split('_')[1];
+        const sanitizedInstructor = instructor.replace(/\./g, '_');
 
-      const likesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_likes`);
-      const likeDocs = await getDocs(likesCollectionRef);
+        const likesCollectionRef = collection(db, 'reviews', sanitizedCourseId, `${sanitizedInstructor}_${reviewIndex}_likes`);
+        const likeDocs = await getDocs(likesCollectionRef);
 
-      const fetchedLikes = likeDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setLikeCount(fetchedLikes.length);
+        const fetchedLikes = likeDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setLikeCount(fetchedLikes.length);
 
-      if (currentUser) {
-        const userLike = fetchedLikes.find(like => like.userId === currentUser.uid);
-        setHasLiked(!!userLike);
+        if (currentUser) {
+          const userLike = fetchedLikes.find(like => like.userId === currentUser.uid);
+          setHasLiked(!!userLike);
+        }
+      } catch (error) {
+        console.error('Error fetching likes:', error);
+        setError('Failed to fetch likes.');
       }
     };
 
@@ -628,52 +661,54 @@ const CourseReviewsPage = () => {
           <Alert severity="error" sx={{ textAlign: 'left' }}>{error}</Alert>
         ) : reviews.length > 0 ? (
           <>
-{course && (
-  <Box sx={{
-    position: 'fixed',
-    top: '100px',
-    left: '20px',
-    display: { xs: 'none', sm: 'flex' }, // Hide on mobile
-    flexDirection: 'column',
-    alignItems: 'center',
-    // Adjust the entire container's positioning
-  }}>
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      borderRadius: '50%',
-      backgroundColor: 'transparent', // Make the inside transparent
-      border: '2px solid #571CE0', // Purple border
-      boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.4)', // Denser shadow
-      padding: '10px', // Adjusted padding
-      width: '140px', // Circle size
-      height: '140px', // Circle size
-      justifyContent: 'space-around', // Space out the content evenly
-      boxSizing: 'border-box'
-    }}>
-      <Tooltip title="Upvote">
-        <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}>
-          <ArrowUpward sx={{ fontSize: 24 }} />
-        </IconButton>
-      </Tooltip>
-      <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem' }}>{course.layup || 0}</Typography>
-      <Tooltip title="Downvote">
-        <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}>
-          <ArrowDownward sx={{ fontSize: 24 }} />
-        </IconButton>
-      </Tooltip>
-    </Box>
-    <Typography variant="caption" sx={{
-      color: '#571CE0',
-      marginTop: '10px',
-      textAlign: 'center'
-    }}>Is it a layup?</Typography>
-  </Box>
-)}
-
-
-
+            {course && (
+              <Box sx={{
+                position: 'fixed',
+                top: '100px',
+                left: '20px',
+                display: { xs: 'none', sm: 'flex' }, // Hide on mobile
+                flexDirection: 'column',
+                alignItems: 'center',
+                // Adjust the entire container's positioning
+              }}>
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  borderRadius: '50%',
+                  backgroundColor: 'transparent', // Make the inside transparent
+                  border: '2px solid #571CE0', // Purple border
+                  boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.4)', // Denser shadow
+                  padding: '10px', // Adjusted padding
+                  width: '140px', // Circle size
+                  height: '140px', // Circle size
+                  justifyContent: 'space-around', // Space out the content evenly
+                  boxSizing: 'border-box'
+                }}>
+                  <Tooltip title="Upvote">
+                    <IconButton onClick={() => handleVote('upvote')} sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}>
+                      <ArrowUpward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem' }}>{course.layup || 0}</Typography>
+                  <Tooltip title="Downvote">
+                    <IconButton onClick={() => handleVote('downvote')} sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}>
+                      <ArrowDownward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={pinned ? 'Unpin Course' : 'Pin Course'}>
+                    <IconButton onClick={handlePinCourse} sx={{ color: pinned ? '#571CE0' : 'grey', padding: 0 }}>
+                      <PushPin sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+                <Typography variant="caption" sx={{
+                  color: '#571CE0',
+                  marginTop: '10px',
+                  textAlign: 'center'
+                }}>Is it a layup?</Typography>
+              </Box>
+            )}
             <Typography variant="h4" gutterBottom textAlign="left">Professors</Typography>
             <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
               <Table>

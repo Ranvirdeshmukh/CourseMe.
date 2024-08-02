@@ -18,7 +18,8 @@ const NavBar = () => {
       '/profile',
       '/layups',
       '/course-enrollment-priorities',
-      '/departments' // Include department-related paths
+      '/departments', // Include department-related paths
+      '/course-review' // Add course-review path to apply special styling
     ];
 
     // Check if the path matches any special pages or starts with a special prefix
@@ -33,7 +34,7 @@ const NavBar = () => {
       className="navbar"
       sx={{
         background: isSpecialPageStyle
-          ? '#E4E2DD'
+          ? '#E4E2DD' // Match the background color for special pages
           : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
         boxShadow: 'none',
       }}
@@ -78,7 +79,6 @@ const NavBar = () => {
               >
                 Layups
               </Button>
-              
               <Button
                 className="navbar-link"
                 component={Link}
