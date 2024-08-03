@@ -632,26 +632,42 @@ const CourseReviewsPage = () => {
       }}
     >
       <Container>
-        <Typography variant="h4" gutterBottom textAlign="left">Reviews for {courseName}</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+    <Typography variant="h4" gutterBottom textAlign="left">
+      Reviews for {courseName}
+    </Typography>
+    <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
+      <IconButton onClick={handlePinCourse} sx={{ color: pinned ? '#571CE0' : 'grey', marginLeft: 1,    marginTop: '-10px', // Move the pin up
+ }}>
+        <PushPin />
+      </IconButton>
+    </Tooltip>
+  </Box>
 
-        {courseDescription && (
-          <Box sx={{
-            textAlign: 'left',
-            marginBottom: '20px',
-            backgroundColor: 'transparent', // Set background to transparent
-            color: 'black',
-            padding: '20px',
-            borderRadius: '8px',
-            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.5)', // Optional: Add shadow for a better look
-            '& *': { // Reset background for all child elements
-              backgroundColor: 'transparent !important',
-              textAlign: 'left' // Ensure text is left-aligned
-            }
-          }}>
-
-            <Typography variant="body1" sx={{ fontSize: '0.875rem', color: 'black', textAlign: 'left' }} dangerouslySetInnerHTML={{ __html: courseDescription }} />
-          </Box>
-        )}
+  {courseDescription && (
+    <Box
+      sx={{
+        textAlign: 'left',
+        marginBottom: '20px',
+        backgroundColor: 'transparent', // Set background to transparent
+        color: 'black',
+        padding: '20px',
+        borderRadius: '8px',
+        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.5)', // Optional: Add shadow for a better look
+        '& *': {
+          // Reset background for all child elements
+          backgroundColor: 'transparent !important',
+          textAlign: 'left', // Ensure text is left-aligned
+        },
+      }}
+    >
+      <Typography
+        variant="body1"
+        sx={{ fontSize: '0.875rem', color: 'black', textAlign: 'left' }}
+        dangerouslySetInnerHTML={{ __html: courseDescription }}
+      />
+    </Box>
+  )}
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -696,11 +712,7 @@ const CourseReviewsPage = () => {
                       <ArrowDownward sx={{ fontSize: 24 }} />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title={pinned ? 'Unpin Course' : 'Pin Course'}>
-                    <IconButton onClick={handlePinCourse} sx={{ color: pinned ? '#571CE0' : 'grey', padding: 0 }}>
-                      <PushPin sx={{ fontSize: 24 }} />
-                    </IconButton>
-                  </Tooltip>
+                  
                 </Box>
                 <Typography variant="caption" sx={{
                   color: '#571CE0',
