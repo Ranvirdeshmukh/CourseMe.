@@ -134,7 +134,7 @@ const LoginPage = () => {
             textAlign: 'left',
           }}
         >
-EveryCourse, EveryReview, All at Once.
+EveryCourse, EveryReview, All in One.
         </Typography>
 
         {error && (
