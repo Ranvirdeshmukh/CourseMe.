@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Alert, Autocomplete, createFilterOptions } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Alert,
+  Autocomplete,
+  createFilterOptions,
+  Box,
+  Card,
+} from '@mui/material';
 import { doc, updateDoc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -114,77 +124,114 @@ const AddReviewForm = ({ onReviewAdded }) => {
 
   return (
     <Container sx={{ textAlign: 'left', maxWidth: 'md', padding: '20px 0' }}>
-      <Typography variant="h5" gutterBottom>Write a Review for {courseId.split('_')[1]}</Typography>
-      {error && <Alert severity="error">{error}</Alert>}
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Term"
-          value={term}
-          onChange={(e) => setTerm(e.target.value)}
-          fullWidth
-          margin="normal"
-          required
-          placeholder="e.g., 24F"
-          InputProps={{
-            sx: {
-              backgroundColor: 'white',
-              color: 'black',
-              borderRadius: '4px',
-            }
-          }}
-        />
-        <Autocomplete
-          options={professorsList}
-          filterOptions={filterOptions}
-          getOptionLabel={(option) => option}
-          freeSolo
-          value={professor}
-          onChange={(event, newValue) => {
-            setProfessor(newValue);
-          }}
-          onInputChange={(event, newInputValue) => {
-            setProfessor(newInputValue);
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Professor"
-              margin="normal"
-              required
-              placeholder="Select or type a professor"
-              fullWidth
-              InputProps={{
-                ...params.InputProps,
-                sx: {
-                  backgroundColor: 'white',
-                  color: 'black',
-                  borderRadius: '4px',
-                }
-              }}
-            />
-          )}
-        />
-        <TextField
-          label="Review"
-          value={review}
-          onChange={(e) => setReview(e.target.value)}
-          fullWidth
-          margin="normal"
-          multiline
-          rows={4}
-          required
-          InputProps={{
-            sx: {
-              backgroundColor: 'white',
-              color: 'black',
-              borderRadius: '4px',
-            }
-          }}
-        />
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-          Submit
-        </Button>
-      </form>
+      <Card
+        sx={{
+          padding: 4,
+          backgroundColor: '#f9f9f9',
+          color: '#1D1D1F',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          borderRadius: '12px',
+        }}
+      >
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ fontFamily: 'SF Pro Display, sans-serif', fontWeight: 600, color: '#1D1D1F' }}
+        >
+          Write a Review for {courseId.split('_')[1]}
+        </Typography>
+        {error && <Alert severity="error">{error}</Alert>}
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Term"
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+            placeholder="e.g., 24F"
+            InputProps={{
+              sx: {
+                backgroundColor: 'white',
+                color: 'black',
+                borderRadius: '8px',
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+              },
+            }}
+          />
+          <Autocomplete
+            options={professorsList}
+            filterOptions={filterOptions}
+            getOptionLabel={(option) => option}
+            freeSolo
+            value={professor}
+            onChange={(event, newValue) => {
+              setProfessor(newValue);
+            }}
+            onInputChange={(event, newInputValue) => {
+              setProfessor(newInputValue);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Professor"
+                margin="normal"
+                required
+                placeholder="Select or type a professor"
+                fullWidth
+                InputProps={{
+                  ...params.InputProps,
+                  sx: {
+                    backgroundColor: 'white',
+                    color: 'black',
+                    borderRadius: '8px',
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                  },
+                }}
+              />
+            )}
+          />
+          <TextField
+            label="Review"
+            value={review}
+            onChange={(e) => setReview(e.target.value)}
+            fullWidth
+            margin="normal"
+            multiline
+            rows={4}
+            required
+            InputProps={{
+              sx: {
+                backgroundColor: 'white',
+                color: 'black',
+                borderRadius: '8px',
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+              },
+            }}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{
+              mt: 2,
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontWeight: 500,
+              borderRadius: '8px',
+              boxShadow: 'none',
+              backgroundColor: '#571CE0',
+              '&:hover': {
+                backgroundColor: '#7E55CC',
+              },
+              textTransform: 'none',
+              paddingX: 3,
+              paddingY: 1,
+            }}
+          >
+            Submit
+          </Button>
+        </form>
+      </Card>
     </Container>
   );
 };
