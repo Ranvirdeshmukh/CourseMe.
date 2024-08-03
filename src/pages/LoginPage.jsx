@@ -1,6 +1,6 @@
 // src/pages/LoginPage.jsx
 import React, { useRef, useState } from 'react';
-import { Container, Typography, Box, TextField, Button, InputAdornment, Link } from '@mui/material';
+import { Typography, Box, TextField, Button, InputAdornment, Link } from '@mui/material';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -90,48 +90,87 @@ const LoginPage = () => {
         color: '#fff',
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
+        padding: '40px',
       }}
     >
-      <Container
+      <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
           alignItems: 'center',
-          height: '100%',
+          width: '100%',
+          maxWidth: '500px',
+          backgroundColor: '#f9f9f9',
+          borderRadius: '12px',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+          padding: '30px',
+          color: '#1D1D1F',
         }}
       >
-        <Typography variant="h2" gutterBottom>
-          CourseMe.
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: 600,
+            color: '#1D1D1F',
+            mb: 1,
+            textAlign: 'left',
+          }}
+        >
+          Welcome to <span style={{ color: '#571CE0' }}>CourseMe</span>
+          <span style={{ color: '#571CE0' }}>.</span>
         </Typography>
-        <Typography variant="h5" gutterBottom>
-          Log In
+
+        <Typography
+          variant="body1"
+          gutterBottom
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: 400,
+            color: '#8E8E93',
+            mb: 2,
+            fontSize: '1rem',
+            textAlign: 'left',
+          }}
+        >
+EveryCourse, EveryReview, All at Once.
         </Typography>
-        {error && <Typography color="error">{error}</Typography>}
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: 2 }}>
+
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
+        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 2 }}>
           <TextField
             variant="outlined"
             placeholder="Email"
             inputRef={emailRef}
             required
             sx={{
-              bgcolor: 'white',
-              borderRadius: '25px',
-              width: '70%',
-              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
+              mb: 2,
+              bgcolor: '#FFFFFF',
+              borderRadius: '8px',
+              width: '100%',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '25px',
-                padding: '0 15px',
-                height: '45px',
-              },
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'transparent',
+                borderRadius: '8px',
+                height: '48px',
+                '& fieldset': {
+                  borderColor: '#E0E0E0',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#B0B0B0',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#571CE0',
+                },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <EmailIcon style={{ color: '#571CE0' }} />
+                  <EmailIcon sx={{ color: '#571CE0' }} />
                 </InputAdornment>
               ),
             }}
@@ -142,25 +181,29 @@ const LoginPage = () => {
             type={showPassword ? 'text' : 'password'}
             inputRef={passwordRef}
             required
-            fullWidth
             sx={{
-              bgcolor: 'white',
-              borderRadius: '25px',
-              width: '70%',
-              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
+              mb: 3,
+              bgcolor: '#FFFFFF',
+              borderRadius: '8px',
+              width: '100%',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '25px',
-                padding: '0 15px',
-                height: '45px',
-              },
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'transparent',
+                borderRadius: '8px',
+                height: '48px',
+                '& fieldset': {
+                  borderColor: '#E0E0E0',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#B0B0B0',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#571CE0',
+                },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockIcon style={{ color: '#571CE0' }} />
+                  <LockIcon sx={{ color: '#571CE0' }} />
                 </InputAdornment>
               ),
               endAdornment: (
@@ -176,70 +219,109 @@ const LoginPage = () => {
               ),
             }}
           />
-          <Button
+          <Box
+            component="button"
             type="submit"
-            variant="contained"
-            color="primary"
-            disabled={loading}
             sx={{
-              mt: 2,
-              background: 'linear-gradient(90deg, rgba(87,28,224,1) 0%, rgba(144,19,254,1) 100%)',
-              borderRadius: '25px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              height: '48px',
+              backgroundColor: '#4285F4',  // Same color as Google button
+              borderRadius: '20px',        // Rounded corners to match Google button
               boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
-              color: 'white',
+              color: '#fff',
               fontWeight: 'bold',
-              padding: '8px 16px',
-              transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+              mb: 2,
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background-color 0.218s, box-shadow 0.218s',
               '&:hover': {
-                transform: 'scale(1.05)',
+                backgroundColor: '#571CEO',
                 boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
               },
             }}
           >
             Log In
-          </Button>
-          <Button
+          </Box>
+          <Box
             onClick={handleGoogleSignIn}
-            variant="contained"
-            color="secondary"
-            disabled={loading}
             sx={{
-              mt: 2,
-              background: 'linear-gradient(90deg, rgba(87,28,224,1) 0%, rgba(144,19,254,1) 100%)',
-              borderRadius: '25px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              height: '48px',
+              backgroundColor: '#f2f2f2',
+              borderRadius: '20px',
               boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
-              color: 'white',
-              fontWeight: 'bold',
-              padding: '8px 16px',
-              transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+              cursor: 'pointer',
+              mb: 2,
+              transition: 'background-color 0.218s, box-shadow 0.218s',
               '&:hover': {
-                transform: 'scale(1.05)',
+                backgroundColor: '#e2e2e2',
                 boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
               },
             }}
           >
-            Sign In with Google
-          </Button>
-          <Typography variant="body2" sx={{ mt: 2, fontSize: '1.1rem' }}>
-            Don't have an account? 
-            <Link 
-              component={RouterLink} 
-              to="/signup" 
-              sx={{ 
-                color: 'red', 
-                fontWeight: 'bold', 
-                textDecoration: 'none', 
-                '&:hover': { 
-                  color: 'black', 
-                  textDecoration: 'underline' 
-                } 
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                pl: 2,
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 48 48"
+                width="24px"
+                height="24px"
+                style={{ display: 'block', marginRight: '8px' }}
+              >
+                <path
+                  fill="#EA4335"
+                  d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+                />
+                <path
+                  fill="#4285F4"
+                  d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                />
+                <path fill="none" d="M0 0h48v48H0z" />
+              </svg>
+              <span>Continue with Google</span>
+            </Box>
+          </Box>
+          <Typography variant="body2" sx={{ mt: 3, fontSize: '1.1rem' }}>
+            Don't have an account?{' '}
+            <Link
+              component={RouterLink}
+              to="/signup"
+              sx={{
+                color: '#571CE0',
+                fontWeight: 'bold',
+                textDecoration: 'none',
+                '&:hover': {
+                  color: '#3A0DAF',
+                  textDecoration: 'underline',
+                },
               }}
             >
               Sign Up
             </Link>
           </Typography>
         </Box>
-      </Container>
+      </Box>
     </Box>
   );
 };
