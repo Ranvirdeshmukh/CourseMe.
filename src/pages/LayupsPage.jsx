@@ -19,7 +19,7 @@ import {
   Select,
   MenuItem,
   Card,
-  CardContent
+  CardContent,
 } from '@mui/material';
 import { collection, query, orderBy, getDocs, where, limit } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -50,13 +50,13 @@ const LayupsPage = () => {
       );
 
       const querySnapshot = await getDocs(q);
-      const coursesData = querySnapshot.docs.map(doc => ({
+      const coursesData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
         department: doc.data().department,
         distribs: doc.data().distribs,
         numOfReviews: doc.data().numOfReviews,
-        layup: doc.data().layup
+        layup: doc.data().layup,
       }));
 
       console.log('Fetched courses data:', coursesData);
@@ -64,10 +64,10 @@ const LayupsPage = () => {
       const uniqueCoursesSet = new Set();
       const uniqueCourses = [];
 
-      coursesData.forEach(course => {
+      coursesData.forEach((course) => {
         const normalizedCourseName = course.name.trim().toLowerCase();
         const uniqueKey = `${normalizedCourseName}`;
-        
+
         if (!uniqueCoursesSet.has(uniqueKey) && uniqueCourses.length < 15) {
           uniqueCoursesSet.add(uniqueKey);
           uniqueCourses.push(course);
@@ -98,13 +98,13 @@ const LayupsPage = () => {
       );
 
       const querySnapshot = await getDocs(q);
-      const coursesData = querySnapshot.docs.map(doc => ({
+      const coursesData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
         department: doc.data().department,
         distribs: doc.data().distribs,
         numOfReviews: doc.data().numOfReviews,
-        layup: doc.data().layup
+        layup: doc.data().layup,
       }));
 
       console.log('Fetched department courses data:', coursesData);
@@ -140,8 +140,10 @@ const LayupsPage = () => {
 
       // Filter courses where the distribs string includes the selected distrib
       const filteredCourses = allCourses
-        .filter((course) =>
-          typeof course.distribs === 'string' && course.distribs.split(',').map((d) => d.trim()).includes(distrib)
+        .filter(
+          (course) =>
+            typeof course.distribs === 'string' &&
+            course.distribs.split(',').map((d) => d.trim()).includes(distrib)
         )
         .sort((a, b) => b.layup - a.layup) // Sort by layup in descending order
         .slice(0, 5); // Take top 5
@@ -160,15 +162,15 @@ const LayupsPage = () => {
     try {
       const q = query(collection(db, 'courses'));
       const querySnapshot = await getDocs(q);
-      const departmentsData = querySnapshot.docs.map(doc => doc.data().department);
+      const departmentsData = querySnapshot.docs.map((doc) => doc.data().department);
       const uniqueDepartments = [...new Set(departmentsData)];
       setDepartments(uniqueDepartments);
 
       // Extract unique distribs, assuming distribs is a comma-separated string
-      const distribsData = querySnapshot.docs.flatMap(doc => {
+      const distribsData = querySnapshot.docs.flatMap((doc) => {
         const distribField = doc.data().distribs;
         if (typeof distribField === 'string') {
-          return distribField.split(',').map(distrib => distrib.trim()); // Split string and trim spaces
+          return distribField.split(',').map((distrib) => distrib.trim()); // Split string and trim spaces
         }
         return []; // Handle unexpected types safely
       });
@@ -213,75 +215,169 @@ const LayupsPage = () => {
         flexDirection: 'column',
         alignItems: 'center',
         backgroundColor: '#E4E2DD',
-        padding: '20px'
+        padding: '40px', // Increased padding to match ProfilePage
       }}
     >
       <Container maxWidth="lg">
-        <Typography variant="h4" align='left' gutterBottom color="primary" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
+        <Typography
+          variant="h3"
+          align="left"
+          gutterBottom
+          sx={{
+            fontWeight: 600,
+            marginBottom: '20px',
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#571CE0', // Purple color for headings
+          }}
+        >
           The Biggest Layups Of All Time
         </Typography>
-        
+
+        {/* Note explaining what "layup" means */}
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          sx={{
+            marginBottom: '20px',
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#1D1D1F',
+          }}
+        >
+          <strong>Please Note:</strong> In the context of courses, "layup" refers to the perceived ease and workload of the course. A higher layup score typically indicates a course is easier and less time-consuming for students.
+        </Typography>
+
         {loading ? (
-          <CircularProgress color="primary" />
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+            <CircularProgress color="primary" />
+          </Box>
         ) : error ? (
-          <Alert severity="error">{error}</Alert>
+          <Alert severity="error" sx={{ marginBottom: '20px' }}>
+            {error}
+          </Alert>
         ) : courses.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginBottom: '20px', boxShadow: 3 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>#</TableCell>
-                  <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>Course Name</TableCell>
-                  {!isMobile && <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Distribs</TableCell>}
-                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Num of Reviews</TableCell>
-                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Layup</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {courses.map((course, index) => (
-                  <TableRow
-                    key={course.id}
-                    component={Link}
-                    to={`/departments/${course.department}/courses/${course.id}`}
-                    sx={{
-                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                      '&:hover': { backgroundColor: '#e0e0e0' },
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      color: 'inherit'
-                    }}
-                  >
-                    <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{index + 1}</TableCell>
-                    <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
-                    {!isMobile && <TableCell sx={{ padding: '10px', textAlign: 'center' }}>{typeof course.distribs === 'string' ? course.distribs.split(',').map(distrib => distrib.trim()).join(', ') : 'N/A'}</TableCell>}
-                    <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                    <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
+          <Card
+            sx={{
+              marginBottom: 4,
+              padding: 4,
+              backgroundColor: '#f9f9f9',
+              color: '#1D1D1F',
+              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+              borderRadius: '12px',
+              maxWidth: 1100,
+              width: '100%', // Ensure the card takes up the full width of the container
+            }}
+          >
+            <TableContainer component={Paper} sx={{ backgroundColor: '#fff', boxShadow: 3 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>#</TableCell>
+                    <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>Course Name</TableCell>
+                    {!isMobile && (
+                      <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>
+                        Distribs
+                      </TableCell>
+                    )}
+                    <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>
+                      Num of Reviews
+                    </TableCell>
+                    <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Layup</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {courses.map((course, index) => (
+                    <TableRow
+                      key={course.id}
+                      component={Link}
+                      to={`/departments/${course.department}/courses/${course.id}`}
+                      sx={{
+                        backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                        '&:hover': { backgroundColor: '#e0e0e0' },
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                      }}
+                    >
+                      <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                        {index + 1}
+                      </TableCell>
+                      <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                        {course.name}
+                      </TableCell>
+                      {!isMobile && (
+                        <TableCell sx={{ padding: '10px', textAlign: 'center' }}>
+                          {typeof course.distribs === 'string'
+                            ? course.distribs.split(',').map((distrib) => distrib.trim()).join(', ')
+                            : 'N/A'}
+                        </TableCell>
+                      )}
+                      <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                        {course.numOfReviews}
+                      </TableCell>
+                      <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                        {course.layup}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Card>
         ) : (
           <Typography>No courses available</Typography>
         )}
       </Container>
 
       <Container maxWidth="lg">
-        <Card sx={{ width: '100%', marginTop: '20px', boxShadow: 3 }}>
+        <Card
+          sx={{
+            width: '100%',
+            maxWidth: 1100,
+            marginTop: '20px',
+            boxShadow: 3,
+            backgroundColor: '#f9f9f9',
+            borderRadius: '12px',
+            padding: 4,
+            color: '#1D1D1F',
+          }}
+        >
           <CardContent>
-            <Typography variant="h5" align='left' gutterBottom color="primary" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
+            <Typography
+              variant="h4"
+              align="left"
+              gutterBottom
+              sx={{
+                fontWeight: 600,
+                marginBottom: '20px',
+                fontFamily: 'SF Pro Display, sans-serif',
+                color: '#571CE0', // Purple color for headings
+              }}
+            >
               Find the Layups by Department
             </Typography>
-            
+
             <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
               <FormControl sx={{ minWidth: 200, '& .MuiInputBase-input': { paddingTop: '10px', paddingBottom: '10px' } }}>
-                <InputLabel id="department-label" sx={{ color: 'primary.main' }} shrink={!!selectedDepartment}>Department</InputLabel>
+                <InputLabel
+                  id="department-label"
+                  sx={{ color: 'primary.main' }}
+                  shrink={!!selectedDepartment}
+                >
+                  Department
+                </InputLabel>
                 <Select
                   labelId="department-label"
                   value={selectedDepartment}
                   label="Department"
                   onChange={handleDepartmentChange}
-                  sx={{ height: '40px', backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', color: 'primary.main' }}
+                  sx={{
+                    height: '40px',
+                    backgroundColor: '#fff',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: 'primary.main',
+                  }}
                   MenuProps={{
                     PaperProps: {
                       style: {
@@ -295,25 +391,37 @@ const LayupsPage = () => {
                     <em>All Departments</em>
                   </MenuItem>
                   {departments.map((department, index) => (
-                    <MenuItem key={index} value={department}>{department}</MenuItem>
+                    <MenuItem key={index} value={department}>
+                      {department}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Box>
 
             {departmentLoading ? (
-              <CircularProgress color="primary" />
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+                <CircularProgress color="primary" />
+              </Box>
             ) : error ? (
-              <Alert severity="error">{error}</Alert>
+              <Alert severity="error" sx={{ marginBottom: '20px' }}>
+                {error}
+              </Alert>
             ) : departmentCourses.length > 0 ? (
               <TableContainer component={Paper} sx={{ backgroundColor: '#fff', boxShadow: 3 }}>
                 <Table>
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>#</TableCell>
-                      <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>Course Name</TableCell>
-                      {!isMobile && <TableCell sx={{ padding: '10px', textAlign: 'center' }}>Distribs</TableCell>}
-                      <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Num of Reviews</TableCell>
+                      <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>
+                        Course Name
+                      </TableCell>
+                      {!isMobile && (
+                        <TableCell sx={{ padding: '10px', textAlign: 'center' }}>Distribs</TableCell>
+                      )}
+                      <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>
+                        Num of Reviews
+                      </TableCell>
                       <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Layup</TableCell>
                     </TableRow>
                   </TableHead>
@@ -328,14 +436,28 @@ const LayupsPage = () => {
                           '&:hover': { backgroundColor: '#e0e0e0' },
                           cursor: 'pointer',
                           textDecoration: 'none',
-                          color: 'inherit'
+                          color: 'inherit',
                         }}
                       >
-                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{index + 1}</TableCell>
-                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
-                        {!isMobile && <TableCell sx={{ padding: '10px', textAlign: 'center' }}>{typeof course.distribs === 'string' ? course.distribs.split(',').map(distrib => distrib.trim()).join(', ') : 'N/A'}</TableCell>}
-                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                          {index + 1}
+                        </TableCell>
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                          {course.name}
+                        </TableCell>
+                        {!isMobile && (
+                          <TableCell sx={{ padding: '10px', textAlign: 'center' }}>
+                            {typeof course.distribs === 'string'
+                              ? course.distribs.split(',').map((distrib) => distrib.trim()).join(', ')
+                              : 'N/A'}
+                          </TableCell>
+                        )}
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                          {course.numOfReviews}
+                        </TableCell>
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                          {course.layup}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -349,21 +471,51 @@ const LayupsPage = () => {
       </Container>
 
       <Container maxWidth="lg">
-        <Card sx={{ width: '100%', marginTop: '20px', boxShadow: 3 }}>
+        <Card
+          sx={{
+            width: '100%',
+            maxWidth: 1100,
+            marginTop: '20px',
+            boxShadow: 3,
+            backgroundColor: '#f9f9f9',
+            borderRadius: '12px',
+            padding: 4,
+            color: '#1D1D1F',
+          }}
+        >
           <CardContent>
-            <Typography variant="h5" align='left' gutterBottom color="primary" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
+            <Typography
+              variant="h4"
+              align="left"
+              gutterBottom
+              sx={{
+                fontWeight: 600,
+                marginBottom: '20px',
+                fontFamily: 'SF Pro Display, sans-serif',
+                color: '#571CE0', // Purple color for headings
+              }}
+            >
               Layups by Distribs
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
               <FormControl sx={{ minWidth: 200, '& .MuiInputBase-input': { paddingTop: '10px', paddingBottom: '10px' } }}>
-                <InputLabel id="distrib-label" sx={{ color: 'primary.main' }} shrink={!!selectedDistrib}>Distrib</InputLabel>
+                <InputLabel id="distrib-label" sx={{ color: 'primary.main' }} shrink={!!selectedDistrib}>
+                  Distrib
+                </InputLabel>
                 <Select
                   labelId="distrib-label"
                   value={selectedDistrib}
                   label="Distrib"
                   onChange={handleDistribChange}
-                  sx={{ height: '40px', backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', color: 'primary.main' }}
+                  sx={{
+                    height: '40px',
+                    backgroundColor: '#fff',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: 'primary.main',
+                  }}
                   MenuProps={{
                     PaperProps: {
                       style: {
@@ -377,25 +529,37 @@ const LayupsPage = () => {
                     <em>All Distribs</em>
                   </MenuItem>
                   {distribs.map((distrib, index) => (
-                    <MenuItem key={index} value={distrib}>{distrib}</MenuItem>
+                    <MenuItem key={index} value={distrib}>
+                      {distrib}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Box>
 
             {distribLoading ? (
-              <CircularProgress color="primary" />
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+                <CircularProgress color="primary" />
+              </Box>
             ) : error ? (
-              <Alert severity="error">{error}</Alert>
+              <Alert severity="error" sx={{ marginBottom: '20px' }}>
+                {error}
+              </Alert>
             ) : distribCourses.length > 0 ? (
               <TableContainer component={Paper} sx={{ backgroundColor: '#fff', boxShadow: 3 }}>
                 <Table>
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>#</TableCell>
-                      <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>Course Name</TableCell>
-                      {!isMobile && <TableCell sx={{ padding: '10px', textAlign: 'center' }}>Distribs</TableCell>}
-                      <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Num of Reviews</TableCell>
+                      <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: 'primary.main' }}>
+                        Course Name
+                      </TableCell>
+                      {!isMobile && (
+                        <TableCell sx={{ padding: '10px', textAlign: 'center' }}>Distribs</TableCell>
+                      )}
+                      <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>
+                        Num of Reviews
+                      </TableCell>
                       <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>Layup</TableCell>
                     </TableRow>
                   </TableHead>
@@ -410,14 +574,28 @@ const LayupsPage = () => {
                           '&:hover': { backgroundColor: '#e0e0e0' },
                           cursor: 'pointer',
                           textDecoration: 'none',
-                          color: 'inherit'
+                          color: 'inherit',
                         }}
                       >
-                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{index + 1}</TableCell>
-                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
-                        {!isMobile && <TableCell sx={{ padding: '10px', textAlign: 'center' }}>{typeof course.distribs === 'string' ? course.distribs.split(',').map(distrib => distrib.trim()).join(', ') : 'N/A'}</TableCell>}
-                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                          {index + 1}
+                        </TableCell>
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                          {course.name}
+                        </TableCell>
+                        {!isMobile && (
+                          <TableCell sx={{ padding: '10px', textAlign: 'center' }}>
+                            {typeof course.distribs === 'string'
+                              ? course.distribs.split(',').map((distrib) => distrib.trim()).join(', ')
+                              : 'N/A'}
+                          </TableCell>
+                        )}
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                          {course.numOfReviews}
+                        </TableCell>
+                        <TableCell sx={{ padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                          {course.layup}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
