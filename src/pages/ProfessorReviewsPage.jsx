@@ -87,7 +87,7 @@ const ProfessorReviewsPage = () => {
           <ListItemText
             primary={
               <>
-                <Typography component="span" sx={{ color: '#571CE0', fontWeight: 'bold', fontSize: '1rem' }}>
+                <Typography component="span" sx={{ color: 'black', fontWeight: 'bold', fontSize: '1rem' }}>
                   {prefix}
                 </Typography>{' '}
                 <Typography component="span" sx={{ color: 'black', fontSize: '0.9rem' }}>
@@ -119,8 +119,22 @@ const ProfessorReviewsPage = () => {
         padding: '20px'
       }}
     >
-      <Container>
-        <Typography variant="h4" gutterBottom>Reviews for {professor} in Class- {courseName}</Typography>
+      <Container maxWidth="lg">
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <Typography 
+            variant="h3" 
+            align='left'
+            sx={{ 
+              fontWeight: 600, 
+              fontFamily: 'SF Pro Display, sans-serif', 
+              color: 'black',  // Black color for headings
+              marginBottom: '0px',
+              marginTop: '20px'
+            }}
+          >
+            Reviews for {professor} in Class - {courseName}
+          </Typography>
+        </Box>
         {loading ? (
           <Typography>Loading...</Typography>
         ) : error ? (
