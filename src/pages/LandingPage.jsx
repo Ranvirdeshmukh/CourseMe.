@@ -17,8 +17,6 @@ const LandingPage = () => (
       textAlign: 'center',
       fontFamily: 'SF Pro Display, sans-serif',
       padding: '0 20px', // Ensure padding for smaller screens
-      position: 'relative',
-      top: '-30px', // Adjust this value to move content upwards
     }}
   >
     <Container
@@ -58,7 +56,7 @@ const LandingPage = () => (
           color: '#E4E2DD', // Slightly softer color for subheading
         }}
       >
-        Every course. Every review. All In One.
+        Every Course. Every Review. Every Major. All In One.
       </Typography>
       <Box component="form" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', gap: 2 }}>
         <TextField
