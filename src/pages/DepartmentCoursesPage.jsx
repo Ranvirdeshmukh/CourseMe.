@@ -64,18 +64,29 @@ const DepartmentCoursesPage = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
-          <Typography variant="h4" align='left' color="primary" sx={{ fontWeight: 'bold' }}>
-            Courses in {departmentMapping[department]?.name || department}
-          </Typography>
-        </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+  <Typography 
+    variant="h3" 
+    align='left'
+    sx={{ 
+      fontWeight: 600, 
+      fontFamily: 'SF Pro Display, sans-serif', 
+      color: '#571CE0',  // Purple color for headings
+      marginBottom: '0px',
+      marginTop: '20px'
+    }}
+  >
+    Courses in {departmentMapping[department]?.name || department}
+  </Typography>
+</Box>
+
 
         {loading ? (
           <CircularProgress color="primary" />
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : courses.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
+          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius:'12px' }}>
             <Table>
               <TableHead>
                 <TableRow>

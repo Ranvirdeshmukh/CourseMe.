@@ -598,6 +598,7 @@ const LayupsPage = () => {
                         </TableCell>
                       </TableRow>
                     ))}
+                    
                   </TableBody>
                 </Table>
               </TableContainer>

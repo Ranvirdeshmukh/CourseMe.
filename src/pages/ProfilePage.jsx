@@ -22,7 +22,7 @@ import {
   Button,
   Grid,
 } from '@mui/material';
-import { Delete, ArrowDropDown, BugReport, Logout, PushPin } from '@mui/icons-material'; // Add PushPin
+import { Delete, ArrowDropDown, BugReport, Logout, PushPin } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
@@ -40,7 +40,7 @@ const ProfilePage = () => {
     replies: [],
     firstName: '',
     lastName: '',
-    pinnedCourses: [], // Add pinnedCourses state
+    pinnedCourses: [],
   });
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -74,7 +74,7 @@ const ProfilePage = () => {
             replies: userData.replies || [],
             firstName: userData.firstName || '',
             lastName: userData.lastName || '',
-            pinnedCourses: userData.pinnedCourses || [], // Add pinnedCourses
+            pinnedCourses: userData.pinnedCourses || [],
           });
         } else {
           setError('Failed to fetch profile data.');
@@ -95,7 +95,7 @@ const ProfilePage = () => {
   };
 
   const handleNavigateToCourseReview = (courseId) => {
-    const department = courseId.split('_')[0]; // Extract department from courseId
+    const department = courseId.split('_')[0];
     navigate(`/departments/${department}/courses/${courseId}`);
   };
 
@@ -262,12 +262,11 @@ const ProfilePage = () => {
         flexDirection: 'column',
         alignItems: 'center',
         backgroundColor: '#E4E2DD',
-        padding: '40px', // Increased padding
+        padding: '40px',
         position: 'relative',
       }}
     >
       <Container maxWidth="lg">
-        {/* Changed to lg for larger container */}
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress color="primary" />
@@ -285,7 +284,7 @@ const ProfilePage = () => {
                 boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                 borderRadius: '12px',
                 maxWidth: 1100,
-                width: '100%', // Ensure the card takes up the full width of the container
+                width: '100%',
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2, justifyContent: 'space-between' }}>
@@ -434,228 +433,250 @@ const ProfilePage = () => {
               </Box>
             </Card>
 
-     <Grid container spacing={4}> {/* Container for both sections */}
-  {/* Fall Course Enrollment Card */}
-  <Grid item xs={12} md={6}>
-    <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
-      <Card
-        sx={{
-          padding: 4,
-          backgroundColor: '#f9f9f9', // Slightly lighter background
-          color: '#333',
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow
-          borderRadius: '12px', // Rounded corners for a modern look
-          width: '100%', // Ensure the card takes up the full width of the grid item
-          maxWidth: 500,
-          minHeight: 200, // Set a minimum height for the card
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Box>
-          <Typography
-            variant="h4" // Larger font size
-            gutterBottom
-            sx={{
-              fontFamily: 'SF Pro Display, sans-serif',
-              fontWeight: 600, // Bold font weight
-              color: '#1D1D1F', // Darker, richer text color
-              textAlign: 'left',
-              marginBottom: 2,
-            }}
-          >
-            Fall 2024 Course Enrollment Priority.
-          </Typography>
-          <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} /> {/* Subtle divider */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
-            <Button
-              variant="contained"
-              onClick={handleNavigateToEnrollmentPriorities}
-              sx={{
-                fontFamily: 'SF Pro Display, sans-serif',
-                fontWeight: 500,
-                borderRadius: '8px', // Rounded button
-                boxShadow: 'none', // Remove button shadow
-                backgroundColor: '#571CEO', // Apple-style blue
-                '&:hover': {
-                  backgroundColor: '#005bb5', // Darker blue on hover
-                },
-                textTransform: 'none', // Disable uppercase transformation
-                paddingX: 3,
-                paddingY: 1,
-              }}
-            >
-              Browse It
-            </Button>
-          </Box>
-        </Box>
-        {/* Disclaimer or Note */}
-        <Typography
-          variant="caption"
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            color: '#8E8E93', // Softer, grey color for note
-            textAlign: 'left',
-            marginTop: 2,
-            display: 'block',
-          }}
-        >
-          * Enrollment priorities change every term and will be updated accordingly.
-        </Typography>
-      </Card>
-    </Box>
-  </Grid>
-
-  {/* My Saved Courses */}
-  <Grid item xs={12} md={6}>
-      <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
-        <Card
-          sx={{
-            padding: 4,
-            backgroundColor: '#f9f9f9',
-            color: '#333',
-            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-            borderRadius: '12px',
-            width: '100%',
-            maxWidth: 500,
-            minHeight: 200,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h4"
-              gutterBottom
-              sx={{
-                fontFamily: 'SF Pro Display, sans-serif',
-                fontWeight: 600,
-                color: '#1D1D1F',
-                textAlign: 'left',
-                marginBottom: 2,
-              }}
-            >
-              My Saved Courses.
-            </Typography>
-            <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
-            <List>
-              {profileData.pinnedCourses.length === 0 ? (
-                <Typography
-                  sx={{
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    color: '#8E8E93',
-                    textAlign: 'left',
-                  }}
-                >
-                  No courses pinned yet.
-                </Typography>
-              ) : (
-                profileData.pinnedCourses.map((courseId, idx) => (
-                  <ListItem 
-                    key={idx} 
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={6}>
+                <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
+                  <Card
                     sx={{
-                      backgroundColor: '#fafafa',
-                      margin: '10px 0',
-                      borderRadius: '8px',
-                      boxShadow: 3,
-                      cursor: 'pointer', // Add a pointer cursor to indicate clickable item
-                      '&:hover': { backgroundColor: '#f0f0f0' }, // Optional hover effect
+                      padding: 4,
+                      backgroundColor: '#f9f9f9',
+                      color: '#333',
+                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                      borderRadius: '12px',
+                      width: '100%',
+                      maxWidth: 500,
+                      minHeight: 200,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
                     }}
-                    onClick={() => handleNavigateToCourseReview(courseId)} // Navigate on click
                   >
-                    <ListItemText
-                      primary={
-                        <>
+                    <Box>
+                      <Typography
+                        variant="h4"
+                        gutterBottom
+                        sx={{
+                          fontFamily: 'SF Pro Display, sans-serif',
+                          fontWeight: 600,
+                          color: '#1D1D1F',
+                          textAlign: 'left',
+                          marginBottom: 2,
+                        }}
+                      >
+                        Fall 2024 Course Enrollment Priority.
+                      </Typography>
+                      <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
+                        <Button
+                          variant="contained"
+                          onClick={handleNavigateToEnrollmentPriorities}
+                          sx={{
+                            fontFamily: 'SF Pro Display, sans-serif',
+                            fontWeight: 500,
+                            borderRadius: '8px',
+                            boxShadow: 'none',
+                            backgroundColor: '#571CEO',
+                            '&:hover': {
+                              backgroundColor: '#005bb5',
+                            },
+                            textTransform: 'none',
+                            paddingX: 3,
+                            paddingY: 1,
+                          }}
+                        >
+                          Browse It
+                        </Button>
+                      </Box>
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        color: '#8E8E93',
+                        textAlign: 'left',
+                        marginTop: 2,
+                        display: 'block',
+                      }}
+                    >
+                      * Enrollment priorities change every term and will be updated accordingly.
+                    </Typography>
+                  </Card>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
+                  <Card
+                    sx={{
+                      padding: 4,
+                      backgroundColor: '#f9f9f9',
+                      color: '#333',
+                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                      borderRadius: '12px',
+                      width: '100%',
+                      maxWidth: 500,
+                      minHeight: 200,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        variant="h4"
+                        gutterBottom
+                        sx={{
+                          fontFamily: 'SF Pro Display, sans-serif',
+                          fontWeight: 600,
+                          color: '#1D1D1F',
+                          textAlign: 'left',
+                          marginBottom: 2,
+                        }}
+                      >
+                        My Saved Courses.
+                      </Typography>
+                      <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
+                      <List>
+                        {profileData.pinnedCourses.length === 0 ? (
                           <Typography
-                            component="span"
                             sx={{
                               fontFamily: 'SF Pro Display, sans-serif',
-                              color: '#571CE0',
-                              fontWeight: 600,
+                              color: '#8E8E93',
+                              textAlign: 'left',
                             }}
                           >
-                            {getShortCourseId(courseId)}
+                            No courses pinned yet.
                           </Typography>
-                        </>
-                      }
-                    />
-                    <IconButton
-                      edge="end"
-                      aria-label="unpin"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent click event from triggering navigation
-                        handleUnpinCourse(courseId);
-                      }}
-                      sx={{ color: '#571CE0' }}
-                    >
-                      <PushPin />
-                    </IconButton>
-                  </ListItem>
-                ))
-              )}
-            </List>
-          </Box>
-        </Card>
-      </Box>
-    </Grid>
-</Grid>
+                        ) : (
+                          profileData.pinnedCourses.map((courseId, idx) => (
+                            <ListItem
+                              key={idx}
+                              sx={{
+                                backgroundColor: '#fafafa',
+                                margin: '10px 0',
+                                borderRadius: '8px',
+                                boxShadow: 3,
+                                cursor: 'pointer',
+                                '&:hover': { backgroundColor: '#f0f0f0' },
+                              }}
+                              onClick={() => handleNavigateToCourseReview(courseId)}
+                            >
+                              <ListItemText
+                                primary={
+                                  <>
+                                    <Typography
+                                      component="span"
+                                      sx={{
+                                        fontFamily: 'SF Pro Display, sans-serif',
+                                        color: '#571CE0',
+                                        fontWeight: 600,
+                                      }}
+                                    >
+                                      {getShortCourseId(courseId)}
+                                    </Typography>
+                                  </>
+                                }
+                              />
+                              <IconButton
+                                edge="end"
+                                aria-label="unpin"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleUnpinCourse(courseId);
+                                }}
+                                sx={{ color: '#571CE0' }}
+                              >
+                                <PushPin />
+                              </IconButton>
+                            </ListItem>
+                          ))
+                        )}
+                      </List>
+                    </Box>
+                  </Card>
+                </Box>
+              </Grid>
+            </Grid>
 
+            <Dialog open={editing} onClose={handleClose} maxWidth="sm" fullWidth>
+  <DialogTitle>
+    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Typography variant="h6" sx={{ textAlign: 'left' }}>Edit Profile</Typography>
+      <Typography
+        variant="body"
+        sx={{
+          fontFamily: 'SF Pro Display, sans-serif',
+          fontWeight: '',
+          textDecoration: 'none',
+          color: '#571CE0',
+          textAlign: 'right',
+        }}
+      >
+        CourseMe.
+      </Typography>
+    </Box>
+  </DialogTitle>
+  <DialogContent>
+    <TextField
+      margin="dense"
+      label="First Name"
+      type="text"
+      fullWidth
+      variant="standard"
+      value={newProfileData.firstName}
+      onChange={(e) => setNewProfileData({ ...newProfileData, firstName: e.target.value })}
+      sx={{ marginBottom: 2 }}
+    />
+    <TextField
+      margin="dense"
+      label="Last Name"
+      type="text"
+      fullWidth
+      variant="standard"
+      value={newProfileData.lastName}
+      onChange={(e) => setNewProfileData({ ...newProfileData, lastName: e.target.value })}
+      sx={{ marginBottom: 2 }}
+    />
+    <TextField
+      margin="dense"
+      label="Major"
+      type="text"
+      fullWidth
+      variant="standard"
+      value={newProfileData.major}
+      onChange={(e) => setNewProfileData({ ...newProfileData, major: e.target.value })}
+      sx={{ marginBottom: 2 }}
+    />
+    <TextField
+      margin="dense"
+      label="Class Year"
+      type="text"
+      fullWidth
+      variant="standard"
+      value={newProfileData.classYear}
+      onChange={(e) => setNewProfileData({ ...newProfileData, classYear: e.target.value })}
+      sx={{ marginBottom: 2 }}
+    />
+    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+      Please ensure all your details are correct.
+    </Typography>
+    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+*Rest assured, your personal information is securely stored and will only be used to enhance your experience.
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleClose} color="secondary">Cancel</Button>
+    <Button onClick={handleSaveProfile} variant="contained" color="primary">Save</Button>
+  </DialogActions>
+</Dialog>
 
-
-            <Dialog open={editing} onClose={handleClose}>
-              <DialogTitle>Edit Profile</DialogTitle>
-              <DialogContent>
-                <TextField
-                  margin="dense"
-                  label="First Name"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  value={newProfileData.firstName}
-                  onChange={(e) => setNewProfileData({ ...newProfileData, firstName: e.target.value })}
-                />
-                <TextField
-                  margin="dense"
-                  label="Last Name"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  value={newProfileData.lastName}
-                  onChange={(e) => setNewProfileData({ ...newProfileData, lastName: e.target.value })}
-                />
-                <TextField
-                  margin="dense"
-                  label="Major"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  value={newProfileData.major}
-                  onChange={(e) => setNewProfileData({ ...newProfileData, major: e.target.value })}
-                />
-                <TextField
-                  margin="dense"
-                  label="Class Year"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  value={newProfileData.classYear}
-                  onChange={(e) => setNewProfileData({ ...newProfileData, classYear: e.target.value })}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleSaveProfile}>Save</Button>
-              </DialogActions>
-            </Dialog>
 
             <Dialog open={bugReportOpen} onClose={handleReportBugClose} maxWidth="sm" fullWidth>
               <DialogTitle>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h6" sx={{ textAlign: 'left' }}>Report a Bug</Typography>
                   <Typography
-                    variant="h8"
+                    variant="body"
                     sx={{
                       fontFamily: 'SF Pro Display, sans-serif',
                       fontWeight: '',
@@ -702,7 +723,7 @@ const ProfilePage = () => {
               </DialogActions>
             </Dialog>
 
-            <Grid container spacing={4}> {/* Increased spacing between columns */}
+            <Grid container spacing={4}>
               <Grid item xs={12} md={6}>
                 <Box
                   sx={{
