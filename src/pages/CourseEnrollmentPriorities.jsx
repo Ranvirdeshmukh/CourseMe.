@@ -13,7 +13,7 @@ import {
   Alert,
   Paper,
   CircularProgress,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -33,7 +33,7 @@ const CourseEnrollmentPriorities = () => {
         if (!courseSnapshot.empty) {
           const coursesList = courseSnapshot.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data()
+            ...doc.data(),
           }));
 
           // Group courses by department
@@ -48,7 +48,7 @@ const CourseEnrollmentPriorities = () => {
 
           const departmentsArray = Object.keys(departmentsMap).map((department) => ({
             name: department,
-            courses: departmentsMap[department]
+            courses: departmentsMap[department],
           }));
 
           setDepartments(departmentsArray);
@@ -74,34 +74,45 @@ const CourseEnrollmentPriorities = () => {
         flexDirection: 'column',
         alignItems: 'center',
         backgroundColor: '#E4E2DD',
-        padding: '40px'
+        padding: '40px', // Consistent padding for all pages
       }}
     >
       <Container maxWidth="lg">
         <Typography
-          variant="h4"
+          variant="h3" // Match variant with LayupsPage for consistency
           gutterBottom
           align="left"
-          color="primary"
-          sx={{ fontWeight: 'bold', mb: 1 }}
+          sx={{
+            fontWeight: 600,
+            marginBottom: '16px', // Improved spacing
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#571CE0', // Consistent heading color
+          }}
         >
           Course Enrollment Priorities for <span style={{ color: 'green' }}>Fall 24</span>
         </Typography>
+
         <Typography
-          variant="subtitle1"
-          gutterBottom
-          align="left"
-          sx={{ mb: 4, color: '#333' }} // Styling for the subtitle
+          variant="body1" // Adjust size for better readability
+          color="textSecondary"
+          sx={{
+            marginBottom: '24px', // Consistent spacing with LayupsPage
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#1D1D1F',
+            lineHeight: 1.5,
+          }}
         >
-          **Please note:** This page is updated every term. The information below pertains to the Fall 2024 term.
+          <strong>**Please note:**</strong> This page is updated every term. The information below pertains to the Fall 2024 term.
         </Typography>
 
         {loading ? (
-          <CircularProgress color="primary" />
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+            <CircularProgress color="primary" />
+          </Box>
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : departments.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
+          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius:'12px' }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -121,7 +132,7 @@ const CourseEnrollmentPriorities = () => {
                       '&:hover': { backgroundColor: '#e0e0e0' },
                       cursor: 'pointer',
                       textDecoration: 'none',
-                      color: 'inherit'
+                      color: 'inherit',
                     }}
                   >
                     <TableCell sx={{ color: 'BLACK', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>

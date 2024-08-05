@@ -64,13 +64,29 @@ const DepartmentCoursesWithPriorities = () => {
     >
       <Container maxWidth="lg">
         <Typography
-          variant="h4"
+          variant="h3"
           gutterBottom
           align="left"
-          color="primary"
-          sx={{ fontWeight: 'bold', mb: 2 }}
+          sx={{
+            fontWeight: 600,
+            marginBottom: '16px',
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#571CE0',
+          }}
         >
           Courses in {decodeURIComponent(department)}
+        </Typography>
+        <Typography
+          variant="body1"
+          color="textSecondary"
+          sx={{
+            marginBottom: '24px',
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#1D1D1F',
+            lineHeight: 1.5,
+          }}
+        >
+          Explore the courses offered under the {decodeURIComponent(department)} department. Ensure you are aware of the enrollment priorities and limits for effective planning.
         </Typography>
 
         {loading ? (
@@ -111,7 +127,7 @@ const DepartmentCoursesWithPriorities = () => {
                           fontFamily: 'SF Pro Display, sans-serif',
                           fontWeight: 600,
                           color: '#1D1D1F',
-                          fontSize: '0.875rem', // Reduced font size
+                          fontSize: '0.875rem',
                         }}
                       >
                         {course['Title of the Class']}
@@ -123,7 +139,7 @@ const DepartmentCoursesWithPriorities = () => {
                           fontFamily: 'SF Pro Display, sans-serif',
                           fontWeight: 600,
                           color: '#1D1D1F',
-                          fontSize: '0.875rem', // Reduced font size
+                          fontSize: '0.875rem',
                         }}
                       >
                         {course['Course Number']}
@@ -135,7 +151,7 @@ const DepartmentCoursesWithPriorities = () => {
                           fontFamily: 'SF Pro Display, sans-serif',
                           fontWeight: 600,
                           color: '#1D1D1F',
-                          fontSize: '0.875rem', // Reduced font size
+                          fontSize: '0.875rem',
                         }}
                       >
                         {course['Enrollment Limit']}
@@ -153,7 +169,7 @@ const DepartmentCoursesWithPriorities = () => {
                                     fontFamily: 'SF Pro Display, sans-serif',
                                     color: '#1D1D1F',
                                     fontWeight: 600,
-                                    fontSize: '0.875rem', // Reduced font size
+                                    fontSize: '0.875rem',
                                   }}
                                 >
                                   {priority.trim()}
