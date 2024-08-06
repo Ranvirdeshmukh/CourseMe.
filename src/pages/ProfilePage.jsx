@@ -612,8 +612,8 @@ const ProfilePage = () => {
           textAlign: 'right',
         }}
       >
-        CourseMe.
-      </Typography>
+        CourseMe<span style={{ color: '#F26655' }}>.</span>
+        </Typography>
     </Box>
   </DialogTitle>
   <DialogContent>
@@ -685,8 +685,8 @@ const ProfilePage = () => {
                       textAlign: 'right',
                     }}
                   >
-                    CourseMe.
-                  </Typography>
+        CourseMe<span style={{ color: '#F26655' }}>.</span>
+        </Typography>
                 </Box>
               </DialogTitle>
               <DialogContent>

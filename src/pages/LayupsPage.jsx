@@ -353,7 +353,7 @@ const LayupsPage = () => {
                 color: '#571CE0', // Purple color for headings
               }}
             >
-              Find the Layups by Department
+            Layups by Department
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>

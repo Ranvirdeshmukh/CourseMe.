@@ -115,7 +115,7 @@ const AllClassesPage = () => {
               marginTop: '20px'
             }}
           >
-            All Departments at <span style={{ color: 'green' }}>Dartmouth</span>
+            All Departments at <span style={{ color: '#349966' }}>Dartmouth</span>
           </Typography>
           <TextField
             variant="outlined"

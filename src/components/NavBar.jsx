@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Toolbar, Button, Typography, Box } from '@mui/material';
+import { AppBar, Toolbar, Button, Box } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/custom.css'; // Import the custom CSS
@@ -19,14 +19,17 @@ const NavBar = () => {
       '/layups',
       '/course-enrollment-priorities',
       '/departments', // Include department-related paths
-      '/course-review' // Add course-review path to apply special styling
+      '/course-review', // Add course-review path to apply special styling
     ];
 
     // Check if the path matches any special pages or starts with a special prefix
-    return specialPages.some(page => path === page || path.startsWith(`${page}/`));
+    return specialPages.some((page) => path === page || path.startsWith(`${page}/`));
   };
 
   const isSpecialPageStyle = isSpecialPage();
+
+  // Determine if the current page is the landing, login, or signup page
+  const isLandingOrAuthPage = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/signup';
 
   return (
     <AppBar
@@ -40,20 +43,14 @@ const NavBar = () => {
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Typography
-          variant="h6"
-          component={Link}
-          to="/"
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontStyle: 'bold',
-            textDecoration: 'none',
-            color: isSpecialPageStyle ? '#571CE0' : 'inherit',
-            cursor: 'pointer',
-          }}
-        >
-          CourseMe.
-        </Typography>
+        {/* Logo display logic */}
+        <Box component={Link} to="/" sx={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+          <img
+            src={isLandingOrAuthPage ? '/2.png' : '/1.png'} // Use 2.png for landing, login, and signup pages
+            alt="Logo"
+            style={{ height: '20px', marginRight: '10px' }} // Decreased height for a smaller image
+          />
+        </Box>
         <Box>
           {currentUser ? (
             <>
