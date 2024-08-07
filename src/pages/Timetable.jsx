@@ -89,7 +89,7 @@ const Timetable = () => {
               marginTop: '20px',
             }}
           >
-            Timetable
+            Timetable.
           </Typography>
           <TextField
             variant="outlined"
