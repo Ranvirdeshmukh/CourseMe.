@@ -44,8 +44,8 @@ const LandingPage = () => (
           mb: '20px', // Margin below the main heading
         }}
       >
-        CourseMe.
-      </Typography>
+        CourseMe<span style={{ color: '#F26655' }}>.</span>
+        </Typography>
       <Typography
         variant="h5"
         gutterBottom

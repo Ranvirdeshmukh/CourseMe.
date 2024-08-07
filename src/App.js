@@ -1,3 +1,4 @@
+// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -12,8 +13,9 @@ import CourseReviewsPage from './pages/CourseReviewsPage';
 import ProfessorReviewsPage from './pages/ProfessorReviewsPage';
 import CompleteProfilePage from './pages/CompleteProfilePage';
 import LayupsPage from './pages/LayupsPage';
-import CourseEnrollmentPrioritiesPage from './pages/CourseEnrollmentPriorities'; 
-import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities'; // Import the department courses with priorities page
+import CourseEnrollmentPrioritiesPage from './pages/CourseEnrollmentPriorities';
+import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities';
+import Timetable from './pages/Timetable'; // Import the Timetable component
 
 const App = () => (
   <AuthProvider>
@@ -31,7 +33,8 @@ const App = () => (
         <Route path="/complete-profile" element={<CompleteProfilePage />} />
         <Route path="/layups" element={<LayupsPage />} />
         <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage />} />
-        <Route path="/course-enrollment-priorities/:department" element={<DepartmentCoursesWithPriorities />} /> {/* Route for department courses with priorities */}
+        <Route path="/course-enrollment-priorities/:department" element={<DepartmentCoursesWithPriorities />} />
+        <Route path="/timetable" element={<Timetable />} /> {/* Add the Timetable route */}
       </Routes>
     </Router>
   </AuthProvider>

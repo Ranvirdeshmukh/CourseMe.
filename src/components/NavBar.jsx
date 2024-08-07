@@ -20,6 +20,7 @@ const NavBar = () => {
       '/course-enrollment-priorities',
       '/departments', // Include department-related paths
       '/course-review', // Add course-review path to apply special styling
+      '/timetable', // Include timetable path to apply special styling
     ];
 
     // Check if the path matches any special pages or starts with a special prefix
@@ -75,6 +76,17 @@ const NavBar = () => {
                 }}
               >
                 Layups
+              </Button>
+              <Button
+                className="navbar-link"
+                component={Link}
+                to="/timetable" // Add Timetable link here
+                sx={{
+                  fontFamily: 'SF Pro Display, sans-serif',
+                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                }}
+              >
+                Timetable
               </Button>
               <Button
                 className="navbar-link"
