@@ -16,6 +16,10 @@ import {
   CircularProgress,
   Alert,
   useMediaQuery,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -25,6 +29,8 @@ const Timetable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [subjects, setSubjects] = useState([]);
   const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
@@ -33,7 +39,8 @@ const Timetable = () => {
         const response = await axios.get('http://localhost:5001/api/courses');
         console.log('Fetched Courses:', response.data);
         setCourses(response.data);
-        setFilteredCourses(response.data);
+        extractSubjects(response.data);
+        applyFilters(response.data, searchTerm, selectedSubject);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching courses:', error);
@@ -43,19 +50,48 @@ const Timetable = () => {
     };
 
     fetchCourses();
-  }, []);
 
-  const handleSearch = (event) => {
-    const term = event.target.value.toLowerCase();
-    setSearchTerm(term);
+    // Polling
+    const intervalId = setInterval(() => {
+      fetchCourses();
+    }, 60000); // Fetch every minute
 
-    const filtered = courses.filter((course) =>
-      course.title.toLowerCase().includes(term) ||
-      course.subj.toLowerCase().includes(term) ||
-      course.instructor.toLowerCase().includes(term)
-    );
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [searchTerm, selectedSubject]);
+
+  const extractSubjects = (courses) => {
+    const subjectsSet = new Set(courses.map((course) => course.subj));
+    setSubjects([...subjectsSet]);
+  };
+
+  const applyFilters = (courses, searchTerm, selectedSubject) => {
+    let filtered = courses;
+
+    if (searchTerm) {
+      filtered = filtered.filter((course) =>
+        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.subj.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (selectedSubject) {
+      filtered = filtered.filter((course) => course.subj === selectedSubject);
+    }
 
     setFilteredCourses(filtered);
+  };
+
+  const handleSearch = (event) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+    applyFilters(courses, term, selectedSubject);
+  };
+
+  const handleSubjectChange = (event) => {
+    const subject = event.target.value;
+    setSelectedSubject(subject);
+    applyFilters(courses, searchTerm, subject);
   };
 
   return (
@@ -69,7 +105,7 @@ const Timetable = () => {
         padding: '20px',
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth="xl">
         <Box
           sx={{
             display: 'flex',
@@ -89,7 +125,7 @@ const Timetable = () => {
               marginTop: '20px',
             }}
           >
-            Timetable.
+            Fall '24 Timetable 
           </Typography>
           <TextField
             variant="outlined"
@@ -124,6 +160,38 @@ const Timetable = () => {
               ),
             }}
           />
+          <FormControl variant="outlined" sx={{ minWidth: 200, marginTop: '25px' }}>
+            <InputLabel>Subject</InputLabel>
+            <Select
+              value={selectedSubject}
+              onChange={handleSubjectChange}
+              label="Subject"
+              sx={{
+                borderRadius: '20px',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#571CE0',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#571CE0',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#571CE0',
+                  },
+                  borderRadius: '20px',
+                },
+              }}
+            >
+              <MenuItem value="">
+                <em>All Subjects</em>
+              </MenuItem>
+              {subjects.map((subject, index) => (
+                <MenuItem key={index} value={subject}>
+                  {subject}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
 
         {loading ? (
@@ -131,19 +199,20 @@ const Timetable = () => {
         ) : error ? (
           <Alert severity="error">Error loading courses: {error.message}</Alert>
         ) : filteredCourses.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius: '12px' }}>
+          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius: '12px', maxWidth: '100%' }}>
             <Table>
-              <TableHead>
+              <TableHead sx={{ backgroundColor: '#571CE0' }}>
                 <TableRow>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Subject</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Number</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Section</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Title</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Period</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Room</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Building</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Instructor</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Enrollment</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Subject</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Number</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Section</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Title</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Period</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Room</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Building</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Instructor</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Enrollment</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Limit</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -158,15 +227,16 @@ const Timetable = () => {
                       color: 'inherit',
                     }}
                   >
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.subj}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.num}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.sec}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.title}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.period}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.room}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.building}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.instructor}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.enrl}/{course.lim}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.enrl}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.lim}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
