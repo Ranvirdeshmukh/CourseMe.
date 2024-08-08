@@ -39,8 +39,8 @@ const Timetable = () => {
         const response = await axios.get('http://localhost:5001/api/courses');
         console.log('Fetched Courses:', response.data);
         setCourses(response.data);
+        setFilteredCourses(response.data); // Initialize with all courses
         extractSubjects(response.data);
-        applyFilters(response.data, searchTerm, selectedSubject);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching courses:', error);
@@ -51,13 +51,17 @@ const Timetable = () => {
 
     fetchCourses();
 
-    // Polling
+    // Polling (if necessary)
     const intervalId = setInterval(() => {
       fetchCourses();
     }, 60000); // Fetch every minute
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
-  }, [searchTerm, selectedSubject]);
+  }, []);
+
+  useEffect(() => {
+    applyFilters(courses, searchTerm, selectedSubject);
+  }, [searchTerm, selectedSubject, courses]);
 
   const extractSubjects = (courses) => {
     const subjectsSet = new Set(courses.map((course) => course.subj));
@@ -85,13 +89,11 @@ const Timetable = () => {
   const handleSearch = (event) => {
     const term = event.target.value;
     setSearchTerm(term);
-    applyFilters(courses, term, selectedSubject);
   };
 
   const handleSubjectChange = (event) => {
     const subject = event.target.value;
     setSelectedSubject(subject);
-    applyFilters(courses, searchTerm, subject);
   };
 
   return (
