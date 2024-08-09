@@ -12,6 +12,7 @@ import CourseReviewsPage from './pages/CourseReviewsPage';
 import ProfessorReviewsPage from './pages/ProfessorReviewsPage'; // Import the new page
 import CompleteProfilePage from './pages/CompleteProfilePage'; // Import the new complete profile page
 import LayupsPage from './pages/LayupsPage'; // Import the new Layups page
+import Transcript from './pages/Transcript';
 
 const App = () => (
   <AuthProvider>
@@ -28,6 +29,7 @@ const App = () => (
         <Route path="/departments/:department/courses/:courseId/professors/:professor" element={<ProfessorReviewsPage />} />
         <Route path="/complete-profile" element={<CompleteProfilePage />} />
         <Route path="/layups" element={<LayupsPage />} /> {/* New route */}
+        <Route path="/transcript" element={<Transcript />} />
       </Routes>
     </Router>
   </AuthProvider>
