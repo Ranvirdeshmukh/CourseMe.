@@ -107,6 +107,33 @@ const Timetable = () => {
         padding: '20px',
       }}
     >
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 80,
+          right: 20,
+          display: 'flex',
+          alignItems: 'center',
+          zIndex: 1000,
+        }}
+      >
+        <Box
+          sx={{
+            width: 10,
+            height: 10,
+            backgroundColor: '#F26655', // Purple color for the dot
+            borderRadius: '50%',
+            marginRight: '8px',
+            animation: 'blinker 1.5s linear infinite',
+            '@keyframes blinker': {
+              '50%': { opacity: 0 },
+            },
+          }}
+        />
+        <Typography variant="body2" sx={{ fontWeight: 'semi-bold', fontFamily: 'SF Pro Display, sans-serif', color: 'black' }}>
+          Fetching Live Courses
+        </Typography>
+      </Box>
       <Container maxWidth="xl">
         <Box
           sx={{
