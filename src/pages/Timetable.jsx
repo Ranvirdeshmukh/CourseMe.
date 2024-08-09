@@ -111,7 +111,7 @@ const Timetable = () => {
         sx={{
           position: 'fixed',
           top: 80,
-          right: 20,
+          right: 35,
           display: 'flex',
           alignItems: 'center',
           zIndex: 1000,
