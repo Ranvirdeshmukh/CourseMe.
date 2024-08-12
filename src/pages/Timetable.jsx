@@ -11,6 +11,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Button,
   TextField,
   InputAdornment,
   CircularProgress,
@@ -20,8 +21,10 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Snackbar,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { useAuth } from '../contexts/AuthContext'; // Assuming you have an Auth context
 
 const Timetable = () => {
   const [courses, setCourses] = useState([]);
@@ -31,6 +34,8 @@ const Timetable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [subjects, setSubjects] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Snackbar
+  const { currentUser } = useAuth();
   const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
@@ -96,6 +101,37 @@ const Timetable = () => {
     setSelectedSubject(subject);
   };
 
+  const handleSubscribe = async (course) => {
+    if (!currentUser) {
+      alert('Please log in to subscribe.');
+      return;
+    }
+  
+    if (course.status.includes('IP')) {  // Check if the course status contains "IP"
+      alert('This course requires instructor permission and cannot be subscribed to for notifications.');
+      return;
+    }
+  
+    try {
+      const response = await axios.post('http://localhost:5001/api/subscribe', {
+        userId: currentUser.uid,
+        courseId: course.crn,
+        email: currentUser.email,
+        courseName: course.title, // Include course name here
+        courseNum: course.num, // Include course number here
+      });
+      alert(response.data.message);
+      setSnackbarOpen(true); // Open the Snackbar on successful subscription
+    } catch (error) {
+      console.error('Error subscribing to notifications:', error);
+      alert('Failed to subscribe.');
+    }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
     <Box
       sx={{
@@ -138,9 +174,11 @@ const Timetable = () => {
         <Box
           sx={{
             display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row', // Adjust layout on mobile
             justifyContent: 'space-between',
             alignItems: 'center',
             width: '100%',
+            gap: '16px', // Gap between items on mobile
           }}
         >
           <Typography
@@ -189,7 +227,7 @@ const Timetable = () => {
               ),
             }}
           />
-          <FormControl variant="outlined" sx={{ minWidth: 200, marginTop: '25px' }}>
+          <FormControl variant="outlined" sx={{ minWidth: isMobile ? '100%' : 200, marginTop: '25px' }}>
             <InputLabel>Subject</InputLabel>
             <Select
               value={selectedSubject}
@@ -224,7 +262,29 @@ const Timetable = () => {
         </Box>
 
         {loading ? (
-          <CircularProgress color="primary" />
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '60vh', // Adjust as needed
+            }}
+          >
+            <CircularProgress color="primary" size={60} />
+            <Typography
+              variant="h6"
+              sx={{
+                marginTop: '20px',
+                fontFamily: 'SF Pro Display, sans-serif',
+                color: 'black',
+                textAlign: 'center',
+                padding: '0 20px', // Padding for better readability on small screens
+              }}
+            >
+              Great things take time—please hold on while we fetch the latest data for you!
+            </Typography>
+          </Box>
         ) : error ? (
           <Alert severity="error">Error loading courses: {error.message}</Alert>
         ) : filteredCourses.length > 0 ? (
@@ -242,6 +302,8 @@ const Timetable = () => {
                   <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Instructor</TableCell>
                   <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Enrollment</TableCell>
                   <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Limit</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Status</TableCell> {/* Added Status column */}
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -266,6 +328,19 @@ const Timetable = () => {
                     <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
                     <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.enrl}</TableCell>
                     <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.lim}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.status}</TableCell> {/* Display the Status here */}
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+                      {/* Conditionally render the button based on the status */}
+                      {course.status.includes('IP') ? (
+                        <Typography variant="body2" color="error">
+                          Not eligible for notifications
+                        </Typography>
+                      ) : (
+                        <Button variant="contained" color="primary" onClick={() => handleSubscribe(course)}>
+                          Notify Me
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -275,6 +350,15 @@ const Timetable = () => {
           <Typography>No courses available</Typography>
         )}
       </Container>
+
+      {/* Snackbar for displaying the success message */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        message="Thank you, you will be notified if someone drops the class."
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Box>
   );
 };

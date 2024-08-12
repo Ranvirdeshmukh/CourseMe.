@@ -3,46 +3,70 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
+const admin = require('firebase-admin');
+
+// Initialize Firebase Admin SDK
+admin.initializeApp({
+  credential: admin.credential.cert(require(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH)),
+});
+
+const db = admin.firestore();
 
 const app = express();
+app.use(express.json()); // To parse JSON bodies
 const PORT = process.env.PORT || 5001;
 
 // Enable CORS
 app.use(cors());
 
-app.get('/api/courses', async (req, res) => {
+// Function to send email notifications
+const sendEmailNotification = async (email, course) => {
+  let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER, // Your email
+      pass: process.env.EMAIL_PASS, // Your email password or app-specific password
+    },
+  });
+
+  let info = await transporter.sendMail({
+    from: '"CourseMe Notifications" <ranvir99927@gmail.com>',
+    to: email,
+    subject: 'Course Availability Alert',
+    text: `A spot has opened up in the course: ${course.title} (${course.subj} ${course.num}). Enrollment: ${course.enrl}/${course.lim}`,
+  });
+
+  console.log('Message sent: %s', info.messageId);
+};
+
+
+// Function to fetch the latest course data from the timetable
+const fetchCourseData = async (courseName, courseNum) => {
   let browser;
   try {
-    // Launch Puppeteer
-    console.log("Launching Puppeteer...");
+    console.log("Launching Puppeteer for course data...");
     browser = await puppeteer.launch({
-      headless: true, // Set to true for headless mode in production
+      headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
     const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(120000);
 
-    // Set navigation timeout to a higher value
-    await page.setDefaultNavigationTimeout(120000); // Increased to 120 seconds
-
-    // Navigate to the timetable main page
-    console.log("Navigating to timetable main page...");
+    console.log("Navigating to timetable page...");
     await page.goto('https://oracle-www.dartmouth.edu/dart/groucho/timetable.main', { waitUntil: 'domcontentloaded' });
 
-    // Click the "Subject Area(s)" button
     console.log("Clicking 'Subject Area(s)' button...");
     await page.waitForSelector('input[value="Subject Area(s)"]', { visible: true, timeout: 30000 });
     await page.click('input[value="Subject Area(s)"]');
 
-    // Wait for the page to load completely
-    console.log("Waiting for navigation to complete...");
+    console.log("Waiting for navigation...");
     await page.waitForSelector('input[value="202409"]', { visible: true, timeout: 60000 });
 
-    // Select "Fall Term 2024"
     console.log("Selecting 'Fall Term 2024'...");
     await page.click('input[value="202409"]');
 
-    // Select All Subjects
     console.log("Selecting 'All Subjects'...");
     await page.evaluate(() => {
       const allSubjectsInput = document.querySelector('input[value="All"]');
@@ -53,18 +77,16 @@ app.get('/api/courses', async (req, res) => {
       }
     });
 
-    // Select All Periods
     console.log("Selecting 'All Periods'...");
     await page.evaluate(() => {
       const allPeriodsInput = document.querySelectorAll('input[value="All"]');
       if (allPeriodsInput[1]) {
-        allPeriodsInput[1].click(); // Ensure correct 'All' input for periods
+        allPeriodsInput[1].click();
       } else {
         console.error("All Periods input not found.");
       }
     });
 
-    // Select Course, Term, Time
     console.log("Selecting 'Course, Term, Time' sort order...");
     await page.evaluate(() => {
       const sortOrderInput = document.querySelector('input[value="C"]');
@@ -75,7 +97,6 @@ app.get('/api/courses', async (req, res) => {
       }
     });
 
-    // Click Search for Courses
     console.log("Clicking 'Search for Courses' button...");
     await page.evaluate(() => {
       const searchButton = document.querySelector('input[type="submit"][value="Search for Courses"]');
@@ -86,38 +107,136 @@ app.get('/api/courses', async (req, res) => {
       }
     });
 
-    // Custom wait function using setTimeout
-    const waitForTimeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-    // Wait an additional time after clicking the search button
-    console.log("Waiting an additional 5 seconds for page to load...");
-    await waitForTimeout(5000);
-
-    // Adjust the selector to match the HTML content more accurately
-    console.log("Waiting for results page...");
+    console.log("Waiting for results...");
     await page.waitForSelector('table tbody tr', { visible: true, timeout: 120000 });
 
-    // Capture content after navigation
     console.log("Capturing page content...");
     const content = await page.content();
     const $ = cheerio.load(content);
 
-    // Check for expected table structure
+    console.log("Extracting specific course data...");
+    let courseData;
+    $('table tbody tr').each((index, element) => {
+      const courseDataColumns = $(element).find('td');
+
+      if (courseDataColumns.eq(3).text().trim() === courseNum && courseDataColumns.eq(2).text().trim() === courseName.split(' ')[0]) {
+        courseData = {
+          term: courseDataColumns.eq(0).text().trim(),
+          crn: courseDataColumns.eq(1).text().trim(),
+          subj: courseDataColumns.eq(2).text().trim(),
+          num: courseDataColumns.eq(3).text().trim(),
+          sec: courseDataColumns.eq(4).text().trim(),
+          title: courseDataColumns.eq(5).text().trim(),
+          enrl: parseInt(courseDataColumns.eq(17).text().trim(), 10),
+          lim: parseInt(courseDataColumns.eq(16).text().trim(), 10),
+        };
+      }
+    });
+
+    console.log("Closing browser...");
+    await browser.close();
+
+    return courseData;
+  } catch (error) {
+    console.error('Error fetching course data:', error);
+    if (browser) {
+      await browser.close();
+    }
+    return null;
+  }
+};
+
+// Endpoint to fetch course data
+app.get('/api/courses', async (req, res) => {
+  let browser;
+  try {
+    console.log("Launching Puppeteer...");
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+
+    const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(120000);
+
+    console.log("Navigating to timetable main page...");
+    await page.goto('https://oracle-www.dartmouth.edu/dart/groucho/timetable.main', { waitUntil: 'domcontentloaded' });
+
+    console.log("Clicking 'Subject Area(s)' button...");
+    await page.waitForSelector('input[value="Subject Area(s)"]', { visible: true, timeout: 30000 });
+    await page.click('input[value="Subject Area(s)"]');
+
+    console.log("Waiting for navigation to complete...");
+    await page.waitForSelector('input[value="202409"]', { visible: true, timeout: 60000 });
+
+    console.log("Selecting 'Fall Term 2024'...");
+    await page.click('input[value="202409"]');
+
+    console.log("Selecting 'All Subjects'...");
+    await page.evaluate(() => {
+      const allSubjectsInput = document.querySelector('input[value="All"]');
+      if (allSubjectsInput) {
+        allSubjectsInput.click();
+      } else {
+        console.error("All Subjects input not found.");
+      }
+    });
+
+    console.log("Selecting 'All Periods'...");
+    await page.evaluate(() => {
+      const allPeriodsInput = document.querySelectorAll('input[value="All"]');
+      if (allPeriodsInput[1]) {
+        allPeriodsInput[1].click();
+      } else {
+        console.error("All Periods input not found.");
+      }
+    });
+
+    console.log("Selecting 'Course, Term, Time' sort order...");
+    await page.evaluate(() => {
+      const sortOrderInput = document.querySelector('input[value="C"]');
+      if (sortOrderInput) {
+        sortOrderInput.click();
+      } else {
+        console.error("Sort Order input not found.");
+      }
+    });
+
+    console.log("Clicking 'Search for Courses' button...");
+    await page.evaluate(() => {
+      const searchButton = document.querySelector('input[type="submit"][value="Search for Courses"]');
+      if (searchButton) {
+        searchButton.click();
+      } else {
+        console.error("Search for Courses button not found.");
+      }
+    });
+
+    const waitForTimeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    console.log("Waiting an additional 5 seconds for page to load...");
+    await waitForTimeout(5000);
+
+    console.log("Waiting for results page...");
+    await page.waitForSelector('table tbody tr', { visible: true, timeout: 120000 });
+
+    console.log("Capturing page content...");
+    const content = await page.content();
+    const $ = cheerio.load(content);
+
     console.log("Checking for courses table...");
     const courses = [];
     let startExtracting = false;
 
-    // Skip the rows containing paragraph guidelines and fetch only course data rows
     $('table tbody tr').each((index, element) => {
       const courseDataColumns = $(element).find('td');
       const firstColumnText = courseDataColumns.eq(0).text().trim().toLowerCase();
       
       if (firstColumnText.includes("periods: all")) {
         startExtracting = true;
-        return; // Skip this row and start extracting from the next one
+        return;
       }
       
-      if (startExtracting && courseDataColumns.length > 1) { // Ensure it's a row with course data
+      if (startExtracting && courseDataColumns.length > 1) { 
         const course = {
           term: courseDataColumns.eq(0).text().trim(),
           crn: courseDataColumns.eq(1).text().trim(),
@@ -137,11 +256,13 @@ app.get('/api/courses', async (req, res) => {
           langReq: courseDataColumns.eq(15).text().trim(),
           lim: courseDataColumns.eq(16).text().trim(),
           enrl: courseDataColumns.eq(17).text().trim(),
+          status: courseDataColumns.eq(18).text().trim(),
         };
-
-        if (course.crn && course.title) {
+      
+      if (course.crn && course.title) {
           courses.push(course);
-        }
+      }
+      
       }
     });
 
@@ -164,6 +285,118 @@ app.get('/api/courses', async (req, res) => {
   }
 });
 
+
+// Endpoint to subscribe to notifications
+app.post('/api/subscribe', async (req, res) => {
+  const { userId, courseId, email, courseName, courseNum } = req.body;
+
+  try {
+    const notificationDoc = db.collection('notifications').doc(`${userId}_${courseId}`);
+    await notificationDoc.set({ userId, courseId, email, courseName, courseNum });
+
+    res.status(200).json({ message: 'Subscribed successfully' });
+  } catch (error) {
+    console.error('Error subscribing to notifications:', error);
+    res.status(500).json({ error: 'Failed to subscribe' });
+  }
+});
+
+// Function to check course enrollment and send notifications
+const checkCourseEnrollment = async () => {
+  try {
+    const subscriptionsSnapshot = await db.collection('notifications').get();
+
+    subscriptionsSnapshot.forEach(async (doc) => {
+      const { email, courseName, courseNum } = doc.data();
+
+      // Fetch the latest course data
+      const courseData = await fetchCourseData(courseName, courseNum);
+
+      // Check if a spot has opened up
+      if (courseData && courseData.enrl < courseData.lim) {
+        // Send notification
+        await sendEmailNotification(email, {
+          title: courseName,
+          subj: courseName.split(' ')[0],
+          num: courseNum,
+          enrl: courseData.enrl,
+          lim: courseData.lim,
+        });
+
+        // Optionally, delete the subscription after notifying
+        await db.collection('notifications').doc(doc.id).delete();
+      }
+    });
+  } catch (error) {
+    console.error('Error checking course enrollment:', error);
+  }
+};
+
+// Schedule this function to run periodically (e.g., every 5 minutes)
+setInterval(checkCourseEnrollment, 300000); // 300000ms = 5 minutes
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// testing code for the email.
+
+// Test function to send a test email
+// const testEmailSending = async () => {
+//   try {
+//     // Create a dummy course data
+//     const dummyCourse = {
+//       title: "Dummy Course",
+//       subj: "TEST",
+//       num: "101",
+//       enrl: 10,
+//       lim: 20,
+//     };
+
+//     const email = "ranvir99927@gmail.com"; // Replace with your test email
+
+//     console.log("Testing email sending...");
+
+//     // Send a test email
+//     await sendEmailNotification(email, dummyCourse);
+
+//     console.log("Test email sent successfully.");
+//   } catch (error) {
+//     console.error('Error testing email sending:', error);
+//   }
+// };
+// const sendEmailNotification = async (email, course) => {
+//   let transporter = nodemailer.createTransport({
+//     host: 'sandbox.smtp.mailtrap.io', // Mailtrap host
+//     port: 2525, // Mailtrap port
+//     auth: {
+//       user: '8d6be809211f2', // Your Mailtrap username
+//       pass: 'your_mailtrap_password' // Your Mailtrap password
+//     }
+//   });
+
+//   let info = await transporter.sendMail({
+//     from: '"CourseMe Notifications" <no-reply@example.com>',
+//     to: email,
+//     subject: 'Course Availability Alert',
+//     text: `A spot has opened up in the course: ${course.title} (${course.subj} ${course.num}). Enrollment: ${course.enrl}/${course.lim}`,
+//   });
+
+//   console.log('Message sent: %s', info.messageId);
+// };
+
+
