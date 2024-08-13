@@ -793,17 +793,12 @@ const ProfilePage = () => {
                     <Typography>You haven't subscribed to any courses yet.</Typography>
                   ) : (
                     <List>
-                    {subscribedCourses.length === 0 ? (
-                      <Typography>You haven't subscribed to any courses yet.</Typography>
-                    ) : (
-                      subscribedCourses.map((course, index) => (
+                      {subscribedCourses.map((course, index) => (
                         <ListItem key={index}>
                           <ListItemText primary={`Course: ${course.courseName}, Email: ${course.email}`} />
                         </ListItem>
-                      ))
-                    )}
-                  </List>
-                  
+                      ))}
+                    </List>
                   )}
                 </Card>
               </Grid>
@@ -811,6 +806,131 @@ const ProfilePage = () => {
           </>
         )}
       </Container>
+
+      <Dialog open={editing} onClose={handleClose} maxWidth="sm" fullWidth>
+  <DialogTitle>
+    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Typography variant="h6" sx={{ textAlign: 'left' }}>Edit Profile</Typography>
+      <Typography
+        variant="body"
+        sx={{
+          fontFamily: 'SF Pro Display, sans-serif',
+          fontWeight: '',
+          textDecoration: 'none',
+          color: '#571CE0',
+          textAlign: 'right',
+        }}
+      >
+        CourseMe<span style={{ color: '#F26655' }}>.</span>
+        </Typography>
+    </Box>
+  </DialogTitle>
+  <DialogContent>
+    <TextField
+      margin="dense"
+      label="First Name"
+      type="text"
+      fullWidth
+      variant="standard"
+      value={newProfileData.firstName}
+      onChange={(e) => setNewProfileData({ ...newProfileData, firstName: e.target.value })}
+      sx={{ marginBottom: 2 }}
+    />
+    <TextField
+      margin="dense"
+      label="Last Name"
+      type="text"
+      fullWidth
+      variant="standard"
+      value={newProfileData.lastName}
+      onChange={(e) => setNewProfileData({ ...newProfileData, lastName: e.target.value })}
+      sx={{ marginBottom: 2 }}
+    />
+    <TextField
+      margin="dense"
+      label="Major"
+      type="text"
+      fullWidth
+      variant="standard"
+      value={newProfileData.major}
+      onChange={(e) => setNewProfileData({ ...newProfileData, major: e.target.value })}
+      sx={{ marginBottom: 2 }}
+    />
+    <TextField
+      margin="dense"
+      label="Class Year"
+      type="text"
+      fullWidth
+      variant="standard"
+      value={newProfileData.classYear}
+      onChange={(e) => setNewProfileData({ ...newProfileData, classYear: e.target.value })}
+      sx={{ marginBottom: 2 }}
+    />
+    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+      Please ensure all your details are correct.
+    </Typography>
+    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+*Rest assured, your personal information is securely stored and will only be used to enhance your experience.
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleClose} color="secondary">Cancel</Button>
+    <Button onClick={handleSaveProfile} variant="contained" color="primary">Save</Button>
+  </DialogActions>
+</Dialog>
+
+      <Dialog open={bugReportOpen} onClose={handleReportBugClose} maxWidth="sm" fullWidth>
+              <DialogTitle>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="h6" sx={{ textAlign: 'left' }}>Report a Bug</Typography>
+                  <Typography
+                    variant="body"
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontWeight: '',
+                      textDecoration: 'none',
+                      color: '#571CE0',
+                      textAlign: 'right',
+                    }}
+                  >
+        CourseMe<span style={{ color: '#F26655' }}>.</span>
+        </Typography>
+                </Box>
+              </DialogTitle>
+              <DialogContent>
+                {bugReportError && <Alert severity="error">{bugReportError}</Alert>}
+                <TextField
+                  margin="dense"
+                  label="Page"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  value={bugPage}
+                  onChange={(e) => setBugPage(e.target.value)}
+                  sx={{ marginBottom: 2 }}
+                />
+                <TextField
+                  margin="dense"
+                  label="Description"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  value={bugDescription}
+                  onChange={(e) => setBugDescription(e.target.value)}
+                  multiline
+                  rows={4}
+                  sx={{ marginBottom: 2 }}
+                />
+                <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+                  Enhance your experience by reporting a bug. We will fix it ASAP.
+                </Typography>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleReportBugClose} color="secondary">Cancel</Button>
+                <Button onClick={handleReportBugSubmit} variant="contained" color="primary">Submit</Button>
+              </DialogActions>
+            </Dialog>
+
       <Footer />
     </Box>
   );
