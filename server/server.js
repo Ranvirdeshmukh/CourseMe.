@@ -8,8 +8,9 @@ const admin = require('firebase-admin');
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
-  credential: admin.credential.cert(require(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH)),
+  credential: admin.credential.cert(require('../data/coursereview-98a89-firebase-adminsdk-2yc5i-4e4fe9712d.json')),
 });
+
 
 const db = admin.firestore();
 
@@ -337,7 +338,6 @@ setInterval(checkCourseEnrollment, 300000); // 300000ms = 5 minutes
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-
 });
 
 
