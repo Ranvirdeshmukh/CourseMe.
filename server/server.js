@@ -1,4 +1,6 @@
 require('dotenv').config();
+console.log('Service Account Path:', process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH);
+const path = require('path');
 const express = require('express');
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
@@ -7,10 +9,12 @@ const nodemailer = require('nodemailer');
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin SDK
-admin.initializeApp({
-  credential: admin.credential.cert(require('../data/coursereview-98a89-firebase-adminsdk-2yc5i-4e4fe9712d.json')),
-});
 
+const serviceAccountPath = path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH);
+
+admin.initializeApp({
+  credential: admin.credential.cert(require(serviceAccountPath)),
+});
 
 const db = admin.firestore();
 
