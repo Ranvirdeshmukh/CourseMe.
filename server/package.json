@@ -1,0 +1,22 @@
+{
+    "name": "ai-course-review-1",
+    "version": "1.0.0",
+    "description": "AI-powered course review system",
+    "main": "server/server.js",
+    "scripts": {
+      "start": "node server/server.js"
+    },
+    "dependencies": {
+      "express": "^4.17.1",
+      "puppeteer": "^19.0.0",
+      "cheerio": "^1.0.0-rc.10",
+      "cors": "^2.8.5",
+      "nodemailer": "^6.6.3",
+      "firebase-admin": "^11.0.0",
+      "dotenv": "^10.0.0"
+    },
+    "devDependencies": {},
+    "author": "Your Name",
+    "license": "ISC"
+  }
+  

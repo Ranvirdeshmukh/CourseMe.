@@ -11,7 +11,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-async function swapFields() {
+async function deleteDescriptionField() {
   const coursesRef = db.collection('courses');
   const snapshot = await coursesRef.get();
 
@@ -22,22 +22,19 @@ async function swapFields() {
 
   for (const doc of snapshot.docs) {
     const data = doc.data();
-    const distribs = data.distribs;
-    const quality = data.quality;
 
-    if (distribs !== undefined && quality !== undefined) {
+    if (data.hasOwnProperty('description')) {
       await doc.ref.update({
-        distribs: quality,
-        quality: distribs,
+        description: admin.firestore.FieldValue.delete(), // This deletes the field
       });
 
-      console.log(`Swapped fields for document ID: ${doc.id}`);
+      console.log(`Deleted 'description' field for document ID: ${doc.id}`);
     } else {
-      console.log(`Fields missing in document ID: ${doc.id}`);
+      console.log(`No 'description' field in document ID: ${doc.id}`);
     }
   }
 
-  console.log('Field swap complete.');
+  console.log('Description field deletion complete.');
 }
 
-swapFields().catch(console.error);
+deleteDescriptionField().catch(console.error);

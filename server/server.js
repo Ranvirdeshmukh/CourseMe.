@@ -1,5 +1,4 @@
 require('dotenv').config();
-console.log('Service Account Path:', process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH);
 const path = require('path');
 const express = require('express');
 const puppeteer = require('puppeteer');
@@ -7,44 +6,58 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const admin = require('firebase-admin');
+const NodeCache = require('node-cache');
 
 // Initialize Firebase Admin SDK
-
 const serviceAccountPath = path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH);
 
-admin.initializeApp({
-  credential: admin.credential.cert(require(serviceAccountPath)),
-});
+try {
+  admin.initializeApp({
+    credential: admin.credential.cert(require(serviceAccountPath)),
+  });
+} catch (error) {
+  console.error('Error initializing Firebase Admin SDK:', error);
+  process.exit(1); // Exit the process with a failure code
+}
 
 const db = admin.firestore();
-
 const app = express();
-app.use(express.json()); // To parse JSON bodies
+app.use(express.json());
 const PORT = process.env.PORT || 5001;
 
 // Enable CORS
 app.use(cors());
 
+// Initialize Cache
+const cache = new NodeCache({ stdTTL: 3600 }); // Cache TTL (time-to-live) set to 1 hour
+
+app.get('/', (req, res) => {
+  res.send('CourseMe API is running.');
+});
+
 // Function to send email notifications
 const sendEmailNotification = async (email, course) => {
-  let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER, // Your email
-      pass: process.env.EMAIL_PASS, // Your email password or app-specific password
-    },
-  });
+  try {
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-  let info = await transporter.sendMail({
-    from: '"CourseMe Notifications" <ranvir99927@gmail.com>',
-    to: email,
-    subject: 'Course Availability Alert',
-    text: `A spot has opened up in the course: ${course.title} (${course.subj} ${course.num}). Enrollment: ${course.enrl}/${course.lim}`,
-  });
+    let info = await transporter.sendMail({
+      from: '"CourseMe Notifications" <no-reply@example.com>',
+      to: email,
+      subject: 'Course Availability Alert',
+      text: `A spot has opened up in the course: ${course.title} (${course.subj} ${course.num}). Enrollment: ${course.enrl}/${course.lim}`,
+    });
 
-  console.log('Message sent: %s', info.messageId);
+    console.log('Message sent: %s', info.messageId);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
 };
-
 
 // Function to fetch the latest course data from the timetable
 const fetchCourseData = async (courseName, courseNum) => {
@@ -77,8 +90,6 @@ const fetchCourseData = async (courseName, courseNum) => {
       const allSubjectsInput = document.querySelector('input[value="All"]');
       if (allSubjectsInput) {
         allSubjectsInput.click();
-      } else {
-        console.error("All Subjects input not found.");
       }
     });
 
@@ -87,8 +98,6 @@ const fetchCourseData = async (courseName, courseNum) => {
       const allPeriodsInput = document.querySelectorAll('input[value="All"]');
       if (allPeriodsInput[1]) {
         allPeriodsInput[1].click();
-      } else {
-        console.error("All Periods input not found.");
       }
     });
 
@@ -97,8 +106,6 @@ const fetchCourseData = async (courseName, courseNum) => {
       const sortOrderInput = document.querySelector('input[value="C"]');
       if (sortOrderInput) {
         sortOrderInput.click();
-      } else {
-        console.error("Sort Order input not found.");
       }
     });
 
@@ -107,8 +114,6 @@ const fetchCourseData = async (courseName, courseNum) => {
       const searchButton = document.querySelector('input[type="submit"][value="Search for Courses"]');
       if (searchButton) {
         searchButton.click();
-      } else {
-        console.error("Search for Courses button not found.");
       }
     });
 
@@ -153,8 +158,26 @@ const fetchCourseData = async (courseName, courseNum) => {
 
 // Endpoint to fetch course data
 app.get('/api/courses', async (req, res) => {
-  let browser;
+  const cacheKey = 'courses_data';
+  const cachedCourses = cache.get(cacheKey);
+
+  if (cachedCourses) {
+    console.log("Serving data from cache...");
+    res.json(cachedCourses);
+
+    // Fetch fresh data in the background
+    fetchCourseDataAndUpdateCache();
+  } else {
+    console.log("Fetching data for the first time...");
+    const courses = await fetchCourseDataAndUpdateCache();
+    res.json(courses);
+  }
+});
+
+// Function to fetch course data and update cache
+const fetchCourseDataAndUpdateCache = async () => {
   try {
+    let browser;
     console.log("Launching Puppeteer...");
     browser = await puppeteer.launch({
       headless: true,
@@ -274,22 +297,19 @@ app.get('/api/courses', async (req, res) => {
     console.log("Closing browser...");
     await browser.close();
 
-    if (courses.length === 0) {
+    if (courses.length > 0) {
+      console.log("Updating cache with fresh data...");
+      cache.set('courses_data', courses);
+    } else {
       console.warn('No courses found.');
     }
 
-    console.log("Sending response...");
-    res.json(courses);
+    return courses;
   } catch (error) {
     console.error('Error fetching course data:', error);
-    res.status(500).json({ error: 'Failed to fetch course data' });
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
+    return cache.get('courses_data'); // Fall back to cached data if error occurs
   }
-});
-
+};
 
 // Endpoint to subscribe to notifications
 app.post('/api/subscribe', async (req, res) => {
@@ -343,12 +363,6 @@ setInterval(checkCourseEnrollment, 300000); // 300000ms = 5 minutes
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-
-
-
-
-
 
 
 
