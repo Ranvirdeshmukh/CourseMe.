@@ -213,10 +213,58 @@ class CourseAnalysisAI:
         else:
             return f"No data found for {teacher_name} teaching {course_name}"
 
+
+    def get_easiest_hardest_professor(self, course_name, difficulty_type='easiest'):
+        matched_course = self.find_matching_course(course_name)
+        if not matched_course or matched_course not in self.course_data:
+            return f"No data found for course: {course_name}"
+
+        teacher_difficulties = []
+        for teacher, reviews in self.course_data[matched_course].items():
+            analysis = self.analyze_reviews(reviews)
+            if analysis:
+                teacher_difficulties.append((teacher, analysis['difficulty_score']))
+
+        if not teacher_difficulties:
+            return f"No teacher data found for course: {matched_course}"
+
+        teacher_difficulties.sort(key=lambda x: x[1], reverse=(difficulty_type == 'hardest'))
+        easiest_or_hardest = teacher_difficulties[0]
+
+        difficulty_word = "easiest" if difficulty_type == 'easiest' else "hardest"
+        return f"The {difficulty_word} professor for {matched_course} is {easiest_or_hardest[0]} " \
+               f"with a difficulty score of {easiest_or_hardest[1]:.2f}"
+
+    def compare_professors(self, course_name, professor1, professor2):
+        matched_course = self.find_matching_course(course_name)
+        if not matched_course or matched_course not in self.course_data:
+            return f"No data found for course: {course_name}"
+
+        prof1_data = self.get_course_teacher_difficulty(matched_course, professor1)
+        prof2_data = self.get_course_teacher_difficulty(matched_course, professor2)
+
+        if "No data found" in prof1_data or "No data found" in prof2_data:
+            return f"Insufficient data to compare {professor1} and {professor2} for {matched_course}"
+
+        prof1_score = float(re.search(r"Difficulty: .* \(Score: ([-\d.]+)\)", prof1_data).group(1))
+        prof2_score = float(re.search(r"Difficulty: .* \(Score: ([-\d.]+)\)", prof2_data).group(1))
+
+        if prof1_score < prof2_score:
+            recommendation = f"{professor1} might be easier"
+        elif prof2_score < prof1_score:
+            recommendation = f"{professor2} might be easier"
+        else:
+            recommendation = "Both professors seem to have similar difficulty levels"
+
+        return f"Comparison for {matched_course}:\n" \
+               f"{professor1}'s difficulty score: {prof1_score:.2f}\n" \
+               f"{professor2}'s difficulty score: {prof2_score:.2f}\n" \
+               f"Recommendation: {recommendation}"
+
     def answer_question(self, question):
         question = question.lower()
         
-        # Define synonyms and phrases for difficulty
+        # Existing difficulty phrases
         difficulty_phrases = [
             "how difficult", "how hard", "how challenging", "how tough",
             "is it difficult", "is it hard", "is it challenging", "is it tough",
@@ -224,7 +272,23 @@ class CourseAnalysisAI:
             "easy or hard", "easy or difficult"
         ]
         
-        # Check for difficulty-related questions
+        # Updated patterns for easiest/hardest professor and professor comparison
+        easiest_hardest_pattern = r"who is the (easiest|hardest) professor for (.+)"
+        compare_professors_pattern = r"(.+) and (.+) are teaching (.+)(?:this term)?.*who should i take"
+        
+        # Check for easiest/hardest professor question
+        match = re.match(easiest_hardest_pattern, question)
+        if match:
+            difficulty_type, course = match.groups()
+            return self.get_easiest_hardest_professor(course, difficulty_type)
+        
+        # Check for professor comparison question
+        match = re.match(compare_professors_pattern, question, re.IGNORECASE)
+        if match:
+            prof1, prof2, course = match.groups()
+            return self.compare_professors(course.strip(), prof1.strip().title(), prof2.strip().title())
+        
+        # Existing logic for difficulty-related questions
         if any(phrase in question for phrase in difficulty_phrases):
             parts = re.split(r'\b(?:is|with|for)\b', question, maxsplit=1)
             if len(parts) == 2:
@@ -247,11 +311,9 @@ class CourseAnalysisAI:
             else:
                 return "I'm sorry, I couldn't understand your question. Please specify a course, teacher, or both."
         
-        # Handle listing courses
+        # Existing logic for listing courses and teachers
         elif any(phrase in question for phrase in ["list courses", "show courses", "what courses", "available courses"]):
             return "Available courses:\n" + "\n".join(sorted(self.course_data.keys()))
-        
-        # Handle listing teachers
         elif any(phrase in question for phrase in ["list teachers", "show teachers", "what teachers", "available teachers"]):
             teachers = set()
             for course_teachers in self.course_data.values():
@@ -259,15 +321,19 @@ class CourseAnalysisAI:
             return "Available teachers:\n" + "\n".join(sorted(teachers))
         
         else:
-            return "I'm sorry, I couldn't understand your question. You can ask about the difficulty of a course or teacher, or ask to list courses or teachers. For example:\n" \
+            return "I'm sorry, I couldn't understand your question. You can ask about the difficulty of a course or teacher, " \
+                   "the easiest/hardest professor for a course, compare professors, or ask to list courses or teachers. For example:\n" \
                    "- How difficult is COSC 101?\n" \
                    "- Is Physics 201 hard?\n" \
                    "- How challenging is Professor Smith?\n" \
                    "- What's the difficulty of Math 301 with Dr. Johnson?\n" \
+                   "- Who is the easiest professor for Chemistry 202?\n" \
+                   "- Dr. Brown and Prof. White are teaching Biology 101 this term, who should I take?\n" \
                    "- List available courses\n" \
                    "- Show me the teachers"
-
-# Usage example
+        
+        
+# Usage example remains the same
 ai = CourseAnalysisAI()
 ai.load_data()
 
