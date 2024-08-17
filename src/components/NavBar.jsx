@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Toolbar, Button, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/custom.css'; // Import the custom CSS
@@ -39,7 +39,7 @@ const NavBar = () => {
       sx={{
         background: isSpecialPageStyle
           ? '#E4E2DD' // Match the background color for special pages
-          : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
+          : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)', // Original background gradient
         boxShadow: 'none',
       }}
     >
@@ -55,63 +55,83 @@ const NavBar = () => {
         <Box>
           {currentUser ? (
             <>
-              <Button
-                className="navbar-link"
+              <Typography
                 component={Link}
                 to="/classes"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
                   color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  textTransform: 'none',
+                  textDecoration: 'none',
+                  margin: '0 10px',
+                  fontWeight: 500,
+                  fontSize: '1rem',
                 }}
               >
                 All Classes
-              </Button>
-              <Button
-                className="navbar-link"
+              </Typography>
+              <Typography
                 component={Link}
                 to="/layups"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
                   color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  textTransform: 'none',
+                  textDecoration: 'none',
+                  margin: '0 10px',
+                  fontWeight: 500,
+                  fontSize: '1rem',
                 }}
               >
                 Layups
-              </Button>
-              <Button
-                className="navbar-link"
+              </Typography>
+              <Typography
                 component={Link}
-                to="/timetable" // Add Timetable link here
+                to="/timetable"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
                   color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  textTransform: 'none',
+                  textDecoration: 'none',
+                  margin: '0 10px',
+                  fontWeight: 500,
+                  fontSize: '1rem',
                 }}
               >
                 Timetable
-              </Button>
-              <Button
-                className="navbar-link"
+              </Typography>
+              <Typography
                 component={Link}
                 to="/profile"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
                   color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  textTransform: 'none',
+                  textDecoration: 'none',
+                  margin: '0 10px',
+                  fontWeight: 500,
+                  fontSize: '1rem',
                 }}
               >
                 Profile
-              </Button>
+              </Typography>
             </>
           ) : (
-            <Button
-              className="navbar-link"
+            <Typography
               component={Link}
               to="/login"
               sx={{
                 fontFamily: 'SF Pro Display, sans-serif',
                 color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                textTransform: 'none',
+                textDecoration: 'none',
+                margin: '0 10px',
+                fontWeight: 600,
+                fontSize: '1rem',
               }}
             >
               Log In
-            </Button>
+            </Typography>
           )}
         </Box>
       </Toolbar>

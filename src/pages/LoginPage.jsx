@@ -119,7 +119,7 @@ const LoginPage = () => {
           }}
         >
           Welcome to <span style={{ color: '#571CE0' }}>CourseMe</span>
-          <span style={{ color: '#571CE0' }}>.</span>
+          <span style={{ color: '#F26655' }}>.</span>
         </Typography>
 
         <Typography
