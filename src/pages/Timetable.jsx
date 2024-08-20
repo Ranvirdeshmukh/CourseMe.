@@ -116,7 +116,7 @@ const Timetable = () => {
       return;
     }
   
-    if (course.status.includes('IP')) {  // Check if the course status contains "IP"
+    if (course.status.includes('IP')) {
       alert('This course requires instructor permission and cannot be subscribed to for notifications.');
       return;
     }
@@ -126,14 +126,20 @@ const Timetable = () => {
         userId: currentUser.uid,
         courseId: course.crn,
         email: currentUser.email,
-        courseName: course.title, // Include course name here
-        courseNum: course.num, // Include course number here
+        courseName: course.title,
+        courseNum: course.num,
       });
+      console.log('Subscription response:', response);
       alert(response.data.message);
-      setSnackbarOpen(true); // Open the Snackbar on successful subscription
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Error subscribing to notifications:', error);
-      alert('Failed to subscribe.');
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      }
+      alert(`Failed to subscribe: ${error.message}`);
     }
   };
 

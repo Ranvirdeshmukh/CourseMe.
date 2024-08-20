@@ -39,9 +39,17 @@ const LayupsPage = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
   const initialPageSize = 30;
 
-  const fetchCourses = useCallback(async () => {
+  // Function to fetch and cache courses data
+  const fetchAndCacheCourses = useCallback(async () => {
     try {
-      setLoading(true);
+      const cachedData = JSON.parse(localStorage.getItem('topCoursesCache'));
+      const now = new Date().getTime();
+
+      if (cachedData && now - cachedData.timestamp < 10 * 60 * 1000) { // 10 minutes expiry
+        setCourses(cachedData.courses);
+        setLoading(false);
+        return;
+      }
 
       const q = query(
         collection(db, 'courses'),
@@ -78,15 +86,22 @@ const LayupsPage = () => {
 
       console.log('Unique courses:', uniqueCourses);
 
+      // Cache the data in local storage with a timestamp
+      localStorage.setItem('topCoursesCache', JSON.stringify({
+        courses: uniqueCourses,
+        timestamp: now,
+      }));
+
       setCourses(uniqueCourses);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching courses:', error);
       setError('Failed to fetch courses.');
-    } finally {
       setLoading(false);
     }
   }, [initialPageSize]);
 
+  // Fetch department courses based on the selected department
   const fetchDepartmentCourses = useCallback(async (department) => {
     try {
       setDepartmentLoading(true);
@@ -118,6 +133,7 @@ const LayupsPage = () => {
     }
   }, []);
 
+  // Fetch distrib courses based on the selected distrib
   const fetchDistribCourses = useCallback(async (distrib) => {
     try {
       setDistribLoading(true);
@@ -158,6 +174,7 @@ const LayupsPage = () => {
     }
   }, []);
 
+  // Fetch departments and distribs to populate dropdowns
   const fetchDepartmentsAndDistribs = useCallback(async () => {
     try {
       const q = query(collection(db, 'courses'));
@@ -182,10 +199,11 @@ const LayupsPage = () => {
     }
   }, []);
 
+  // Background fetch and cache courses on component mount
   useEffect(() => {
     fetchDepartmentsAndDistribs();
-    fetchCourses();
-  }, [fetchCourses, fetchDepartmentsAndDistribs]);
+    fetchAndCacheCourses(); // Pre-fetch and cache top courses
+  }, [fetchAndCacheCourses, fetchDepartmentsAndDistribs]);
 
   const handleDepartmentChange = (event) => {
     const department = event.target.value;
