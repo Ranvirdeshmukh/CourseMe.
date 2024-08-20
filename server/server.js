@@ -1,15 +1,19 @@
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
-const puppeteer = require('puppeteer');
+// const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const cheerio = require('cheerio');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const admin = require('firebase-admin');
 const NodeCache = require('node-cache');
+const fs = require('fs');
+
 
 // Initialize Firebase Admin SDK
-const serviceAccountPath = path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH);
+
+const serviceAccountPath = path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 
 try {
   admin.initializeApp({
@@ -20,10 +24,14 @@ try {
   process.exit(1); // Exit the process with a failure code
 }
 
+
 const db = admin.firestore();
 const app = express();
 app.use(express.json());
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 500 // Change to a different port number
+
+
+
 
 // Enable CORS
 app.use(cors());
@@ -63,11 +71,19 @@ const sendEmailNotification = async (email, course) => {
 const fetchCourseData = async (courseName, courseNum) => {
   let browser;
   try {
-    console.log("Launching Puppeteer for course data...");
+    console.log("Launching Puppeteer...");
+    console.log("CHROME_BIN:", process.env.CHROME_BIN);
+    const fs = require('fs');
+console.log("Chrome exists:", fs.existsSync(process.env.CHROME_BIN));
     browser = await puppeteer.launch({
-      headless: true,
+      headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome',
+      ignoreHTTPSErrors: true,
+      dumpio: true // This will pipe console messages from the browser
     });
+    
+    
 
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(120000);
@@ -163,26 +179,37 @@ app.get('/api/courses', async (req, res) => {
 
   if (cachedCourses) {
     console.log("Serving data from cache...");
-    res.json(cachedCourses);
-
-    // Fetch fresh data in the background
-    fetchCourseDataAndUpdateCache();
+    console.log(cachedCourses);  // Check the structure here
+    res.json(cachedCourses);  // Cached data is expected to be an array
+    fetchCourseDataAndUpdateCache();  // Fetch fresh data in the background
   } else {
     console.log("Fetching data for the first time...");
     const courses = await fetchCourseDataAndUpdateCache();
-    res.json(courses);
+    console.log(courses);  // Check the structure here
+    res.json(courses);  // New data fetched should be an array
   }
 });
+
+
 
 // Function to fetch course data and update cache
 const fetchCourseDataAndUpdateCache = async () => {
   try {
     let browser;
     console.log("Launching Puppeteer...");
+    const chromePath = process.env.GOOGLE_CHROME_BIN || '/app/.apt/usr/bin/google-chrome';
+    console.log("Chrome path:", chromePath);
+    console.log("Chrome exists:", fs.existsSync(chromePath));
+    
     browser = await puppeteer.launch({
-      headless: true,
+      headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: chromePath,
+      ignoreHTTPSErrors: true,
+      dumpio: true
     });
+    
+    
 
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(120000);

@@ -38,14 +38,21 @@ const Timetable = () => {
   const { currentUser } = useAuth();
   const isMobile = useMediaQuery('(max-width:600px)');
 
+  const API_BASE_URL = 'https://courseme-734e28b3fc3d.herokuapp.com';
+
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/courses');
+        const response = await axios.get(`${API_BASE_URL}/api/courses`);
         console.log('Fetched Courses:', response.data);
-        setCourses(response.data);
-        setFilteredCourses(response.data); // Initialize with all courses
-        extractSubjects(response.data);
+        if (Array.isArray(response.data)) {
+          setCourses(response.data);
+          setFilteredCourses(response.data); // Initialize with all courses
+          extractSubjects(response.data);
+        } else {
+          console.error('Unexpected API response:', response.data);
+          setError(new Error('Unexpected API response format'));
+        }
         setLoading(false);
       } catch (error) {
         console.error('Error fetching courses:', error);
@@ -53,6 +60,8 @@ const Timetable = () => {
         setLoading(false);
       }
     };
+    
+    
 
     fetchCourses();
 
@@ -113,7 +122,7 @@ const Timetable = () => {
     }
   
     try {
-      const response = await axios.post('http://localhost:5001/api/subscribe', {
+      const response = await axios.post(`${API_BASE_URL}/api/subscribe`, {
         userId: currentUser.uid,
         courseId: course.crn,
         email: currentUser.email,
