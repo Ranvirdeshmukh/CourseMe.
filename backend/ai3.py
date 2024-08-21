@@ -4,11 +4,19 @@ from collections import defaultdict
 import re
 from textblob import TextBlob
 from statistics import mean
+import pickle
+
+def default_dict_list():
+    return defaultdict(list)
 
 class CourseAnalysisAI:
     def __init__(self):
-        self.data_directory = os.path.join(os.getcwd(), 'data', 'classData')
-        self.course_data = defaultdict(lambda: defaultdict(list))
+        self.data_directory = os.path.join(os.path.dirname(__file__), 'data', 'classData')
+        self.cache_file = os.path.join(os.path.dirname(__file__), 'data', 'course_data_cache.pkl')
+        self.course_data = defaultdict(default_dict_list)
+        # self.data_directory = os.path.join(os.path.dirname(__file__), 'data', 'classData')
+        # self.cache_file = os.path.join(os.path.dirname(__file__), 'data', 'course_data_cache.pkl')
+        # self.course_data = defaultdict(lambda: defaultdict(list))
         self.course_prefix_map = {
             'COSC': ['CS', 'COMP', 'COMPUTER SCIENCE'],
             'MATH': ['MATHEMATICS'],
@@ -26,31 +34,61 @@ class CourseAnalysisAI:
         self.reverse_prefix_map = {alt: prefix for prefix, alts in self.course_prefix_map.items() for alt in alts}
 
     def load_data(self):
-        # print(f"Attempting to load data from: {self.data_directory}")
+        try:
+            if os.path.exists(self.cache_file) and os.path.getsize(self.cache_file) > 0:
+                print("Loading data from cache...")
+                with open(self.cache_file, 'rb') as f:
+                    try:
+                        self.course_data = pickle.load(f)
+                        print(f"Data loaded from cache. Total courses: {len(self.course_data)}")
+                        return
+                    except (EOFError, pickle.UnpicklingError) as e:
+                        print(f"Error reading cache file: {e}")
+                        print("Falling back to loading from JSON files...")
+            else:
+                print("Cache not found or empty. Loading data from JSON files...")
+            
+            self._load_from_json()
+            
+            if not self.course_data:
+                print("Warning: No data was loaded from JSON files.")
+                return
+
+            print(f"Saving data to cache... Total courses: {len(self.course_data)}")
+            with open(self.cache_file, 'wb') as f:
+                pickle.dump(dict(self.course_data), f)  # Convert defaultdict to regular dict before pickling
+            print(f"Data saved to cache. File size: {os.path.getsize(self.cache_file)} bytes")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            print("Attempting to load data from JSON files...")
+            self._load_from_json()
+
+    def _load_from_json(self):
+        print(f"Attempting to load data from: {self.data_directory}")
         if not os.path.exists(self.data_directory):
             print(f"Error: Directory not found: {self.data_directory}")
             return
 
+        file_count = 0
         for filename in os.listdir(self.data_directory):
             if filename.endswith('.json'):
                 file_path = os.path.join(self.data_directory, filename)
-                # print(f"Processing file: {file_path}")
+                print(f"Processing file: {file_path}")
                 with open(file_path, 'r', encoding='utf-8') as file:
                     try:
                         data = json.load(file)
                         for course, teachers in data.items():
                             for teacher, reviews in teachers.items():
                                 self.course_data[course][teacher].extend(reviews)
-                        # print(f"Successfully loaded data from {filename}")
+                        print(f"Successfully loaded data from {filename}")
+                        file_count += 1
                     except json.JSONDecodeError:
                         print(f"Error decoding JSON from file: {filename}")
                     except Exception as e:
                         print(f"Unexpected error processing {filename}: {str(e)}")
 
+        print(f"Total files processed: {file_count}")
         print(f"Total courses loaded: {len(self.course_data)}")
-        print("Courses found:")
-        # for course in self.course_data.keys():
-        #     # print(f"- {course}")
 
     def normalize_course_name(self, course_name):
         course_name = course_name.upper().replace(" ", "")
@@ -343,6 +381,24 @@ class CourseAnalysisAI:
 #         break
 #     print(ai.answer_question(question))
 
+# if __name__ == "__main__":
+#     ai = CourseAnalysisAI()
+#     ai.load_data()
+#     print("Cache regeneration complete.")
+#     print("This script is not meant to be run directly.")
+#     print("Please run app.py to start the Flask server.")
+def main():
+    ai = CourseAnalysisAI()
+    ai.load_data()
+    print("Data loaded successfully. Ready to answer questions.")
+
+    while True:
+        question = input("\nAsk a question (or type 'quit' to exit): ")
+        if question.lower() == 'quit':
+            break
+        answer = ai.answer_question(question)
+        print("\nAnswer:")
+        print(answer)
+
 if __name__ == "__main__":
-    print("This script is not meant to be run directly.")
-    print("Please run app.py to start the Flask server.")
+    main()

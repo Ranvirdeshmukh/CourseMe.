@@ -7,6 +7,8 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
+const API_URL = 'https://coursemebot.pythonanywhere.com/api/chat';
+
 const LandingPage = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
@@ -21,16 +23,24 @@ const LandingPage = () => {
     setAnswer('');
 
     try {
-      const response = await axios.post('http://127.0.0.1:5000/api/chat', { question });
+      const response = await axios.post(API_URL, 
+        { question },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       setAnswer(response.data.answer);
     } catch (error) {
-      console.error('Error fetching answer:', error);
+      console.error('Error fetching answer:', error.response ? error.response.data : error.message);
       setError('An error occurred while fetching the answer. Please try again.');
       setSnackbarOpen(true);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
