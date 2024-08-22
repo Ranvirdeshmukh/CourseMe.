@@ -1,11 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Container,
-  Typography,
-  Box,
-  Table,
-  TableBody,
+  Container,Typography,Box,Table,TableBody,
   TableCell,
   TableContainer,
   TableHead,
@@ -236,6 +232,34 @@ const LayupsPage = () => {
         padding: '40px', // Increased padding to match ProfilePage
       }}
     >
+       {/* Live fetching indicator */}
+    <Box
+      sx={{
+        position: 'fixed',
+        bottom: 20,
+        right: 35,
+        display: 'flex',
+        alignItems: 'center',
+        zIndex: 1000,
+      }}
+    >
+      <Box
+        sx={{
+          width: 10,
+          height: 10,
+          backgroundColor: '#F26655', // Purple color for the dot
+          borderRadius: '50%',
+          marginRight: '8px',
+          animation: 'blinker 1.5s linear infinite',
+          '@keyframes blinker': {
+            '50%': { opacity: 0 },
+          },
+        }}
+      />
+      <Typography variant="body2" sx={{ fontWeight: 'semi-bold', fontFamily: 'SF Pro Display, sans-serif', color: 'black' }}>
+        Fetching Live Courses
+      </Typography>
+    </Box>
       <Container maxWidth="lg">
         <Typography
           variant="h3"

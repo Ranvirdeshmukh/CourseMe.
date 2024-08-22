@@ -322,43 +322,44 @@ const Timetable = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredCourses.map((course, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                      '&:hover': { backgroundColor: '#e0e0e0' },
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      color: 'inherit',
-                    }}
-                  >
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.enrl}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.lim}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.status}</TableCell> {/* Display the Status here */}
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-                      {/* Conditionally render the button based on the status */}
-                      {course.status.includes('IP') ? (
-                        <Typography variant="body2" color="error">
-                          Not eligible for notifications
-                        </Typography>
-                      ) : (
-                        <Button variant="contained" color="primary" onClick={() => handleSubscribe(course)}>
-                          Notify Me
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+  {filteredCourses.map((course, index) => (
+    <TableRow
+      key={index}
+      sx={{
+        backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+        '&:hover': { backgroundColor: '#e0e0e0' },
+        cursor: 'pointer',
+        textDecoration: 'none',
+        color: 'inherit',
+      }}
+    >
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.enrl}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.lim}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.status}</TableCell> {/* Display the Status here */}
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+        {/* Conditionally render the button based on the enrollment status */}
+        {course.enrl >= course.lim ? (
+          <Button variant="contained" color="primary" onClick={() => handleSubscribe(course)}>
+            Notify Me
+          </Button>
+        ) :  (
+          <Typography variant="body2" color="error">
+            Not eligible for notifications
+          </Typography>
+        )}
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+
             </Table>
           </TableContainer>
         ) : (

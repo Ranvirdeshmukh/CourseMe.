@@ -34,7 +34,7 @@ const App = () => (
         <Route path="/layups" element={<LayupsPage />} />
         <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage />} />
         <Route path="/course-enrollment-priorities/:department" element={<DepartmentCoursesWithPriorities />} />
-        <Route path="/timetable" element={<Timetable />} /> {/* Add the Timetable route */}
+        <Route path="/timetable" element={<Timetable />} /> Add the Timetable route
       </Routes>
     </Router>
   </AuthProvider>
