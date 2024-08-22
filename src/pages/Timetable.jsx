@@ -25,6 +25,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useAuth } from '../contexts/AuthContext'; // Assuming you have an Auth context
+import { getFirestore, collection, getDocs } from "firebase/firestore"; // Import Firestore functions
 
 const Timetable = () => {
   const [courses, setCourses] = useState([]);
@@ -35,47 +36,77 @@ const Timetable = () => {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Snackbar
+  const [useLiveData, setUseLiveData] = useState(true); // State to toggle between live data and Firestore data
+  const [firestoreCourses, setFirestoreCourses] = useState([]); // State to hold Firestore data
   const { currentUser } = useAuth();
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const API_BASE_URL = 'https://courseme-734e28b3fc3d.herokuapp.com';
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/courses`);
-        console.log('Fetched Courses:', response.data);
-        if (Array.isArray(response.data)) {
-          setCourses(response.data);
-          setFilteredCourses(response.data); // Initialize with all courses
-          extractSubjects(response.data);
-        } else {
-          console.error('Unexpected API response:', response.data);
-          setError(new Error('Unexpected API response format'));
-        }
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching courses:', error);
-        setError(error);
-        setLoading(false);
-      }
-    };
-    
-    
-
-    fetchCourses();
-
-    // Polling (if necessary)
-    const intervalId = setInterval(() => {
+    if (useLiveData) {
       fetchCourses();
-    }, 60000); // Fetch every minute
+      const intervalId = setInterval(() => {
+        fetchCourses();
+      }, 60000); // Polling every minute for live data
 
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
-  }, []);
+      return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    } else {
+      fetchFirestoreCourses(); // Fetch Firestore data
+    }
+  }, [useLiveData]);
 
   useEffect(() => {
-    applyFilters(courses, searchTerm, selectedSubject);
-  }, [searchTerm, selectedSubject, courses]);
+    applyFilters(useLiveData ? courses : firestoreCourses, searchTerm, selectedSubject);
+  }, [searchTerm, selectedSubject, courses, firestoreCourses, useLiveData]);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/courses`);
+      console.log('Fetched Courses:', response.data);
+      if (Array.isArray(response.data)) {
+        setCourses(response.data);
+        setFilteredCourses(response.data); // Initialize with all courses
+        extractSubjects(response.data);
+      } else {
+        console.error('Unexpected API response:', response.data);
+        setError(new Error('Unexpected API response format'));
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      setError(error);
+      setLoading(false);
+    }
+  };
+
+  const fetchFirestoreCourses = async () => {
+    try {
+      const db = getFirestore();
+      const coursesSnapshot = await getDocs(collection(db, "fallTimetable"));
+      const coursesData = coursesSnapshot.docs.map((doc) => ({
+        subj: doc.data().Subj,
+        num: doc.data().Num,
+        sec: doc.data().Section,
+        title: doc.data().Title,
+        period: doc.data()["Period Code"], // Handling the space in "Period Code"
+        room: doc.data().Room,
+        building: doc.data().Building,
+        instructor: doc.data().Instructor,
+        lim: doc.data().Lim,
+        enrl: doc.data().Enrl,
+        status: doc.data().Enrl >= doc.data().Lim ? 'Full' : 'Open', // Assuming status based on enrollment
+      }));
+      setFirestoreCourses(coursesData);
+      setFilteredCourses(coursesData); // Set initially to Firestore data
+      extractSubjects(coursesData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching Firestore courses:", error);
+      setError(error);
+      setLoading(false);
+    }
+  };
 
   const extractSubjects = (courses) => {
     const subjectsSet = new Set(courses.map((course) => course.subj));
@@ -115,12 +146,12 @@ const Timetable = () => {
       alert('Please log in to subscribe.');
       return;
     }
-  
+
     if (course.status.includes('IP')) {
       alert('This course requires instructor permission and cannot be subscribed to for notifications.');
       return;
     }
-  
+
     try {
       const response = await axios.post(`${API_BASE_URL}/api/subscribe`, {
         userId: currentUser.uid,
@@ -207,7 +238,7 @@ const Timetable = () => {
               marginTop: '20px',
             }}
           >
-            Fall '24 Timetable 
+            Fall '24 Timetable
           </Typography>
           <TextField
             variant="outlined"
@@ -274,6 +305,21 @@ const Timetable = () => {
               ))}
             </Select>
           </FormControl>
+          <Button
+            variant="contained"
+            color={useLiveData ? "primary" : "secondary"}
+            onClick={() => {
+              setUseLiveData(!useLiveData);
+              if (!useLiveData) {
+                fetchCourses(); // Fetch live data
+              } else {
+                fetchFirestoreCourses(); // Fetch Firestore data
+              }
+            }}
+            sx={{ marginTop: '20px', borderRadius: '20px' }}
+          >
+            {useLiveData ? "Switch to Firestore Data" : "Switch to Live Data"}
+          </Button>
         </Box>
 
         {loading ? (
@@ -322,44 +368,43 @@ const Timetable = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-  {filteredCourses.map((course, index) => (
-    <TableRow
-      key={index}
-      sx={{
-        backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-        '&:hover': { backgroundColor: '#e0e0e0' },
-        cursor: 'pointer',
-        textDecoration: 'none',
-        color: 'inherit',
-      }}
-    >
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.enrl}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.lim}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.status}</TableCell> {/* Display the Status here */}
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-        {/* Conditionally render the button based on the enrollment status */}
-        {course.enrl >= course.lim ? (
-          <Button variant="contained" color="primary" onClick={() => handleSubscribe(course)}>
-            Notify Me
-          </Button>
-        ) :  (
-          <Typography variant="body2" color="error">
-            Not eligible for notifications
-          </Typography>
-        )}
-      </TableCell>
-    </TableRow>
-  ))}
-</TableBody>
-
+                {filteredCourses.map((course, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{
+                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                      '&:hover': { backgroundColor: '#e0e0e0' },
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                    }}
+                  >
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.enrl}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.lim}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.status}</TableCell> {/* Display the Status here */}
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+                      {/* Conditionally render the button based on the enrollment status */}
+                      {course.enrl >= course.lim ? (
+                        <Button variant="contained" color="primary" onClick={() => handleSubscribe(course)}>
+                          Notify Me
+                        </Button>
+                      ) : (
+                        <Typography variant="body2" color="error">
+                          Not eligible for notifications
+                        </Typography>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
             </Table>
           </TableContainer>
         ) : (
