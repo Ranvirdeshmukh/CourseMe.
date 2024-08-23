@@ -42,7 +42,7 @@ const ProfilePage = () => {
     lastName: '',
     pinnedCourses: [],
   });
-  const [subscribedCourses, setSubscribedCourses] = useState([]);
+  // const [subscribedCourses, setSubscribedCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -84,23 +84,23 @@ const ProfilePage = () => {
       }
     };
 
-    const fetchSubscribedCourses = async () => {
-      try {
-        const q = query(collection(db, 'notifications'), where('userId', '==', currentUser.uid));
-        const querySnapshot = await getDocs(q);
-        const courses = querySnapshot.docs.map((doc) => doc.data());
-        setSubscribedCourses(courses);
-      } catch (error) {
-        console.error('Failed to fetch subscribed courses:', error);
-        setError('Failed to load subscribed courses.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    // const fetchSubscribedCourses = async () => {
+    //   try {
+    //     const q = query(collection(db, 'notifications'), where('userId', '==', currentUser.uid));
+    //     const querySnapshot = await getDocs(q);
+    //     const courses = querySnapshot.docs.map((doc) => doc.data());
+    //     setSubscribedCourses(courses);
+    //   } catch (error) {
+    //     console.error('Failed to fetch subscribed courses:', error);
+    //     setError('Failed to load subscribed courses.');
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
 
     if (currentUser) {
       fetchProfileData();
-      fetchSubscribedCourses();
+      // fetchSubscribedCourses();
     }
   }, [currentUser]);
 
@@ -764,7 +764,7 @@ const ProfilePage = () => {
               </Grid>
             </Grid>
 
-            <Grid container spacing={4}>
+            {/* <Grid container spacing={4}>
               <Grid item xs={12}>
                 <Card
                   sx={{
@@ -802,7 +802,7 @@ const ProfilePage = () => {
                   )}
                 </Card>
               </Grid>
-            </Grid>
+            </Grid> */}
           </>
         )}
       </Container>
