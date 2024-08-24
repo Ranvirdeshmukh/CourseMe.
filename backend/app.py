@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from cachedcourse import CachedCourseAnalysis
+from backend.LocalCourseAnalysis import CachedCourseAnalysis
 import logging
 import os
 from google.cloud import error_reporting
