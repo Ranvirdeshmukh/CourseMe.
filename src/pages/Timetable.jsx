@@ -28,7 +28,8 @@ import { getFirestore, collection, getDocs } from "firebase/firestore"; // Impor
 import moment from 'moment-timezone'; // Import moment-timezone to handle time zones
 
 const Timetable = () => {
-  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [courses, setCourses] = useState([]); // State to store all courses
+  const [filteredCourses, setFilteredCourses] = useState([]); // State to store filtered courses
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,8 +65,8 @@ const Timetable = () => {
   }, []);
 
   useEffect(() => {
-    applyFilters(filteredCourses, searchTerm, selectedSubject);
-  }, [searchTerm, selectedSubject, filteredCourses]);
+    applyFilters(searchTerm, selectedSubject); // Apply filters whenever searchTerm or selectedSubject changes
+  }, [searchTerm, selectedSubject]);
 
   const fetchFirestoreCourses = async () => {
     try {
@@ -87,8 +88,9 @@ const Timetable = () => {
           enrl: doc.data().Enrl,
         };
       });
-      setFilteredCourses(coursesData); // Set initially to Firestore data
-      extractSubjects(coursesData);
+      setCourses(coursesData); // Set the original courses data
+      setFilteredCourses(coursesData); // Initially set filtered courses to all courses
+      extractSubjects(coursesData); // Extract unique subjects
       setLoading(false);
     } catch (error) {
       console.error("Error fetching Firestore courses:", error);
@@ -102,8 +104,8 @@ const Timetable = () => {
     setSubjects([...subjectsSet]);
   };
 
-  const applyFilters = (courses, searchTerm, selectedSubject) => {
-    let filtered = courses;
+  const applyFilters = (searchTerm, selectedSubject) => {
+    let filtered = [...courses]; // Work on a copy of the original courses array
 
     if (searchTerm) {
       filtered = filtered.filter((course) =>
@@ -142,16 +144,12 @@ const Timetable = () => {
     const events = getEventTiming(course.period, course.title);
 
     events.forEach((event, index) => {
-        // If it's the first event, use the course title only
-        const text = index === 0 
-            ? `&text=${encodeURIComponent(course.title)}` 
-            : `&text=${encodeURIComponent(event.title)}`;
-
+        const text = `&text=${encodeURIComponent(event.title)}`;
         const startDateTime = `&dates=${event.startDateTime}/${event.endDateTime}`;
-        const recur = `&recur=${event.recurrence}`;
-
+        const recur = event.recurrence ? `&recur=${event.recurrence}` : '';  // Only add recurrence if it exists
+        
         const url = `${baseUrl}${text}${details}${location}${startDateTime}${recur}&sf=true&output=xml`;
-
+        
         window.open(url, "_blank");
     });
 };
@@ -165,7 +163,6 @@ const getEventTiming = (periodCode, courseTitle) => {
     const eventEndDate = "20241127"; // End date of the term (e.g., November 27, 2024)
     const timezone = "America/New_York";
 
-    // Split the timing string on the comma to handle each part separately
     const timingParts = timing.split(", ");
     const events = [];
 
@@ -173,11 +170,11 @@ const getEventTiming = (periodCode, courseTitle) => {
         const [days, times] = part.split(" "); // e.g., "MWF" "11:30-12:35"
         const [startTime, endTime] = times.split("-"); // e.g., "11:30-12:35"
 
-        // Parse start and end times
+        // Correct time format to 24-hour
         let startMoment = moment.tz(`${eventStartDate} ${startTime}`, "YYYYMMDD HH:mm", timezone);
         let endMoment = moment.tz(`${eventStartDate} ${endTime}`, "YYYYMMDD HH:mm", timezone);
 
-        // If end time is earlier than start time (due to AM/PM issues), add 12 hours to end time
+        // Ensure the correct day and time interpretation
         if (endMoment.isBefore(startMoment)) {
             endMoment.add(12, 'hours');
         }
@@ -185,19 +182,14 @@ const getEventTiming = (periodCode, courseTitle) => {
         const startDateTime = startMoment.format("YYYYMMDDTHHmmssZ");
         const endDateTime = endMoment.format("YYYYMMDDTHHmmssZ");
 
-        // Create a recurrence rule based on the days (e.g., MWF) and include the UNTIL parameter
         const recurrence = createRecurrenceRule(days, eventEndDate);
 
-        // Determine the title for this event
-        const eventTitle = index === 0 
-            ? courseTitle 
-            : `${courseTitle} (${days} ${startTime}-${endTime})`;
+        const eventTitle = `${courseTitle} (${days} ${startTime}-${endTime})`;
 
-        // Add the event to the array
         events.push({
             startDateTime,
             endDateTime,
-            recurrence,
+            recurrence,  // Correctly generate recurrence rule
             title: eventTitle,
         });
     });
@@ -214,12 +206,19 @@ const createRecurrenceRule = (days, endDate) => {
         F: "FR",
     };
 
-    // Map each day character to the corresponding abbreviation and join them
-    const dayList = days.split('').map(day => dayMap[day]).join(',');
+    // Improved regex to correctly capture single-letter and multi-letter day abbreviations
+    const dayList = days.match(/(?:Th|Tu|[MTWF])/g)?.map(day => dayMap[day])?.join(',') || '';
 
-    // Add the UNTIL parameter to the recurrence rule, setting it to the end date of the term
+    if (!dayList) {
+        console.error("Day mapping error: some days might not be correctly mapped. Days provided: ", days);
+        return ''; // Early return to avoid generating an invalid recurrence rule
+    }
+
+    // Generate the RRULE string correctly
     return `RRULE:FREQ=WEEKLY;BYDAY=${dayList};UNTIL=${endDate}T235959Z`;
 };
+
+
 
   return (
     <Box
