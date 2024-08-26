@@ -41,6 +41,7 @@ const Timetable = () => {
 
   // Period code to timing mapping
   const periodCodeToTiming = {
+
     "11": "MWF 11:30-12:35, Tu 12:15-1:05",
     "10": "MWF 10:10-11:15, Th 12:15-1:05",
     "2": "MWF 2:10-3:15, Th 1:20-2:10",
@@ -57,7 +58,8 @@ const Timetable = () => {
     "6A": "MTh 6:30-8:20, Tu 6:30-7:20",
     "6B": "W 6:30-9:30, Tu 7:30-8:20",
     "8S": "MTThF 7:45-8:35, Wed 7:45-8:35",
-    "LSA": "Language Study Abroad"
+    "LSA": "Language Study Abroad",
+
   };
 
   useEffect(() => {
@@ -155,68 +157,83 @@ const Timetable = () => {
 };
 
 const getEventTiming = (periodCode, courseTitle) => {
-    const timing = periodCodeToTiming[periodCode];
+  const timing = periodCodeToTiming[periodCode];
 
-    if (!timing) return [];
+  if (!timing) return [];
 
-    const eventStartDate = "20240915"; // Start date of the term (e.g., September 15, 2024)
-    const eventEndDate = "20241127"; // End date of the term (e.g., November 27, 2024)
-    const timezone = "America/New_York";
+  const eventStartDate = "20240915"; // Start date of the term (e.g., September 15, 2024)
+  const eventEndDate = "20241127"; // End date of the term (e.g., November 27, 2024)
+  const timezone = "America/New_York";
 
-    const timingParts = timing.split(", ");
-    const events = [];
+  const timingParts = timing.split(", ");
+  const events = [];
 
-    timingParts.forEach((part, index) => {
-        const [days, times] = part.split(" "); // e.g., "MWF" "11:30-12:35"
-        const [startTime, endTime] = times.split("-"); // e.g., "11:30-12:35"
+  timingParts.forEach((part) => {
+      const [days, times] = part.trim().split(" "); // e.g., "MWF" "11:30-12:35"
+      const [startTime, endTime] = times.split("-"); // e.g., "11:30-12:35"
 
-        // Correct time format to 24-hour
-        let startMoment = moment.tz(`${eventStartDate} ${startTime}`, "YYYYMMDD HH:mm", timezone);
-        let endMoment = moment.tz(`${eventStartDate} ${endTime}`, "YYYYMMDD HH:mm", timezone);
+      const startMoment = parseTime(eventStartDate, startTime, timezone);
+      const endMoment = parseTime(eventStartDate, endTime, timezone);
 
-        // Ensure the correct day and time interpretation
-        if (endMoment.isBefore(startMoment)) {
-            endMoment.add(12, 'hours');
-        }
+      const startDateTime = startMoment.format("YYYYMMDDTHHmmssZ");
+      const endDateTime = endMoment.format("YYYYMMDDTHHmmssZ");
 
-        const startDateTime = startMoment.format("YYYYMMDDTHHmmssZ");
-        const endDateTime = endMoment.format("YYYYMMDDTHHmmssZ");
+      const recurrence = createRecurrenceRule(days, eventEndDate);
 
-        const recurrence = createRecurrenceRule(days, eventEndDate);
+      const eventTitle = `${courseTitle} (${days} ${startTime}-${endTime})`;
 
-        const eventTitle = `${courseTitle} (${days} ${startTime}-${endTime})`;
+      events.push({
+          startDateTime,
+          endDateTime,
+          recurrence,
+          title: eventTitle,
+      });
+  });
 
-        events.push({
-            startDateTime,
-            endDateTime,
-            recurrence,  // Correctly generate recurrence rule
-            title: eventTitle,
-        });
-    });
+  return events;
+};
 
-    return events;
+const parseTime = (date, timeStr, timezone) => {
+  let [hour, minute] = timeStr.split(':').map(Number);
+
+  // Assume times between 1:00 and 6:59 are PM
+  if (hour >= 1 && hour <= 6) {
+      hour += 12;
+  }
+
+  // Handle 12:00 PM separately
+  if (hour === 12 && timeStr.includes('12:')) {
+      hour = 12;
+  }
+
+  return moment.tz(`${date} ${hour}:${minute}`, "YYYYMMDD HH:mm", timezone);
 };
 
 const createRecurrenceRule = (days, endDate) => {
-    const dayMap = {
-        M: "MO",
-        T: "TU",
-        W: "WE",
-        Th: "TH",
-        F: "FR",
-    };
+  const dayMap = {
+      M: "MO",
+      T: "TU",
+      W: "WE",
+      Th: "TH",
+      F: "FR",
+      S: "SA",
+      Su: "SU",
+  };
 
-    // Improved regex to correctly capture single-letter and multi-letter day abbreviations
-    const dayList = days.match(/(?:Th|Tu|[MTWF])/g)?.map(day => dayMap[day])?.join(',') || '';
+  // Match day abbreviations correctly, including multi-letter ones
+  const dayPattern = /(?:Th|Su|[MTWF])/g;
+  const matchedDays = days.match(dayPattern);
 
-    if (!dayList) {
-        console.error("Day mapping error: some days might not be correctly mapped. Days provided: ", days);
-        return ''; // Early return to avoid generating an invalid recurrence rule
-    }
+  if (!matchedDays) {
+      console.error("Invalid day format:", days);
+      return '';
+  }
 
-    // Generate the RRULE string correctly
-    return `RRULE:FREQ=WEEKLY;BYDAY=${dayList};UNTIL=${endDate}T235959Z`;
+  const dayList = matchedDays.map(day => dayMap[day]).join(',');
+
+  return `RRULE:FREQ=WEEKLY;BYDAY=${dayList};UNTIL=${endDate}T235959Z`;
 };
+
 
 
 
@@ -368,47 +385,50 @@ const createRecurrenceRule = (days, endDate) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredCourses.map((course, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                      '&:hover': { backgroundColor: '#e0e0e0' },
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      color: 'inherit',
-                    }}
-                  >
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.timing}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.enrl}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.lim}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleAddToCalendar(course)}
-                        sx={{
-                          backgroundColor: '#571CE0',
-                          color: '#fff',
-                          '&:hover': {
-                            backgroundColor: '#451CA8',
-                          },
-                        }}
-                      >
-                        Add to Google Calendar
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+  {filteredCourses.map((course, index) => (
+    <TableRow
+      key={index}
+      sx={{
+        backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+        '&:hover': { backgroundColor: '#e0e0e0' },
+        cursor: 'pointer',
+        textDecoration: 'none',
+        color: 'inherit',
+      }}
+    >
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.timing}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.enrl}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.lim}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+        {course.period !== 'ARR' && course.period !== 'FS' &&  (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleAddToCalendar(course)}
+            sx={{
+              backgroundColor: '#571CE0',
+              color: '#fff',
+              '&:hover': {
+                backgroundColor: '#451CA8',
+              },
+            }}
+          >
+            Add to Google Calendar
+          </Button>
+        )}
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+
             </Table>
           </TableContainer>
         ) : (
