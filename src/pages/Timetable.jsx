@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Box,
   Container,
@@ -20,13 +20,19 @@ import {
   FormControl,
   InputLabel,
   Snackbar,
+  Button,
+  IconButton,
   ButtonBase,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { useAuth } from '../contexts/AuthContext'; // Assuming you have an Auth context
-import { getFirestore, collection, getDocs } from "firebase/firestore"; // Import Firestore functions
-import moment from 'moment-timezone'; // Import moment-timezone to handle time zones
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useAuth } from '../contexts/AuthContext';
+import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
+import moment from 'moment-timezone';
 import { styled } from '@mui/material/styles';
+import debounce from 'lodash/debounce';
 
 // Define the custom styled button
 const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({
@@ -104,7 +110,10 @@ const Timetable = () => {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Snackbar
+  const [showSelectedCourses, setShowSelectedCourses] = useState(false); // State to show/hide selected courses
   const { currentUser } = useAuth();
+  const [selectedCourses, setSelectedCourses] = useState([]);
+
   const isMobile = useMediaQuery('(max-width:600px)');
 
   // Period code to timing mapping
@@ -129,8 +138,9 @@ const Timetable = () => {
   };
 
   useEffect(() => {
-    fetchFirestoreCourses(); // Fetch Firestore data when the component mounts
-  }, []);
+    fetchFirestoreCourses();
+    fetchUserTimetable(); // This should be done after ensuring the component has mounted and AuthContext has provided currentUser.
+  }, [currentUser]); // Add `currentUser` as a dependency to ensure it fetches when user context is available
 
   useEffect(() => {
     applyFilters(searchTerm, selectedSubject); // Apply filters whenever searchTerm or selectedSubject changes
@@ -139,21 +149,19 @@ const Timetable = () => {
   const fetchFirestoreCourses = async () => {
     try {
       const db = getFirestore();
-      const coursesSnapshot = await getDocs(collection(db, "fallTimetable"));
+      const coursesSnapshot = await getDocs(collection(db, 'fallTimetable'));
       const coursesData = coursesSnapshot.docs.map((doc) => {
-        const periodCode = doc.data()["Period Code"];
+        const periodCode = doc.data()['Period Code'];
         return {
           subj: doc.data().Subj,
           num: doc.data().Num,
           sec: doc.data().Section,
           title: doc.data().Title,
           period: periodCode, // Store the period code as is
-          timing: periodCodeToTiming[periodCode] || "Unknown Timing", // Map the period code to timing
+          timing: periodCodeToTiming[periodCode] || 'Unknown Timing', // Map the period code to timing
           room: doc.data().Room,
           building: doc.data().Building,
           instructor: doc.data().Instructor,
-          // lim: doc.data().Lim,
-          // enrl: doc.data().Enrl,
         };
       });
       setCourses(coursesData); // Set the original courses data
@@ -161,9 +169,29 @@ const Timetable = () => {
       extractSubjects(coursesData); // Extract unique subjects
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching Firestore courses:", error);
+      console.error('Error fetching Firestore courses:', error);
       setError(error);
       setLoading(false);
+    }
+  };
+
+  const fetchUserTimetable = async () => {
+    try {
+      const db = getFirestore();
+      const userRef = doc(collection(db, 'users'), currentUser.uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.fallCoursestaken) {
+          // Here ensure the fetched data is being set correctly to state
+          setSelectedCourses(userData.fallCoursestaken);
+        } else {
+          setSelectedCourses([]); // Ensure state is set to an empty array if no courses are found
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user's timetable:", error);
     }
   };
 
@@ -172,14 +200,15 @@ const Timetable = () => {
     setSubjects([...subjectsSet]);
   };
 
-  const applyFilters = (searchTerm, selectedSubject) => {
-    let filtered = [...courses]; // Work on a copy of the original courses array
+  const applyFilters = useCallback(() => {
+    let filtered = [...courses];
 
     if (searchTerm) {
-      filtered = filtered.filter((course) =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.subj.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (course) =>
+          course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          course.subj.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -188,9 +217,17 @@ const Timetable = () => {
     }
 
     setFilteredCourses(filtered);
-  };
+  }, [courses, searchTerm, selectedSubject]);
 
-  
+  const debouncedApplyFilters = useMemo(() => debounce(applyFilters, 300), [applyFilters]);
+
+  useEffect(() => {
+    debouncedApplyFilters();
+    return () => {
+      debouncedApplyFilters.cancel();
+    };
+  }, [debouncedApplyFilters]);
+
   const handleSearch = (event) => {
     const term = event.target.value;
     setSearchTerm(term);
@@ -201,12 +238,51 @@ const Timetable = () => {
     setSelectedSubject(subject);
   };
 
+  const handleAddCourse = async (course) => {
+    // Add vibration feedback (200 milliseconds)
+    if (navigator.vibrate) {
+      navigator.vibrate(200);
+    }
+
+    if (selectedCourses.length < 3 && !selectedCourses.some((c) => c.title === course.title)) {
+      const updatedCourses = [...selectedCourses, course];
+      setSelectedCourses(updatedCourses);
+
+      // Update Firestore
+      try {
+        const db = getFirestore();
+        const userRef = doc(collection(db, 'users'), currentUser.uid); // Assuming user is logged in
+        await updateDoc(userRef, { fallCoursestaken: updatedCourses }); // Save the selected courses to Firestore
+      } catch (error) {
+        console.error('Error saving courses:', error);
+      }
+    } else if (selectedCourses.some((c) => c.title === course.title)) {
+      alert('This course is already added.');
+    } else {
+      alert('You can only select up to 3 courses.');
+    }
+  };
+
+  const handleRemoveCourse = async (course) => {
+    const updatedCourses = selectedCourses.filter((c) => c.title !== course.title);
+    setSelectedCourses(updatedCourses);
+
+    // Update Firestore
+    try {
+      const db = getFirestore();
+      const userRef = doc(collection(db, 'users'), currentUser.uid);
+      await updateDoc(userRef, { fallCoursestaken: updatedCourses }); // Save the updated courses to Firestore
+    } catch (error) {
+      console.error('Error removing course:', error);
+    }
+  };
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
 
   const handleAddToCalendar = (course) => {
-    const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
+    const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
     const details = `&details=${encodeURIComponent(`Instructor: ${course.instructor}`)}`;
     const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;
 
@@ -216,11 +292,11 @@ const Timetable = () => {
     events.forEach((event) => {
       const text = `&text=${encodeURIComponent(event.title)}`;
       const startDateTime = `&dates=${event.startDateTime}/${event.endDateTime}`;
-      const recur = event.recurrence ? `&recur=${event.recurrence}` : '';  // Only add recurrence if it exists
-      
+      const recur = event.recurrence ? `&recur=${event.recurrence}` : ''; // Only add recurrence if it exists
+
       const url = `${baseUrl}${text}${details}${location}${startDateTime}${recur}&sf=true&output=xml`;
-      
-      window.open(url, "_blank");
+
+      window.open(url, '_blank');
     });
   };
 
@@ -229,22 +305,22 @@ const Timetable = () => {
 
     if (!timing) return [];
 
-    const eventStartDate = "20240915"; // Start date of the term (e.g., September 15, 2024)
-    const eventEndDate = "20241127"; // End date of the term (e.g., November 27, 2024)
-    const timezone = "America/New_York";
+    const eventStartDate = '20240915'; // Start date of the term (e.g., September 15, 2024)
+    const eventEndDate = '20241127'; // End date of the term (e.g., November 27, 2024)
+    const timezone = 'America/New_York';
 
-    const timingParts = timing.split(", ");
+    const timingParts = timing.split(', ');
     const events = [];
 
     timingParts.forEach((part) => {
-      const [days, times] = part.trim().split(" "); // e.g., "MWF" "11:30-12:35"
-      const [startTime, endTime] = times.split("-"); // e.g., "11:30-12:35"
+      const [days, times] = part.trim().split(' '); // e.g., "MWF" "11:30-12:35"
+      const [startTime, endTime] = times.split('-'); // e.g., "11:30-12:35"
 
       const startMoment = parseTime(eventStartDate, startTime, timezone);
       const endMoment = parseTime(eventStartDate, endTime, timezone);
 
-      const startDateTime = startMoment.format("YYYYMMDDTHHmmssZ");
-      const endDateTime = endMoment.format("YYYYMMDDTHHmmssZ");
+      const startDateTime = startMoment.format('YYYYMMDDTHHmmssZ');
+      const endDateTime = endMoment.format('YYYYMMDDTHHmmssZ');
 
       const recurrence = createRecurrenceRule(days, eventEndDate);
 
@@ -274,18 +350,18 @@ const Timetable = () => {
       hour = 12;
     }
 
-    return moment.tz(`${date} ${hour}:${minute}`, "YYYYMMDD HH:mm", timezone);
+    return moment.tz(`${date} ${hour}:${minute}`, 'YYYYMMDD HH:mm', timezone);
   };
 
   const createRecurrenceRule = (days, endDate) => {
     const dayMap = {
-      M: "MO",
-      T: "TU",
-      W: "WE",
-      Th: "TH",
-      F: "FR",
-      S: "SA",
-      Su: "SU",
+      M: 'MO',
+      T: 'TU',
+      W: 'WE',
+      Th: 'TH',
+      F: 'FR',
+      S: 'SA',
+      Su: 'SU',
     };
 
     // Match day abbreviations correctly, ensuring multi-letter ones like "Th" and "Su" are matched first
@@ -293,11 +369,11 @@ const Timetable = () => {
     const matchedDays = days.match(dayPattern);
 
     if (!matchedDays) {
-      console.error("Invalid day format:", days);
+      console.error('Invalid day format:', days);
       return '';
     }
 
-    const dayList = matchedDays.map(day => dayMap[day]).join(',');
+    const dayList = matchedDays.map((day) => dayMap[day]).join(',');
 
     return `RRULE:FREQ=WEEKLY;BYDAY=${dayList};UNTIL=${endDate}T235959Z`;
   };
@@ -314,6 +390,79 @@ const Timetable = () => {
       }}
     >
       <Container maxWidth="xl">
+
+        {/* Conditional rendering of the heading */}
+        {showSelectedCourses && (
+          <Typography
+          variant="h3"
+          align="left"
+          sx={{
+            fontWeight: 600,
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#571CE0',
+            marginBottom: '0px',
+            marginTop: '30px',
+          }}
+          >
+            Your Fall 2024 Classes
+          </Typography>
+        )}
+
+        {/* Selected Courses Table */}
+        {showSelectedCourses && selectedCourses.length > 0 && (
+          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginBottom: '20px', boxShadow: 3, borderRadius: '12px', maxWidth: '100%' }}>
+            <Table>
+              <TableHead sx={{ backgroundColor: '#571CE0' }}>
+                <TableRow>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Subject</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Number</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Section</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Title</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Period</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Timing</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Room</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Building</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Instructor</TableCell>
+                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Remove</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {selectedCourses.map((course, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{
+                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                      '&:hover': { backgroundColor: '#e0e0e0' },
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                    }}
+                  >
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.timing}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
+                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+                      <IconButton onClick={() => handleRemoveCourse(course)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+
+        {showSelectedCourses && selectedCourses.length === 0 && (
+          <Typography sx={{ marginBottom: '20px' }}>Haven't added your Fall 2024 timetable on CourseMe? Add now!!</Typography>
+        )}
+
         <Box
           sx={{
             display: 'flex',
@@ -370,38 +519,103 @@ const Timetable = () => {
               ),
             }}
           />
-          <FormControl variant="outlined" sx={{ minWidth: isMobile ? '100%' : 200, marginTop: '25px' }}>
-            <InputLabel>Subject</InputLabel>
-            <Select
-              value={selectedSubject}
-              onChange={handleSubjectChange}
-              label="Subject"
-              sx={{
-                borderRadius: '20px',
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#571CE0',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#571CE0',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#571CE0',
-                  },
-                  borderRadius: '20px',
-                },
-              }}
-            >
-              <MenuItem value="">
-                <em>All Subjects</em>
-              </MenuItem>
-              {subjects.map((subject, index) => (
-                <MenuItem key={index} value={subject}>
-                  {subject}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+         <FormControl variant="outlined" sx={{ minWidth: isMobile ? '100%' : 200, marginTop: '25px' }}>
+  <InputLabel
+    sx={{
+      color: '#571CE0',
+      '&.Mui-focused': {
+        color: '#571CE0',
+      },
+    }}
+  >
+    Subject
+  </InputLabel>
+  <Select
+    value={selectedSubject}
+    onChange={handleSubjectChange}
+    label="Subject"
+    sx={{
+      borderRadius: '20px',
+      height: '40px', // Set a consistent height
+      backgroundColor: 'transparent',
+      color: '#571CE0',
+      fontWeight: '600',
+      fontSize: '16px',
+      fontFamily: 'SF Pro Display, sans-serif',
+      textTransform: 'none',
+      border: '1px solid #571CE0',
+      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+      '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+          borderColor: '#571CE0',
+        },
+        '&:hover fieldset': {
+          borderColor: '#571CE0',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: '#571CE0',
+        },
+        backgroundColor: 'transparent',
+        height: '40px', // Ensure the select field has the same height
+      },
+      '& .MuiSelect-icon': {
+        color: '#571CE0',
+      },
+      '&:hover': {
+        backgroundColor: 'rgba(87, 28, 224, 0.1)',
+      },
+      '&:focus': {
+        outline: 'none',
+        boxShadow: '0 0 0 4px rgba(0, 122, 255, 0.5)',
+      },
+    }}
+  >
+    <MenuItem value="">
+      <em>All Subjects</em>
+    </MenuItem>
+    {subjects.map((subject, index) => (
+      <MenuItem key={index} value={subject}>
+        {subject}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
+
+
+
+
+<Button
+  variant="contained"
+  sx={{
+    marginTop: isMobile ? '20px' : '25px',
+    padding: '10px 20px',
+    borderRadius: '20px',
+    height: '40px', // Set a consistent height
+    backgroundColor: 'transparent',
+    color: '#571CE0',
+    fontWeight: '600',
+    fontSize: '16px',
+    fontFamily: 'SF Pro Display, sans-serif',
+    textTransform: 'none',
+    border: '1px solid #571CE0',
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+    '&:hover': {
+      backgroundColor: 'rgba(87, 28, 224, 0.1)',
+      borderColor: '#571CE0',
+    },
+    '&:focus': {
+      outline: 'none',
+      boxShadow: '0 0 0 4px rgba(0, 122, 255, 0.5)',
+    },
+  }}
+  onClick={() => setShowSelectedCourses(!showSelectedCourses)}
+>
+  {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
+</Button>
+
+
+
         </Box>
 
         {loading ? (
@@ -431,64 +645,79 @@ const Timetable = () => {
         ) : error ? (
           <Alert severity="error">Error loading courses: {error.message}</Alert>
         ) : filteredCourses.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius: '12px', maxWidth: '100%' }}>
-            <Table>
-              <TableHead sx={{ backgroundColor: '#571CE0' }}>
-                <TableRow>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Subject</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Number</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Section</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Title</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Period</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Timing</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Room</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Building</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Instructor</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Get the schedule ready!</TableCell>
-                  {/* <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Limit</TableCell>
-                  <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Add to Calendar</TableCell> */}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredCourses.map((course, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                      '&:hover': { backgroundColor: '#e0e0e0' },
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      color: 'inherit',
-                    }}
-                  >
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.timing}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
-                    {/* <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.enrl}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.lim}</TableCell> */}
-                    <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-                      {course.period !== 'ARR' && course.period !== 'FS' && (
-                        <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
-                          <div className="icon">
-                            <GoogleIcon />
-                          </div>
-                          <span className="text">
-                            Add it to your Calendar.
-                          </span>
-                        </GoogleCalendarButton>
-                      )}
-                    </TableCell>
+          <>
+            <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius: '12px', maxWidth: '100%' }}>
+              <Table>
+                <TableHead sx={{ backgroundColor: '#571CE0' }}>
+                  <TableRow>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Subject</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Number</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Section</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Title</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Period</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Timing</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Room</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Building</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Instructor</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Add to Calendar</TableCell>
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '12px' }}>Add Fall Courses</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {filteredCourses.map((course, index) => {
+                    const isSelected = selectedCourses.some((c) => c.title === course.title);
+
+                    return (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                          '&:hover': { backgroundColor: '#e0e0e0' },
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          color: 'inherit',
+                        }}
+                      >
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.subj}</TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.num}</TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.sec}</TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.title}</TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.period}</TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.timing}</TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.room}</TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.building}</TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>{course.instructor}</TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+                          {course.period !== 'ARR' && course.period !== 'FS' && (
+                            <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
+                              <div className="icon">
+                                <GoogleIcon />
+                              </div>
+                              <span className="text">Add it to your Calendar.</span>
+                            </GoogleCalendarButton>
+                          )}
+                        </TableCell>
+                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+                          <IconButton
+                            onClick={() => handleAddCourse(course)}
+                            disabled={isSelected || selectedCourses.length >= 3} // Disable the button if the course is already selected or the user has selected 3 courses
+                          >
+                            {isSelected ? (
+                              <CheckCircleIcon color="success" />
+                            ) : (
+                              <AddCircleOutlineIcon
+                                color={selectedCourses.length >= 3 ? "disabled" : "primary"} // Change color to "disabled" when the limit is reached
+                              />
+                            )}
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
         ) : (
           <Typography>No courses available</Typography>
         )}
@@ -503,10 +732,7 @@ const Timetable = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Box>
-    
   );
 };
-
-
 
 export default Timetable;
