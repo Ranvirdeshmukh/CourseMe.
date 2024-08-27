@@ -21,6 +21,13 @@ import {
   MenuItem,
   Button,
   Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from '@mui/material';
 import { Delete, ArrowDropDown, BugReport, Logout, PushPin } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
@@ -42,7 +49,7 @@ const ProfilePage = () => {
     lastName: '',
     pinnedCourses: [],
   });
-  // const [subscribedCourses, setSubscribedCourses] = useState([]);
+  const [selectedCourses, setSelectedCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -77,6 +84,9 @@ const ProfilePage = () => {
             lastName: userData.lastName || '',
             pinnedCourses: userData.pinnedCourses || [],
           });
+
+          // Fetch user's Fall 2024 timetable
+          setSelectedCourses(userData.fallCoursestaken || []);
         } else {
           setError('Failed to fetch profile data.');
         }
@@ -84,23 +94,8 @@ const ProfilePage = () => {
       }
     };
 
-    // const fetchSubscribedCourses = async () => {
-    //   try {
-    //     const q = query(collection(db, 'notifications'), where('userId', '==', currentUser.uid));
-    //     const querySnapshot = await getDocs(q);
-    //     const courses = querySnapshot.docs.map((doc) => doc.data());
-    //     setSubscribedCourses(courses);
-    //   } catch (error) {
-    //     console.error('Failed to fetch subscribed courses:', error);
-    //     setError('Failed to load subscribed courses.');
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-
     if (currentUser) {
       fetchProfileData();
-      // fetchSubscribedCourses();
     }
   }, [currentUser]);
 
@@ -271,6 +266,75 @@ const ProfilePage = () => {
   const getShortCourseId = (courseId) => {
     const match = courseId.match(/([A-Z]+)\d{3}/);
     return match ? match[0] : courseId;
+  };
+
+  const renderTimetable = () => {
+    if (selectedCourses.length === 0) {
+      return (
+        <Typography
+          variant="body1" // Changed from 'caption' to 'body1' for a slightly larger font
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#8E8E93',
+            textAlign: 'left',
+            marginTop: 2,
+            display: 'block',
+            lineHeight: 1.2, // Ensures good readability with proper spacing between lines
+          }}
+        >
+          Make your term more organized by adding your Fall 2024 classes to CourseMe
+          <span style={{ color: '#F26655' }}>.</span> and your personal Google Calendar.{' '}
+          <span 
+            style={{ 
+              color: '#571CE0', 
+              textDecoration: 'underline', 
+              cursor: 'pointer' 
+            }}
+            onClick={() => navigate('/timetable')}
+          >
+            Go to Timetable
+          </span>
+        </Typography>
+      );
+    }
+    
+
+    
+
+    return (
+      <TableContainer component={Paper} sx={{ backgroundColor: '#fff', boxShadow: 3, borderRadius: '12px', maxWidth: '100%' }}>
+        <Table>
+          <TableHead sx={{ backgroundColor: '#571CE0' }}>
+            <TableRow>
+              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Subject</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Number</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Section</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Title</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Period</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Timing</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Room</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Building</TableCell>
+              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Instructor</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {selectedCourses.map((course, index) => (
+              <TableRow key={index}>
+                <TableCell>{course.subj}</TableCell>
+                <TableCell>{course.num}</TableCell>
+                <TableCell>{course.sec}</TableCell>
+                <TableCell>{course.title}</TableCell>
+                <TableCell>{course.period}</TableCell>
+                <TableCell>{course.timing}</TableCell>
+                <TableCell>{course.room}</TableCell>
+                <TableCell>{course.building}</TableCell>
+                <TableCell>{course.instructor}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
   };
 
   return (
@@ -618,6 +682,42 @@ const ProfilePage = () => {
             </Grid>
 
             <Grid container spacing={4}>
+  <Grid item xs={12}>
+    <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'center' }}>
+      <Card
+        sx={{
+          padding: 4,
+          backgroundColor: '#f9f9f9',
+          color: '#1D1D1F',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          borderRadius: '12px',
+          width: '100%',
+          maxWidth: 1100,
+          minHeight: 200,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: 600,
+            color: '#1D1D1F',
+            marginBottom: 1, // Adjusted margin
+          }}
+        >
+          Fall 2024 Timetable
+        </Typography>
+        <Divider sx={{ marginBottom: 2, backgroundColor: '#DDD' }} /> {/* Adjusted margin */}
+        {renderTimetable()}
+      </Card>
+    </Box>
+  </Grid>
+</Grid>
+
+
+            <Grid container spacing={4}>
               <Grid item xs={12} md={6}>
                 <Box sx={{ padding: 3, backgroundColor: '#f5f5f5', borderRadius: 2, border: '1px solid #ddd' }}>
                   <Card
@@ -763,173 +863,133 @@ const ProfilePage = () => {
                 </Box>
               </Grid>
             </Grid>
-
-            {/* <Grid container spacing={4}>
-              <Grid item xs={12}>
-                <Card
-                  sx={{
-                    padding: 4,
-                    backgroundColor: '#f9f9f9',
-                    color: '#1D1D1F',
-                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-                    borderRadius: '12px',
-                    marginTop: 4,
-                  }}
-                >
-                  <Typography
-                    variant="h4"
-                    gutterBottom
-                    sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      fontWeight: 600,
-                      color: '#1D1D1F',
-                      marginBottom: 2,
-                    }}
-                  >
-                    My Subscribed Courses
-                  </Typography>
-                  <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
-                  {subscribedCourses.length === 0 ? (
-                    <Typography>You haven't subscribed to any courses yet.</Typography>
-                  ) : (
-                    <List>
-                      {subscribedCourses.map((course, index) => (
-                        <ListItem key={index}>
-                          <ListItemText primary={`Course: ${course.courseName}, Email: ${course.email}`} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  )}
-                </Card>
-              </Grid>
-            </Grid> */}
           </>
         )}
       </Container>
 
       <Dialog open={editing} onClose={handleClose} maxWidth="sm" fullWidth>
-  <DialogTitle>
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <Typography variant="h6" sx={{ textAlign: 'left' }}>Edit Profile</Typography>
-      <Typography
-        variant="body"
-        sx={{
-          fontFamily: 'SF Pro Display, sans-serif',
-          fontWeight: '',
-          textDecoration: 'none',
-          color: '#571CE0',
-          textAlign: 'right',
-        }}
-      >
-        CourseMe<span style={{ color: '#F26655' }}>.</span>
-        </Typography>
-    </Box>
-  </DialogTitle>
-  <DialogContent>
-    <TextField
-      margin="dense"
-      label="First Name"
-      type="text"
-      fullWidth
-      variant="standard"
-      value={newProfileData.firstName}
-      onChange={(e) => setNewProfileData({ ...newProfileData, firstName: e.target.value })}
-      sx={{ marginBottom: 2 }}
-    />
-    <TextField
-      margin="dense"
-      label="Last Name"
-      type="text"
-      fullWidth
-      variant="standard"
-      value={newProfileData.lastName}
-      onChange={(e) => setNewProfileData({ ...newProfileData, lastName: e.target.value })}
-      sx={{ marginBottom: 2 }}
-    />
-    <TextField
-      margin="dense"
-      label="Major"
-      type="text"
-      fullWidth
-      variant="standard"
-      value={newProfileData.major}
-      onChange={(e) => setNewProfileData({ ...newProfileData, major: e.target.value })}
-      sx={{ marginBottom: 2 }}
-    />
-    <TextField
-      margin="dense"
-      label="Class Year"
-      type="text"
-      fullWidth
-      variant="standard"
-      value={newProfileData.classYear}
-      onChange={(e) => setNewProfileData({ ...newProfileData, classYear: e.target.value })}
-      sx={{ marginBottom: 2 }}
-    />
-    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
-      Please ensure all your details are correct.
-    </Typography>
-    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
-*Rest assured, your personal information is securely stored and will only be used to enhance your experience.
-    </Typography>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={handleClose} color="secondary">Cancel</Button>
-    <Button onClick={handleSaveProfile} variant="contained" color="primary">Save</Button>
-  </DialogActions>
-</Dialog>
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ textAlign: 'left' }}>Edit Profile</Typography>
+            <Typography
+              variant="body"
+              sx={{
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontWeight: '',
+                textDecoration: 'none',
+                color: '#571CE0',
+                textAlign: 'right',
+              }}
+            >
+              CourseMe<span style={{ color: '#F26655' }}>.</span>
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="First Name"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newProfileData.firstName}
+            onChange={(e) => setNewProfileData({ ...newProfileData, firstName: e.target.value })}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Last Name"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newProfileData.lastName}
+            onChange={(e) => setNewProfileData({ ...newProfileData, lastName: e.target.value })}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Major"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newProfileData.major}
+            onChange={(e) => setNewProfileData({ ...newProfileData, major: e.target.value })}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Class Year"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newProfileData.classYear}
+            onChange={(e) => setNewProfileData({ ...newProfileData, classYear: e.target.value })}
+            sx={{ marginBottom: 2 }}
+          />
+          <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+            Please ensure all your details are correct.
+          </Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+            *Rest assured, your personal information is securely stored and will only be used to enhance your experience.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="secondary">Cancel</Button>
+          <Button onClick={handleSaveProfile} variant="contained" color="primary">Save</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={bugReportOpen} onClose={handleReportBugClose} maxWidth="sm" fullWidth>
-              <DialogTitle>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="h6" sx={{ textAlign: 'left' }}>Report a Bug</Typography>
-                  <Typography
-                    variant="body"
-                    sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      fontWeight: '',
-                      textDecoration: 'none',
-                      color: '#571CE0',
-                      textAlign: 'right',
-                    }}
-                  >
-        CourseMe<span style={{ color: '#F26655' }}>.</span>
-        </Typography>
-                </Box>
-              </DialogTitle>
-              <DialogContent>
-                {bugReportError && <Alert severity="error">{bugReportError}</Alert>}
-                <TextField
-                  margin="dense"
-                  label="Page"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  value={bugPage}
-                  onChange={(e) => setBugPage(e.target.value)}
-                  sx={{ marginBottom: 2 }}
-                />
-                <TextField
-                  margin="dense"
-                  label="Description"
-                  type="text"
-                  fullWidth
-                  variant="standard"
-                  value={bugDescription}
-                  onChange={(e) => setBugDescription(e.target.value)}
-                  multiline
-                  rows={4}
-                  sx={{ marginBottom: 2 }}
-                />
-                <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
-                  Enhance your experience by reporting a bug. We will fix it ASAP.
-                </Typography>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleReportBugClose} color="secondary">Cancel</Button>
-                <Button onClick={handleReportBugSubmit} variant="contained" color="primary">Submit</Button>
-              </DialogActions>
-            </Dialog>
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ textAlign: 'left' }}>Report a Bug</Typography>
+            <Typography
+              variant="body"
+              sx={{
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontWeight: '',
+                textDecoration: 'none',
+                color: '#571CE0',
+                textAlign: 'right',
+              }}
+            >
+              CourseMe<span style={{ color: '#F26655' }}>.</span>
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {bugReportError && <Alert severity="error">{bugReportError}</Alert>}
+          <TextField
+            margin="dense"
+            label="Page"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={bugPage}
+            onChange={(e) => setBugPage(e.target.value)}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Description"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={bugDescription}
+            onChange={(e) => setBugDescription(e.target.value)}
+            multiline
+            rows={4}
+            sx={{ marginBottom: 2 }}
+          />
+          <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+            Enhance your experience by reporting a bug. We will fix it ASAP.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleReportBugClose} color="secondary">Cancel</Button>
+          <Button onClick={handleReportBugSubmit} variant="contained" color="primary">Submit</Button>
+        </DialogActions>
+      </Dialog>
 
       <Footer />
     </Box>
