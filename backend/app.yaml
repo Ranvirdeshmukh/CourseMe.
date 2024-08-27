@@ -1,0 +1,27 @@
+runtime: python
+env: flex
+entrypoint: gunicorn -b :$PORT app:app
+
+runtime_config:
+  operating_system: "ubuntu22"
+  runtime_version: "3.12"
+
+env_variables:
+  FLASK_ENV: 'production'
+  GOOGLE_CLOUD_PROJECT: "courseme-chatbot"
+
+handlers:
+- url: /.*
+  script: auto
+
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 5
+  cool_down_period_sec: 180
+  cpu_utilization:
+    target_utilization: 0.6
+
+resources:
+  cpu: 1
+  memory_gb: 0.5
+  disk_size_gb: 10

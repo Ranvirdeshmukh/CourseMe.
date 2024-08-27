@@ -1,0 +1,26 @@
+# Python virtual environment
+myenv/
+venv/
+env/
+
+# Python bytecode files
+*.pyc
+__pycache__/
+
+# Development and local files
+.git/
+.gitignore
+*.log
+*.sqlite3
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific files (adjust as needed)
+.vscode/
+.idea/
+
+# Any other files or directories you don't want to deploy
+backend/data/serviceaccount.json
+backend/ai3.py
