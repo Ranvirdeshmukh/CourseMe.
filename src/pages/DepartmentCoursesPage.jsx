@@ -14,11 +14,13 @@ import {
   Paper, 
   CircularProgress, 
   useMediaQuery
-
 } from '@mui/material';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import departmentMapping from '../classstructure/departmentMapping';
+
+const CACHE_PREFIX = 'courses_';
+const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
 const DepartmentCoursesPage = () => {
   const { department } = useParams();
@@ -28,7 +30,7 @@ const DepartmentCoursesPage = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCourses = async () => {
       try {
         console.log(`Fetching courses for department: ${department}`);
         const q = query(collection(db, 'courses'), where('department', '==', department));
@@ -37,6 +39,12 @@ const DepartmentCoursesPage = () => {
           const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           console.log('Fetched courses data:', coursesData);
           setCourses(coursesData);
+
+          // Cache the data
+          localStorage.setItem(`${CACHE_PREFIX}${department}`, JSON.stringify({
+            timestamp: new Date().getTime(),
+            courses: coursesData,
+          }));
         } else {
           console.log('No courses found for this department.');
           setError('No courses found for this department.');
@@ -49,7 +57,19 @@ const DepartmentCoursesPage = () => {
       }
     };
 
-    fetchData();
+    const checkCache = () => {
+      const cachedData = JSON.parse(localStorage.getItem(`${CACHE_PREFIX}${department}`));
+      const now = new Date().getTime();
+
+      if (cachedData && (now - cachedData.timestamp < CACHE_EXPIRATION)) {
+        setCourses(cachedData.courses);
+        setLoading(false);
+      } else {
+        fetchCourses();
+      }
+    };
+
+    checkCache();
   }, [department]);
 
   return (
@@ -64,22 +84,21 @@ const DepartmentCoursesPage = () => {
       }}
     >
       <Container maxWidth="lg">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-  <Typography 
-    variant="h3" 
-    align='left'
-    sx={{ 
-      fontWeight: 600, 
-      fontFamily: 'SF Pro Display, sans-serif', 
-      color: '#571CE0',  // Purple color for headings
-      marginBottom: '0px',
-      marginTop: '20px'
-    }}
-  >
-    Courses in {departmentMapping[department]?.name || department}
-  </Typography>
-</Box>
-
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <Typography 
+            variant="h3" 
+            align='left'
+            sx={{ 
+              fontWeight: 600, 
+              fontFamily: 'SF Pro Display, sans-serif', 
+              color: '#571CE0',  // Purple color for headings
+              marginBottom: '0px',
+              marginTop: '20px'
+            }}
+          >
+            Courses in {departmentMapping[department]?.name || department}
+          </Typography>
+        </Box>
 
         {loading ? (
           <CircularProgress color="primary" />

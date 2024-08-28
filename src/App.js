@@ -17,6 +17,7 @@ import CourseEnrollmentPrioritiesPage from './pages/CourseEnrollmentPriorities';
 import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities';
 import Timetable from './pages/Timetable'; // Import the Timetable component
 
+
 const App = () => (
   <AuthProvider>
     <Router>

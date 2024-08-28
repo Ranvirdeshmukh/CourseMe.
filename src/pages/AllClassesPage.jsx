@@ -20,6 +20,9 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import departmentOverview from '../classstructure/departmentOverview';
 
+const CACHE_KEY = 'departmentData';
+const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+
 const AllClassesPage = () => {
   const [departments, setDepartments] = useState([]);
   const [filteredDepartments, setFilteredDepartments] = useState([]);
@@ -35,16 +38,34 @@ const AllClassesPage = () => {
   const departmentExamples = useMemo(() => ['Search Departments', 'Computer Science', 'Biology', 'Chemistry', 'History', 'Mathematics'], []);
 
   useEffect(() => {
-    try {
-      const departmentCodes = Object.keys(departmentOverview);
-      setDepartments(departmentCodes);
-      setFilteredDepartments(departmentCodes);
-    } catch (error) {
-      setError('Failed to fetch departments.');
-      console.error('Error fetching departments:', error);
-    } finally {
-      setLoading(false);
-    }
+    const fetchData = async () => {
+      try {
+        const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+        const now = new Date().getTime();
+
+        if (cachedData && (now - cachedData.timestamp < CACHE_EXPIRATION)) {
+          setDepartments(cachedData.departments);
+          setFilteredDepartments(cachedData.departments);
+        } else {
+          const departmentCodes = Object.keys(departmentOverview);
+          setDepartments(departmentCodes);
+          setFilteredDepartments(departmentCodes);
+
+          // Cache the data
+          localStorage.setItem(CACHE_KEY, JSON.stringify({
+            timestamp: now,
+            departments: departmentCodes,
+          }));
+        }
+      } catch (error) {
+        setError('Failed to fetch departments.');
+        console.error('Error fetching departments:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -73,9 +94,8 @@ const AllClassesPage = () => {
       }
     };
 
-    timeout = setTimeout(type, 500); // Start the typing animation after a brief delay
+    timeout = setTimeout(type, 500);
 
-    // Clear timeout on component unmount
     return () => clearTimeout(timeout);
   }, [departmentExamples]);
 
