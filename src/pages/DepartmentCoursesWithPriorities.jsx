@@ -17,6 +17,7 @@ import {
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
+
 const DepartmentCoursesWithPriorities = () => {
   const { department } = useParams(); // Extract department from URL
   const [courses, setCourses] = useState([]);
@@ -26,6 +27,15 @@ const DepartmentCoursesWithPriorities = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        // Check if data for the department is available in localStorage
+        const cachedData = localStorage.getItem(`courses-${department}`);
+        if (cachedData) {
+          setCourses(JSON.parse(cachedData));
+          setLoading(false);
+          return;
+        }
+
+        // If not, fetch from Firestore (for the first time)
         const coursesCollection = collection(db, 'CoursePriorities');
         const courseSnapshot = await getDocs(coursesCollection);
         if (!courseSnapshot.empty) {
@@ -35,6 +45,9 @@ const DepartmentCoursesWithPriorities = () => {
               ...doc.data(),
             }))
             .filter((course) => course.Department === decodeURIComponent(department));
+
+          // Cache the courses data in localStorage
+          localStorage.setItem(`courses-${department}`, JSON.stringify(coursesList));
 
           setCourses(coursesList);
         } else {

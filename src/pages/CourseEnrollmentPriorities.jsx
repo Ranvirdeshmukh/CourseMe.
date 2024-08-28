@@ -27,6 +27,15 @@ const CourseEnrollmentPriorities = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        // Check if data is available in localStorage
+        const cachedData = localStorage.getItem('courseEnrollmentPriorities');
+        if (cachedData) {
+          setDepartments(JSON.parse(cachedData));
+          setLoading(false);
+          return;
+        }
+
+        // If not, fetch from Firestore
         const coursesCollection = collection(db, 'CoursePriorities');
         const courseSnapshot = await getDocs(coursesCollection);
 
@@ -50,6 +59,9 @@ const CourseEnrollmentPriorities = () => {
             name: department,
             courses: departmentsMap[department],
           }));
+
+          // Cache the data in localStorage
+          localStorage.setItem('courseEnrollmentPriorities', JSON.stringify(departmentsArray));
 
           setDepartments(departmentsArray);
         } else {
