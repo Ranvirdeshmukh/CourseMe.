@@ -1,8 +1,8 @@
-// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import NavBar from './components/NavBar';
+import GetStartedPage from './pages/GetStartedPage'; // Import the GetStartedPage
 import LandingPage from './pages/LandingPage';
 import AllClassesPage from './pages/AllClassesPage';
 import ProfilePage from './pages/ProfilePage';
@@ -17,13 +17,37 @@ import CourseEnrollmentPrioritiesPage from './pages/CourseEnrollmentPriorities';
 import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities';
 import Timetable from './pages/Timetable'; // Import the Timetable component
 
+const App = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
+  );
+};
 
-const App = () => (
-  <AuthProvider>
-    <Router>
-      <NavBar />
+const AppContent = () => {
+  const location = useLocation();
+
+  // Check if the current route is the Get Started page
+  const isSpecialPage = [
+    '/',
+    '/profile',
+    '/classes',
+    '/layups',
+    '/course-enrollment-priorities',
+    '/departments',
+    '/course-review',
+    '/timetable'
+  ].includes(location.pathname);
+
+  return (
+    <>
+      <NavBar isSpecialPage={isSpecialPage} /> {/* Always render NavBar, pass down isSpecialPage prop */}
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<GetStartedPage />} /> {/* Set the GetStartedPage as the root route */}
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/classes" element={<AllClassesPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/signup" element={<SignUpPage />} />
@@ -35,10 +59,11 @@ const App = () => (
         <Route path="/layups" element={<LayupsPage />} />
         <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage />} />
         <Route path="/course-enrollment-priorities/:department" element={<DepartmentCoursesWithPriorities />} />
-        <Route path="/timetable" element={<Timetable />} /> Add the Timetable route
+        <Route path="/timetable" element={<Timetable />} />
       </Routes>
-    </Router>
-  </AuthProvider>
-);
+    </>
+  );
+};
+
 
 export default App;

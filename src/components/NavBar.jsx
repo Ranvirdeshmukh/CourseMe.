@@ -1,12 +1,16 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box } from '@mui/material';
-import { Link, useLocation } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/custom.css'; // Import the custom CSS
 
 const NavBar = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check if the current page is the Get Started page
+  const isGetStartedPage = location.pathname === '/';
 
   // Helper function to determine if the current path matches any of the specific patterns
   const isSpecialPage = () => {
@@ -29,8 +33,36 @@ const NavBar = () => {
 
   const isSpecialPageStyle = isSpecialPage();
 
-  // Determine if the current page is the landing, login, or signup page
-  const isLandingOrAuthPage = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/signup';
+  // Return null to prevent Navbar rendering on the Get Started page
+  if (isGetStartedPage) {
+    return (
+      <Box
+        sx={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 1000,
+        }}
+      >
+        {/* <Button
+          variant="contained"
+          onClick={() => navigate(currentUser ? '/landing' : '/login')}
+          sx={{
+            backgroundColor: '#571CE0',
+            color: '#FFFFFF',
+            fontFamily: 'SF Pro Display, sans-serif',
+            textTransform: 'none',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            padding: '5px 10px',
+            borderRadius: '30px'
+          }}
+        >
+          Get Started
+        </Button> */}
+      </Box>
+    );
+  }
 
   return (
     <AppBar
@@ -45,9 +77,13 @@ const NavBar = () => {
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         {/* Logo display logic */}
-        <Box component={Link} to="/" sx={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+        <Box
+          component="div"
+          onClick={() => navigate(currentUser ? '/landing' : '/')}
+          sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+        >
           <img
-            src={isLandingOrAuthPage ? '/2.png' : '/1.png'} // Use 2.png for landing, login, and signup pages
+            src={isSpecialPageStyle ? '/1.png' : '/2.png'} // Use 1.png for special pages
             alt="Logo"
             style={{ height: '20px', marginRight: '10px' }} // Decreased height for a smaller image
           />
