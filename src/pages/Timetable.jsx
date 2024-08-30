@@ -37,7 +37,6 @@ import localforage from 'localforage';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-
 const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -112,6 +111,7 @@ const Timetable = () => {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false); 
+  const [popupMessageOpen, setPopupMessageOpen] = useState(false); // For pop-up blocker message
   const [showSelectedCourses, setShowSelectedCourses] = useState(false); 
   const { currentUser } = useAuth();
   const [selectedCourses, setSelectedCourses] = useState([]);
@@ -309,12 +309,18 @@ const Timetable = () => {
     setSnackbarOpen(false);
   };
 
+  const handlePopupMessageClose = () => {
+    setPopupMessageOpen(false);
+  };
+
   const handleAddToCalendar = (course) => {
     const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
     const details = `&details=${encodeURIComponent(`Instructor: ${course.instructor}`)}`;
     const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;
 
     const events = getEventTiming(course.period, course.title);
+
+    let popupBlocked = false;
 
     events.forEach((event) => {
       const text = `&text=${encodeURIComponent(event.title)}`;
@@ -323,8 +329,16 @@ const Timetable = () => {
 
       const url = `${baseUrl}${text}${details}${location}${startDateTime}${recur}&sf=true&output=xml`;
 
-      window.open(url, '_blank');
+      const newWindow = window.open(url, '_blank');
+
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        popupBlocked = true;
+      }
     });
+
+    if (popupBlocked) {
+      setPopupMessageOpen(true);
+    }
   };
 
   const getEventTiming = (periodCode, courseTitle) => {
@@ -795,6 +809,17 @@ const Timetable = () => {
         message="Thank you, you will be notified if someone drops the class."
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
+
+      <Snackbar
+        open={popupMessageOpen}
+        autoHideDuration={8000}
+        onClose={handlePopupMessageClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handlePopupMessageClose} severity="warning">
+          Pop-up blocked! Please click on the blocked content icon in your browser's address bar to allow pop-ups.
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
