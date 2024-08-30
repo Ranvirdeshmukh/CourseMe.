@@ -930,56 +930,90 @@ const CourseReviewsPage = () => {
             {renderReviews()}
 
             <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: '20px',
-                width: '100%',
-              }}
-            >
-              <Tooltip title="Previous Page" placement="top">
-                <span>
-                  <IconButton
-                    onClick={() => handleChangePage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    sx={{
-                      color: '#fff',
-                      backgroundColor: currentPage === 1 ? '#A074E8' : '#A074E8',
-                      '&:hover': {
-                        backgroundColor: currentPage === 1 ? '#A074E8' : '#7E55CC',
-                      },
-                      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                      margin: '0 2px',
-                    }}
-                  >
-                    <ArrowBack />
-                  </IconButton>
-                </span>
-              </Tooltip>
-              <ButtonGroup variant="text" color="primary">
-                {renderPageButtons()}
-              </ButtonGroup>
-              <Tooltip title="Next Page" placement="top">
-                <span>
-                  <IconButton
-                    onClick={() => handleChangePage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    sx={{
-                      color: '#fff',
-                      backgroundColor: currentPage === totalPages ? '#A074E8' : '#A074E8',
-                      '&:hover': {
-                        backgroundColor: currentPage === totalPages ? '#A074E8' : '#7E55CC',
-                      },
-                      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                      margin: '0 2px',
-                    }}
-                  >
-                    <ArrowForward />
-                  </IconButton>
-                </span>
-              </Tooltip>
-            </Box>
+  sx={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '20px',
+    width: '100%',
+    gap: '16px', // Increase space between elements for a more airy feel
+  }}
+>
+  <Tooltip title="Previous Page" placement="top">
+    <span>
+      <IconButton
+        onClick={() => handleChangePage(currentPage - 1)}
+        disabled={currentPage === 1}
+        sx={{
+          color: '#000', // Apple-style black text
+          backgroundColor: currentPage === 1 ? '#F5F5F7' : '#F5F5F7',
+          borderRadius: '12px', // Subtle rounding for a more modern look
+          padding: '12px',
+          border: '1px solid #D1D1D6', // Subtle border
+          '&:hover': {
+            backgroundColor: currentPage === 1 ? '#F5F5F7' : '#E0E0E0',
+          },
+          transition: 'background-color 0.3s ease',
+        }}
+      >
+        <ArrowBack sx={{ fontSize: '20px' }} />
+      </IconButton>
+    </span>
+  </Tooltip>
+
+  <ButtonGroup
+    variant="text"
+    sx={{
+      '& .MuiButtonGroup-grouped': {
+        minWidth: '40px', // Consistent button size
+        height: '40px',
+        borderRadius: '12px', // Subtle rounding
+        backgroundColor: '#F5F5F7',
+        color: '#000',
+        border: '1px solid #D1D1D6', // Subtle border
+        margin: '0 2px',
+        fontSize: '16px',
+        '&:hover': {
+          backgroundColor: '#E0E0E0',
+        },
+        '&.Mui-selected': {
+          backgroundColor: '#007AFF', // Apple blue for selected page
+          color: '#fff',
+          '&:hover': {
+            backgroundColor: '#0066CC',
+          },
+        },
+      },
+    }}
+  >
+    {renderPageButtons()}
+  </ButtonGroup>
+
+  <Tooltip title="Next Page" placement="top">
+    <span>
+      <IconButton
+        onClick={() => handleChangePage(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        sx={{
+          color: '#000',
+          backgroundColor: currentPage === totalPages ? '#F5F5F7' : '#F5F5F7',
+          borderRadius: '12px',
+          padding: '12px',
+          border: '1px solid #D1D1D6',
+          '&:hover': {
+            backgroundColor: currentPage === totalPages ? '#F5F5F7' : '#E0E0E0',
+          },
+          transition: 'background-color 0.3s ease',
+        }}
+      >
+        <ArrowForward sx={{ fontSize: '20px' }} />
+      </IconButton>
+    </span>
+  </Tooltip>
+</Box>
+
+
+
           </>
         ) : (
           <>
