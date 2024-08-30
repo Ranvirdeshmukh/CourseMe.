@@ -49,6 +49,8 @@ const CourseReviewsPage = () => {
   const [vote, setVote] = useState(null);
   const [courseDescription, setCourseDescription] = useState('');
   const [pinned, setPinned] = useState(false);
+  const [quality, setQuality] = useState(0); // Add this line
+
 
   const reviewsPerPage = 5;
 
@@ -101,26 +103,60 @@ const CourseReviewsPage = () => {
     setLoading(true);
     console.log('Fetching course...');
     try {
-      const docRef = doc(db, 'courses', courseId);
-      const docSnap = await getDoc(docRef);
+        const docRef = doc(db, 'courses', courseId);
+        const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        const courseData = docSnap.data();
-        if (courseData.layup === undefined) {
-          courseData.layup = 0;
+        if (docSnap.exists()) {
+            const courseData = docSnap.data();
+            if (courseData.layup === undefined) {
+                courseData.layup = 0;
+            }
+            if (courseData.quality === undefined) {
+                courseData.quality = 0; // Set a default value if quality is not present
+            }
+            setCourse(courseData);
+            setQuality(courseData.quality); // Update quality state
+        } else {
+            setError('Course not found.');
         }
-        setCourse(courseData);
-      } else {
-        setError('Course not found.');
-      }
     } catch (error) {
-      console.error('Error fetching course:', error);
-      setError('Failed to fetch course.');
+        console.error('Error fetching course:', error);
+        setError('Failed to fetch course.');
     } finally {
-      setLoading(false);
-      console.log('Finished fetching course');
+        setLoading(false);
+        console.log('Finished fetching course');
     }
-  }, [courseId]);
+}, [courseId]);
+const handleQualityVote = async (voteType) => {
+  if (!course || !currentUser) return;
+
+  const userDocRef = doc(db, 'users', currentUser.uid);
+  const courseRef = doc(db, 'courses', courseId);
+
+  let newQuality = quality !== undefined ? quality : 0;
+
+  if (vote === voteType) {
+      newQuality = voteType === 'upvote' ? newQuality - 1 : newQuality + 1;
+      await updateDoc(courseRef, { quality: newQuality });
+      await setDoc(userDocRef, { votes: { [`quality_${courseId}`]: null } }, { merge: true });
+      setVote(null);
+  } else {
+      if (vote === 'upvote') {
+          newQuality -= 1;
+      } else if (vote === 'downvote') {
+          newQuality += 1;
+      }
+      newQuality = voteType === 'upvote' ? newQuality + 1 : newQuality - 1;
+
+      await updateDoc(courseRef, { quality: newQuality });
+      await setDoc(userDocRef, { votes: { [`quality_${courseId}`]: voteType } }, { merge: true });
+      setVote(voteType);
+  }
+
+  setQuality(newQuality);
+};
+
+
 
   const fetchUserVote = useCallback(async () => {
     if (!currentUser) return;
@@ -149,6 +185,7 @@ const CourseReviewsPage = () => {
     }
   };
 
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -161,6 +198,7 @@ const CourseReviewsPage = () => {
     }
   };
 
+  
   useEffect(() => {
     fetchData();
   }, [courseId, department]);
@@ -702,60 +740,153 @@ const CourseReviewsPage = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Card
-          sx={{
-            marginBottom: 4,
-            padding: 4,
-            backgroundColor: '#FFFFFF',
-            color: '#1D1D1F',
-            boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
-            borderRadius: '16px',
-            maxWidth: 1100,
-            width: '100%',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 3, justifyContent: 'space-between' }}>
-            <Typography variant="h4" gutterBottom textAlign="left" sx={{ fontWeight: 700, fontSize: '2rem' }}>
-              {courseName}
-            </Typography>
-            <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
-  <IconButton
-    onClick={handlePinCourse}
+  <Card
     sx={{
-      color: pinned ? '#571CE0' : 'grey',
-      marginLeft: 1,
-      marginTop: '-10px',
-      transition: 'color 0.3s',
-      '&:hover': {
-        color: pinned ? '#FF0000' : '#571CE0',
-      },
+      marginBottom: 4,
+      padding: 4,
+      backgroundColor: '#FFFFFF',
+      color: '#1D1D1F',
+      boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
+      borderRadius: '16px',
+      maxWidth: 1100,
+      width: '100%',
     }}
   >
-    <PushPin sx={{ fontSize: 30 }} /> {/* Increase the fontSize here */}
-  </IconButton>
-</Tooltip>
-
+    <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 3, justifyContent: 'space-between' }}>
+      <Typography variant="h4" gutterBottom textAlign="left" sx={{ fontWeight: 700, fontSize: '2rem' }}>
+        {courseName}
+      </Typography>
+      <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
+        <IconButton
+          onClick={handlePinCourse}
+          sx={{
+            color: pinned ? '#571CE0' : 'grey',
+            marginLeft: 1,
+            marginTop: '-10px',
+            transition: 'color 0.3s',
+            '&:hover': {
+              color: pinned ? '#FF0000' : '#571CE0',
+            },
+          }}
+        >
+          <PushPin sx={{ fontSize: 30 }} /> {/* Increase the fontSize here */}
+        </IconButton>
+      </Tooltip>
+    </Box>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row', // Align items horizontally
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        gap: '20px', // Space between course description and the voting box
+      }}
+    >
+      {courseDescription && (
+        <Box
+          sx={{
+            textAlign: 'left',
+            backgroundColor: 'transparent',
+            color: 'black',
+            padding: '20px',
+            borderRadius: '12px',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+            flex: 1, // Allow the description to take up available space
+          }}
+        >
+          <Typography
+            variant="body1"
+            sx={{ fontSize: '0.95rem', color: 'black', textAlign: 'left', lineHeight: '1.6' }}
+            dangerouslySetInnerHTML={{ __html: courseDescription }}
+          />
+        </Box>
+      )}
+      
+      {course && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column', // Stack the content vertically
+            alignItems: 'center',
+            borderRadius: '20px', // Rounded corners for a smoother look
+            backgroundColor: '#FFF', // White background for contrast
+            border: '2px solid #571CE0',
+            boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
+            padding: '20px', // Padding to give space around content
+            justifyContent: 'center',
+            width: '130px', // Adjust width for vertical layout
+            boxSizing: 'border-box',
+            flexShrink: 0, // Prevent the box from shrinking
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              marginBottom: '20px', // Space between layup and quality sections
+            }}
+          >
+            <Tooltip title="Upvote Layup">
+              <IconButton
+                onClick={() => handleVote('upvote')}
+                sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
+              >
+                <ArrowUpward sx={{ fontSize: 24 }} />
+              </IconButton>
+            </Tooltip>
+            <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
+              {course.layup || 0}
+            </Typography>
+            <Tooltip title="Downvote Layup">
+              <IconButton
+                onClick={() => handleVote('downvote')}
+                sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
+              >
+                <ArrowDownward sx={{ fontSize: 24 }} />
+              </IconButton>
+            </Tooltip>
+            <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
+              Is it a layup?
+            </Typography>
           </Box>
-          {courseDescription && (
-            <Box
-              sx={{
-                textAlign: 'left',
-                marginBottom: '20px',
-                backgroundColor: 'transparent',
-                color: 'black',
-                padding: '20px',
-                borderRadius: '12px',
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-              }}
-            >
-              <Typography
-                variant="body1"
-                sx={{ fontSize: '0.95rem', color: 'black', textAlign: 'left', lineHeight: '1.6' }}
-                dangerouslySetInnerHTML={{ __html: courseDescription }}
-              />
-            </Box>
-          )}
-        </Card>
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Tooltip title="Upvote Quality">
+              <IconButton
+                onClick={() => handleQualityVote('upvote')}
+                sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
+              >
+                <ArrowUpward sx={{ fontSize: 24 }} />
+              </IconButton>
+            </Tooltip>
+            <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
+              {quality || 0}
+            </Typography>
+            <Tooltip title="Downvote Quality">
+              <IconButton
+                onClick={() => handleQualityVote('downvote')}
+                sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
+              >
+                <ArrowDownward sx={{ fontSize: 24 }} />
+              </IconButton>
+            </Tooltip>
+            <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
+              Quality of the course?
+            </Typography>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  </Card>
+
+
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -767,15 +898,30 @@ const CourseReviewsPage = () => {
           </Alert>
         ) : reviews.length > 0 ? (
           <>
-            {course && (
+          {/* {course && (
+            <Box
+              sx={{
+                position: 'fixed',
+                top: '150px',
+                left: '20px',
+                display: { xs: 'none', sm: 'flex' },
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
               <Box
                 sx={{
-                  position: 'fixed',
-                  top: '150px',
-                  left: '20px',
-                  display: { xs: 'none', sm: 'flex' },
-                  flexDirection: 'column',
+                  display: 'flex',
+                  flexDirection: 'column', // Stack the content vertically
                   alignItems: 'center',
+                  borderRadius: '20px', // Rounded corners for a smoother look
+                  backgroundColor: '#FFF', // White background for contrast
+                  border: '2px solid #571CE0',
+                  boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
+                  padding: '20px', // Padding to give space around content
+                  justifyContent: 'center',
+                  width: '130px', // Adjust width for vertical layout
+                  boxSizing: 'border-box',
                 }}
               >
                 <Box
@@ -783,18 +929,10 @@ const CourseReviewsPage = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    borderRadius: '50%',
-                    backgroundColor: 'transparent',
-                    border: '2px solid #571CE0',
-                    boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.1)',
-                    padding: '10px',
-                    width: '140px',
-                    height: '140px',
-                    justifyContent: 'space-around',
-                    boxSizing: 'border-box',
+                    marginBottom: '20px', // Space between layup and quality sections
                   }}
                 >
-                  <Tooltip title="Upvote">
+                  <Tooltip title="Upvote Layup">
                     <IconButton
                       onClick={() => handleVote('upvote')}
                       sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
@@ -805,7 +943,7 @@ const CourseReviewsPage = () => {
                   <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
                     {course.layup || 0}
                   </Typography>
-                  <Tooltip title="Downvote">
+                  <Tooltip title="Downvote Layup">
                     <IconButton
                       onClick={() => handleVote('downvote')}
                       sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
@@ -813,20 +951,45 @@ const CourseReviewsPage = () => {
                       <ArrowDownward sx={{ fontSize: 24 }} />
                     </IconButton>
                   </Tooltip>
+                  <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
+                    Is it a layup?
+                  </Typography>
                 </Box>
-                <Typography
-                  variant="caption"
+        
+                <Box
                   sx={{
-                    color: '#571CE0',
-                    marginTop: '10px',
-                    textAlign: 'center',
-                    fontWeight: 500,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
                   }}
                 >
-                  Is it a layup?
-                </Typography>
+                  <Tooltip title="Upvote Quality">
+                    <IconButton
+                      onClick={() => handleQualityVote('upvote')}
+                      sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowUpward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
+                    {quality || 0}
+                  </Typography>
+                  <Tooltip title="Downvote Quality">
+                    <IconButton
+                      onClick={() => handleQualityVote('downvote')}
+                      sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowDownward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
+                    Quality of the course?
+                  </Typography>
+                </Box>
               </Box>
-            )}
+            </Box>
+          )}
+         */}
             <Typography variant="h4" gutterBottom textAlign="left" sx={{ marginTop: 4, fontWeight: 700 }}>
               Professors
             </Typography>
