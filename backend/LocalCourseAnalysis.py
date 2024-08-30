@@ -6,6 +6,7 @@ from textblob import TextBlob
 from statistics import mean
 import os
 import random
+from difflib import get_close_matches
 
 class LocalCourseAnalysis:
     def __init__(self):
@@ -25,6 +26,51 @@ class LocalCourseAnalysis:
             'LAT': ['LATIN'],
         }
         self.reverse_prefix_map = {alt: prefix for prefix, alts in self.course_prefix_map.items() for alt in alts}
+
+    def normalize_name(self, name):
+        """Normalize a name by removing extra spaces and converting to lowercase."""
+        return ' '.join(name.lower().split())
+
+    def find_matching_course(self, course_name):
+        normalized_name = self.normalize_course_name(course_name)
+        if normalized_name in self.course_data:
+            return normalized_name
+
+        # Partial matching
+        for course in self.course_data.keys():
+            if course.startswith(normalized_name):
+                return course
+
+        # Fuzzy matching
+        close_matches = get_close_matches(normalized_name, self.course_data.keys(), n=1, cutoff=0.6)
+        if close_matches:
+            return close_matches[0]
+
+        return None
+
+    def find_matching_teacher(self, teacher_name, course=None):
+        normalized_name = self.normalize_name(teacher_name)
+
+        if course:
+            teachers = self.course_data.get(course, {}).keys()
+        else:
+            teachers = set(teacher for course_teachers in self.course_data.values() for teacher in course_teachers)
+
+        # Exact match
+        if normalized_name in teachers:
+            return normalized_name
+
+        # Partial matching
+        partial_matches = [t for t in teachers if normalized_name in self.normalize_name(t)]
+        if partial_matches:
+            return partial_matches[0]
+
+        # Fuzzy matching
+        close_matches = get_close_matches(normalized_name, teachers, n=1, cutoff=0.6)
+        if close_matches:
+            return close_matches[0]
+
+        return None
 
     def load_data(self, file_path='course_data_cache.pkl'):
         self.logger.info(f"Attempting to load cache from local file: {file_path}")
@@ -89,7 +135,7 @@ class LocalCourseAnalysis:
             ]
         }
         return random.choice(comments[difficulty_level])
-    
+
     def find_matching_course(self, course_name):
         normalized_name = self.normalize_course_name(course_name)
         if normalized_name in self.course_data:
@@ -98,7 +144,7 @@ class LocalCourseAnalysis:
             if course.startswith(normalized_name):
                 return course
         return None
-    
+
     def analyze_reviews(self, reviews):
         if not reviews:
             return None
@@ -127,12 +173,12 @@ class LocalCourseAnalysis:
             'avg_readability': avg_readability,
             'review_count': len(reviews)
         }
-    
+
     def analyze_text(self, text):
         blob = TextBlob(text)
         sentiment = blob.sentiment.polarity
         subjectivity = blob.sentiment.subjectivity
-        
+
         word_count = len(blob.words)
         sentence_count = len(blob.sentences)
         syllable_count = sum(self.count_syllables(word) for word in blob.words)
@@ -153,7 +199,7 @@ class LocalCourseAnalysis:
             'difficulty_count': difficulty_count,
             'easiness_count': easiness_count
         }
-    
+
     def count_syllables(self, word):
         word = word.lower()
         count = 0
@@ -170,8 +216,8 @@ class LocalCourseAnalysis:
         if count == 0:
             count += 1
         return count
-    
-    def get_sentiment_level(self, score): 
+
+    def get_sentiment_level(self, score):
         if score < -0.5:
             return "strongly dislike"
         elif -0.5 <= score < -0.2:
@@ -182,7 +228,7 @@ class LocalCourseAnalysis:
             return "like"
         else:
             return "love"
-    
+
     def get_difficulty_level(self, score):
         if score < -0.5:
             return "very easy"
@@ -194,7 +240,7 @@ class LocalCourseAnalysis:
             return "challenging"
         else:
             return "very challenging"
-    
+
     def normalize_course_name(self, course_name):
         course_name = course_name.upper().replace(" ", "")
         match = re.match(r"([A-Z]+)(\d+)", course_name)
@@ -216,21 +262,21 @@ class LocalCourseAnalysis:
             all_reviews = []
             for teacher, reviews in self.course_data[matched_course].items():
                 all_reviews.extend(reviews)
-            
+
             analysis = self.analyze_reviews(all_reviews)
             if not analysis:
                 return f"Oops! I couldn't find any reviews for {matched_course}. It's like trying to find a needle in a haystack!"
 
             teachers = list(self.course_data[matched_course].keys())
-            
+
             response = self.get_friendly_intro() + "\n"
             response += f"So, about {matched_course}... "
-            response += self.get_difficulty_comment(analysis['difficulty_level']) + "\n" 
+            response += self.get_difficulty_comment(analysis['difficulty_level']) + "\n"
             response += f"This class is considered \"{analysis['difficulty_level']}\" with a difficulty score of {analysis['difficulty_score']:.2f} (from around -0.5 to 0.5)\n"
             response += f"Students tended to \"{analysis['sentiment_level']}\" this class with a sentiment score of {analysis['avg_sentiment']:.2f} (from around -0.5 to 0.5)\n "
             #response += f"You've got {', '.join(teachers[:-1])}, and {teachers[-1]} teaching this one. "
             response += self.get_quality_comment(analysis['review_count'], analysis['avg_readability'])
-            
+
             return response
         else:
             return f"I've looked high and low, but I can't seem to find any data on {course_name}. Are you sure that's the right course code?"
@@ -284,16 +330,20 @@ class LocalCourseAnalysis:
             quality = "high"
         else:
             quality = "very reliable"
-        
+
         return "As for the quality of reviews, there are " + count + " reviews (" + str(review_count) + " to be specific) and they tend to be of " + quality + " quality"
-        
-    
+
+
     def get_teacher_difficulty(self, teacher_name):
+        matched_teacher = self.find_matching_teacher(teacher_name)
+        if not matched_teacher:
+            return f"No reviews found for teacher: {teacher_name}"
+
         teacher_reviews = []
         courses_taught = []
         for course, teachers in self.course_data.items():
-            if teacher_name in teachers:
-                teacher_reviews.extend(teachers[teacher_name])
+            if matched_teacher in teachers:
+                teacher_reviews.extend(teachers[matched_teacher])
                 courses_taught.append(course)
 
         if not teacher_reviews:
@@ -320,27 +370,54 @@ class LocalCourseAnalysis:
         #        f"Average Readability: {analysis['avg_readability']:.2f}\n" \
         #        f"Courses Taught: {', '.join(courses_taught)}\n" \
         #        f"Total reviews: {analysis['review_count']}"
-    
+
+    def extract_course_name(self, text):
+        # First, try to match course codes like COSC101 or ECON 1
+        course_match = re.search(r'\b([A-Z]{2,4})\s*(\d{1,3}[A-Z]?)\b', text, re.IGNORECASE)
+        if course_match:
+            prefix, number = course_match.groups()
+            return f"{prefix.upper()} {number}"
+
+        # If that fails, try to match full course names like "Computer Science 101"
+        for prefix, alternatives in self.course_prefix_map.items():
+            for alt in alternatives:
+                match = re.search(fr'\b{alt}\s*(\d{{1,3}}[A-Z]?)\b', text, re.IGNORECASE)
+                if match:
+                    return f"{prefix} {match.group(1)}"
+
+        return None
+
+    def extract_teacher_name(self, text):
+        # Look for a sequence of two or three capitalized words
+        teacher_match = re.search(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b', text, re.IGNORECASE)
+        if teacher_match:
+            return teacher_match.group(1)
+        return None
+
 
 
     def get_course_teacher_difficulty(self, course_name, teacher_name):
         matched_course = self.find_matching_course(course_name)
-        if matched_course in self.course_data and teacher_name in self.course_data[matched_course]:
-            reviews = self.course_data[matched_course][teacher_name]
-            analysis = self.analyze_reviews(reviews)
-            if not analysis:
-                return f"Well, this is awkward. I don't have any reviews for {teacher_name} teaching {matched_course}. Maybe they're new?"
+        if not matched_course:
+            return f"I'm scratching my head here. I can't find any data on {course_name}. Are you sure you've got that right?"
 
-            response = self.get_friendly_intro()
-            response += f"Let's talk about {matched_course} with Professor {teacher_name}. "
-            response += self.get_difficulty_comment(analysis['difficulty_level']) + "\n"
-            response += f"Students think this combination is {analysis['difficulty_level']} with a difficulty score of {analysis['difficulty_score']:.2f}.\n"
-            response += f"Students generally {analysis['sentiment_level']} this combo (with a sentiment score of {analysis['avg_sentiment']:.2f}). "
-            response += self.get_quality_comment(analysis['review_count'], analysis['avg_readability'])
-            
-            return response
-        else:
-            return f"I'm scratching my head here. I can't find any data on {teacher_name} teaching {course_name}. Are you sure you've got that right?"
+        matched_teacher = self.find_matching_teacher(teacher_name, matched_course)
+        if not matched_teacher or matched_teacher not in self.course_data[matched_course]:
+            return f"I'm scratching my head here. I can't find any data on {teacher_name} teaching {matched_course}. Are you sure you've got that right?"
+
+        reviews = self.course_data[matched_course][matched_teacher]
+        analysis = self.analyze_reviews(reviews)
+        if not analysis:
+            return f"Well, this is awkward. I don't have any reviews for {teacher_name} teaching {matched_course}. Maybe they're new?"
+
+        response = self.get_friendly_intro()
+        response += f"Let's talk about {matched_course} with Professor {teacher_name}. "
+        response += self.get_difficulty_comment(analysis['difficulty_level']) + "\n"
+        response += f"Students think this combination is {analysis['difficulty_level']} with a difficulty score of {analysis['difficulty_score']:.2f}.\n"
+        response += f"Students generally {analysis['sentiment_level']} this combo (with a sentiment score of {analysis['avg_sentiment']:.2f}). "
+        response += self.get_quality_comment(analysis['review_count'], analysis['avg_readability'])
+
+        return response
 
     def get_easiest_hardest_professor(self, course_name, difficulty_type='easiest'):
         matched_course = self.find_matching_course(course_name)
@@ -364,14 +441,14 @@ class LocalCourseAnalysis:
         response += f"If you're looking for the {difficulty_word} ride in {matched_course}, "
         response += f"you might want to check out {easiest_or_hardest[0]}. "
         response += f"They've got a difficulty score of {easiest_or_hardest[1]:.2f}. "
-        
+
         if difficulty_type == 'easiest':
             response += "It's like they're handing out A's like candy! "
         else:
             response += "Prepare for a real academic workout with this one! "
-        
+
         response += "But remember, the 'easiest' professor isn't always the best for learning. Choose wisely!"
-        
+
         return response
 
     # def compare_professors(self, course_name, professor1, professor2):
@@ -439,14 +516,17 @@ class LocalCourseAnalysis:
 
     def compare_professors(self, course_name, professor1, professor2):
         matched_course = self.find_matching_course(course_name)
-        if not matched_course or matched_course not in self.course_data:
+        if not matched_course:
             return f"I'm drawing a blank on {course_name}. Are you sure that's a course we offer?"
 
-        prof1_data = self.get_course_teacher_difficulty(matched_course, professor1)
-        prof2_data = self.get_course_teacher_difficulty(matched_course, professor2)
+        matched_prof1 = self.find_matching_teacher(professor1, matched_course)
+        matched_prof2 = self.find_matching_teacher(professor2, matched_course)
 
-        if "I'm scratching my head here" in prof1_data or "I'm scratching my head here" in prof2_data:
+        if not matched_prof1 or not matched_prof2:
             return f"Uh oh, I'm having trouble finding data on both {professor1} and {professor2} for {matched_course}. Are you sure they're both teaching it?"
+
+        prof1_data = self.get_course_teacher_difficulty(matched_course, matched_prof1)
+        prof2_data = self.get_course_teacher_difficulty(matched_course, matched_prof2)
 
         def extract_score(data):
             match = re.search(r"difficulty score of ([-\d.]+)", data)
@@ -457,7 +537,6 @@ class LocalCourseAnalysis:
 
         prof1_score = extract_score(prof1_data)
         prof2_score = extract_score(prof2_data)
-
         if prof1_score is None or prof2_score is None:
             return f"Sorry, I couldn't find valid difficulty scores for both professors. There might be an issue with the data."
 
@@ -475,75 +554,81 @@ class LocalCourseAnalysis:
         response += "But remember, easier isn't always better. Think about your learning style and goals too!"
 
         return response
-        
+
     def answer_question(self, question):
         question = question.lower()
-        
+
         difficulty_phrases = [
             "how difficult", "how hard", "how challenging", "how tough",
             "is it difficult", "is it hard", "is it challenging", "is it tough",
             "difficulty of", "hardness of", "challenge of",
             "easy or hard", "easy or difficult"
         ]
-        
+
         easiest_hardest_pattern = r"who is the (easiest|hardest) professor for (.+)"
         compare_professors_pattern = r"(.+) and (.+) are teaching (.+)(?:this term)?.*who should i take"
-        
+
+        for phrase in difficulty_phrases:
+            if phrase in question:
+                # Extract the subject of the question (everything after the difficulty phrase)
+                subject = question.split(phrase)[-1].strip()
+                if "with" in subject or "taught by" in subject:
+                    parts = re.split(r'\b(?:with|taught by)\b', subject, maxsplit=1)
+                    if len(parts) == 2:
+                        course_part, teacher_part = parts
+                        course_name = self.extract_course_name(course_part)
+                        teacher_name = self.extract_teacher_name(teacher_part)
+                        if course_name and teacher_name:
+                            return self.get_course_teacher_difficulty(course_name, teacher_name)
+
+                course_name = self.extract_course_name(subject)
+                if course_name:
+                    return self.get_course_difficulty(course_name)
+
+                teacher_name = self.extract_teacher_name(subject)
+                if teacher_name:
+                    return self.get_teacher_difficulty(teacher_name)
+
+                return f"I'm sorry, but I couldn't identify a specific course or teacher in your question: '{question}'. Could you please rephrase it?"
+
         match = re.match(easiest_hardest_pattern, question)
         if match:
             difficulty_type, course = match.groups()
             return self.get_easiest_hardest_professor(course, difficulty_type)
-        
-        match = re.match(compare_professors_pattern, question, re.IGNORECASE)
+
+        match = re.match(compare_professors_pattern, question)
         if match:
             prof1, prof2, course = match.groups()
-            return self.compare_professors(course.strip(), prof1.strip().title(), prof2.strip().title())
-        
-        if any(phrase in question for phrase in difficulty_phrases):
-            parts = re.split(r'\b(?:is|with|for)\b', question, maxsplit=1)
-            if len(parts) == 2:
-                name = parts[1].strip()
-                if "with" in question or "taught by" in question:
-                    course_name, teacher_name = re.split(r'\b(?:with|taught by)\b', name, maxsplit=1)
-                    course_name = course_name.strip()
-                    teacher_name = teacher_name.strip().title()
-                    return self.get_course_teacher_difficulty(course_name, teacher_name)
-                else:
-                    matched_course = self.find_matching_course(name)
-                    if matched_course:
-                        return self.get_course_difficulty(matched_course)
-                    else:
-                        return self.get_teacher_difficulty(name.title())
-            else:
-                return "I'm not quite sure what you're asking. Could you rephrase that?"
-        
+            return self.compare_professors(course.strip(), prof1.strip(), prof2.strip())
+
         elif any(phrase in question for phrase in ["list courses", "show courses", "what courses", "available courses"]):
             courses = sorted(self.course_data.keys())
-            response = "Alright, let me pull up the course catalog for you. Here's what we've got:\n"
+            response = "Here are some of the courses we offer:\n"
             response += "\n".join(courses[:10])  # Show only first 10 courses
             if len(courses) > 10:
                 response += f"\n...and {len(courses) - 10} more. That's a lot of learning opportunities!"
             return response
-        
+
         elif any(phrase in question for phrase in ["list teachers", "show teachers", "what teachers", "available teachers"]):
             teachers = set()
             for course_teachers in self.course_data.values():
                 teachers.update(course_teachers.keys())
             teachers = sorted(teachers)
-            response = "Let's see who's who in the academic zoo. Here are some of our esteemed educators:\n"
+            response = "Here are some of our teachers:\n"
             response += "\n".join(teachers[:10])  # Show only first 10 teachers
             if len(teachers) > 10:
-                response += f"\n...and {len(teachers) - 10} more. That's quite the brain trust!"
+                response += f"\n...and {len(teachers) - 10} more. That's quite the faculty!"
             return response
-        
+
         else:
-            return ("I'm scratching my head a bit here. Could you rephrase that? "
-                    "I'm great at dishing out info on course difficulty, comparing professors, "
-                    "or giving you the lowdown on teachers. Try something like:\n"
+            return ("I'm not sure I understood your question. Could you rephrase that? "
+                    "I can help with information on course difficulty, comparing professors, "
+                    "or giving you details about teachers. Try something like:\n"
                     "- How tough is COSC 101?\n"
                     "- Is Physics 201 hard?\n"
                     "- How easy is Professor Smith?\n"
-                    "- Melinda Petre and Elisabeth Curtis are teaching Econ 1, who should I take")
+                    "- Who is the easiest professor for Economics 101?\n"
+                    "- Melinda Petre and Elisabeth Curtis are teaching Econ 1, who should I take?")
 
 #     # Add a main function for testing
 #     @classmethod
@@ -562,6 +647,7 @@ class LocalCourseAnalysis:
 
 # if __name__ == "__main__":
 #     CachedCourseAnalysis.main()
+
 
 def main():
     print("Initializing LocalCourseAnalysis...")

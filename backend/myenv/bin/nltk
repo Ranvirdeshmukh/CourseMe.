@@ -1,4 +1,4 @@
-#!/Users/erikpeterson/dartwebsite/DartCourseReview/backend/myenv/bin/python3.12
+#!/Users/erikpeterson/dartwebsite/DartCourseReview/backend/myenv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
