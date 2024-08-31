@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
-  Alert
+  Alert, Chip
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -12,6 +12,8 @@ const API_URL = 'https://coursemebot.pythonanywhere.com/api/chat';
 const LandingPage = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
+  const [department, setDepartment] = useState('');
+  const [courseNumber, setCourseNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -21,6 +23,8 @@ const LandingPage = () => {
     setLoading(true);
     setError('');
     setAnswer('');
+    setDepartment('');
+    setCourseNumber('');
 
     try {
       const response = await axios.post(API_URL, 
@@ -31,9 +35,18 @@ const LandingPage = () => {
           },
         }
       );
-      setAnswer(response.data.answer);
+      console.log('API Response:', response.data); // Log the response for debugging
+      if (typeof response.data === 'object' && response.data.answer) {
+        setAnswer(response.data.answer);
+        setDepartment(response.data.department || '');
+        setCourseNumber(response.data.course_number || '');
+      } else if (typeof response.data === 'string') {
+        setAnswer(response.data);
+      } else {
+        throw new Error('Unexpected response format');
+      }
     } catch (error) {
-      console.error('Error fetching answer:', error.response ? error.response.data : error.message);
+      console.error('Error fetching answer:', error);
       setError('An error occurred while fetching the answer. Please try again.');
       setSnackbarOpen(true);
     } finally {
@@ -41,6 +54,16 @@ const LandingPage = () => {
     }
   };
 
+  useEffect(() => {
+    // Extract department and course number from the answer if not already set
+    if (answer && !department && !courseNumber) {
+      const match = answer.match(/^([A-Z]{2,4})\s*(\d+(?:\.\d+)?)/);
+      if (match) {
+        setDepartment(match[1]);
+        setCourseNumber(match[2]);
+      }
+    }
+  }, [answer, department, courseNumber]);
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -114,8 +137,17 @@ const LandingPage = () => {
           </Box>
           {answer && (
             <Paper elevation={2} sx={{ mt: 4, p: 3, bgcolor: 'rgba(255, 255, 255, 0.2)', borderRadius: 2 }}>
+              {(department || courseNumber) && (
+                <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  {department && <Chip label={`Department: ${department}`} color="primary" />}
+                  {courseNumber && <Chip label={`Course: ${courseNumber}`} color="secondary" />}
+                </Box>
+              )}
               <Typography variant="body1">
-                {answer}
+                {(department && courseNumber) 
+                  ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
+                  : answer
+                }
               </Typography>
             </Paper>
           )}
