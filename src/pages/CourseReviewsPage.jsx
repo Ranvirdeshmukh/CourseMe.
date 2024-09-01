@@ -196,6 +196,8 @@ const handleQualityVote = async (voteType) => {
     }
   };
 
+  const API_URL = process.env.REACT_APP_API_URL || 'https://url-text-fetcher-368299696124.us-central1.run.app';
+
   const fetchData = async () => {
     setLoading(true);
     try {
