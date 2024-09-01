@@ -11,7 +11,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://courseme.ai", "https://www.courseme.ai"]}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://courseme.ai", "https://www.courseme.ai", "https://courseme-62h3.onrender.com"]}})
 
 
 @app.route('/test-url')

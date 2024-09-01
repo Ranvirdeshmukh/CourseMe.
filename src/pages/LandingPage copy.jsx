@@ -6,52 +6,17 @@ import {
   Alert, Chip
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 const API_URL = 'https://coursemebot.pythonanywhere.com/api/chat';
-
-// Firebase configuration using environment variables
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
 const LandingPage = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [department, setDepartment] = useState('');
   const [courseNumber, setCourseNumber] = useState('');
-  const [documentId, setDocumentId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-
-  const searchCourseDocument = async (dept, num) => {
-    const searchString = `${dept}${num}`;
-    try {
-      const q = query(collection(db, "courses"), where("course_number", "==", searchString));
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        const doc = querySnapshot.docs[0];
-        setDocumentId(doc.id);
-      } else {
-        setDocumentId('');
-      }
-    } catch (error) {
-      console.error("Error searching for course:", error);
-      setDocumentId('');
-    }
-  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -60,7 +25,6 @@ const LandingPage = () => {
     setAnswer('');
     setDepartment('');
     setCourseNumber('');
-    setDocumentId('');
 
     try {
       const response = await axios.post(API_URL, 
@@ -71,14 +35,11 @@ const LandingPage = () => {
           },
         }
       );
-      console.log('API Response:', response.data);
+      console.log('API Response:', response.data); // Log the response for debugging
       if (typeof response.data === 'object' && response.data.answer) {
         setAnswer(response.data.answer);
         setDepartment(response.data.department || '');
         setCourseNumber(response.data.course_number || '');
-        if (response.data.department && response.data.course_number) {
-          await searchCourseDocument(response.data.department, response.data.course_number);
-        }
       } else if (typeof response.data === 'string') {
         setAnswer(response.data);
       } else {
@@ -94,12 +55,12 @@ const LandingPage = () => {
   };
 
   useEffect(() => {
+    // Extract department and course number from the answer if not already set
     if (answer && !department && !courseNumber) {
       const match = answer.match(/^([A-Z]{2,4})\s*(\d+(?:\.\d+)?)/);
       if (match) {
         setDepartment(match[1]);
         setCourseNumber(match[2]);
-        searchCourseDocument(match[1], match[2]);
       }
     }
   }, [answer, department, courseNumber]);
@@ -176,11 +137,10 @@ const LandingPage = () => {
           </Box>
           {answer && (
             <Paper elevation={2} sx={{ mt: 4, p: 3, bgcolor: 'rgba(255, 255, 255, 0.2)', borderRadius: 2 }}>
-              {(department || courseNumber || documentId) && (
+              {(department || courseNumber) && (
                 <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   {department && <Chip label={`Department: ${department}`} color="primary" />}
                   {courseNumber && <Chip label={`Course: ${courseNumber}`} color="secondary" />}
-                  {documentId && <Chip label={`Document ID: ${documentId}`} color="info" />}
                 </Box>
               )}
               <Typography variant="body1">
