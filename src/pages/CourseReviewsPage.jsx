@@ -51,6 +51,10 @@ const CourseReviewsPage = () => {
   const [pinned, setPinned] = useState(false);
   const [quality, setQuality] = useState(0); // Add this line
 
+  const [deptAndNumber, ...rest] = courseId.split('__');
+  const deptCode = deptAndNumber.match(/[A-Z]+/)[0];
+  const courseNumber = deptAndNumber.match(/\d+/)[0];
+
 
   const reviewsPerPage = 5;
 
@@ -172,19 +176,25 @@ const handleQualityVote = async (voteType) => {
 
   const fetchCourseDescription = async () => {
     try {
-      const threeChars = courseName.slice(-3);
-      const response = await fetch(`/api/dart/groucho/course_desc.display_course_desc?term=202409&subj=${department}&numb=${threeChars}`);
+      const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
+      
       if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
-      const data = await response.text();
-      setCourseDescription(data);
+      
+      const data = await response.json();
+      
+      if (data.content) {
+        setCourseDescription(data.content);
+      } else {
+        throw new Error('No content in the response');
+      }
     } catch (error) {
       console.error('Error fetching course description:', error);
       setError(error.message);
     }
   };
-
 
   const fetchData = async () => {
     setLoading(true);
@@ -197,6 +207,8 @@ const handleQualityVote = async (voteType) => {
       console.log('Finished fetching all data');
     }
   };
+
+  
 
   
   useEffect(() => {
@@ -1190,11 +1202,11 @@ const handleQualityVote = async (voteType) => {
               <Box
                 sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}
               >
-                <img
-                  src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnYzdG9sMWVoa2p5aWY3NmF2cTM5c2UzNnI3c20waWRjYTF5b2drOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/USbM2BJpAg7Di/giphy.gif"
+                {/* <img
+                  // src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnYzdG9sMWVoa2p5aWY3NmF2cTM5c2UzNnI3c20waWRjYTF5b2drOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/USbM2BJpAg7Di/giphy.gif"
                   alt="No Reviews"
-                  style={{ width: '300px', height: '300px', borderRadius: '8px' }}
-                />
+                  style={{ width: '300px', height: '300px', borderRadius: '8px' }} */}
+                {/* /> */}
               </Box>
             </Box>
           </>
