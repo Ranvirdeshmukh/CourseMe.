@@ -6,7 +6,6 @@ import {
   Alert, Chip, LinearProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Link, useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
@@ -38,6 +37,7 @@ const LandingPage = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [documentName, setDocumentName] = useState('');
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollMessage, setShowScrollMessage] = useState(false);
   const navigate = useNavigate();
   const pageRef = useRef(null);
 
@@ -49,6 +49,7 @@ const LandingPage = () => {
     setDepartment('');
     setCourseNumber('');
     setDocumentName('');
+    setShowScrollMessage(false);
 
     try {
       const response = await axios.post(API_URL, 
@@ -65,7 +66,6 @@ const LandingPage = () => {
         setDepartment(response.data.department || '');
         setCourseNumber(response.data.course_number || '');
         
-        // Query Firebase for course data
         if (response.data.department && response.data.course_number) {
           await fetchCourseData(response.data.department, response.data.course_number);
         }
@@ -74,6 +74,7 @@ const LandingPage = () => {
       } else {
         throw new Error('Unexpected response format');
       }
+      setShowScrollMessage(true);
     } catch (error) {
       console.error('Error fetching answer:', error);
       setError('An error occurred while fetching the answer. Please try again.');
@@ -118,14 +119,14 @@ const LandingPage = () => {
       if (pageRef.current && documentName) {
         const scrollPosition = window.scrollY;
         const viewportHeight = window.innerHeight;
-        const scrollHeight = viewportHeight * 0.05; // Reduce scroll height to 50% of viewport
+        const scrollHeight = viewportHeight * 0.05;
         const progress = Math.min(scrollPosition / scrollHeight, 1);
         setScrollProgress(progress);
     
         if (progress >= 0.9) {
           window.removeEventListener('scroll', handleScroll);
           setTimeout(() => {
-            window.scrollTo(0, 0); // Reset scroll position to the top
+            window.scrollTo(0, 0);
             navigate(`/departments/${department}/courses/${documentName}`);
           }, 300);
         }
@@ -272,7 +273,6 @@ const LandingPage = () => {
               <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {department && <Chip label={`Department: ${department}`} color="primary" />}
                 {courseNumber && <Chip label={`Course: ${courseNumber}`} color="secondary" />}
-                {/* {documentName && <Chip label={`Document: ${documentName}`} color="default" />} */}
               </Box>
             )}
             <Typography variant="body1" sx={{ color: '#333', textAlign: 'left', mb: 2 }}>
@@ -283,7 +283,7 @@ const LandingPage = () => {
             </Typography>
           </Paper>
         )}
-        {scrollProgress > 0 && (
+        {showScrollMessage && (
           <Box 
             sx={{ 
               position: 'fixed', 

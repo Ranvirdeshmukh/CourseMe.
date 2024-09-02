@@ -289,6 +289,10 @@ const handleQualityVote = async (voteType) => {
   };
 
   const splitReviewText = (review) => {
+    if (!review || typeof review !== 'string') {
+      console.warn('Invalid review:', review);
+      return { prefix: '', rest: '' };
+    }
     if (!review) return { prefix: '', rest: '' };
     const match = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/);
     if (match) {
