@@ -72,6 +72,10 @@ const CourseReviewsPage = () => {
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
 
+      console.log(transformedCourseId)
+      console.log("hi")
+      console.log(courseId.match(/([A-Z]+\d{3}_\d{2})/))
+
       if (transformedCourseId) {
         data = await fetchDocument(`reviews/${transformedCourseId}`);
       }

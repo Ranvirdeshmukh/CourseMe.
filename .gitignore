@@ -34,5 +34,6 @@ src/coursereview-98a89-firebase-adminsdk-2yc5i-f17bc2e8be.json
 
 backend/*
 my-cloud-function/*
+my-cloud-function
 
 .env
