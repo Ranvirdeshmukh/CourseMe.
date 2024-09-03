@@ -50,6 +50,8 @@ const CourseReviewsPage = () => {
   const [courseDescription, setCourseDescription] = useState('');
   const [pinned, setPinned] = useState(false);
   const [quality, setQuality] = useState(0); // Add this line
+  const [showAllProfessors, setShowAllProfessors] = useState(false);
+
 
   const [deptAndNumber, ...rest] = courseId.split('__');
   const deptCode = deptAndNumber.match(/[A-Z]+/)[0];
@@ -70,30 +72,41 @@ const CourseReviewsPage = () => {
       const docSnap = await getDoc(docRef);
       return docSnap.exists() ? docSnap.data() : null;
     };
-
+  
     try {
       let data = null;
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
-
+  
       if (transformedCourseId) {
         data = await fetchDocument(`reviews/${transformedCourseId}`);
       }
-
+  
       if (!data) {
         const sanitizedCourseId = courseId.split('_')[1];
         data = await fetchDocument(`reviews/${sanitizedCourseId}`);
       }
-
+  
       if (data) {
         const reviewsArray = Object.entries(data).flatMap(([instructor, reviewList]) => {
           if (Array.isArray(reviewList)) {
-            return reviewList.map((review, index) => ({ instructor, review, reviewIndex: index, courseId }));
+            return reviewList.map((review, index) => {
+              const termMatch = review.match(/^\d{2}[WSXF]/);
+              if (termMatch) {
+                const termCode = termMatch[0]; // Extract term code like '24W'
+                return { instructor, review, reviewIndex: index, courseId, termValue: getTermValue(termCode) };
+              } else {
+                return { instructor, review, reviewIndex: index, courseId, termValue: 0 }; // Default termValue for unmatched terms
+              }
+            });
           } else {
             return [];
           }
         });
-
+  
+        // Sort by termValue in descending order (latest first)
+        reviewsArray.sort((a, b) => b.termValue - a.termValue);
+  
         setReviews(reviewsArray);
       } else {
         setError('No reviews found for this course.');
@@ -106,6 +119,36 @@ const CourseReviewsPage = () => {
       console.log('Finished fetching reviews');
     }
   }, [courseId]);
+  
+  
+  // helper function to the sort the reviews
+  const getTermValue = (termCode) => {
+    const year = parseInt(termCode.slice(0, 2), 10);
+    const term = termCode.slice(2);
+    let termValue;
+  
+    switch (term) {
+      case 'W': // Winter
+        termValue = 1;
+        break;
+      case 'S': // Spring
+        termValue = 2;
+        break;
+      case 'X': // Summer
+        termValue = 3;
+        break;
+      case 'F': // Fall
+        termValue = 4;
+        break;
+      default:
+        termValue = 0; // Just in case
+        break;
+    }
+  
+    return year * 10 + termValue; // Multiplying the year to get a comparable numeric value
+  };
+  
+  
 
   const fetchCourse = useCallback(async () => {
     setLoading(true);
@@ -1042,37 +1085,62 @@ const handleQualityVote = async (voteType) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Object.entries(
-                    reviews.reduce((acc, review) => {
-                      const { instructor } = review;
-                      if (!acc[instructor]) {
-                        acc[instructor] = [];
-                      }
-                      acc[instructor].push(review);
-                      return acc;
-                    }, {})
-                  ).map(([instructor, reviewList], index) => (
-                    <TableRow
-                      key={index}
-                      component={Link}
-                      to={`/departments/${department}/courses/${courseId}/professors/${instructor}`}
-                      sx={{
-                        backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                        '&:hover': { backgroundColor: '#e0e0e0' },
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                      }}
-                    >
-                      <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
-                        {instructor}
-                      </TableCell>
-                      <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
-                        {Array.isArray(reviewList) ? reviewList.length : 0}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+  {Object.entries(
+    reviews.reduce((acc, review) => {
+      const { instructor } = review;
+      if (!acc[instructor]) {
+        acc[instructor] = [];
+      }
+      acc[instructor].push(review);
+      return acc;
+    }, {})
+  )
+    .slice(0, showAllProfessors ? undefined : 12) // Show only 12 professors initially
+    .map(([instructor, reviewList], index) => (
+      <TableRow
+        key={index}
+        component={Link}
+        to={`/departments/${department}/courses/${courseId}/professors/${instructor}`}
+        sx={{
+          backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+          '&:hover': { backgroundColor: '#e0e0e0' },
+          cursor: 'pointer',
+          textDecoration: 'none',
+          color: 'inherit',
+        }}
+      >
+        <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
+          {instructor}
+        </TableCell>
+        <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
+          {Array.isArray(reviewList) ? reviewList.length : 0}
+        </TableCell>
+      </TableRow>
+    ))}
+    
+  {Object.keys(
+    reviews.reduce((acc, review) => {
+      const { instructor } = review;
+      if (!acc[instructor]) {
+        acc[instructor] = [];
+      }
+      acc[instructor].push(review);
+      return acc;
+    }, {})
+  ).length > 12 && (
+    <TableRow>
+      <TableCell colSpan={2} sx={{ textAlign: 'center', padding: '10px' }}>
+        <Button
+          onClick={() => setShowAllProfessors((prev) => !prev)}
+          sx={{ color: '#571CE0', fontWeight: 500 }}
+        >
+          {showAllProfessors ? 'Show Less' : 'More Professors'}
+        </Button>
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
+
               </Table>
             </TableContainer>
             <Box
