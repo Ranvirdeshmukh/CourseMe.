@@ -74,7 +74,10 @@ const LandingPage = () => {
       } else {
         throw new Error('Unexpected response format');
       }
-      setShowScrollMessage(true);
+      if (response.data.department && response.data.course_number) {
+        setShowScrollMessage(true);
+      }
+
     } catch (error) {
       console.error('Error fetching answer:', error);
       setError('An error occurred while fetching the answer. Please try again.');

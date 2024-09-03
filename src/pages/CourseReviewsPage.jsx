@@ -47,14 +47,18 @@ const CourseReviewsPage = () => {
   const [selectedProfessor, setSelectedProfessor] = useState('');
   const [loading, setLoading] = useState(true);
   const [vote, setVote] = useState(null);
+  const [courseDescription, setCourseDescription] = useState('');
   const [pinned, setPinned] = useState(false);
   const [quality, setQuality] = useState(0); // Add this line
-  const [courseDescription, setCourseDescription] = useState('No course description found');
 
   const [deptAndNumber, ...rest] = courseId.split('__');
   const deptCode = deptAndNumber.match(/[A-Z]+/)[0];
-  const courseNumber = deptAndNumber.match(/\d+/)[0];
+  var courseNumber = deptAndNumber.match(/\d+/)[0];
+  const numberRegex = /[A-Z]+_[A-Z]+(\d+(?:_\d+)?)/;
+  const match = courseId.match(numberRegex);
+  const [descriptionError, setDescriptionError] = useState(null);
 
+  console.log("courseid: " + courseId)
 
   const reviewsPerPage = 5;
 
@@ -71,10 +75,6 @@ const CourseReviewsPage = () => {
       let data = null;
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
       const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
-
-      console.log(transformedCourseId)
-      console.log("hi")
-      console.log(courseId.match(/([A-Z]+\d{3}_\d{2})/))
 
       if (transformedCourseId) {
         data = await fetchDocument(`reviews/${transformedCourseId}`);
@@ -178,57 +178,51 @@ const handleQualityVote = async (voteType) => {
     }
   }, [currentUser, courseId]);
 
-  const fetchCourseDescription = useCallback(async () => {
+  const fetchCourseDescription = async () => {
     try {
-      const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (match && match[1]) {
+        const courseNumberNorm = match[1].replace('_', '.'); // Replace underscore with dot if present
+        console.log(courseNumberNorm); // Output: "007.01"
+        const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumberNorm}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.content) {
+          setCourseDescription(data.content);
+          setDescriptionError(null);
+        } else {
+          throw new Error('No content in the response');
+        }
       }
       
-      const data = await response.json();
-      
-      if (data.content) {
-        setCourseDescription(data.content);
-      } else {
-        setCourseDescription('No course description found');
+      else {
+        throw new Error('Course number not found');
       }
-    } catch (error) {
-      console.error('Error fetching course description:', error);
-      setCourseDescription('No course description found');
     }
-  }, [deptCode, courseNumber]);
+    catch (error) {
+      console.error('Error fetching course description:', error);
+      setDescriptionError('Course description not available');
+      setCourseDescription('Course description not available or class has not been recently offered');
+    }
+  };
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://url-text-fetcher-368299696124.us-central1.run.app';
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      // Use Promise.allSettled to run all fetch operations concurrently
-      const results = await Promise.allSettled([
-        fetchCourse(),
-        fetchReviews(),
-        fetchUserVote(),
-        fetchCourseDescription()
-      ]);
-      
-      // Log any errors, but don't stop execution
-      results.forEach((result, index) => {
-        if (result.status === 'rejected') {
-          console.error(`Error in fetch operation ${index}:`, result.reason);
-        }
-      });
+      await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
       console.log('Finished fetching all data');
     }
-  }, [fetchCourse, fetchReviews, fetchUserVote, fetchCourseDescription]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  };
 
   
 
@@ -289,10 +283,6 @@ const handleQualityVote = async (voteType) => {
   };
 
   const splitReviewText = (review) => {
-    if (!review || typeof review !== 'string') {
-      console.warn('Invalid review:', review);
-      return { prefix: '', rest: '' };
-    }
     if (!review) return { prefix: '', rest: '' };
     const match = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/);
     if (match) {
@@ -829,7 +819,7 @@ const handleQualityVote = async (voteType) => {
             padding: '20px',
             borderRadius: '12px',
             boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-            flex: 1,
+            flex: 1, // Allow the description to take up available space
           }}
         >
           <Typography
