@@ -301,7 +301,32 @@ const handleQualityVote = async (voteType) => {
 
   
   useEffect(() => {
+    let isMounted = true;
+  
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        if (isMounted) {
+          await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (isMounted) {
+          setError('Failed to fetch data. Please try refreshing the page.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          console.log('Finished fetching all data');
+        }
+      }
+    };
+  
     fetchData();
+  
+    return () => {
+      isMounted = false;
+    };
   }, [courseId, department]);
 
   const handleVote = async (voteType) => {
@@ -356,7 +381,10 @@ const handleQualityVote = async (voteType) => {
   };
 
   const splitReviewText = (review) => {
-    if (!review) return { prefix: '', rest: '' };
+    if (typeof review !== 'string' || !review) {
+      console.warn('Invalid review format:', review);
+      return { prefix: '', rest: '' };
+    }
     const match = review.match(/(.*?\d{2}[A-Z] with [^:]+: )([\s\S]*)/);
     if (match) {
       const [prefix, rest] = match.slice(1, 3);
@@ -575,18 +603,23 @@ const handleQualityVote = async (voteType) => {
     const indexOfLastReview = currentPage * reviewsPerPage;
     const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
     const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
-
+  
     let lastInstructor = '';
-
+  
     return (
       <List sx={{ maxWidth: '100%', margin: '0' }}>
         {currentReviews.map((item, idx) => {
+          if (!item || typeof item !== 'object') {
+            console.warn('Invalid review item:', item);
+            return null;
+          }
+  
           const showInstructor = item.instructor !== lastInstructor;
           lastInstructor = item.instructor;
-
+  
           const { prefix, rest } = splitReviewText(item.review);
           const replies = Array.isArray(item.replies) ? item.replies : [];
-
+  
           return (
             <React.Fragment key={idx}>
               {showInstructor && (
