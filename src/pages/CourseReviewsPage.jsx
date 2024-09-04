@@ -225,52 +225,57 @@ const handleQualityVote = async (voteType) => {
     try {
       console.log("Fetching course description for courseId:", courseId);
   
-      // Check if the course description is already in Firestore
-      const descriptionDocRef = doc(db, 'courseDescriptions', courseId);
-      const descriptionDocSnap = await getDoc(descriptionDocRef);
+      // Define the reference to the Course document in the 'courses' collection
+      const courseDocRef = doc(db, 'courses', courseId);
+      const courseDocSnap = await getDoc(courseDocRef);
       
-      if (descriptionDocSnap.exists()) {
-        // Description exists in Firestore, use it
-        const data = descriptionDocSnap.data();
-        setCourseDescription(data.description);
-        setDescriptionError(null);
-        console.log("Course description found in Firestore:", data.description);
-      } else {
-        // Description not in Firestore, fetch it from Dartmouth website
+      if (courseDocSnap.exists()) {
+        const courseData = courseDocSnap.data();
   
-        // Extract department code and course number from courseId
-        const courseIdParts = courseId.split('__');
-        const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
-        const courseNumberMatch = courseIdParts[0].match(/\d+/);
-  
-        if (deptCodeMatch && courseNumberMatch) {
-          const deptCode = deptCodeMatch[0];
-          const courseNumber = courseNumberMatch[0];
-          console.log("Department:", deptCode, "Course Number:", courseNumber);
-  
-          const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
-          
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          
-          if (data.content) {
-            setCourseDescription(data.content);
-            setDescriptionError(null);
-            console.log("Fetched course description from Dartmouth website:", data.content);
-  
-            // Save the fetched description to Firestore
-            await setDoc(descriptionDocRef, { description: data.content });
-            console.log("Saved course description to Firestore");
-          } else {
-            throw new Error('No content in the response');
-          }
+        // If the description already exists in the document, use it
+        if (courseData.description) {
+          setCourseDescription(courseData.description);
+          setDescriptionError(null);
+          console.log("Course description found in Firestore:", courseData.description);
         } else {
-          throw new Error('Course number or department code not found');
+          // If the description doesn't exist, fetch it from the Dartmouth website
+  
+          // Extract department code and course number from courseId
+          const courseIdParts = courseId.split('__');
+          const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
+          const courseNumberMatch = courseIdParts[0].match(/\d+/);
+  
+          if (deptCodeMatch && courseNumberMatch) {
+            const deptCode = deptCodeMatch[0];
+            const courseNumber = courseNumberMatch[0];
+            console.log("Department:", deptCode, "Course Number:", courseNumber);
+  
+            const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
+            
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.content) {
+              setCourseDescription(data.content);
+              setDescriptionError(null);
+              console.log("Fetched course description from Dartmouth website:", data.content);
+  
+              // Save the fetched description to the 'courses' collection
+              await updateDoc(courseDocRef, { description: data.content });
+              console.log("Saved course description to Firestore in the 'courses' collection");
+            } else {
+              throw new Error('No content in the response');
+            }
+          } else {
+            throw new Error('Course number or department code not found');
+          }
         }
+      } else {
+        throw new Error('Course not found in Firestore');
       }
     }
     catch (error) {
@@ -279,6 +284,7 @@ const handleQualityVote = async (voteType) => {
       setCourseDescription('Course description not available or class has not been recently offered');
     }
   };
+  
   
   
 
