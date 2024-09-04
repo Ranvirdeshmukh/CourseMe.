@@ -223,27 +223,54 @@ const handleQualityVote = async (voteType) => {
 
   const fetchCourseDescription = async () => {
     try {
-      if (match && match[1]) {
-        const courseNumberNorm = match[1].replace('_', '.'); // Replace underscore with dot if present
-        console.log(courseNumberNorm); // Output: "007.01"
-        const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumberNorm}`);
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.content) {
-          setCourseDescription(data.content);
-          setDescriptionError(null);
-        } else {
-          throw new Error('No content in the response');
-        }
-      }
+      console.log("Fetching course description for courseId:", courseId);
+  
+      // Check if the course description is already in Firestore
+      const descriptionDocRef = doc(db, 'courseDescriptions', courseId);
+      const descriptionDocSnap = await getDoc(descriptionDocRef);
       
-      else {
-        throw new Error('Course number not found');
+      if (descriptionDocSnap.exists()) {
+        // Description exists in Firestore, use it
+        const data = descriptionDocSnap.data();
+        setCourseDescription(data.description);
+        setDescriptionError(null);
+        console.log("Course description found in Firestore:", data.description);
+      } else {
+        // Description not in Firestore, fetch it from Dartmouth website
+  
+        // Extract department code and course number from courseId
+        const courseIdParts = courseId.split('__');
+        const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
+        const courseNumberMatch = courseIdParts[0].match(/\d+/);
+  
+        if (deptCodeMatch && courseNumberMatch) {
+          const deptCode = deptCodeMatch[0];
+          const courseNumber = courseNumberMatch[0];
+          console.log("Department:", deptCode, "Course Number:", courseNumber);
+  
+          const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.content) {
+            setCourseDescription(data.content);
+            setDescriptionError(null);
+            console.log("Fetched course description from Dartmouth website:", data.content);
+  
+            // Save the fetched description to Firestore
+            await setDoc(descriptionDocRef, { description: data.content });
+            console.log("Saved course description to Firestore");
+          } else {
+            throw new Error('No content in the response');
+          }
+        } else {
+          throw new Error('Course number or department code not found');
+        }
       }
     }
     catch (error) {
@@ -252,6 +279,8 @@ const handleQualityVote = async (voteType) => {
       setCourseDescription('Course description not available or class has not been recently offered');
     }
   };
+  
+  
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://url-text-fetcher-368299696124.us-central1.run.app';
 
@@ -266,6 +295,7 @@ const handleQualityVote = async (voteType) => {
       console.log('Finished fetching all data');
     }
   };
+  
 
   
 
