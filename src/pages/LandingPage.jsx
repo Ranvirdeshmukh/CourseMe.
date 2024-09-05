@@ -6,7 +6,7 @@ import {
   Alert, Chip, LinearProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
@@ -156,8 +156,8 @@ const LandingPage = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'radial-gradient(circle, #571CE0 0%, #571CE0 40%, black 70%)',
-        color: '#fff',
+        background: '#f9f9f9', // Change this line to set the background color
+        color: '#000',
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
         padding: '0 20px',
@@ -169,107 +169,98 @@ const LandingPage = () => {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '100%',
-          maxWidth: '800px',
+          flexGrow: 1, // Ensures this container grows to take up available space
           textAlign: 'center',
         }}
       >
+        {/* Main heading with clean and simple design */}
         <Typography
-          variant="h6"
-          component={Link}
-          to="/"
+          variant="h3"
           sx={{
             fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 500,
-            fontSize: { xs: '3rem', md: '4rem' },
-            textDecoration: 'none',
-            color: '#fff',
-            cursor: 'pointer',
-            mb: '20px',
+            fontWeight: 600,
+            fontSize: { xs: '2rem', md: '3rem' },
+            color: '#000',
+            mb: '40px',
+            letterSpacing: '0.04rem',
           }}
         >
-          CourseMe<span style={{ color: '#F26655' }}>.</span>
+          Simplify Your Major, Amplify Your College Life<span style={{ color: '#F26655' }}>.</span>
         </Typography>
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{
-            fontWeight: 500,
-            fontSize: { xs: '1.25rem', md: '1.5rem' },
-            marginBottom: '30px',
-            color: '#E4E2DD',
-          }}
-        >
-          Every Course. Every Review. Every Major. All In One.
-        </Typography>
+
         <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', gap: 2 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Ask about courses..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            sx={{
-              bgcolor: 'white',
-              borderRadius: '25px',
-              width: { xs: '90%', md: '70%' },
-              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '25px',
-                padding: '0 15px',
-                height: '50px',
-              },
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'transparent',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#571CE0',
-              },
-              '& .MuiInputAdornment-root': {
-                marginRight: '10px',
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#571CE0' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Button
-            variant="contained"
-            type="submit"
-            disabled={loading}
-            sx={{
-              background: 'linear-gradient(90deg, rgba(87,28,224,1) 0%, rgba(144,19,254,1) 100%)',
-              borderRadius: '25px',
-              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
-              color: 'white',
-              fontWeight: 'bold',
-              padding: '10px 25px',
-              transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-              '&:hover': {
-                transform: 'scale(1.05)',
-                boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
-              },
-              fontSize: { xs: '0.875rem', md: '1rem' },
-            }}
-          >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
-          </Button>
-        </Box>
+  <TextField
+    fullWidth
+    variant="outlined"
+    placeholder="Ask anything about courses..."
+    value={question}
+    onChange={(e) => setQuestion(e.target.value)}
+    sx={{
+      bgcolor: '#f9f9f9',
+      borderRadius: '25px',  // Subtle rounded corners
+      width: { xs: '90%', md: '60%' }, // Reduced width for a more compact feel
+      boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)', // Softer shadow for a sleek look
+      '& .MuiOutlinedInput-root': {
+        borderRadius: '25px',
+        padding: '0 20px',
+        height: '50px',
+        transition: 'all 0.3s ease-in-out',
+        '& fieldset': {
+          borderColor: 'transparent',
+        },
+        '&:hover fieldset': {
+          borderColor: '#bbb',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: '#000',
+          boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
+        },
+      },
+      '& .MuiInputAdornment-root': {
+        marginRight: '10px',
+      },
+    }}
+    InputProps={{
+      startAdornment: (
+        <InputAdornment position="start">
+          <SearchIcon sx={{ color: '#888', fontSize: '24px' }} />
+        </InputAdornment>
+      ),
+    }}
+  />
+  <Button
+    variant="contained"
+    type="submit"
+    disabled={loading}
+    sx={{
+      background: '#000',
+      borderRadius: '25px',
+      boxShadow: 'none', // Remove heavy shadow for a flat design
+      color: 'white',
+      fontWeight: 'bold',
+      padding: '10px 30px', // Increased padding for more elegance
+      transition: 'background-color 0.3s ease-in-out',
+      '&:hover': {
+        backgroundColor: '#333', // Slight color change on hover
+      },
+      fontSize: { xs: '0.875rem', md: '1rem' },
+    }}
+  >
+    {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
+  </Button>
+</Box>
+
         {answer && (
           <Paper 
             elevation={3} 
             sx={{ 
               mt: 4, 
               p: 3, 
-              bgcolor: 'white', 
+              bgcolor: '#f9f9f9', 
               borderRadius: 2,
               width: '100%',
               maxWidth: '800px',
-              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
             }}
           >
             {(department || courseNumber) && (
@@ -287,34 +278,43 @@ const LandingPage = () => {
           </Paper>
         )}
         {showScrollMessage && (
-          <Box 
-            sx={{ 
-              position: 'fixed', 
-              bottom: 20, 
-              left: '50%', 
-              transform: 'translateX(-50%)',
-              width: '200px',
-              textAlign: 'center'
-            }}
-          >
-            <Typography variant="body2" sx={{ mb: 1 }}>
-              Scroll more to view details
-            </Typography>
-            <LinearProgress 
-              variant="determinate" 
-              value={scrollProgress * 100} 
-              sx={{ 
-                height: 10, 
-                borderRadius: 5,
-                backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                '& .MuiLinearProgress-bar': {
-                  backgroundColor: '#F26655'
-                }
-              }} 
-            />
-          </Box>
-        )}
+  <Box 
+    sx={{ 
+      position: 'fixed', 
+      bottom: 80, /* Increased the bottom margin from 20 to 80 */
+      left: '50%', 
+      transform: 'translateX(-50%)',
+      width: '200px',
+      textAlign: 'center'
+    }}
+  >
+    <Typography variant="body2" sx={{ mb: 1, color: '#333' }}>
+      Scroll more to view details
+    </Typography>
+    <LinearProgress 
+      variant="determinate" 
+      value={scrollProgress * 100} 
+      sx={{ 
+        height: 10, 
+        borderRadius: 5,
+        backgroundColor: '#f0f0f0',
+        '& .MuiLinearProgress-bar': {
+          backgroundColor: '#000'
+        }
+      }} 
+    />
+  </Box>
+)}
+
       </Container>
+
+      {/* Footer Section */}
+      <Box sx={{ width: '100%', textAlign: 'center', mt: 'auto', pb: 5 }}> {/* `mt: auto` pushes it to the bottom */}
+        <Typography variant="body2" sx={{ color: '#999' }}>
+          © 2024 CourseMe. All Rights Reserved.
+        </Typography>
+      </Box>
+
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
           {error}

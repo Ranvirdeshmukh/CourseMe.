@@ -12,6 +12,9 @@ const NavBar = () => {
   // Check if the current page is the Get Started page
   const isGetStartedPage = location.pathname === '/';
 
+  // Check if the current page is the Landing page
+  const isLandingPage = location.pathname === '/landing';
+
   // Helper function to determine if the current path matches any of the specific patterns
   const isSpecialPage = () => {
     const path = location.pathname;
@@ -44,22 +47,6 @@ const NavBar = () => {
           zIndex: 1000,
         }}
       >
-        {/* <Button
-          variant="contained"
-          onClick={() => navigate(currentUser ? '/landing' : '/login')}
-          sx={{
-            backgroundColor: '#571CE0',
-            color: '#FFFFFF',
-            fontFamily: 'SF Pro Display, sans-serif',
-            textTransform: 'none',
-            fontWeight: 600,
-            fontSize: '0.875rem',
-            padding: '5px 10px',
-            borderRadius: '30px'
-          }}
-        >
-          Get Started
-        </Button> */}
       </Box>
     );
   }
@@ -69,7 +56,9 @@ const NavBar = () => {
       position="static"
       className="navbar"
       sx={{
-        background: isSpecialPageStyle
+        background: isLandingPage
+          ? '#F9F9F9' // Set to #F9F9F9 for the landing page
+          : isSpecialPageStyle
           ? '#E4E2DD' // Match the background color for special pages
           : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)', // Original background gradient
         boxShadow: 'none',
@@ -83,7 +72,7 @@ const NavBar = () => {
           sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
         >
           <img
-            src={isSpecialPageStyle ? '/1.png' : '/2.png'} // Use 1.png for special pages
+            src={isLandingPage || isSpecialPageStyle ? '/1.png' : '/2.png'} // Always use 1.png for landing page
             alt="Logo"
             style={{ height: '20px', marginRight: '10px' }} // Decreased height for a smaller image
           />
@@ -96,7 +85,7 @@ const NavBar = () => {
                 to="/classes"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
                   textTransform: 'none',
                   textDecoration: 'none',
                   margin: '0 10px',
@@ -111,7 +100,7 @@ const NavBar = () => {
                 to="/layups"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
                   textTransform: 'none',
                   textDecoration: 'none',
                   margin: '0 10px',
@@ -126,7 +115,7 @@ const NavBar = () => {
                 to="/timetable"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
                   textTransform: 'none',
                   textDecoration: 'none',
                   margin: '0 10px',
@@ -141,7 +130,7 @@ const NavBar = () => {
                 to="/profile"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
                   textTransform: 'none',
                   textDecoration: 'none',
                   margin: '0 10px',
@@ -158,7 +147,7 @@ const NavBar = () => {
               to="/login"
               sx={{
                 fontFamily: 'SF Pro Display, sans-serif',
-                color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
                 textTransform: 'none',
                 textDecoration: 'none',
                 margin: '0 10px',
