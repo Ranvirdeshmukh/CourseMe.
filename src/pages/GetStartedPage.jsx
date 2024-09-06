@@ -56,7 +56,7 @@ const GetStartedPage = () => {
     <Box 
       ref={pageRef}
       sx={{ 
-        backgroundColor: '#E4E2DC', 
+        backgroundColor: '#F9F9F9', 
         height: '150vh', // Reduce total height to 150% of viewport
         width: '100%', 
         overflow: 'hidden',

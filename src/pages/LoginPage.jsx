@@ -108,34 +108,20 @@ const LoginPage = () => {
         }}
       >
         <Typography
-          variant="h4"
-          gutterBottom
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 600,
-            color: '#1D1D1F',
-            mb: 1,
-            textAlign: 'left',
-          }}
-        >
-          Welcome to <span style={{ color: '#571CE0' }}>CourseMe</span>
-          <span style={{ color: '#F26655' }}>.</span>
-        </Typography>
+  variant="h4"
+  gutterBottom
+  sx={{
+    fontFamily: 'SF Pro Display, sans-serif',
+    fontWeight: 600,
+    color: '#1D1D1F',
+    mb: 1,
+    textAlign: 'left',
+  }}
+>
+  Simplify your major, amplify your college experience.
+</Typography>
 
-        <Typography
-          variant="body1"
-          gutterBottom
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 400,
-            color: '#8E8E93',
-            mb: 2,
-            fontSize: '1rem',
-            textAlign: 'left',
-          }}
-        >
-EveryCourse, EveryReview, All in One.
-        </Typography>
+
 
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>

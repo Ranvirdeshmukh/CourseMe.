@@ -144,8 +144,8 @@ const SignUpPage = () => {
             textAlign: 'left',
           }}
         >
-          Start exploring the best courses and reviews.
-        </Typography>
+  Simplify your major, amplify your college experience.
+  </Typography>
 
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
