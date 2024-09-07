@@ -1,5 +1,6 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { AppBar, Toolbar, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Snackbar, Alert } from '@mui/material';
+import { Menu as MenuIcon } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/custom.css'; // Import the custom CSS
@@ -8,6 +9,23 @@ const NavBar = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // State for managing Drawer visibility on mobile
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleDrawerOpen = () => {
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
   // Check if the current page is the Get Started page
   const isGetStartedPage = location.pathname === '/';
@@ -18,8 +36,6 @@ const NavBar = () => {
   // Helper function to determine if the current path matches any of the specific patterns
   const isSpecialPage = () => {
     const path = location.pathname;
-
-    // List of paths that should have the specific style
     const specialPages = [
       '/classes',
       '/profile',
@@ -29,8 +45,6 @@ const NavBar = () => {
       '/course-review', // Add course-review path to apply special styling
       '/timetable', // Include timetable path to apply special styling
     ];
-
-    // Check if the path matches any special pages or starts with a special prefix
     return specialPages.some((page) => path === page || path.startsWith(`${page}/`));
   };
 
@@ -57,10 +71,10 @@ const NavBar = () => {
       className="navbar"
       sx={{
         background: isLandingPage
-          ? '#F9F9F9' // Set to #F9F9F9 for the landing page
+          ? '#F9F9F9'
           : isSpecialPageStyle
-          ? '#E4E2DD' // Match the background color for special pages
-          : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)', // Original background gradient
+          ? '#E4E2DD'
+          : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
         boxShadow: 'none',
       }}
     >
@@ -72,12 +86,14 @@ const NavBar = () => {
           sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
         >
           <img
-            src={isLandingPage || isSpecialPageStyle ? '/1.png' : '/2.png'} // Always use 1.png for landing page
+            src={isLandingPage || isSpecialPageStyle ? '/1.png' : '/2.png'}
             alt="Logo"
-            style={{ height: '20px', marginRight: '10px' }} // Decreased height for a smaller image
+            style={{ height: '20px', marginRight: '10px' }}
           />
         </Box>
-        <Box>
+
+        {/* Desktop Links */}
+        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
           {currentUser ? (
             <>
               <Typography
@@ -159,7 +175,77 @@ const NavBar = () => {
             </Typography>
           )}
         </Box>
+
+        {/* Mobile Hamburger Menu */}
+        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={handleDrawerOpen}
+            sx={{ color: '#571CE0' }}  // Change the color here
+
+          >
+            <MenuIcon />
+          </IconButton>
+        </Box>
+
+        {/* Mobile Drawer Menu */}
+        <Drawer
+          anchor="right"
+          open={drawerOpen}
+          onClose={handleDrawerClose}
+          PaperProps={{
+            sx: {
+              width: 250, // Adjust the width of the drawer
+              background: '#E4E2DC', // Give it a classy Apple-like color
+              display: 'flex', // Ensures footer sticks to the bottom
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            },
+          }}
+          transitionDuration={500} // Smooth sliding transition
+        >
+          <List>
+            {currentUser ? (
+              <>
+                <ListItem button component={Link} to="/classes" onClick={handleDrawerClose}>
+                  <ListItemText primary="All Classes" />
+                </ListItem>
+                <ListItem button component={Link} to="/layups" onClick={handleDrawerClose}>
+                  <ListItemText primary="Layups" />
+                </ListItem>
+                <ListItem button component={Link} to="/timetable" onClick={handleDrawerClose}>
+                  <ListItemText primary="Timetable" />
+                </ListItem>
+                <ListItem button component={Link} to="/profile" onClick={handleDrawerClose}>
+                  <ListItemText primary="Profile" />
+                </ListItem>
+              </>
+            ) : (
+              <ListItem button component={Link} to="/login" onClick={handleDrawerClose}>
+                <ListItemText primary="Log In" />
+              </ListItem>
+            )}
+          </List>
+
+          {/* Footer Section */}
+          <Box sx={{ textAlign: 'center', pb: 3 }}>
+            <img src="/1.png" alt="CourseMe Logo" style={{ height: '25px', marginBottom: '10px' }} />
+            <Typography variant="body2" sx={{ color: '#999' }}>
+              © 2024 CourseMe. All Rights Reserved.
+            </Typography>
+          </Box>
+        </Drawer>
       </Toolbar>
+
+      {/* Snackbar for error messages */}
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </AppBar>
   );
 };
