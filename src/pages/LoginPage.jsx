@@ -1,7 +1,6 @@
-// src/pages/LoginPage.jsx
 import React, { useRef, useState } from 'react';
 import { Typography, Box, TextField, Button, InputAdornment, Link } from '@mui/material';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -18,6 +17,7 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
@@ -78,6 +78,23 @@ const LoginPage = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    const email = emailRef.current.value;
+
+    if (!email) {
+      setError('Please enter your email first');
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetEmailSent(true);
+      setError('');
+    } catch (error) {
+      setError('Failed to send password reset email');
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -108,142 +125,161 @@ const LoginPage = () => {
         }}
       >
         <Typography
-  variant="h4"
-  gutterBottom
-  sx={{
-    fontFamily: 'SF Pro Display, sans-serif',
-    fontWeight: 600,
-    color: '#1D1D1F',
-    mb: 1,
-    textAlign: 'left',
-  }}
->
-  Simplify your major, amplify your college experience.
-</Typography>
-
-
+          variant="h4"
+          gutterBottom
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: 600,
+            color: '#1D1D1F',
+            mb: 1,
+            textAlign: 'left',
+          }}
+        >
+          Simplify your major, amplify your college experience.
+        </Typography>
 
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
             {error}
           </Typography>
         )}
+        {resetEmailSent && (
+          <Typography color="success" sx={{ mb: 2 }}>
+            Password reset email sent successfully
+          </Typography>
+        )}
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 2 }}>
-  <TextField
-    variant="outlined"
-    placeholder="Email"
-    inputRef={emailRef}
-    required
-    sx={{
-      mb: 2,
-      bgcolor: '#FFFFFF',
-      borderRadius: '8px',
-      width: '100%',
-      '& .MuiOutlinedInput-root': {
-        borderRadius: '8px',
-        height: '48px',
-        '& fieldset': {
-          borderColor: '#E0E0E0',
-        },
-        '&:hover fieldset': {
-          borderColor: '#B0B0B0',
-        },
-        '&.Mui-focused fieldset': {
-          borderColor: '#571CE0',
-        },
-      },
-    }}
-    InputProps={{
-      startAdornment: (
-        <InputAdornment position="start">
-          <EmailIcon sx={{ color: '#571CE0' }} />
-        </InputAdornment>
-      ),
-    }}
-  />
-  <TextField
-    variant="outlined"
-    placeholder="Password"
-    type={showPassword ? 'text' : 'password'}
-    inputRef={passwordRef}
-    required
-    sx={{
-      mb: 3,
-      bgcolor: '#FFFFFF',
-      borderRadius: '8px',
-      width: '100%',
-      '& .MuiOutlinedInput-root': {
-        borderRadius: '8px',
-        height: '48px',
-        '& fieldset': {
-          borderColor: '#E0E0E0',
-        },
-        '&:hover fieldset': {
-          borderColor: '#B0B0B0',
-        },
-        '&.Mui-focused fieldset': {
-          borderColor: '#571CE0',
-        },
-      },
-    }}
-    InputProps={{
-      startAdornment: (
-        <InputAdornment position="start">
-          <LockIcon sx={{ color: '#571CE0' }} />
-        </InputAdornment>
-      ),
-      endAdornment: (
-        <InputAdornment position="end">
-          <IconButton
-            aria-label="toggle password visibility"
-            onClick={handleClickShowPassword}
-            edge="end"
+          <TextField
+            variant="outlined"
+            placeholder="Email"
+            inputRef={emailRef}
+            required
+            sx={{
+              mb: 2,
+              bgcolor: '#FFFFFF',
+              borderRadius: '8px',
+              width: '100%',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+                height: '48px',
+                '& fieldset': {
+                  borderColor: '#E0E0E0',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#B0B0B0',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#571CE0',
+                },
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailIcon sx={{ color: '#571CE0' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            variant="outlined"
+            placeholder="Password"
+            type={showPassword ? 'text' : 'password'}
+            inputRef={passwordRef}
+            required
+            sx={{
+              mb: 2,
+              bgcolor: '#FFFFFF',
+              borderRadius: '8px',
+              width: '100%',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+                height: '48px',
+                '& fieldset': {
+                  borderColor: '#E0E0E0',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#B0B0B0',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#571CE0',
+                },
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon sx={{ color: '#571CE0' }} />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
+            <Link
+              sx={{
+                color: '#571CE0',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                '&:hover': {
+                  color: '#3A0DAF',
+                  textDecoration: 'underline',
+                },
+              }}
+              onClick={handleForgotPassword}
+            >
+              Forgot Password?
+            </Link>
+          </Box>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            sx={{
+              marginBottom: '20px',
+              fontFamily: 'SF Pro Display, sans-serif',
+              color: '#1D1D1F',
+            }}
           >
-            {showPassword ? <Visibility /> : <VisibilityOff />}
-          </IconButton>
-        </InputAdornment>
-      ),
-    }}
-  />
+            <strong>Please Note:</strong> Log in using your Dartmouth email ID.
+          </Typography>
 
-<Typography
-  variant="body2"
-  color="textSecondary"
-  sx={{
-    marginBottom: '20px',
-    fontFamily: 'SF Pro Display, sans-serif',
-    color: '#1D1D1F',
-  }}
->
-  <strong>Please Note:</strong> Log in using your Dartmouth email ID.
-</Typography>
+          <Box
+            component="button"
+            type="submit"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              height: '48px',
+              backgroundColor: '#4285F4',
+              borderRadius: '20px',
+              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
+              color: '#fff',
+              fontWeight: 'bold',
+              mb: 2,
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background-color 0.218s, box-shadow 0.218s',
+              '&:hover': {
+                backgroundColor: '#571CEO',
+                boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
+              },
+            }}
+          >
+            Log In
+          </Box>
 
-  <Box
-    component="button"
-    type="submit"
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-      height: '48px',
-      backgroundColor: '#4285F4',
-      borderRadius: '20px',
-      boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
-      color: '#fff',
-      fontWeight: 'bold',
-      mb: 2,
-      border: 'none',
-      cursor: 'pointer',
-      transition: 'background-color 0.218s, box-shadow 0.218s',
-      '&:hover': {
-        backgroundColor: '#571CEO',
-        boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
-      },
-    }}
-  >
-    Log In
-  </Box>
           <Box
             onClick={handleGoogleSignIn}
             sx={{
@@ -301,6 +337,7 @@ const LoginPage = () => {
               <span>Continue with Google</span>
             </Box>
           </Box>
+
           <Typography variant="body2" sx={{ mt: 3, fontSize: '1.1rem' }}>
             Don't have an account?{' '}
             <Link

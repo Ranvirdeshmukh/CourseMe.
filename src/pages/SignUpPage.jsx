@@ -28,11 +28,19 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // Check if the email is a Dartmouth email
+    const email = emailRef.current.value;
+    if (!email.endsWith('@dartmouth.edu')) {
+      setError('Please use your Dartmouth email address');
+      return;
+    }
+  
     if (passwordRef.current.value !== confirmPasswordRef.current.value) {
       setError('Passwords do not match');
       return;
     }
-
+  
     try {
       setError('');
       setLoading(true);
@@ -42,7 +50,7 @@ const SignUpPage = () => {
         passwordRef.current.value
       );
       const user = userCredential.user;
-
+  
       // Add user to Firestore
       await setDoc(doc(db, 'users', user.uid), {
         firstName: firstNameRef.current.value,
@@ -50,15 +58,22 @@ const SignUpPage = () => {
         email: user.email,
         createdAt: new Date(),
       });
-
+  
       // Navigate to profile completion page
       navigate('/complete-profile');
     } catch (error) {
-      setError('Failed to create an account');
+      if (error.code === 'auth/email-already-in-use') {
+        setError('This email is already in use. Please try logging in.');
+      } else {
+        setError('Failed to create an account');
+      }
       console.error('Error creating user:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+  
+
 
   const handleGoogleSignIn = async () => {
     try {
