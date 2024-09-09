@@ -27,6 +27,8 @@ import {
   CircularProgress,
   Card,
 } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
@@ -989,6 +991,23 @@ const handleQualityVote = async (voteType) => {
             <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
               Is it a layup?
             </Typography>
+            {/* Info Icon */}
+           <Tooltip
+             title="Please Note: In the context of courses, 'layup' refers to the perceived ease and workload of the course. A higher layup score typically indicates a course is easier and less time-consuming for students."
+             placement="top"
+           >
+             <IconButton
+               sx={{
+                 color: '#8e8e8e',
+                 padding: 0,
+                 '&:hover': {
+                   color: '#000',
+                 },
+               }}
+             >
+               <InfoOutlinedIcon sx={{ fontSize: 22 }} />
+             </IconButton>
+           </Tooltip>
           </Box>
 
           <Box
@@ -1018,7 +1037,7 @@ const handleQualityVote = async (voteType) => {
               </IconButton>
             </Tooltip>
             <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
-              Is it a good course?
+              Is it a good class?
             </Typography>
           </Box>
         </Box>

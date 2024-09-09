@@ -266,26 +266,31 @@ const LandingPage = () => {
               ),
             }}
           />
-          <Button
-            variant="contained"
-            type="submit"
-            disabled={loading}
-            sx={{
-              background: '#000',
-              borderRadius: '25px',
-              boxShadow: 'none', // Remove heavy shadow for a flat design
-              color: 'white',
-              fontWeight: 'bold',
-              padding: '10px 30px', // Increased padding for more elegance
-              transition: 'background-color 0.3s ease-in-out',
-              '&:hover': {
-                backgroundColor: '#333', // Slight color change on hover
-              },
-              fontSize: { xs: '0.875rem', md: '1rem' },
-            }}
-          >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
-          </Button>
+      <Button
+  variant="contained"
+  type="submit"
+  disabled={loading}
+  disableElevation // Disable default elevation to prevent MUI from overriding styles
+  sx={{
+    backgroundColor: '#000', // Initial background color
+    borderRadius: '25px',
+    color: 'white',
+    fontWeight: 'bold',
+    padding: '10px 30px',
+    transition: 'background-color 0.3s ease-in-out',
+    '&:hover': {
+      backgroundColor: '#571CEO', // Change color on hover
+    },
+    '&:active': {
+      backgroundColor: '#571CEO', // Change color when clicked
+    },
+    fontSize: { xs: '0.875rem', md: '1rem' },
+  }}
+>
+  {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
+</Button>
+
+
         </Box>
 
         {answer && (
