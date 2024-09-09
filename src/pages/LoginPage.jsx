@@ -129,108 +129,121 @@ const LoginPage = () => {
           </Typography>
         )}
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 2 }}>
-          <TextField
-            variant="outlined"
-            placeholder="Email"
-            inputRef={emailRef}
-            required
-            sx={{
-              mb: 2,
-              bgcolor: '#FFFFFF',
-              borderRadius: '8px',
-              width: '100%',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                height: '48px',
-                '& fieldset': {
-                  borderColor: '#E0E0E0',
-                },
-                '&:hover fieldset': {
-                  borderColor: '#B0B0B0',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#571CE0',
-                },
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <EmailIcon sx={{ color: '#571CE0' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            variant="outlined"
-            placeholder="Password"
-            type={showPassword ? 'text' : 'password'}
-            inputRef={passwordRef}
-            required
-            sx={{
-              mb: 3,
-              bgcolor: '#FFFFFF',
-              borderRadius: '8px',
-              width: '100%',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                height: '48px',
-                '& fieldset': {
-                  borderColor: '#E0E0E0',
-                },
-                '&:hover fieldset': {
-                  borderColor: '#B0B0B0',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#571CE0',
-                },
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <LockIcon sx={{ color: '#571CE0' }} />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Box
-            component="button"
-            type="submit"
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              height: '48px',
-              backgroundColor: '#4285F4',  // Same color as Google button
-              borderRadius: '20px',        // Rounded corners to match Google button
-              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
-              color: '#fff',
-              fontWeight: 'bold',
-              mb: 2,
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'background-color 0.218s, box-shadow 0.218s',
-              '&:hover': {
-                backgroundColor: '#571CEO',
-                boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
-              },
-            }}
+  <TextField
+    variant="outlined"
+    placeholder="Email"
+    inputRef={emailRef}
+    required
+    sx={{
+      mb: 2,
+      bgcolor: '#FFFFFF',
+      borderRadius: '8px',
+      width: '100%',
+      '& .MuiOutlinedInput-root': {
+        borderRadius: '8px',
+        height: '48px',
+        '& fieldset': {
+          borderColor: '#E0E0E0',
+        },
+        '&:hover fieldset': {
+          borderColor: '#B0B0B0',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: '#571CE0',
+        },
+      },
+    }}
+    InputProps={{
+      startAdornment: (
+        <InputAdornment position="start">
+          <EmailIcon sx={{ color: '#571CE0' }} />
+        </InputAdornment>
+      ),
+    }}
+  />
+  <TextField
+    variant="outlined"
+    placeholder="Password"
+    type={showPassword ? 'text' : 'password'}
+    inputRef={passwordRef}
+    required
+    sx={{
+      mb: 3,
+      bgcolor: '#FFFFFF',
+      borderRadius: '8px',
+      width: '100%',
+      '& .MuiOutlinedInput-root': {
+        borderRadius: '8px',
+        height: '48px',
+        '& fieldset': {
+          borderColor: '#E0E0E0',
+        },
+        '&:hover fieldset': {
+          borderColor: '#B0B0B0',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: '#571CE0',
+        },
+      },
+    }}
+    InputProps={{
+      startAdornment: (
+        <InputAdornment position="start">
+          <LockIcon sx={{ color: '#571CE0' }} />
+        </InputAdornment>
+      ),
+      endAdornment: (
+        <InputAdornment position="end">
+          <IconButton
+            aria-label="toggle password visibility"
+            onClick={handleClickShowPassword}
+            edge="end"
           >
-            Log In
-          </Box>
+            {showPassword ? <Visibility /> : <VisibilityOff />}
+          </IconButton>
+        </InputAdornment>
+      ),
+    }}
+  />
+
+<Typography
+  variant="body2"
+  color="textSecondary"
+  sx={{
+    marginBottom: '20px',
+    fontFamily: 'SF Pro Display, sans-serif',
+    color: '#1D1D1F',
+  }}
+>
+  <strong>Please Note:</strong> Log in using your Dartmouth email ID.
+</Typography>
+
+  <Box
+    component="button"
+    type="submit"
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '48px',
+      backgroundColor: '#4285F4',
+      borderRadius: '20px',
+      boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
+      color: '#fff',
+      fontWeight: 'bold',
+      mb: 2,
+      border: 'none',
+      cursor: 'pointer',
+      transition: 'background-color 0.218s, box-shadow 0.218s',
+      '&:hover': {
+        backgroundColor: '#571CEO',
+        boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
+      },
+    }}
+  >
+    Log In
+  </Box>
           <Box
             onClick={handleGoogleSignIn}
             sx={{

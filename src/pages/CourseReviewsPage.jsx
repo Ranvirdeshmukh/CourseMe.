@@ -1018,7 +1018,7 @@ const handleQualityVote = async (voteType) => {
               </IconButton>
             </Tooltip>
             <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
-              Quality of the course?
+              Is it a good course?
             </Typography>
           </Box>
         </Box>

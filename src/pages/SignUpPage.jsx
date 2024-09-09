@@ -146,6 +146,7 @@ const SignUpPage = () => {
         >
   Simplify your major, amplify your college experience.
   </Typography>
+  
 
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
@@ -337,6 +338,18 @@ const SignUpPage = () => {
               ),
             }}
           />
+          <Typography
+  variant="body2"
+  color="textSecondary"
+  sx={{
+    marginBottom: '20px',
+    fontFamily: 'SF Pro Display, sans-serif',
+    color: '#1D1D1F',
+  }}
+>
+  <strong>Please Note:</strong> Please sign up using your Dartmouth email ID.
+</Typography>
+
           <Box
             component="button"
             type="submit"
