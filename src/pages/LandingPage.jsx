@@ -293,33 +293,40 @@ const LandingPage = () => {
 
         </Box>
 
+        
         {answer && (
-          <Paper 
-            elevation={3} 
-            sx={{ 
-              mt: 4, 
-              p: 3, 
-              bgcolor: '#f9f9f9', 
-              borderRadius: 2,
-              width: '100%',
-              maxWidth: '800px',
-              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
-            }}
-          >
-            {(department || courseNumber) && (
-              <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                {department && <Chip label={`Department: ${department}`} color="primary" />}
-                {courseNumber && <Chip label={`Course: ${courseNumber}`} color="secondary" />}
-              </Box>
-            )}
-            <Typography variant="body1" sx={{ color: '#333', textAlign: 'left', mb: 2 }}>
-              {(department && courseNumber) 
-                ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
-                : answer
-              }
-            </Typography>
-          </Paper>
-        )}
+  <Paper 
+    elevation={3} 
+    sx={{ 
+      mt: 4, 
+      p: 3, 
+      bgcolor: '#f9f9f9', 
+      borderRadius: 2,
+      width: '100%',
+      maxWidth: '800px',
+      boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
+    }}
+  >
+    {(department || courseNumber) && (
+      <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        {department && <Chip label={`Department: ${department}`} color="primary" />}
+        {courseNumber && <Chip label={`Course: ${courseNumber}`} color="secondary" />}
+      </Box>
+    )}
+    <Typography variant="body1" sx={{ color: '#333', textAlign: 'left', mb: 2 }}>
+      {(department && courseNumber) 
+        ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
+        : answer
+      }
+    </Typography>
+
+    {/* New note below the AI response */}
+    <Typography variant="body2" sx={{ color: '#888', mt: 2 }}>
+      Note: This AI chatbot is in its very early stage of development, and we are actively working on improving it.
+    </Typography>
+  </Paper>
+)}
+
         {showScrollMessage && (
           <Box 
             sx={{ 
