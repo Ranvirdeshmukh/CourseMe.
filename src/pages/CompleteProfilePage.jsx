@@ -24,6 +24,7 @@ const majorOptions = [
   'Music',
   'Philosophy',
   'Anthropology',
+  'Undecided',
 ];
 
 const CompleteProfilePage = () => {

@@ -462,6 +462,8 @@ const Timetable = () => {
             Your Fall 2024 Classes
           </Typography>
         )}
+       
+
 
         {showSelectedCourses && selectedCourses.length > 0 && (
   <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginBottom: '20px', boxShadow: 3, borderRadius: '12px', maxWidth: '100%' }}>
@@ -523,6 +525,7 @@ const Timetable = () => {
     </Table>
   </TableContainer>
 )}
+
 
         {showSelectedCourses && selectedCourses.length === 0 && (
           <Typography sx={{ marginBottom: '20px' }}>Haven't added your Fall 2024 timetable on CourseMe? Add now!!</Typography>
@@ -675,7 +678,22 @@ const Timetable = () => {
   {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
 </Button>
 
+
+
         </Box>
+
+        <Typography
+  variant="body2"
+  color="textSecondary"
+  sx={{
+    marginBottom: '20px',
+    marginTop: '20px',
+    fontFamily: 'SF Pro Display, sans-serif',
+    color: '#1D1D1F',
+  }}
+>
+<strong>Add your Fall Timetable to your calendar in one click.</strong> Simply select your courses to add them to your profile, and use the "Add to Calendar" feature to seamlessly integrate them into your personal schedule. This data will also help train the AI model we are working on, which will eventually assist with complete major planning.
+</Typography>
 
         {loading ? (
           <Box
