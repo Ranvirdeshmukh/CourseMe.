@@ -463,11 +463,32 @@ const LandingPage = () => {
       )}
 
       {/* Footer Section */}
-      <Box sx={{ width: '100%', textAlign: 'center', mt: 'auto', pb: 5 }}>
-        <Typography variant="body2" sx={{ color: '#999' }}>
-          © 2024 CourseMe. All Rights Reserved.
-        </Typography>
-      </Box>
+<Box 
+
+>
+  <Typography 
+    variant="body2" 
+    sx={{ 
+      color: '#333', 
+      fontSize: '0.875rem',  // Slightly smaller text
+      fontFamily: 'SF Pro Display, sans-serif',  // Keeping it consistent with Apple-like font
+      mb: 1 
+    }}
+  >
+    © 2024 CourseMe. All Rights Reserved.
+  </Typography>
+  <Typography 
+    variant="body2" 
+    sx={{ 
+      color: '#666', 
+      fontSize: '0.85rem', 
+      fontFamily: 'SF Pro Display, sans-serif',
+      fontWeight: 400, 
+    }}
+  >
+  Built with <span style={{ color: '#FF5A5F' }}>❤️</span> in Dartmouth Dorms, just for you.
+  </Typography>
+</Box>
 
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
