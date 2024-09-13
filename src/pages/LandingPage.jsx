@@ -3,13 +3,13 @@ import axios from 'axios';
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
-  Alert, Chip, LinearProgress
+  Alert, Chip, LinearProgress, ButtonBase
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
-import ReactTypingEffect from 'react-typing-effect'; // Import the typing effect component
+import ReactTypingEffect from 'react-typing-effect';
 
 const API_URL = 'https://coursemebot.pythonanywhere.com/api/chat';
 
@@ -38,7 +38,7 @@ const LandingPage = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [documentName, setDocumentName] = useState('');
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [showScrollMessage, setShowScrollMessage] = useState(false);
+  const [showScrollMessage, setShowScrollMessage] = useState(false); // New state for scroll message
   const navigate = useNavigate();
   const pageRef = useRef(null);
 
@@ -57,7 +57,7 @@ const LandingPage = () => {
     setDepartment('');
     setCourseNumber('');
     setDocumentName('');
-    setShowScrollMessage(false);
+    setShowScrollMessage(false); // Reset scroll message
 
     try {
       const response = await axios.post(API_URL, 
@@ -82,6 +82,8 @@ const LandingPage = () => {
       } else {
         throw new Error('Unexpected response format');
       }
+
+      // Display scroll message if department and course number are available
       if (response.data.department && response.data.course_number) {
         setShowScrollMessage(true);
       }
@@ -164,7 +166,7 @@ const LandingPage = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        background: '#f9f9f9', // Change this line to set the background color
+        background: '#f9f9f9', 
         color: '#000',
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
@@ -177,55 +179,162 @@ const LandingPage = () => {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          flexGrow: 1, // Ensures this container grows to take up available space
+          flexGrow: 1,
           textAlign: 'center',
         }}
       >
-        {/* Typing effect for the main heading */}
-        <Typography
-  variant="h3"
+
+         {/* Typing effect for the main heading */}
+         <Typography
+          variant="h3"
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: 600,
+            fontSize: { xs: '2rem', md: '3rem' },
+            color: '#000',
+            mb: '40px',
+            letterSpacing: '0.04rem',
+          }}
+        >
+          <ReactTypingEffect
+            text={typingMessages}
+            typingDelay={1000}
+            speed={100}
+            eraseSpeed={50}
+            eraseDelay={3000}
+          />
+        </Typography>
+
+        
+        <Box 
   sx={{
-    fontFamily: 'SF Pro Display, sans-serif',
-    fontWeight: 600,
-    fontSize: { xs: '2rem', md: '3rem' },
-    color: '#000',
-    mb: '40px',
-    letterSpacing: '0.04rem',
+    display: 'flex',
+    flexDirection: 'row',                    
+    gap: { xs: 1, md: 2 },                   
+    width: '100%',
+    justifyContent: 'center',                
+    alignItems: 'center',                    
+    mb: 4,
+    overflowX: 'auto',                       
+    padding: { xs: '10px 0', md: 0 },        
   }}
 >
-  <ReactTypingEffect
-    text={typingMessages}
-    typingDelay={1000}
-    speed={100}
-    eraseSpeed={50}
-    eraseDelay={3000}
-    displayTextRenderer={(text, i) => {
-      const isSecondSentence = i === 1;
-      const sentenceColor = isSecondSentence ? '#571ce0' : '#000'; // Choose sentence color
-      const hasFullStop = text.endsWith('.'); // Check if the sentence has a full stop
-      const textWithoutStop = hasFullStop ? text.slice(0, -1) : text; // Remove the full stop if present
-      const fullStop = hasFullStop ? '.' : ''; // Keep only the full stop for separate rendering
-
-      return (
-        <span>
-          {/* Render the typed sentence */}
-          <span style={{ color: sentenceColor }}>
-            {textWithoutStop}
-          </span>
-          {/* Render the full stop only after the text has finished typing */}
-          {fullStop && (
-            <span style={{ color: '#F26655' }}>
-              {fullStop}
-            </span>
-          )}
-        </span>
-      );
+  {/* Classes Box */}
+  <ButtonBase
+    onClick={() => navigate('/classes')}
+    sx={{
+      width: { xs: '140px', sm: '160px', md: '200px' },   // Increased width slightly
+      height: { xs: '150px', sm: '170px', md: '180px' },   // Increased height for spacing
+      backgroundColor: '#f9f9f9',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: '12px',
+      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+      transition: 'transform 0.3s ease, background-color 0.3s ease',
+      padding: '10px',  // Added padding for breathing room
+      '&:hover': {
+        backgroundColor: '#ececec',
+        transform: 'translateY(-5px)',
+      },
     }}
-  />
-</Typography>
+  >
+    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>📚</Typography>
+    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Classes</Typography>
+    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+      Explore the courses and their reviews at <span style={{ color: '#00693e' }}>Dartmouth</span><span style={{ color: '#F26655' }}>.</span>
+    </Typography>
+  </ButtonBase>
+
+  {/* Layups Box */}
+  <ButtonBase
+    onClick={() => navigate('/layups')}
+    sx={{
+      width: { xs: '140px', sm: '160px', md: '200px' },   
+      height: { xs: '150px', sm: '170px', md: '180px' },   
+      backgroundColor: '#f9f9f9',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: '12px',
+      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+      padding: '10px',
+      transition: 'transform 0.3s ease, background-color 0.3s ease',
+      '&:hover': {
+        backgroundColor: '#ececec',
+        transform: 'translateY(-5px)',
+      },
+    }}
+  >
+    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🎯</Typography>
+    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Layups</Typography>
+    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+      Find your easy A<span style={{ color: '#F26655' }}>.</span>
+    </Typography>
+  </ButtonBase>
+
+  {/* Timetable Box */}
+  <ButtonBase
+    onClick={() => navigate('/timetable')}
+    sx={{
+      width: { xs: '140px', sm: '160px', md: '200px' },   
+      height: { xs: '150px', sm: '170px', md: '180px' },   
+      backgroundColor: '#f9f9f9',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: '12px',
+      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+      padding: '10px',
+      transition: 'transform 0.3s ease, background-color 0.3s ease',
+      '&:hover': {
+        backgroundColor: '#ececec',
+        transform: 'translateY(-5px)',
+      },
+    }}
+  >
+    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🗓️</Typography>
+    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Timetable</Typography>
+    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+      Plan your schedule in one Click<span style={{ color: '#F26655' }}>.</span>
+    </Typography>
+  </ButtonBase>
+
+  {/* Profile Box */}
+  <ButtonBase
+    onClick={() => navigate('/profile')}
+    sx={{
+      width: { xs: '140px', sm: '160px', md: '200px' },   
+      height: { xs: '150px', sm: '170px', md: '180px' },   
+      backgroundColor: '#f9f9f9',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: '12px',
+      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+      padding: '10px',
+      transition: 'transform 0.3s ease, background-color 0.3s ease',
+      '&:hover': {
+        backgroundColor: '#ececec',
+        transform: 'translateY(-5px)',
+      },
+    }}
+  >
+    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>👤</Typography>
+    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Profile</Typography>
+    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+      Organize everything here<span style={{ color: '#F26655' }}>.</span>
+    </Typography>
+  </ButtonBase>
+</Box>
 
 
-
+       
+        {/* Search bar */}
         <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', gap: 2 }}>
           <TextField
             fullWidth
@@ -235,9 +344,9 @@ const LandingPage = () => {
             onChange={(e) => setQuestion(e.target.value)}
             sx={{
               bgcolor: '#f9f9f9',
-              borderRadius: '25px',  // Subtle rounded corners
-              width: { xs: '90%', md: '60%' }, // Reduced width for a more compact feel
-              boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)', // Softer shadow for a sleek look
+              borderRadius: '25px',
+              width: { xs: '90%', md: '60%' },
+              boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
               '& .MuiOutlinedInput-root': {
                 borderRadius: '25px',
                 padding: '0 20px',
@@ -254,9 +363,6 @@ const LandingPage = () => {
                   boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
                 },
               },
-              '& .MuiInputAdornment-root': {
-                marginRight: '10px',
-              },
             }}
             InputProps={{
               startAdornment: (
@@ -266,100 +372,98 @@ const LandingPage = () => {
               ),
             }}
           />
-      <Button
-  variant="contained"
-  type="submit"
-  disabled={loading}
-  disableElevation // Disable default elevation to prevent MUI from overriding styles
-  sx={{
-    backgroundColor: '#000', // Initial background color
-    borderRadius: '25px',
-    color: 'white',
-    fontWeight: 'bold',
-    padding: '10px 30px',
-    transition: 'background-color 0.3s ease-in-out',
-    '&:hover': {
-      backgroundColor: '#571CEO', // Change color on hover
-    },
-    '&:active': {
-      backgroundColor: '#571CEO', // Change color when clicked
-    },
-    fontSize: { xs: '0.875rem', md: '1rem' },
-  }}
->
-  {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
-</Button>
-
-
-        </Box>
-
-        
-        {answer && (
-  <Paper 
-    elevation={3} 
-    sx={{ 
-      mt: 4, 
-      p: 3, 
-      bgcolor: '#f9f9f9', 
-      borderRadius: 2,
-      width: '100%',
-      maxWidth: '800px',
-      boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
-    }}
-  >
-    {(department || courseNumber) && (
-      <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-        {department && <Chip label={`Department: ${department}`} color="primary" />}
-        {courseNumber && <Chip label={`Course: ${courseNumber}`} color="secondary" />}
-      </Box>
-    )}
-    <Typography variant="body1" sx={{ color: '#333', textAlign: 'left', mb: 2 }}>
-      {(department && courseNumber) 
-        ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
-        : answer
-      }
-    </Typography>
-
-    {/* New note below the AI response */}
-    <Typography variant="body2" sx={{ color: '#888', mt: 2 }}>
-      Note: This AI chatbot is in its very early stage of development, and we are actively working on improving it.
-    </Typography>
-  </Paper>
-)}
-
-        {showScrollMessage && (
-          <Box 
-            sx={{ 
-              position: 'fixed', 
-              bottom: 80, /* Increased the bottom margin from 20 to 80 */
-              left: '50%', 
-              transform: 'translateX(-50%)',
-              width: '200px',
-              textAlign: 'center'
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={loading}
+            disableElevation
+            sx={{
+              backgroundColor: '#000',
+              borderRadius: '25px',
+              color: 'white',
+              fontWeight: 'bold',
+              padding: '10px 30px',
+              transition: 'background-color 0.3s ease-in-out',
+              '&:hover': {
+                backgroundColor: '#571CEO',
+              },
+              '&:active': {
+                backgroundColor: '#571CEO',
+              },
+              fontSize: { xs: '0.875rem', md: '1rem' },
             }}
           >
-            <Typography variant="body2" sx={{ mb: 1, color: '#333' }}>
-              Scroll more to view details
-            </Typography>
-            <LinearProgress 
-              variant="determinate" 
-              value={scrollProgress * 100} 
-              sx={{ 
-                height: 10, 
-                borderRadius: 5,
-                backgroundColor: '#f0f0f0',
-                '& .MuiLinearProgress-bar': {
-                  backgroundColor: '#000'
-                }
-              }} 
-            />
-          </Box>
-        )}
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
+          </Button>
+        </Box>
 
+        {/* Answer section */}
+        {answer && (
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              mt: 4, 
+              p: 3, 
+              bgcolor: '#f9f9f9', 
+              borderRadius: 2,
+              width: '100%',
+              maxWidth: '800px',
+              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
+            }}
+          >
+            {(department || courseNumber) && (
+              <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                {department && <Chip label={`Department: ${department}`} color="primary" />}
+                {courseNumber && <Chip label={`Course: ${courseNumber}`} color="secondary" />}
+              </Box>
+            )}
+            <Typography variant="body1" sx={{ color: '#333', textAlign: 'left', mb: 2 }}>
+              {(department && courseNumber) 
+                ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
+                : answer
+              }
+            </Typography>
+
+            {/* New note below the AI response */}
+            <Typography variant="body2" sx={{ color: '#888', mt: 2 }}>
+              Note: This AI chatbot is in its very early stage of development, and we are actively working on improving it.
+            </Typography>
+          </Paper>
+        )}
       </Container>
 
+      {/* Scroll message effect */}
+      {showScrollMessage && (
+        <Box 
+          sx={{ 
+            position: 'fixed', 
+            bottom: 80,
+            left: '50%', 
+            transform: 'translateX(-50%)',
+            width: '200px',
+            textAlign: 'center'
+          }}
+        >
+          <Typography variant="body2" sx={{ mb: 1, color: '#333' }}>
+            Scroll more to view details
+          </Typography>
+          <LinearProgress 
+            variant="determinate" 
+            value={scrollProgress * 100} 
+            sx={{ 
+              height: 10, 
+              borderRadius: 5,
+              backgroundColor: '#f0f0f0',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: '#000'
+              }
+            }} 
+          />
+        </Box>
+      )}
+
       {/* Footer Section */}
-      <Box sx={{ width: '100%', textAlign: 'center', mt: 'auto', pb: 5 }}> {/* `mt: auto` pushes it to the bottom */}
+      <Box sx={{ width: '100%', textAlign: 'center', mt: 'auto', pb: 5 }}>
         <Typography variant="body2" sx={{ color: '#999' }}>
           © 2024 CourseMe. All Rights Reserved.
         </Typography>

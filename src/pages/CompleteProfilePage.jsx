@@ -1,5 +1,17 @@
-import React, { useRef, useState } from 'react';
-import { Container, Typography, Box, TextField, Button, Grid, Select, MenuItem, FormControl, InputLabel, Autocomplete } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  Container,
+  Typography,
+  Box,
+  TextField,
+  Button,
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Autocomplete,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -7,31 +19,61 @@ import { useAuth } from '../contexts/AuthContext';
 
 // List of common majors
 const majorOptions = [
-  'Computer Science',
+  'African and African American Studies',
+  'Anthropology',
+  'Art History',
+  'Asian Societies, Cultures, and Languages',
   'Biology',
+  'Biochemistry',
+  'Biomedical Engineering',
+  'Chemistry',
+  'Chinese Language and Literature',
+  'Classical Languages and Literature',
+  'Classical Studies',
+  'Cognitive Science',
+  'Comparative Literature',
+  'Computer Science',
+  'Earth Sciences',
   'Economics',
-  'Mathematics',
+  'Education',
   'Engineering',
-  'History',
   'English',
-  'Psychology',
+  'Environmental Studies',
+  'Film and Media Studies',
+  'French',
+  'Geography',
+  'German Studies',
+  'Government',
+  'History',
+  'Human-Centered Design',
+  'Italian Studies',
+  'Japanese Language and Literature',
+  'Jewish Studies',
+  'Linguistics',
+  'Mathematics',
+  'Middle Eastern Studies',
+  'Music',
+  'Native American Studies',
+  'Neuroscience',
+  'Philosophy',
   'Physics',
   'Political Science',
-  'Chemistry',
-  'Environmental Studies',
+  'Psychological and Brain Sciences',
+  'Religion',
+  'Russian Language and Literature',
   'Sociology',
-  'Art History',
-  'Music',
-  'Philosophy',
-  'Anthropology',
-  'Undecided',
+  'Spanish',
+  'Theater',
+  'Women’s, Gender, and Sexuality Studies',
+  'Undecided'
 ];
+
 
 const CompleteProfilePage = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [classYear, setClassYear] = useState('');
-  const [major, setMajor] = useState('');  // State for major
+  const [major, setMajor] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -40,7 +82,7 @@ const CompleteProfilePage = () => {
   };
 
   const handleMajorChange = (event, newValue) => {
-    setMajor(newValue);  // Update the major value
+    setMajor(newValue);
   };
 
   const handleSubmit = async (e) => {
@@ -78,7 +120,7 @@ const CompleteProfilePage = () => {
         color: '#fff',
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
-        padding: '40px',
+        padding: '20px', // Reduced padding for mobile
       }}
     >
       <Container
@@ -86,13 +128,14 @@ const CompleteProfilePage = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          width: '50%',
+          width: '90%', // Adjusted width for mobile
           maxWidth: '400px',
           backgroundColor: '#f9f9f9',
           borderRadius: '12px',
           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-          padding: '40px',
+          padding: { xs: '20px', md: '40px' }, // Dynamic padding for mobile and desktop
           color: '#1D1D1F',
+          margin: '20px auto',
         }}
       >
         <Typography
@@ -104,6 +147,7 @@ const CompleteProfilePage = () => {
             color: '#1D1D1F',
             mb: 2,
             textAlign: 'left',
+            fontSize: { xs: '1.5rem', md: '2.125rem' }, // Responsive font size
           }}
         >
           Let’s Get to Know You Better!!
@@ -121,7 +165,7 @@ const CompleteProfilePage = () => {
               <Autocomplete
                 value={major}
                 onChange={handleMajorChange}
-                freeSolo  // Allows users to enter their own values if not in the list
+                freeSolo // Allows users to enter their own values if not in the list
                 options={majorOptions}
                 renderInput={(params) => (
                   <TextField
@@ -152,43 +196,42 @@ const CompleteProfilePage = () => {
               />
             </Grid>
             <Grid item xs={12}>
-  <FormControl fullWidth>
-    <InputLabel id="class-year-label">Class Year</InputLabel>
-    <Select
-      labelId="class-year-label"
-      id="class-year"
-      value={classYear}
-      label="Class Year"
-      onChange={handleClassYearChange}
-      sx={{
-        bgcolor: '#FFFFFF',
-        borderRadius: '8px',
-        boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
-        textAlign: 'left',  // Aligns the selected value to the left
-        '& .MuiOutlinedInput-root': {
-          borderRadius: '8px',
-          height: '48px',
-          '& fieldset': {
-            borderColor: '#E0E0E0',
-          },
-          '&:hover fieldset': {
-            borderColor: '#B0B0B0',
-          },
-          '&.Mui-focused fieldset': {
-            borderColor: '#571CE0',
-          },
-        },
-      }}
-    >
-      <MenuItem value={2025} sx={{ justifyContent: 'flex-start' }}>2025</MenuItem>
-      <MenuItem value={2026} sx={{ justifyContent: 'flex-start' }}>2026</MenuItem>
-      <MenuItem value={2027} sx={{ justifyContent: 'flex-start' }}>2027</MenuItem>
-      <MenuItem value={2028} sx={{ justifyContent: 'flex-start' }}>2028</MenuItem>
-      <MenuItem value={2029} sx={{ justifyContent: 'flex-start' }}>2029</MenuItem>
-    </Select>
-  </FormControl>
-</Grid>
-
+              <FormControl fullWidth>
+                <InputLabel id="class-year-label">Class Year</InputLabel>
+                <Select
+                  labelId="class-year-label"
+                  id="class-year"
+                  value={classYear}
+                  label="Class Year"
+                  onChange={handleClassYearChange}
+                  sx={{
+                    bgcolor: '#FFFFFF',
+                    borderRadius: '8px',
+                    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
+                    textAlign: 'left',
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      height: '48px',
+                      '& fieldset': {
+                        borderColor: '#E0E0E0',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#B0B0B0',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#571CE0',
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value={2025}>2025</MenuItem>
+                  <MenuItem value={2026}>2026</MenuItem>
+                  <MenuItem value={2027}>2027</MenuItem>
+                  <MenuItem value={2028}>2028</MenuItem>
+                  <MenuItem value={2029}>2029</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
           </Grid>
 
           <Button
@@ -203,7 +246,7 @@ const CompleteProfilePage = () => {
               boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
               color: 'white',
               fontWeight: 'bold',
-              padding: '10px 20px',
+              padding: { xs: '8px 16px', md: '10px 20px' }, // Adjusted for mobile
               textTransform: 'none',
               transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
               '&:hover': {
