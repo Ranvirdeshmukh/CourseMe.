@@ -197,12 +197,35 @@ const LandingPage = () => {
           }}
         >
           <ReactTypingEffect
-            text={typingMessages}
-            typingDelay={1000}
-            speed={100}
-            eraseSpeed={50}
-            eraseDelay={3000}
-          />
+  text={typingMessages}
+  typingDelay={1000}
+  speed={100}
+  eraseSpeed={50}
+  eraseDelay={3000}
+  displayTextRenderer={(text, i) => {
+    const isSecondSentence = i === 1;
+    const sentenceColor = isSecondSentence ? '#571ce0' : '#000'; // Choose sentence color
+    const hasFullStop = text.endsWith('.'); // Check if the sentence has a full stop
+    const textWithoutStop = hasFullStop ? text.slice(0, -1) : text; // Remove the full stop if present
+    const fullStop = hasFullStop ? '.' : ''; // Keep only the full stop for separate rendering
+
+    return (
+      <span>
+        {/* Render the typed sentence */}
+        <span style={{ color: sentenceColor, fontFamily: 'SF Pro Display, sans-serif', fontWeight: '600' }}>
+          {textWithoutStop}
+        </span>
+        {/* Render the full stop only after the text has finished typing */}
+        {fullStop && (
+          <span style={{ color: '#F26655' }}>
+            {fullStop}
+          </span>
+        )}
+      </span>
+    );
+  }}
+/>
+
         </Typography>
 
         
@@ -478,16 +501,18 @@ const LandingPage = () => {
     © 2024 CourseMe. All Rights Reserved.
   </Typography>
   <Typography 
-    variant="body2" 
-    sx={{ 
-      color: '#666', 
-      fontSize: '0.85rem', 
-      fontFamily: 'SF Pro Display, sans-serif',
-      fontWeight: 400, 
-    }}
-  >
-  Built with <span style={{ color: '#FF5A5F' }}>❤️</span> in Dartmouth Dorms, just for you.
-  </Typography>
+  variant="body2" 
+  sx={{ 
+    color: '#666', 
+    fontSize: '0.85rem', 
+    fontFamily: 'SF Pro Display, sans-serif',
+    fontWeight: 400, 
+  }}
+>
+  Built with <span>💚</span> in Dartmouth Dorms, just for you.
+</Typography>
+
+
 </Box>
 
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
