@@ -248,6 +248,8 @@ const LandingPage = () => {
     sx={{
       width: { xs: '140px', sm: '160px', md: '200px' },   // Increased width slightly
       height: { xs: '150px', sm: '170px', md: '180px' },   // Increased height for spacing
+      margin: '20px 0', // Add some margin to the top and bottom
+
       backgroundColor: '#f9f9f9',
       display: 'flex',
       flexDirection: 'column',
