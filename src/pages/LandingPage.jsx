@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { 
-  Container, Box, Typography, TextField, Button, 
-  InputAdornment, CircularProgress, Paper, Snackbar,
-  Alert, Chip, LinearProgress, ButtonBase
-} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import ReactTypingEffect from 'react-typing-effect';
+import { 
+  Container, Box, Typography, TextField, Button, 
+  InputAdornment, CircularProgress, Paper, Snackbar,
+  Alert, Chip, LinearProgress, ButtonBase, Tooltip, Fade
+} from '@mui/material';
 
 const API_URL = 'https://coursemebot.pythonanywhere.com/api/chat';
 
@@ -40,14 +40,11 @@ const LandingPage = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showScrollMessage, setShowScrollMessage] = useState(false); // New state for scroll message
   const navigate = useNavigate();
-  const pageRef = useRef(null);
+  const pageRef = useRef(null);  
+  const [extendPage, setExtendPage] = useState(false);
 
-  // Typing effect messages
-  const typingMessages = [
-    "Simplify Your Major, Amplify Your College Life.",
-    "Find Easy Courses in Seconds.",
-    "Plan Your Perfect Schedule Today."
-  ];
+  const [difficulty, setDifficulty] = useState(null);
+  const [sentiment, setSentiment] = useState(null);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -57,7 +54,9 @@ const LandingPage = () => {
     setDepartment('');
     setCourseNumber('');
     setDocumentName('');
-    setShowScrollMessage(false); // Reset scroll message
+    setShowScrollMessage(false);
+    setDifficulty(null);
+    setSentiment(null);
 
     try {
       const response = await axios.post(API_URL, 
@@ -73,6 +72,8 @@ const LandingPage = () => {
         setAnswer(response.data.answer);
         setDepartment(response.data.department || '');
         setCourseNumber(response.data.course_number || '');
+        setDifficulty(response.data.difficulty || null);
+        setSentiment(response.data.sentiment || null);
         
         if (response.data.department && response.data.course_number) {
           await fetchCourseData(response.data.department, response.data.course_number);
@@ -83,7 +84,6 @@ const LandingPage = () => {
         throw new Error('Unexpected response format');
       }
 
-      // Display scroll message if department and course number are available
       if (response.data.department && response.data.course_number) {
         setShowScrollMessage(true);
       }
@@ -96,6 +96,126 @@ const LandingPage = () => {
       setLoading(false);
     }
   };
+
+  // ... (other functions remain the same)
+
+  const getDifficultyLevel = (score) => {
+    if (score < -0.5) return "Very Challenging";
+    if (score < -0.2) return "Challenging";
+    if (score < 0.2) return "Moderate";
+    if (score < 0.5) return "Easy";
+    return "Very Easy";
+  };
+
+  const getSentimentLevel = (score) => {
+    if (score < -0.5) return "Strongly Dislike";
+    if (score < -0.2) return "Dislike";
+    if (score < 0.2) return "Neutral";
+    if (score < 0.5) return "Like";
+    return "Love";
+  };
+
+  const getColor = (score) => {
+    if (score < -0.5) return "#ff4d4d";
+    if (score < -0.2) return "#ff9933";
+    if (score < 0.2) return "#ffff66";
+    if (score < 0.5) return "#99ff66";
+    return "#66ff66";
+  };
+
+  const ScaleMeter = ({ value, title, getLevelFunc }) => (
+    <Tooltip title={`${getLevelFunc(value)} (${value.toFixed(2)})`} placement="top" arrow>
+      <Box sx={{ width: 150, mr: 2 }}>
+        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>{title}</Typography>
+        <Box sx={{ width: '100%', height: 10, bgcolor: '#e0e0e0', borderRadius: 5, overflow: 'hidden' }}>
+          <Box
+            sx={{
+              width: `${((value + 1) / 2) * 100}%`,
+              height: '100%',
+              bgcolor: getColor(value),
+              transition: 'width 0.5s ease-in-out',
+            }}
+          />
+        </Box>
+      </Box>
+    </Tooltip>
+  );
+
+
+
+
+
+
+
+
+
+  // Typing effect messages
+  const typingMessages = [
+    "Simplify Your Major, Amplify Your College Life.",
+    "Find Easy Courses in Seconds.",
+    "Plan Your Perfect Schedule Today."
+  ];
+
+  // const handleSearch = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setError('');
+  //   setAnswer('');
+  //   setDepartment('');
+  //   setCourseNumber('');
+  //   setDocumentName('');
+  //   setShowScrollMessage(false); // Reset scroll message
+
+  //   try {
+  //     const response = await axios.post(API_URL, 
+  //       { question },
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       }
+  //     );
+  //     console.log('API Response:', response.data);
+  //     if (typeof response.data === 'object' && response.data.answer) {
+  //       setAnswer(response.data.answer);
+  //       setDepartment(response.data.department || '');
+  //       setCourseNumber(response.data.course_number || '');
+        
+  //       if (response.data.department && response.data.course_number) {
+  //         await fetchCourseData(response.data.department, response.data.course_number);
+  //       }
+  //     } else if (typeof response.data === 'string') {
+  //       setAnswer(response.data);
+  //     } else {
+  //       throw new Error('Unexpected response format');
+  //     }
+
+  //     // Display scroll message if department and course number are available
+  //     if (response.data.department && response.data.course_number) {
+  //       setShowScrollMessage(true);
+  //     }
+
+  //   } catch (error) {
+  //     console.error('Error fetching answer:', error);
+  //     setError('An error occurred while fetching the answer. Please try again.');
+  //     setSnackbarOpen(true);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const formatAnswer = (text) => {
+    return text.split('\n').map((line, index) => (
+      <React.Fragment key={index}>
+        {line}
+        <br />
+      </React.Fragment>
+    ));
+  };
+  useEffect(() => {
+    // Set extendPage to true when course chips and scroll message are shown
+    setExtendPage(!!(department && courseNumber && showScrollMessage));
+  }, [department, courseNumber, showScrollMessage]);
 
   const fetchCourseData = async (dept, course) => {
     try {
@@ -132,7 +252,7 @@ const LandingPage = () => {
       if (pageRef.current && documentName) {
         const scrollPosition = window.scrollY;
         const viewportHeight = window.innerHeight;
-        const scrollHeight = viewportHeight * 0.05;
+        const scrollHeight = viewportHeight * 0.2;
         const progress = Math.min(scrollPosition / scrollHeight, 1);
         setScrollProgress(progress);
     
@@ -157,6 +277,8 @@ const LandingPage = () => {
     setSnackbarOpen(false);
   };
 
+  
+
   return (
     <Box
       ref={pageRef}
@@ -171,6 +293,8 @@ const LandingPage = () => {
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
         padding: '0 20px',
+        paddingBottom: extendPage ? '200px' : '0',
+        transition: 'padding-bottom 0.3s ease',
       }}
     >
       <Container
@@ -436,17 +560,75 @@ const LandingPage = () => {
               boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
             }}
           >
-            {(department || courseNumber) && (
-              <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              mb: 2
+            }}>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
                 {department && <Chip label={`Department: ${department}`} color="primary" />}
                 {courseNumber && <Chip label={`Course: ${courseNumber}`} color="secondary" />}
+                {difficulty !== null && (
+                  <ScaleMeter value={difficulty} title="Layup Meter" getLevelFunc={getDifficultyLevel} />
+                )}
+                {sentiment !== null && (
+                  <ScaleMeter value={sentiment} title="Quality Meter" getLevelFunc={getSentimentLevel} />
+                )}
               </Box>
-            )}
+              
+              {/* Enhanced Scroll message effect */}
+              {showScrollMessage && (
+                <Tooltip title="Scroll down to see more course details" placement="top">
+                  <Fade in={showScrollMessage}>
+                    <Box 
+                      sx={{ 
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        ml: 2,
+                        bgcolor: '#f0f8ff',
+                        p: 1,
+                        borderRadius: 2,
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          bgcolor: '#e6f3ff',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                        },
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ mb: 1, color: '#1976d2', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                        Scroll for Details
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <LinearProgress 
+                          variant="determinate" 
+                          value={scrollProgress * 100} 
+                          sx={{ 
+                            height: 8,
+                            borderRadius: 4,
+                            width: '100px',
+                            bgcolor: '#bbdefb',
+                            '& .MuiLinearProgress-bar': {
+                              bgcolor: '#1976d2',
+                            },
+                          }} 
+                        />
+                      </Box>
+                    </Box>
+                  </Fade>
+                </Tooltip>
+              )}
+            </Box>
+
             <Typography variant="body1" sx={{ color: '#333', textAlign: 'left', mb: 2 }}>
-              {(department && courseNumber) 
+              {formatAnswer((department && courseNumber) 
                 ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
                 : answer
-              }
+              )}
             </Typography>
 
             {/* New note below the AI response */}
@@ -457,8 +639,10 @@ const LandingPage = () => {
         )}
       </Container>
 
+      
+
       {/* Scroll message effect */}
-      {showScrollMessage && (
+      {/* {showScrollMessage && (
         <Box 
           sx={{ 
             position: 'fixed', 
@@ -485,7 +669,7 @@ const LandingPage = () => {
             }} 
           />
         </Box>
-      )}
+      )} */}
 
       {/* Footer Section */}
 <Box 
@@ -526,4 +710,23 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+const styles = `
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-5px);
+    }
+    60% {
+      transform: translateY(-3px);
+    }
+  }
+`;
+
+export default () => (
+  <>
+    <style>{styles}</style>
+    <LandingPage />
+  </>
+);
