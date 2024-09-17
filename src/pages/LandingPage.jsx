@@ -6,6 +6,7 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import ReactTypingEffect from 'react-typing-effect';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
@@ -217,6 +218,25 @@ const LandingPage = () => {
       </ReactMarkdown>
     );
   };
+  // turn on for line breaks
+  // const formatAnswer = (text) => {
+  //   const customRenderers = {
+  //     p: ({ children }) => <Typography variant="body1" sx={{ color: '#333', textAlign: 'left', mb: 2 }}>{children}</Typography>,
+  //     strong: ({ children }) => <Box component="span" sx={{ fontWeight: 'bold' }}>{children}</Box>,
+  //   };
+  
+  //   // Replace \n with <br /> for line breaks
+  //   const formattedText = text.replace(/\n/g, '  \n');
+  
+  //   return (
+  //     <ReactMarkdown 
+  //       components={customRenderers}
+  //       remarkPlugins={[remarkGfm]}
+  //     >
+  //       {formattedText}
+  //     </ReactMarkdown>
+  //   );
+  // };
   useEffect(() => {
     // Set extendPage to true when course chips and scroll message are shown
     setExtendPage(!!(department && courseNumber && showScrollMessage));

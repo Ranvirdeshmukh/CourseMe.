@@ -38,6 +38,7 @@
     "react-simple-animate": "^3.5.2",
     "react-spring": "^9.7.4",
     "react-typing-effect": "^2.0.5",
+    "remark-gfm": "^4.0.0",
     "serve": "^14.2.3",
     "web-vitals": "^2.1.4",
     "ws": "^8.18.0"

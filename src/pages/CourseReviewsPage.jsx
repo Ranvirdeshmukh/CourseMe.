@@ -1,43 +1,21 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import {
-  Container,
-  Typography,
-  Box,
-  Alert,
-  Table,
-  TableBody,
-  TextField,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  Button,
-  ButtonGroup,
-  IconButton,
-  Tooltip,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  CircularProgress,
-  Card,
+import { Container, Typography, Box,Alert,Table,TableBody,TextField,TableCell,TableContainer,
+  TableHead,TableRow,Paper,List,ListItem,ListItemText,Button,ButtonGroup,IconButton,Tooltip,
+  MenuItem,Select,FormControl,InputLabel,CircularProgress,Card,
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
-import { doc, getDoc, updateDoc, setDoc, collection, getDocs, deleteDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc, collection, getDocs, deleteDoc, arrayUnion, arrayRemove, query, where } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import AddReviewForm from './AddReviewForm';
 import AddReplyForm from './AddReplyForm';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import e from 'cors';
 
 const CourseReviewsPage = () => {
   const { department, courseId } = useParams();
@@ -53,6 +31,7 @@ const CourseReviewsPage = () => {
   const [pinned, setPinned] = useState(false);
   const [quality, setQuality] = useState(0); // Add this line
   const [showAllProfessors, setShowAllProfessors] = useState(false);
+  const [currentInstructors, setCurrentInstructors] = useState([]);
 
 
   const [deptAndNumber, ...rest] = courseId.split('__');
@@ -233,7 +212,41 @@ const handleQualityVote = async (voteType) => {
       
       if (courseDocSnap.exists()) {
         const courseData = courseDocSnap.data();
-  
+
+        const courseIdParts = courseId.split('__');
+        const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
+        const courseNumberMatch = courseIdParts[0].match(/\d+/);
+        let instructors = [];  // Changed from a single string to an array
+        if (deptCodeMatch && courseNumberMatch) {
+          const deptCode = deptCodeMatch[0];
+          const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
+          try {
+            const fallTimetableRef = collection(db, 'fallTimetable');
+            console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
+            const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+            const querySnapshot = await getDocs(q);
+            
+            querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              if (data.Instructor) {
+                // Check if the instructor is not already in the array to avoid duplicates
+                if (!instructors.includes(data.Instructor)) {
+                  instructors.push(data.Instructor);
+                }
+              }
+            });
+            console.log("Matching instructors:", instructors);
+
+            // If you want to display the instructors in the component:
+            if (instructors.length > 0) {
+              setCurrentInstructors(instructors);  // Assuming you have a state variable for instructors
+            } else {
+              console.log("No instructors found for this course");
+            }
+          } catch (error) {
+            console.error("Error fetching documents:", error);
+          }
+        }
         // If the description already exists in the document, use it
         if (courseData.description) {
           setCourseDescription(courseData.description);
@@ -243,16 +256,18 @@ const handleQualityVote = async (voteType) => {
           // If the description doesn't exist, fetch it from the Dartmouth website
   
           // Extract department code and course number from courseId
-          const courseIdParts = courseId.split('__');
-          const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
-          const courseNumberMatch = courseIdParts[0].match(/\d+/);
   
           if (deptCodeMatch && courseNumberMatch) {
             const deptCode = deptCodeMatch[0];
             const courseNumber = courseNumberMatch[0];
-            console.log("Department:", deptCode, "Course Number:", courseNumber);
-  
+            if (deptCode && courseNumber) {
+              console.log("Department:", deptCode, "Course Number:", courseNumber);
+            }
+            else {
+              console.log("errorsdfasdf;c")
+            }
             const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
+            console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
             
             if (!response.ok) {
               const errorData = await response.json();
@@ -862,6 +877,14 @@ const handleQualityVote = async (voteType) => {
     return pages;
   };
 
+  const Legend = () => (
+    <Box sx={{ marginTop: 2, marginBottom: 2 }}>
+      <Typography variant="caption" sx={{ display: 'block' }}>
+        <span style={{ backgroundColor: '#e6f7ff', padding: '2px 4px' }}>Highlighted professors</span> are teaching the current term.
+      </Typography>
+    </Box>
+  );
+
   const courseName = courseId.split('_')[1];
 
   const uniqueProfessors = [...new Set(reviews.map((item) => item.instructor))];
@@ -1173,38 +1196,61 @@ const handleQualityVote = async (voteType) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-  {Object.entries(
-    reviews.reduce((acc, review) => {
-      const { instructor } = review;
-      if (!acc[instructor]) {
-        acc[instructor] = [];
-      }
-      acc[instructor].push(review);
-      return acc;
-    }, {})
-  )
-    .slice(0, showAllProfessors ? undefined : 12) // Show only 12 professors initially
-    .map(([instructor, reviewList], index) => (
-      <TableRow
-        key={index}
-        component={Link}
-        to={`/departments/${department}/courses/${courseId}/professors/${instructor}`}
-        sx={{
-          backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-          '&:hover': { backgroundColor: '#e0e0e0' },
-          cursor: 'pointer',
-          textDecoration: 'none',
-          color: 'inherit',
-        }}
-      >
-        <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
-          {instructor}
-        </TableCell>
-        <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
-          {Array.isArray(reviewList) ? reviewList.length : 0}
-        </TableCell>
-      </TableRow>
-    ))}
+                {Object.entries(
+                  reviews.reduce((acc, review) => {
+                    const { instructor } = review;
+                    if (!acc[instructor]) {
+                      acc[instructor] = [];
+                    }
+                    acc[instructor].push(review);
+                    return acc;
+                  }, {})
+                )
+                  .sort(([a], [b]) => {
+                    const aIsCurrent = currentInstructors.includes(a);
+                    const bIsCurrent = currentInstructors.includes(b);
+                    if (aIsCurrent && !bIsCurrent) return -1;
+                    if (!aIsCurrent && bIsCurrent) return 1;
+                    return 0;
+                  })
+                  .slice(0, showAllProfessors ? undefined : 12)
+                  .map(([instructor, reviewList], index) => {
+                    const isCurrent = currentInstructors.includes(instructor);
+                    const isNew = !reviews.some(review => review.instructor === instructor);
+                    return (
+                      <TableRow
+                        key={index}
+                        component={Link}
+                        to={`/departments/${department}/courses/${courseId}/professors/${instructor}`}
+                        sx={{
+                          backgroundColor: isCurrent 
+                            ? '#e6f7ff'  // Light blue background for current instructors
+                            : index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                          '&:hover': { backgroundColor: '#e0e0e0' },
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          color: 'inherit',
+                        }}
+                      >
+                        <TableCell 
+                          sx={{ 
+                            color: '#1D1D1F', 
+                            padding: '10px', 
+                            textAlign: 'left', 
+                            fontWeight: isCurrent ? 700 : 500,  // Bold for current instructors
+                          }}
+                        >
+                          {instructor}{isNew ? ' *' : ''}
+                        </TableCell>
+                        <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
+                          {Array.isArray(reviewList) ? reviewList.length : 0}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                }
+
+                
     
   {Object.keys(
     reviews.reduce((acc, review) => {
@@ -1231,6 +1277,7 @@ const handleQualityVote = async (voteType) => {
 
               </Table>
             </TableContainer>
+            <Legend />
             <Box
               sx={{
                 display: 'flex',
