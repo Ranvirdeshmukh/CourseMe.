@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import ReactTypingEffect from 'react-typing-effect';
+import ReactMarkdown from 'react-markdown';
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
@@ -205,12 +206,16 @@ const LandingPage = () => {
   // };
 
   const formatAnswer = (text) => {
-    return text.split('\n').map((line, index) => (
-      <React.Fragment key={index}>
-        {line}
-        <br />
-      </React.Fragment>
-    ));
+    const customRenderers = {
+      p: ({ children }) => <Typography variant="body1" sx={{ color: '#333', textAlign: 'left', mb: 2 }}>{children}</Typography>,
+      strong: ({ children }) => <Box component="span" sx={{ fontWeight: 'bold' }}>{children}</Box>,
+    };
+  
+    return (
+      <ReactMarkdown components={customRenderers}>
+        {text}
+      </ReactMarkdown>
+    );
   };
   useEffect(() => {
     // Set extendPage to true when course chips and scroll message are shown
@@ -624,12 +629,12 @@ const LandingPage = () => {
               )}
             </Box>
 
-            <Typography variant="body1" sx={{ color: '#333', textAlign: 'left', mb: 2 }}>
+            <Box sx={{ color: '#333', textAlign: 'left', mb: 2 }}>
               {formatAnswer((department && courseNumber) 
                 ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
                 : answer
               )}
-            </Typography>
+            </Box>
 
             {/* New note below the AI response */}
             <Typography variant="body2" sx={{ color: '#888', mt: 2 }}>
