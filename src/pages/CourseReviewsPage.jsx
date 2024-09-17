@@ -220,6 +220,7 @@ const handleQualityVote = async (voteType) => {
         if (deptCodeMatch && courseNumberMatch) {
           const deptCode = deptCodeMatch[0];
           const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
+          console.log("fetching current instructors")
           try {
             const fallTimetableRef = collection(db, 'fallTimetable');
             console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
