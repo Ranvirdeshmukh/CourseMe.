@@ -23,6 +23,7 @@
     "http-proxy-middleware": "^3.0.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.441.0",
     "moment-timezone": "^0.5.45",
     "node-cache": "^5.1.2",
     "nodemailer": "^6.9.14",

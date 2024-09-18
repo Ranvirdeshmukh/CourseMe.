@@ -1,11 +1,12 @@
+
+
+import { Container, Typography, Box, Alert, Table, TableBody, TextField, TableCell, TableContainer,
+  TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip,
+  MenuItem, Select, FormControl, InputLabel, CircularProgress, Card, Badge
+} from '@mui/material';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Typography, Box,Alert,Table,TableBody,TextField,TableCell,TableContainer,
-  TableHead,TableRow,Paper,List,ListItem,ListItemText,Button,ButtonGroup,IconButton,Tooltip,
-  MenuItem,Select,FormControl,InputLabel,CircularProgress,Card,
-} from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
@@ -18,6 +19,7 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import e from 'cors';
 
 const CourseReviewsPage = () => {
+  const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
   const { department, courseId } = useParams();
   const { currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
@@ -206,7 +208,6 @@ const handleQualityVote = async (voteType) => {
     try {
       console.log("Fetching course description for courseId:", courseId);
   
-      // Define the reference to the Course document in the 'courses' collection
       const courseDocRef = doc(db, 'courses', courseId);
       const courseDocSnap = await getDoc(courseDocRef);
       
@@ -216,7 +217,7 @@ const handleQualityVote = async (voteType) => {
         const courseIdParts = courseId.split('__');
         const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
         const courseNumberMatch = courseIdParts[0].match(/\d+/);
-        let instructors = [];  // Changed from a single string to an array
+        let instructors = [];
         if (deptCodeMatch && courseNumberMatch) {
           const deptCode = deptCodeMatch[0];
           const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
@@ -227,10 +228,11 @@ const handleQualityVote = async (voteType) => {
             const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
             const querySnapshot = await getDocs(q);
             
+            let found = false;
             querySnapshot.forEach((doc) => {
               const data = doc.data();
               if (data.Instructor) {
-                // Check if the instructor is not already in the array to avoid duplicates
+                found = true;
                 if (!instructors.includes(data.Instructor)) {
                   instructors.push(data.Instructor);
                 }
@@ -238,9 +240,9 @@ const handleQualityVote = async (voteType) => {
             });
             console.log("Matching instructors:", instructors);
 
-            // If you want to display the instructors in the component:
+            setIsTaughtCurrentTerm(found);
             if (instructors.length > 0) {
-              setCurrentInstructors(instructors);  // Assuming you have a state variable for instructors
+              setCurrentInstructors(instructors);
             } else {
               console.log("No instructors found for this course");
             }
@@ -918,27 +920,64 @@ const handleQualityVote = async (voteType) => {
       width: '100%',
     }}
   >
-    <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 3, justifyContent: 'space-between' }}>
-      <Typography variant="h4" gutterBottom textAlign="left" sx={{ fontWeight: 700, fontSize: '2rem' }}>
-        {courseName}
-      </Typography>
-      <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
-        <IconButton
-          onClick={handlePinCourse}
-          sx={{
-            color: pinned ? '#571CE0' : 'grey',
-            marginLeft: 1,
-            marginTop: '-10px',
-            transition: 'color 0.3s',
-            '&:hover': {
-              color: pinned ? '#FF0000' : '#571CE0',
-            },
-          }}
-        >
-          <PushPin sx={{ fontSize: 30 }} /> {/* Increase the fontSize here */}
-        </IconButton>
-      </Tooltip>
-    </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 3, justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography 
+                variant="h4" 
+                gutterBottom 
+                textAlign="left" 
+                sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '2rem',
+                  marginBottom: 0, // Remove bottom margin to ensure proper centering
+                }}
+              >
+                {courseName}
+              </Typography>
+              {isTaughtCurrentTerm && (
+                <Tooltip title="Taught this term" placement="right">
+                  <Box 
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      height: '2rem', // Match the line height of the Typography
+                      marginLeft: 3,
+                    }}
+                  >
+                    <Badge
+                      badgeContent="24F"
+                      color="error"
+                      sx={{
+                        '& .MuiBadge-badge': {
+                          fontSize: '1rem',
+                          height: '28px',
+                          minWidth: '28px',
+                          borderRadius: '14px',
+                          padding: '0 8px',
+                        },
+                      }}
+                    />
+                  </Box>
+                </Tooltip>
+              )}
+            </Box>
+            <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
+              <IconButton
+                onClick={handlePinCourse}
+                sx={{
+                  color: pinned ? '#571CE0' : 'grey',
+                  marginLeft: 1,
+                  marginTop: '-10px',
+                  transition: 'color 0.3s',
+                  '&:hover': {
+                    color: pinned ? '#FF0000' : '#571CE0',
+                  },
+                }}
+              >
+                <PushPin sx={{ fontSize: 30 }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
     <Box
       sx={{
         display: 'flex',
