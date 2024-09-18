@@ -42,9 +42,6 @@ const CourseReviewsPage = () => {
   const numberRegex = /[A-Z]+_[A-Z]+(\d+(?:_\d+)?)/;
   const match = courseId.match(numberRegex);
   const [descriptionError, setDescriptionError] = useState(null);
-
-  console.log("courseid: " + courseId)
-
   const reviewsPerPage = 5;
 
   const fetchReviews = useCallback(async () => {
@@ -310,21 +307,17 @@ const handleQualityVote = async (voteType) => {
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://url-text-fetcher-368299696124.us-central1.run.app';
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-      console.log('Finished fetching all data');
-    }
-  };
-  
-
-  
-
+  // const fetchData = async () => {
+  //   setLoading(true);
+  //   try {
+  //     await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   } finally {
+  //     setLoading(false);
+  //     console.log('Finished fetching all data');
+  //   }
+  // };
   
   useEffect(() => {
     let isMounted = true;
