@@ -6,3 +6,5 @@ google-cloud-storage==1.42.0
 textblob==0.15.3
 google-auth==2.3.3
 google-cloud-error-reporting==1.1.0
+beautifulsoup4==4.9.3
+schedule==1.1.0
