@@ -27,6 +27,15 @@ const NavBar = () => {
     setSnackbarOpen(false);
   };
 
+  // Redirect to login if the user is not logged in
+  const handleLoginRedirect = () => {
+    if (!currentUser) {
+      navigate('/login');
+      setError('You need to log in to access this content.');
+      setSnackbarOpen(true);
+    }
+  };
+
   // Check if the current page is the Get Started page
   const isGetStartedPage = location.pathname === '/';
 
@@ -108,6 +117,7 @@ const NavBar = () => {
                   fontWeight: 500,
                   fontSize: '1rem',
                 }}
+                onClick={handleLoginRedirect} // Ensure login check on click
               >
                 All Classes
               </Typography>
@@ -123,6 +133,7 @@ const NavBar = () => {
                   fontWeight: 500,
                   fontSize: '1rem',
                 }}
+                onClick={handleLoginRedirect} // Ensure login check on click
               >
                 Layups
               </Typography>
@@ -138,6 +149,7 @@ const NavBar = () => {
                   fontWeight: 500,
                   fontSize: '1rem',
                 }}
+                onClick={handleLoginRedirect} // Ensure login check on click
               >
                 Timetable
               </Typography>
@@ -153,6 +165,7 @@ const NavBar = () => {
                   fontWeight: 500,
                   fontSize: '1rem',
                 }}
+                onClick={handleLoginRedirect} // Ensure login check on click
               >
                 Profile
               </Typography>
@@ -185,7 +198,6 @@ const NavBar = () => {
             aria-label="menu"
             onClick={handleDrawerOpen}
             sx={{ color: '#571CE0' }}  // Change the color here
-
           >
             <MenuIcon />
           </IconButton>

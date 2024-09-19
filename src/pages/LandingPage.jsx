@@ -7,6 +7,10 @@ import { getFirestore, collection, query, where, getDocs } from 'firebase/firest
 import ReactTypingEffect from 'react-typing-effect';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useAuth } from '../contexts/AuthContext';
+import { Lock } from '@mui/icons-material'; // Import the lock icon from Material-UI
+
+
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
@@ -44,6 +48,8 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const pageRef = useRef(null);  
   const [extendPage, setExtendPage] = useState(false);
+  const { currentUser } = useAuth(); // Get current user status
+
 
   const [difficulty, setDifficulty] = useState(null);
   const [sentiment, setSentiment] = useState(null);
@@ -143,6 +149,12 @@ const LandingPage = () => {
     </Tooltip>
   );
 
+  // Redirect to login if the user isn't logged in
+const handleLoginRedirect = () => {
+  if (!currentUser) {
+    navigate('/login');
+  }
+};
 
 
 
@@ -393,8 +405,8 @@ const LandingPage = () => {
 >
   {/* Classes Box */}
   <ButtonBase
-    onClick={() => navigate('/classes')}
-    sx={{
+  onClick={() => currentUser ? navigate('/classes') : handleLoginRedirect()} // Check if user is logged in
+  sx={{
       width: { xs: '140px', sm: '160px', md: '200px' },   // Increased width slightly
       height: { xs: '150px', sm: '170px', md: '180px' },   // Increased height for spacing
       margin: '20px 0', // Add some margin to the top and bottom
@@ -423,8 +435,8 @@ const LandingPage = () => {
 
   {/* Layups Box */}
   <ButtonBase
-    onClick={() => navigate('/layups')}
-    sx={{
+  onClick={() => currentUser ? navigate('/layups') : handleLoginRedirect()} // Check if user is logged in
+  sx={{
       width: { xs: '140px', sm: '160px', md: '200px' },   
       height: { xs: '150px', sm: '170px', md: '180px' },   
       backgroundColor: '#f9f9f9',
@@ -451,8 +463,8 @@ const LandingPage = () => {
 
   {/* Timetable Box */}
   <ButtonBase
-    onClick={() => navigate('/timetable')}
-    sx={{
+  onClick={() => currentUser ? navigate('/timetable') : handleLoginRedirect()} // Check if user is logged in
+  sx={{
       width: { xs: '140px', sm: '160px', md: '200px' },   
       height: { xs: '150px', sm: '170px', md: '180px' },   
       backgroundColor: '#f9f9f9',
@@ -473,14 +485,14 @@ const LandingPage = () => {
     <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🗓️</Typography>
     <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Timetable</Typography>
     <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-      Plan your schedule in one Click<span style={{ color: '#F26655' }}>.</span>
+      Add your courses to your calendar in one Click<span style={{ color: '#F26655' }}>.</span>
     </Typography>
   </ButtonBase>
 
   {/* Profile Box */}
   <ButtonBase
-    onClick={() => navigate('/profile')}
-    sx={{
+  onClick={() => currentUser ? navigate('/profile') : handleLoginRedirect()} // Check if user is logged in
+  sx={{
       width: { xs: '140px', sm: '160px', md: '200px' },   
       height: { xs: '150px', sm: '170px', md: '180px' },   
       backgroundColor: '#f9f9f9',
@@ -502,6 +514,36 @@ const LandingPage = () => {
     <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Profile</Typography>
     <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
       Organize everything here<span style={{ color: '#F26655' }}>.</span>
+    </Typography>
+  </ButtonBase>
+  {/* New Feature Box */}
+  <ButtonBase
+    sx={{
+      width: { xs: '140px', sm: '160px', md: '200px' },   
+      height: { xs: '150px', sm: '170px', md: '180px' },   
+      backgroundColor: '#f9f9f9',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: '12px',
+      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+      padding: '10px',
+      transition: 'transform 0.3s ease, background-color 0.3s ease',
+      '&:hover': {
+        backgroundColor: '#ececec',
+        transform: 'translateY(-5px)',
+      },
+    }}
+  >
+    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px', animation: 'bounce 2s infinite' }}>🚧</Typography>
+    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Notifications</Typography>
+   
+      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+    Get notified when a spot opens up during the add/drop period<span style={{ color: '#F26655' }}>.</span>
+  </Typography>
+  <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+  Coming soon<span style={{ color: '#F26655' }}>...</span>
     </Typography>
   </ButtonBase>
 </Box>
