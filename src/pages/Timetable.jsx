@@ -26,7 +26,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import { getFirestore, collection, getDocs, doc, updateDoc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, where, query, doc, updateDoc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -240,23 +240,40 @@ const Timetable = () => {
       console.log("number", formattedNumber);
       console.log("section", formattedSection);
       
-      const requestRef = doc(collection(db, 'timetable-requests'));
+      const timetableRequestsRef = collection(db, 'timetable-requests');
+      const q = query(
+        timetableRequestsRef,
+        where("department", "==", course.subj),
+        where("number", "==", formattedNumber),
+        where("section", "==", formattedSection)
+      );
+  
+      const querySnapshot = await getDocs(q);
       
-      const requestDoc = await getDoc(requestRef);
-      if (requestDoc.exists()) {
-        // Update existing document
-        await updateDoc(requestRef, {
-          department: course.subj,
-          number: formattedNumber,
-          section: formattedSection,
-          users: arrayUnion({
-            email: currentUser.email,
-            open: false
-          })
-        });
+      if (!querySnapshot.empty) {
+        // Document exists, check if user is already in the array
+        const docRef = doc(db, 'timetable-requests', querySnapshot.docs[0].id);
+        const docData = querySnapshot.docs[0].data();
+        const users = docData.users || [];
+        
+        const userExists = users.some(user => user.email === currentUser.email);
+        
+        if (!userExists) {
+          // User not in array, add them
+          await updateDoc(docRef, {
+            users: arrayUnion({
+              email: currentUser.email,
+              open: false
+            })
+          });
+          setSnackbarOpen(true);
+        } else {
+          // User already in array, notify them
+          alert('You are already on the notification list for this course.');
+        }
       } else {
-        // Create new document
-        await setDoc(requestRef, {
+        // Document doesn't exist, create a new one
+        await setDoc(doc(timetableRequestsRef), {
           department: course.subj,
           number: formattedNumber,
           section: formattedSection,
@@ -265,9 +282,8 @@ const Timetable = () => {
             open: false
           }]
         });
+        setSnackbarOpen(true);
       }
-      
-      setSnackbarOpen(true);
     } catch (error) {
       console.error('Error setting up drop notification:', error);
       alert('Failed to set up drop notification. Please try again.');
