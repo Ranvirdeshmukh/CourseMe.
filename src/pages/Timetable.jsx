@@ -529,49 +529,63 @@ const Timetable = () => {
           <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Building</TableCell>
           <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Instructor</TableCell>
           <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Add to Calendar</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Notify when Available</TableCell>
+          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Notify when the class is Available</TableCell>
           <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Remove</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {selectedCourses.map((course, index) => (
-          <TableRow
-            key={index}
-            sx={{
-              backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-              '&:hover': { backgroundColor: '#e0e0e0' },
-              cursor: 'pointer',
-              textDecoration: 'none',
-              color: 'inherit',
-            }}
-          >
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.subj}</TableCell>
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.num}</TableCell>
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.sec}</TableCell>
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.title}</TableCell>
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.period}</TableCell>
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.timing}</TableCell>
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.room}</TableCell>
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.building}</TableCell>
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.instructor}</TableCell>
-            <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>
-              {course.period !== 'ARR' && course.period !== 'FS' && (
-                <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
-                  <div className="icon">
-                    <GoogleIcon />
-                  </div>
-                  <span className="text">Add to Calendar</span>
-                </GoogleCalendarButton>
-              )}
-            </TableCell>
-            <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-              <IconButton onClick={() => handleRemoveCourse(course)}>
-                <DeleteIcon />
-              </IconButton>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
+  {selectedCourses.map((course, index) => (
+    <TableRow
+      key={index}
+      sx={{
+        backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+        '&:hover': { backgroundColor: '#e0e0e0' },
+        cursor: 'pointer',
+        textDecoration: 'none',
+        color: 'inherit',
+      }}
+    >
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.subj}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.num}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.sec}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.title}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.period}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.timing}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.room}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.building}</TableCell>
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.instructor}</TableCell>
+
+      {/* Add to Calendar Button */}
+      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>
+        {course.period !== 'ARR' && course.period !== 'FS' && (
+          <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
+            <div className="icon">
+              <GoogleIcon />
+            </div>
+            <span className="text">Add to Calendar</span>
+          </GoogleCalendarButton>
+        )}
+      </TableCell>
+
+      {/* Notify when Available Button */}
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+        <Tooltip title="Notify me if someone drops this class">
+          <IconButton onClick={() => handleNotifyDrop(course)}>
+            <NotificationsActiveIcon color="primary" />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
+
+      {/* Remove Button */}
+      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+        <IconButton onClick={() => handleRemoveCourse(course)}>
+          <DeleteIcon />
+        </IconButton>
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+
     </Table>
   </TableContainer>
 )}
@@ -742,8 +756,10 @@ const Timetable = () => {
     color: '#1D1D1F',
   }}
 >
-<strong>Add your Fall Timetable to your calendar in one click.</strong> Simply select your courses to add them to your profile, and use the "Add to Calendar" feature to seamlessly integrate them into your personal schedule. This data will also help train the AI model we are working on, which will eventually assist with complete major planning.
-</Typography>
+<strong>Add your Fall Timetable to your calendar in one click, and get notified if a class spot opens up!</strong> 
+  Simply select your courses to add them to your profile, and use the "Add to Calendar" feature to seamlessly integrate them into your personal schedule. 
+  Additionally, you can opt to be notified if someone drops a class, giving you the chance to enroll in a previously full course.
+  This data will also help train the AI model we are working on, which will eventually assist with complete major planning.</Typography>
 
         {loading ? (
           <Box
@@ -787,7 +803,7 @@ const Timetable = () => {
                     <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Building</TableCell>
                     <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Instructor</TableCell>
                     <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Add to Calendar</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Notify when Available</TableCell>                 
+                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Notify when the class is Available</TableCell>                 
                     <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Add Fall Courses</TableCell>
                   </TableRow>
                 </TableHead>

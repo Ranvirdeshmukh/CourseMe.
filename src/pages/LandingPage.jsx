@@ -517,35 +517,38 @@ const handleLoginRedirect = () => {
     </Typography>
   </ButtonBase>
   {/* New Feature Box */}
-  <ButtonBase
-    sx={{
-      width: { xs: '140px', sm: '160px', md: '200px' },   
-      height: { xs: '150px', sm: '170px', md: '180px' },   
-      backgroundColor: '#f9f9f9',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: '12px',
-      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-      padding: '10px',
-      transition: 'transform 0.3s ease, background-color 0.3s ease',
-      '&:hover': {
-        backgroundColor: '#ececec',
-        transform: 'translateY(-5px)',
-      },
-    }}
-  >
-    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px', animation: 'bounce 2s infinite' }}>🚧</Typography>
-    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Notifications</Typography>
-   
-      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+  {/* Notifications Box */}
+<ButtonBase
+  onClick={() => currentUser ? navigate('/timetable') : handleLoginRedirect()} // Check if user is logged in
+  sx={{
+    width: { xs: '140px', sm: '160px', md: '200px' },   
+    height: { xs: '150px', sm: '170px', md: '180px' },   
+    backgroundColor: '#f9f9f9',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '12px',
+    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+    padding: '10px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#ececec',
+      transform: 'translateY(-5px)',
+    },
+  }}
+>
+  <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🔔</Typography>
+  <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Notifications</Typography>
+
+  <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
     Get notified when a spot opens up during the add/drop period<span style={{ color: '#F26655' }}>.</span>
   </Typography>
   <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-  Coming soon<span style={{ color: '#F26655' }}>...</span>
-    </Typography>
-  </ButtonBase>
+    Beta is ready<span style={{ color: '#F26655' }}>.</span> Try it out!
+  </Typography>
+</ButtonBase>
+
 </Box>
 
 
