@@ -16,6 +16,7 @@ import LayupsPage from './pages/LayupsPage';
 import CourseEnrollmentPrioritiesPage from './pages/CourseEnrollmentPriorities';
 import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities';
 import Timetable from './pages/Timetable';
+import Test from './pages/Test';
 
 const App = () => {
   return (
@@ -50,7 +51,8 @@ const AppContent = () => {
     '/course-enrollment-priorities',
     '/departments',
     '/course-review',
-    '/timetable'
+    '/timetable',
+    '/test'
   ].includes(location.pathname);
 
   return (
@@ -71,6 +73,7 @@ const AppContent = () => {
         <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage />} />
         <Route path="/course-enrollment-priorities/:department" element={<DepartmentCoursesWithPriorities />} />
         <Route path="/timetable" element={<Timetable />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
     </>
   );
