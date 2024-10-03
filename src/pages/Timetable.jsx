@@ -38,6 +38,8 @@ import debounce from 'lodash/debounce';
 import localforage from 'localforage';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import LockIcon from '@mui/icons-material/Lock'; // Import the Lock icon
+
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({
   display: 'flex',
@@ -119,6 +121,7 @@ const Timetable = () => {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const classesPerPage = 50; // Number of classes per page
+  const isFallAddDropClosed = true; // Replace with logic that checks if the fall add/drop period is over
 
   const isMobile = useMediaQuery('(max-width:600px)');
 
@@ -584,13 +587,21 @@ const Timetable = () => {
       </TableCell>
 
       {/* Notify when Available Button */}
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-        <Tooltip title="Notify me if someone drops this class">
-          <IconButton onClick={() => handleNotifyDrop(course)}>
-            <NotificationsActiveIcon color="primary" />
-          </IconButton>
-        </Tooltip>
-      </TableCell>
+<TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+  {isFallAddDropClosed ? (
+    <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
+      <IconButton>
+        <LockIcon color="Enabled" />
+      </IconButton>
+    </Tooltip>
+  ) : (
+    <Tooltip title="Notify me if someone drops this class">
+      <IconButton onClick={() => handleNotifyDrop(course)}>
+        <NotificationsActiveIcon color="primary" />
+      </IconButton>
+    </Tooltip>
+  )}
+</TableCell>
 
       {/* Remove Button */}
       <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
@@ -857,13 +868,21 @@ const Timetable = () => {
                             </GoogleCalendarButton>
                           )}
                         </TableCell>
-                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-              <Tooltip title="Notify me if someone drops this class">
-                <IconButton onClick={() => handleNotifyDrop(course)}>
-                  <NotificationsActiveIcon color="primary" />
-                </IconButton>
-              </Tooltip>
-            </TableCell>
+                      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+                      {isFallAddDropClosed ? (
+                        <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
+                            <IconButton>
+        <LockIcon color="disabled" />
+      </IconButton>
+    </Tooltip>
+  ) : (
+    <Tooltip title="Notify me if someone drops this class">
+      <IconButton onClick={() => handleNotifyDrop(course)}>
+        <NotificationsActiveIcon color="primary" />
+      </IconButton>
+    </Tooltip>
+  )}
+</TableCell>
                         <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
                           <IconButton
                             onClick={() => handleAddCourse(course)}
