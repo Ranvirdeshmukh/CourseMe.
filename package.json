@@ -20,6 +20,7 @@
     "firebase": "^10.13.1",
     "firebase-admin": "^12.3.1",
     "framer-motion": "^11.3.2",
+    "fuse.js": "^7.0.0",
     "http-proxy-middleware": "^3.0.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",

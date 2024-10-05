@@ -1,27 +1,145 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Alert, 
-  Box, 
-  Container, 
-  Paper, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Typography, 
-  TextField, 
-  InputAdornment, 
-  useMediaQuery, 
-  CircularProgress 
+import {
+  Alert,
+  Box,
+  Container,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  TextField,
+  InputAdornment,
+  useMediaQuery,
+  CircularProgress,
+  Switch,
+  FormControlLabel,
+  Tooltip
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import departmentOverview from '../classstructure/departmentOverview';
+import _ from 'lodash';
+import { styled, tooltipClasses } from '@mui/material/styles';
 
 const CACHE_KEY = 'departmentData';
 const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+
+const departmentEmojis = {
+  'African and African American Studies': '🏫',
+  'Asian and Middle Eastern Languages and Literatures': '🌏',
+  'Asian and Middle Eastern Studies': '🌍',
+  'Anthropology': '🦴',
+  'Arabic': '🕌',
+  'Art History': '🖼️',
+  'Asian Societies, Cultures, and Languages': '🎎',
+  'Astronomy': '🌠',
+  'Biological Sciences': '🧬',
+  'Chemistry': '⚗️',
+  'Chinese': '🀄',
+  'Classical Studies': '🏛️',
+  'College Courses': '🎓',
+  'Cognitive Science': '🧠',
+  'Comparative Literature': '📚',
+  'Computer Science': '💻',
+  'English and Creative Writing': '✍️',
+  'Earth Sciences': '🌍',
+  'Economics': '📈',
+  'Education': '🏫',
+  'English': '📖',
+  'Engineering Sciences': '🛠️',
+  'Environmental Studies': '🌱',
+  'Film and Media Studies': '🎬',
+  'French': '🇫🇷',
+  'French and Italian in Translation': '📚',
+  'Geography': '🗺️',
+  'German Studies': '🇩🇪',
+  'Government': '🏛️',
+  'Greek': '🇬🇷',
+  'Master of Health Care Delivery Science': '💉',
+  'Hebrew': '✡️',
+  'History': '📜',
+  'Humanities': '🏛️',
+  'International Studies': '🌍',
+  'Italian': '🇮🇹',
+  'Japanese': '🎌',
+  'Jewish Studies': '✡️',
+  'Latin American and Caribbean Studies': '🌎',
+  'Latin': '🏛️',
+  'Latino Studies': '🌎',
+  'Linguistics': '🗣️',
+  'Mathematics': '📊',
+  'Middle Eastern Studies': '🕌',
+  'Music': '🎵',
+  'Native American and Indigenous Studies': '🪶',
+  'Native American Studies': '🦅',
+  'Public Policy': '🏛️',
+  'Philosophy': '💭',
+  'Physics': '🔭',
+  'Portuguese': '🇵🇹',
+  'Psychological and Brain Sciences': '🧠',
+  'Quantitative Social Science': '📊',
+  'Religion': '⛪',
+  'Russian Language and Literature': '🇷🇺',
+  'Studio Art': '🎨',
+  'Sociology': '👥',
+  'Spanish': '🇪🇸',
+  'Speech': '🗣️',
+  'Social Science': '👥',
+  'Theater': '🎭',
+  'Tuck Undergraduate Courses': '💼',
+  'Women\'s, Gender, and Sexuality Studies': '👩‍🔬',
+  'Writing Courses': '✍️'
+};
+
+// Function to get the most popular course based on layup score
+const getMostPopularCourse = (department) => {
+  const cachedData = JSON.parse(localStorage.getItem(`courses_${department}`));
+  if (cachedData && Array.isArray(cachedData.courses)) {
+    const sortedCourses = cachedData.courses.sort((a, b) => b.layup - a.layup);
+    return sortedCourses[0]?.name || 'No popular course found';
+  }
+  return 'No data available';
+};
+
+// Custom Tooltip with styling
+const CustomTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))({
+  '& .MuiTooltip-tooltip': {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 300,
+    fontSize: '14px',
+    border: '1px solid #dadde9',
+    borderRadius: '10px',
+    boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.15)',
+    padding: '15px',
+    transition: 'all 0.3s ease',
+    fontFamily: 'SF Pro Display, sans-serif',  // Apple-like typography
+  },
+  '& .MuiTooltip-arrow': {
+    color: '#f5f5f9',
+  },
+});
+
+// Tooltip content can also be improved by adding emojis or icons
+const getMostPopularCourseTooltip = (department) => {
+  const courseName = getMostPopularCourse(department);
+  return (
+    <React.Fragment>
+      <Typography sx={{ fontWeight: 600, color: '#571CE0', fontSize: '1.1rem' }}>
+        📘 Most Popular Course
+      </Typography>
+      <Typography sx={{ fontWeight: 400, color: '#333', fontSize: '1rem' }}>
+        {courseName !== 'No data available' ? courseName : 'No popular course found'}
+      </Typography>
+    </React.Fragment>
+  );
+};
 
 const AllClassesPage = () => {
   const [departments, setDepartments] = useState([]);
@@ -29,6 +147,7 @@ const AllClassesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showEmojis, setShowEmojis] = useState(true);
   const exampleIndexRef = useRef(0);
   const charIndexRef = useRef(0);
   const forwardRef = useRef(true);
@@ -37,8 +156,14 @@ const AllClassesPage = () => {
 
   const departmentExamples = useMemo(() => ['Search Departments', 'Computer Science', 'Biology', 'Chemistry', 'History', 'Mathematics'], []);
 
+  // Function to toggle the emoji display state
+  const toggleEmojiDisplay = () => {
+    setShowEmojis(!showEmojis);
+  };
+
+  // Pre-fetch department data and cache it
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDepartments = async () => {
       try {
         const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
         const now = new Date().getTime();
@@ -65,7 +190,7 @@ const AllClassesPage = () => {
       }
     };
 
-    fetchData();
+    fetchDepartments();
   }, []);
 
   useEffect(() => {
@@ -111,6 +236,10 @@ const AllClassesPage = () => {
     setFilteredDepartments(filtered);
   };
 
+  const getEmoji = (departmentName) => {
+    return showEmojis ? (departmentEmojis[departmentName] || '🏫') : ''; // Conditionally show emoji
+  };
+
   return (
     <Box
       sx={{
@@ -118,39 +247,43 @@ const AllClassesPage = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#E4E2DD',
-        padding: '20px'
+        backgroundColor: '#F9F9F9',
+        padding: '30px',
+        fontFamily: 'SF Pro Display, sans-serif',
       }}
     >
       <Container maxWidth="lg">
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-          <Typography 
-            variant="h3" 
-            align='left'
-            sx={{ 
-              fontWeight: 600, 
-              fontFamily: 'SF Pro Display, sans-serif', 
-              color: '#571CE0',  // Purple color for headings
+          <Typography
+            variant="h3"
+            align="left"
+            sx={{
+              fontWeight: 600,
+              fontFamily: 'SF Pro Display, sans-serif',
+              color: '#571CE0',
               marginBottom: '0px',
-              marginTop: '20px'
+              marginTop: '0px',  // Adjust margin to align with the search bar
             }}
           >
             All Departments at <span style={{ color: '#349966' }}>Dartmouth</span>
           </Typography>
+
           <TextField
             variant="outlined"
             placeholder={placeholder}
             value={searchTerm}
             onChange={handleSearch}
             sx={{
-              width: isMobile ? '100%' : '300px',
-              height: '40px',
-              borderRadius: '20px',
-              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-              marginTop: '25px',
+              width: isMobile ? '100%' : '350px',
+              height: '45px', // Consistent height
+              borderRadius: '25px',
+              backgroundColor: '#FFFFFF',
+              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+              marginTop: '0px',  // Align with Typography
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
                   borderColor: '#571CE0',
+                  borderWidth: '2px',
                 },
                 '&:hover fieldset': {
                   borderColor: '#571CE0',
@@ -158,17 +291,30 @@ const AllClassesPage = () => {
                 '&.Mui-focused fieldset': {
                   borderColor: '#571CE0',
                 },
-                borderRadius: '20px',
-                height: '40px',
+                paddingLeft: '10px',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: '25px',
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#571CE0' }} />
+                  <SearchIcon sx={{ color: '#571CE0', marginRight: '5px' }} />
                 </InputAdornment>
               ),
             }}
+          />
+        </Box>
+
+        {/* Switch to toggle emoji display */}
+        <Box sx={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
+          <FormControlLabel
+            control={
+              <Switch checked={showEmojis} onChange={toggleEmojiDisplay} color="primary" />
+            }
+            label="Show Emojis"
           />
         </Box>
 
@@ -177,35 +323,174 @@ const AllClassesPage = () => {
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : filteredDepartments.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius:'12px' }}>
+          <TableContainer
+            component={Paper}
+            sx={{
+              backgroundColor: '#FFFFFF',
+              marginTop: '20px',
+              borderRadius: '15px',
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
+              padding: '20px',
+              overflow: 'hidden',
+            }}
+          >
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Code</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Department Name</TableCell>
-                  {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Undergrad Courses</TableCell>}
+                  <TableCell
+                    sx={{
+                      color: '#571CE0',
+                      textAlign: 'left',
+                      fontWeight: 'bold',
+                      fontSize: '1rem',
+                      paddingBottom: '15px',
+                      borderBottom: 'none',
+                    }}
+                  >
+                    Code
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: '#571CE0',
+                      textAlign: 'left',
+                      fontWeight: 'bold',
+                      fontSize: '1rem',
+                      paddingBottom: '15px',
+                      borderBottom: 'none',
+                    }}
+                  >
+                    Department Name
+                  </TableCell>
+                  {!isMobile && (
+                    <TableCell
+                      sx={{
+                        color: '#571CE0',
+                        textAlign: 'left',
+                        fontWeight: 'bold',
+                        fontSize: '1rem',
+                        paddingBottom: '15px',
+                        borderBottom: 'none',
+                      }}
+                    >
+                      Total Courses
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredDepartments.map((department, index) => (
-                  <TableRow
-                    key={index}
-                    component={Link}
-                    to={`/departments/${department}`}
-                    sx={{
-                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                      '&:hover': { backgroundColor: '#e0e0e0' },
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      color: 'inherit'
-                    }}
-                  >
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{department}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.name || department}</TableCell>
-                    {!isMobile && <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{departmentOverview[department]?.courses || 'N/A'}</TableCell>}
-                  </TableRow>
-                ))}
-              </TableBody>
+  {filteredDepartments.map((department, index) => (
+    <CustomTooltip 
+      key={index} 
+      title={getMostPopularCourseTooltip(department)} // Enhanced content
+      placement="top" 
+      arrow
+    >
+      <TableRow
+        component={Link}
+        to={`/departments/${department}`}
+        sx={{
+          backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+          transition: 'transform 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease',
+          '&:hover': {
+            backgroundColor: '#E9E9E9',  // Subtle background color change
+            transform: 'scale(1.03)',  // Slight scaling effect to create a hover "pop"
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)',  // A soft shadow to simulate elevation
+            border: '1px solid rgba(87, 28, 224, 0.1)',  // Subtle border on hover
+          },
+          cursor: 'pointer',
+          textDecoration: 'none',
+          color: 'inherit',
+          borderRadius: '10px',
+        }}
+      >
+        <TableCell
+          sx={{
+            color: '#333',
+            padding: '15px',
+            fontSize: '1rem',
+            borderBottom: 'none',
+          }}
+        >
+          {department} {getEmoji(departmentOverview[department]?.name || department)}
+        </TableCell>
+        <TableCell
+          sx={{
+            color: '#333',
+            padding: '15px',
+            fontSize: '1rem',
+            borderBottom: 'none',
+          }}
+        >
+          {departmentOverview[department]?.name || department}
+        </TableCell>
+        {!isMobile && (
+          <TableCell
+            sx={{
+              color: '#333',
+              padding: '15px',
+              fontSize: '1rem',
+              borderBottom: 'none',
+            }}
+          >
+            {departmentOverview[department]?.courses || 'N/A'}
+          </TableCell>
+        )}
+      </TableRow>
+    </CustomTooltip>
+  ))}
+</TableBody>
+
+{/* <TableRow
+  component={Link}
+  to={`/departments/${department}`}
+  sx={{
+    backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+    transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#E9E9E9',  // Subtle background color change
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',  // Softer shadow effect for elevation
+    },
+    cursor: 'pointer',
+    textDecoration: 'none',
+    color: 'inherit',
+    borderRadius: '8px',  // Slightly softer rounding for a modern feel
+  }}
+>
+  <TableCell
+    sx={{
+      color: '#333',
+      padding: '15px',
+      fontSize: '1rem',
+      borderBottom: 'none',
+    }}
+  >
+    {department} {getEmoji(departmentOverview[department]?.name || department)}
+  </TableCell>
+  <TableCell
+    sx={{
+      color: '#333',
+      padding: '15px',
+      fontSize: '1rem',
+      borderBottom: 'none',
+    }}
+  >
+    {departmentOverview[department]?.name || department}
+  </TableCell>
+  {!isMobile && (
+    <TableCell
+      sx={{
+        color: '#333',
+        padding: '15px',
+        fontSize: '1rem',
+        borderBottom: 'none',
+      }}
+    >
+      {departmentOverview[department]?.courses || 'N/A'}
+    </TableCell>
+  )}
+</TableRow> */}
+
+
             </Table>
           </TableContainer>
         ) : (

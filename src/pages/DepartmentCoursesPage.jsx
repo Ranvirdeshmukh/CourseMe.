@@ -32,12 +32,10 @@ const DepartmentCoursesPage = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        console.log(`Fetching courses for department: ${department}`);
         const q = query(collection(db, 'courses'), where('department', '==', department));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
           const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          console.log('Fetched courses data:', coursesData);
           setCourses(coursesData);
 
           // Cache the data
@@ -46,11 +44,9 @@ const DepartmentCoursesPage = () => {
             courses: coursesData,
           }));
         } else {
-          console.log('No courses found for this department.');
           setError('No courses found for this department.');
         }
       } catch (error) {
-        console.error('Error fetching courses:', error);
         setError('Failed to fetch courses.');
       } finally {
         setLoading(false);
@@ -79,8 +75,9 @@ const DepartmentCoursesPage = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#E4E2DD',
-        padding: '20px'
+        backgroundColor: '#F9F9F9',
+        padding: '20px',
+        fontFamily: 'SF Pro Display, sans-serif',
       }}
     >
       <Container maxWidth="lg">
@@ -91,9 +88,9 @@ const DepartmentCoursesPage = () => {
             sx={{ 
               fontWeight: 600, 
               fontFamily: 'SF Pro Display, sans-serif', 
-              color: '#571CE0',  // Purple color for headings
+              color: '#571CE0',
               marginBottom: '0px',
-              marginTop: '20px'
+              marginTop: '0px'
             }}
           >
             Courses in {departmentMapping[department]?.name || department}
@@ -105,15 +102,82 @@ const DepartmentCoursesPage = () => {
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : courses.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius:'12px' }}>
-            <Table>
+          <TableContainer 
+            component={Paper} 
+            sx={{ 
+              backgroundColor: '#FFFFFF', 
+              marginTop: '20px', 
+              borderRadius: '10px', 
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', 
+              padding: '10px',
+              overflow: 'hidden' 
+            }}
+          >
+            <Table sx={{ minWidth: '650px' }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Course Name</TableCell>
-                  {!isMobile && <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Distribs</TableCell>}
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Num of Reviews</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Quality</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Layup</TableCell>
+                  <TableCell 
+                    sx={{ 
+                      color: '#571CE0', 
+                      textAlign: 'left', 
+                      fontWeight: 'bold', 
+                      fontSize: '0.9rem', 
+                      padding: '10px', 
+                      borderBottom: '2px solid #E0E0E0' 
+                    }}
+                  >
+                    Course Name
+                  </TableCell>
+                  {!isMobile && (
+                    <TableCell 
+                      sx={{ 
+                        color: '#571CE0', 
+                        textAlign: 'center', 
+                        fontWeight: 'bold', 
+                        fontSize: '0.9rem', 
+                        padding: '10px', 
+                        borderBottom: '2px solid #E0E0E0' 
+                      }}
+                    >
+                      Distribs
+                    </TableCell>
+                  )}
+                  <TableCell 
+                    sx={{ 
+                      color: '#571CE0', 
+                      textAlign: 'center', 
+                      fontWeight: 'bold', 
+                      fontSize: '0.9rem', 
+                      padding: '10px', 
+                      borderBottom: '2px solid #E0E0E0' 
+                    }}
+                  >
+                    Num of Reviews
+                  </TableCell>
+                  <TableCell 
+                    sx={{ 
+                      color: '#571CE0', 
+                      textAlign: 'center', 
+                      fontWeight: 'bold', 
+                      fontSize: '0.9rem', 
+                      padding: '10px', 
+                      borderBottom: '2px solid #E0E0E0' 
+                    }}
+                  >
+                    Quality
+                  </TableCell>
+                  <TableCell 
+                    sx={{ 
+                      color: '#571CE0', 
+                      textAlign: 'center', 
+                      fontWeight: 'bold', 
+                      fontSize: '0.9rem', 
+                      padding: '10px', 
+                      borderBottom: '2px solid #E0E0E0' 
+                    }}
+                  >
+                    Layup
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -123,18 +187,75 @@ const DepartmentCoursesPage = () => {
                     component={Link}
                     to={`/departments/${department}/courses/${course.id}`}
                     sx={{
-                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                      '&:hover': { backgroundColor: '#e0e0e0' },
+                      backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+                      transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
+                      '&:hover': {
+                        backgroundColor: '#E9E9E9',
+                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)', 
+                      },
                       cursor: 'pointer',
                       textDecoration: 'none',
-                      color: 'inherit'
+                      color: 'inherit',
+                      borderRadius: '6px',
                     }}
                   >
-                    <TableCell sx={{ color: 'black', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>{course.name}</TableCell>
-                    {!isMobile && <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'center' }}>{course.distribs}</TableCell>}
-                    <TableCell sx={{ color: 'black', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.numOfReviews}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.quality}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>{course.layup}</TableCell>
+                    <TableCell 
+                      sx={{ 
+                        color: '#333', 
+                        padding: isMobile ? '8px' : '10px', 
+                        fontSize: '0.9rem', 
+                        textAlign: 'left', 
+                        borderBottom: '1px solid #E0E0E0' 
+                      }}
+                    >
+                      {course.name}
+                    </TableCell>
+                    {!isMobile && (
+                      <TableCell 
+                        sx={{ 
+                          color: '#333', 
+                          padding: '10px', 
+                          fontSize: '0.9rem', 
+                          textAlign: 'center', 
+                          borderBottom: '1px solid #E0E0E0' 
+                        }}
+                      >
+                        {course.distribs}
+                      </TableCell>
+                    )}
+                    <TableCell 
+                      sx={{ 
+                        color: '#333', 
+                        padding: isMobile ? '8px' : '10px', 
+                        fontSize: '0.9rem', 
+                        textAlign: 'center', 
+                        borderBottom: '1px solid #E0E0E0' 
+                      }}
+                    >
+                      {course.numOfReviews}
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        color: '#333', 
+                        padding: isMobile ? '8px' : '10px', 
+                        fontSize: '0.9rem', 
+                        textAlign: 'center', 
+                        borderBottom: '1px solid #E0E0E0' 
+                      }}
+                    >
+                      {course.quality}
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        color: '#333', 
+                        padding: isMobile ? '8px' : '10px', 
+                        fontSize: '0.9rem', 
+                        textAlign: 'center', 
+                        borderBottom: '1px solid #E0E0E0' 
+                      }}
+                    >
+                      {course.layup}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

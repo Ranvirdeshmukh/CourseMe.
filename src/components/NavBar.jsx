@@ -82,7 +82,7 @@ const NavBar = () => {
         background: isLandingPage
           ? '#F9F9F9'
           : isSpecialPageStyle
-          ? '#E4E2DD'
+          ? '#f9f9f9'
           : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
         boxShadow: 'none',
       }}
