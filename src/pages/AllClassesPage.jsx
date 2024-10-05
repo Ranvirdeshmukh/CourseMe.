@@ -339,7 +339,7 @@ const AllClassesPage = () => {
                 <TableRow>
                   <TableCell
                     sx={{
-                      color: '#571CE0',
+                      color: 'black',
                       textAlign: 'left',
                       fontWeight: 'bold',
                       fontSize: '1rem',
@@ -351,7 +351,7 @@ const AllClassesPage = () => {
                   </TableCell>
                   <TableCell
                     sx={{
-                      color: '#571CE0',
+                      color: 'black',
                       textAlign: 'left',
                       fontWeight: 'bold',
                       fontSize: '1rem',
@@ -364,7 +364,7 @@ const AllClassesPage = () => {
                   {!isMobile && (
                     <TableCell
                       sx={{
-                        color: '#571CE0',
+                        color: 'black',
                         textAlign: 'left',
                         fontWeight: 'bold',
                         fontSize: '1rem',
