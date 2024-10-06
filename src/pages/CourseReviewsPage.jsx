@@ -187,7 +187,7 @@ const CourseReviewsPage = () => {
                   display: 'block'
                 }}
               >
-                *Note: Verified data is shown with a checkmark icon.
+                *Note: Sections with different medians may be averaged for the term.
               </Typography>
               {gradeData.length > 0 ? (
                 <>
@@ -433,17 +433,30 @@ const CourseReviewsPage = () => {
 
           if (Array.isArray(reviewList)) {
             reviewList.forEach((review, index) => {
-              const termMatch = review.match(/^\d{2}[WSXF]/);
+              // Match terms using the updated regex pattern
+              const termMatch = review.match(/^(0[1-9]|1[0-9]|2[0-4]|[1-9])[WSXF]/);
               const termCode = termMatch ? termMatch[0] : null;
+          
+              // Use try-catch to safely call getTermValue
+              let termValue = 0; // Default value
+              if (termCode) {
+                try {
+                  termValue = getTermValue(termCode); // Retrieve the term value
+                } catch (error) {
+                  console.error("Error retrieving term value:", error);
+                }
+              }
+          
               reviewsArray.push({
                 instructor,
                 review,
                 reviewIndex: index,
                 courseId,
-                termValue: termCode ? getTermValue(termCode) : 0
+                termValue,
               });
             });
           }
+          
         });
   
         // Sort by termValue in descending order (latest first)

@@ -16,7 +16,8 @@ import LayupsPage from './pages/LayupsPage';
 import CourseEnrollmentPrioritiesPage from './pages/CourseEnrollmentPriorities';
 import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities';
 import Timetable from './pages/Timetable';
-import TranscriptParser from './TranscriptParser';
+import TranscriptParser from './pages/TranscriptParser';
+
 
 const App = () => {
   return (
