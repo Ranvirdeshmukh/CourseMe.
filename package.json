@@ -5,8 +5,10 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@google-cloud/storage": "^7.13.0",
     "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
+    "@shadcn/ui": "^0.0.4",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -39,8 +41,10 @@
     "react-simple-animate": "^3.5.2",
     "react-spring": "^9.7.4",
     "react-typing-effect": "^2.0.5",
+    "recharts": "^2.12.7",
     "remark-gfm": "^4.0.0",
     "serve": "^14.2.3",
+    "uuid": "^10.0.0",
     "web-vitals": "^2.1.4",
     "ws": "^8.18.0"
   },
