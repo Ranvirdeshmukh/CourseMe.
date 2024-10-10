@@ -211,10 +211,11 @@ const CourseReviewsPage = () => {
                   value={newGradeData.Term}
                   onChange={(e) => {
                     const value = e.target.value.toUpperCase(); // Convert input to uppercase
-
+                  
                     // Allow only two digits (00-24) followed by F, W, S, or X
-                    const regex = /^(24|[01]?\d)[FWSX]?$/; // Adjust regex to match the desired format
-                    if (regex.test(value)) {
+                    const regex = /^(?:2[0-4]|1\d|0?\d)([FWSX])?$/;
+                    
+                    if (regex.test(value) || value === '') {
                       setNewGradeData(prev => ({ ...prev, Term: value }));
                     }
                   }}

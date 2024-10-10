@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, updateDoc, arrayUnion } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, arrayUnion, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase'; // Adjust this import based on your Firebase setup
 import { useAuth } from '../contexts/AuthContext'; // Adjust this import based on your auth setup
 
@@ -9,6 +9,10 @@ const TranscriptParser = () => {
   const [loading, setLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const { currentUser } = useAuth();
+  const [error, setError] = useState(null);
+  const [userSubmissions, setUserSubmissions] = useState([]);
+  const [verifiedCourses, setVerifiedCourses] = useState([]);
+
   const formatTerm = (term) => {
     const termMap = {
       'Fall Term': 'F',
@@ -67,8 +71,13 @@ const TranscriptParser = () => {
   };
 
 
-  const handleTextChange = (event) => {
-    setTranscriptText(event.target.value);
+  const handleTextChange = async (event) => {
+    const text = event.target.value;
+    setTranscriptText(text);
+    if (text) {
+      const parsed = parseTranscript(text);
+      await checkCoursesStatus(parsed);
+    }
   };
 
   useEffect(() => {
@@ -78,55 +87,91 @@ const TranscriptParser = () => {
     }
   }, [transcriptText]);
 
-  const uploadToFirebase = async (parsedData) => {
+  const checkCoursesStatus = async (courses) => {
+    if (!currentUser) {
+      setError('You must be logged in to submit grade data.');
+      return;
+    }
+
+    setLoading(true);
+    const userDocRef = doc(db, 'users', currentUser.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    const userData = userDocSnap.exists() ? userDocSnap.data() : {};
+    const userSubmissions = userData.gradeSubmissions || [];
+    setUserSubmissions(userSubmissions);
+
+    const checkedCourses = await Promise.all(courses.map(async (course) => {
+      const coursesRef = collection(db, 'courses');
+      const q = query(
+        coursesRef, 
+        where("department", "==", course.department),
+        where("course_number", "==", course.number)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const courseDoc = querySnapshot.docs[0];
+        const courseData = courseDoc.data();
+        const existingMedian = courseData.medians?.find(m => m.Term === course.term);
+
+        const isSubmitted = userSubmissions.some(
+          sub => sub.courseId === courseDoc.id && sub.Term === course.term
+        );
+
+        const isVerified = existingMedian && existingMedian.verified;
+
+        return {
+          ...course,
+          status: isVerified ? 'verified' : (isSubmitted ? 'submitted' : 'new'),
+          courseId: courseDoc.id
+        };
+      }
+
+      return { ...course, status: 'not_found' };
+    }));
+
+    setParsedData(checkedCourses);
+    setLoading(false);
+  };
+
+  const uploadToFirebase = async () => {
     setLoading(true);
     setUploadStatus('Uploading data...');
     let successCount = 0;
     let failCount = 0;
-    let alreadyVerifiedCount = 0;
-    let verifiedCourses = [];
 
-    for (const course of parsedData) {
+    const coursesToUpload = parsedData.filter(course => course.status === 'new');
+
+    for (const course of coursesToUpload) {
       try {
-        const coursesRef = collection(db, 'courses');
-        const q = query(
-          coursesRef, 
-          where("department", "==", course.department),
-          where("course_number", "==", course.number)
-        );
-        const querySnapshot = await getDocs(q);
+        const courseDocRef = doc(db, 'courses', course.courseId);
+        const courseDocSnap = await getDoc(courseDocRef);
+        const courseData = courseDocSnap.data();
 
-        if (!querySnapshot.empty) {
-          const courseDoc = querySnapshot.docs[0];
-          const courseData = courseDoc.data();
+        const newSubmission = {
+          Grade: course.median_grade,
+          timestamp: new Date().toISOString(),
+          userId: currentUser.uid
+        };
 
-          // Check if the medians array exists
-          if (!courseData.medians) {
-            courseData.medians = [];
-          }
+        const existingMedian = courseData.medians?.find(m => m.Term === course.term);
 
-          // Check if there's a matching term in the medians array
-          const matchingMedian = courseData.medians.find(median => median.Term === course.term);
+        if (existingMedian) {
+          // Update existing unverified median
+          const updatedMedians = courseData.medians.map(m => 
+            m.Term === course.term 
+              ? { 
+                  ...m, 
+                  submissions: [...m.submissions, newSubmission],
+                  Professors: [...new Set([...m.Professors])] // No professors in transcript data
+                }
+              : m
+          );
 
-          if (matchingMedian) {
-            // If there's a matching term, check for verification
-            if (matchingMedian.verified === true) {
-              alreadyVerifiedCount++;
-              verifiedCourses.push(`${course.department} ${course.number} (${course.term})`);
-              continue; // Skip this course
-            }
-          }
-
-          // If no matching term or not verified, add the new submission
-          const newSubmission = {
-            Term: course.term,
-            Grade: course.median_grade,
-            timestamp: new Date().toISOString(),
-            userId: currentUser.uid,
-            verified: false
-          };
-
-          await updateDoc(courseDoc.ref, {
+          await updateDoc(courseDocRef, { medians: updatedMedians });
+        } else {
+          // Add new unverified median
+          await updateDoc(courseDocRef, {
             medians: arrayUnion({
               Term: course.term,
               Professors: [],
@@ -134,12 +179,21 @@ const TranscriptParser = () => {
               submissions: [newSubmission]
             })
           });
-
-          successCount++;
-        } else {
-          failCount++;
-          console.log(`Course not found: ${course.department} ${course.number}`);
         }
+
+        // Add user submission
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userDocRef, {
+          gradeSubmissions: arrayUnion({
+            courseId: course.courseId,
+            Term: course.term,
+            Professors: [],
+            Grade: course.median_grade,
+            timestamp: new Date().toISOString()
+          })
+        });
+
+        successCount++;
       } catch (error) {
         failCount++;
         console.error('Error uploading course data:', error);
@@ -147,19 +201,39 @@ const TranscriptParser = () => {
     }
 
     setLoading(false);
-    setUploadStatus(`Upload complete. Success: ${successCount}, Failed: ${failCount}, Already Verified: ${alreadyVerifiedCount}`);
-    if (verifiedCourses.length > 0) {
-      setUploadStatus(prev => `${prev}\nVerified courses: ${verifiedCourses.join(', ')}`);
-    }
+    setUploadStatus(`Upload complete. Success: ${successCount}, Failed: ${failCount}`);
+    
+    // Update the status of successfully uploaded courses
+    setParsedData(prevData => 
+      prevData.map(course => 
+        coursesToUpload.some(uploadedCourse => 
+          uploadedCourse.courseId === course.courseId && uploadedCourse.term === course.term
+        ) 
+          ? { ...course, status: 'uploaded' } 
+          : course
+      )
+    );
+
+    setError(null);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true);
-    const parsed = parseTranscript(transcriptText);
-    setParsedData(parsed);
-    await uploadToFirebase(parsed);
-    setLoading(false);
+    await uploadToFirebase();
+  };
+  const getCourseRowStyle = (status) => {
+    switch (status) {
+      case 'verified':
+        return { backgroundColor: '#e0f2f1', color: '#00695c' };
+      case 'submitted':
+        return { backgroundColor: '#f0f4c3', color: '#827717' };
+      case 'uploaded':
+        return { backgroundColor: '#e8f5e9', color: '#2e7d32' };
+      case 'not_found':
+        return { backgroundColor: '#ffcdd2', color: '#b71c1c' };
+      default:
+        return {};
+    }
   };
 
   const styles = {
@@ -263,8 +337,8 @@ const TranscriptParser = () => {
       <div style={styles.textBox} className="p-6 mb-8">
         <h1 className="text-4xl font-bold mb-8 text-center">Transcript Parser</h1>
         <p className="text-gray-600 mb-4">
-        To get online transcript, go to DartHub, go under Unofficial Transcript - Web, select all, copy and paste here. 
-        (or start from INSTITUTION CREDIT to TRANSCRIPT TOTALS).
+          To get online transcript, go to DartHub, go under Unofficial Transcript - Web, select all, copy and paste here. 
+          (or start from INSTITUTION CREDIT to TRANSCRIPT TOTALS).
         </p>
         <p className="text-gray-600 mb-4">
           All processing happens on your device. The only data that is uploaded is what is displayed in the table.
@@ -296,13 +370,10 @@ const TranscriptParser = () => {
         </form>
 
         {uploadStatus && (
-        <div className="text-center mt-4">
-          <p className="text-green-600 font-semibold">{uploadStatus.split('\n')[0]}</p>
-          {uploadStatus.split('\n')[1] && (
-            <p className="text-blue-600 font-semibold mt-2">{uploadStatus.split('\n')[1]}</p>
-          )}
-        </div>
-      )}
+          <div className="text-center mt-4">
+            <p className="text-green-600 font-semibold">{uploadStatus}</p>
+          </div>
+        )}
 
         {parsedData.length > 0 && (
           <div className="bg-white rounded-lg shadow-md p-6 mt-8">
@@ -320,21 +391,14 @@ const TranscriptParser = () => {
                       <th style={styles.th}>Title</th>
                       <th style={styles.th}>Enrollment</th>
                       <th style={styles.th}>Median Grade</th>
+                      <th style={styles.th}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {parsedData.map((course, index) => (
                       <tr
                         key={index}
-                        style={styles.tr}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = styles.trHover.backgroundColor;
-                          e.currentTarget.style.boxShadow = styles.trHover.boxShadow;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '';
-                          e.currentTarget.style.boxShadow = '';
-                        }}
+                        style={{...styles.tr, ...getCourseRowStyle(course.status)}}
                       >
                         <td style={styles.td}>{course.term}</td>
                         <td style={styles.td}>{course.department}</td>
@@ -342,11 +406,22 @@ const TranscriptParser = () => {
                         <td style={styles.td}>{course.title}</td>
                         <td style={styles.td}>{course.enrollment}</td>
                         <td style={styles.td}>{course.median_grade}</td>
+                        <td style={styles.td}>{course.status}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+            </div>
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold mb-2">Legend:</h4>
+              <ul>
+                <li><span style={{color: '#00695c'}}>■</span> Verified: Course data is already verified</li>
+                <li><span style={{color: '#827717'}}>■</span> Submitted: You have already submitted data for this course</li>
+                <li><span style={{color: '#2e7d32'}}>■</span> Uploaded: Successfully uploaded in this session</li>
+                <li><span style={{color: '#b71c1c'}}>■</span> Not Found: Course not found in the database</li>
+                <li>White: New course data ready to be submitted</li>
+              </ul>
             </div>
           </div>
         )}
@@ -354,6 +429,5 @@ const TranscriptParser = () => {
     </div>
   );
 };
-
 
 export default TranscriptParser;
