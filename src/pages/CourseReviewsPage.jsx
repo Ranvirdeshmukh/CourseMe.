@@ -22,6 +22,7 @@ import InteractiveGradeScale from './InteractiveGradeScale';
 import GradeChart from './CustomGradeChart';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CanvasGradeTable from './CanvasGradeTable';
+import CourseInputDataForm from './CourseInputDataForm';
 
 const CourseReviewsPage = () => {
   const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
@@ -60,6 +61,22 @@ const CourseReviewsPage = () => {
   const match = courseId.match(numberRegex);
   const [descriptionError, setDescriptionError] = useState(null);
   const reviewsPerPage = 5;
+  const [isBetaUser, setIsBetaUser] = useState(false);
+
+  useEffect(() => {
+    const checkBetaStatus = async () => {
+      if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          setIsBetaUser(userData.beta === true);
+        }
+      }
+    };
+
+    checkBetaStatus();
+  }, [currentUser]);
 
   const StyledTab = styled(Tab)(({ theme }) => ({
     minHeight: 'auto',
@@ -255,7 +272,15 @@ const CourseReviewsPage = () => {
               </Box>
             </Box>
           );
-      case 2:
+          case 2:
+            // Input Data tab content (new)
+            return (
+              <Box sx={{ padding: '20px' }}>
+                <Typography variant="h6" gutterBottom>Input Course Data</Typography>
+                <CourseInputDataForm courseId={courseId} allProfessors={allProfessors} />
+              </Box>
+            );
+      case 3:
         return (
           <Box sx={{ padding: '20px' }}>
             <Typography variant="h6" gutterBottom>Course Metrics</Typography>
@@ -1602,7 +1627,8 @@ const handleQualityVote = async (voteType) => {
               <StyledTabs value={tabValue} onChange={handleTabChange}>
                 <StyledTab icon={<Description />} label="Description" />
                 <StyledTab icon={<ReportCardIcon />} label="Medians" />
-                <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" />
+                {isBetaUser && <StyledTab icon={<CourseMetricsIcon />} label="Input Data" />}
+                {/* <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" /> */}
               </StyledTabs>
               <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
                 <IconButton onClick={handlePinCourse} sx={{ /* existing styles */ }}>
