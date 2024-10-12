@@ -509,8 +509,9 @@ const Timetable = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#E4E2DD',
-        padding: '20px',
+        backgroundColor: '#F9F9F9',
+        padding: '40px',
+        fontFamily: 'SF Pro Display, sans-serif',
       }}
     >
       <Container maxWidth="xl">
@@ -526,103 +527,364 @@ const Timetable = () => {
             marginBottom: '0px',
             marginTop: '30px',
           }}
-          >
-            Your Fall 2024 Classes
-          </Typography>
+        >
+          Your Fall 2024 Classes
+        </Typography>
         )}
        
 
 
-        {showSelectedCourses && selectedCourses.length > 0 && (
-  <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginBottom: '20px', boxShadow: 3, borderRadius: '12px', maxWidth: '100%' }}>
-    <Table>
-      <TableHead sx={{ backgroundColor: '#571CE0' }}>
-        <TableRow>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Subject</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Number</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Section</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Title</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Period</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Timing</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Room</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Building</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Instructor</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Add to Calendar</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Notify when the class is Available</TableCell>
-          <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Remove</TableCell>
+       {showSelectedCourses && selectedCourses.length > 0 && (
+  <TableContainer
+    component={Paper}
+    sx={{
+      backgroundColor: '#FFFFFF',
+      marginBottom: '20px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      borderRadius: '10px',
+      padding: '10px',
+      overflowX: 'auto',
+      maxWidth: '100%',
+    }}
+  >
+    <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
+      <TableHead>
+        <TableRow sx={{ backgroundColor: '#571CE0' }}>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Subject
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Number
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Section
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Title
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Period
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Timing
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Room
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Building
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Instructor
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Add to Calendar
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Notify when Available
+          </TableCell>
+          <TableCell
+            sx={{
+              color: '#fff',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '1rem',
+              padding: '12px 10px',
+              borderBottom: '2px solid #E0E0E0',
+            }}
+          >
+            Remove
+          </TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-  {selectedCourses.map((course, index) => (
-    <TableRow
-      key={index}
-      sx={{
-        backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-        '&:hover': { backgroundColor: '#e0e0e0' },
-        cursor: 'pointer',
-        textDecoration: 'none',
-        color: 'inherit',
-      }}
-    >
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.subj}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.num}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.sec}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.title}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.period}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.timing}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.room}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.building}</TableCell>
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.instructor}</TableCell>
+        {selectedCourses.map((course, index) => (
+          <TableRow
+            key={index}
+            sx={{
+              backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+              transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
+              '&:hover': {
+                backgroundColor: '#E9E9E9',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+              },
+              cursor: 'pointer',
+              textDecoration: 'none',
+              color: 'inherit',
+            }}
+          >
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.subj}
+            </TableCell>
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.num}
+            </TableCell>
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.sec}
+            </TableCell>
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.title}
+            </TableCell>
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.period}
+            </TableCell>
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.timing}
+            </TableCell>
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.room}
+            </TableCell>
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.building}
+            </TableCell>
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.instructor}
+            </TableCell>
 
-      {/* Add to Calendar Button */}
-      <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>
-        {course.period !== 'ARR' && course.period !== 'FS' && (
-          <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
-            <div className="icon">
-              <GoogleIcon />
-            </div>
-            <span className="text">Add to Calendar</span>
-          </GoogleCalendarButton>
-        )}
-      </TableCell>
+            {/* Add to Calendar Button */}
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '10px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {course.period !== 'ARR' && course.period !== 'FS' && (
+                <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
+                  <div className="icon">
+                    <GoogleIcon />
+                  </div>
+                  <span className="text">Add to Calendar</span>
+                </GoogleCalendarButton>
+              )}
+            </TableCell>
 
-      {/* Notify when Available Button */}
-<TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-  {isFallAddDropClosed ? (
-    <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
-      <IconButton>
-        <LockIcon color="Enabled" />
-      </IconButton>
-    </Tooltip>
-  ) : (
-    <Tooltip title="Notify me if someone drops this class">
-      <IconButton onClick={() => handleNotifyDrop(course)}>
-        <NotificationsActiveIcon color="primary" />
-      </IconButton>
-    </Tooltip>
-  )}
-</TableCell>
+            {/* Notify when Available Button */}
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '12px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              {isFallAddDropClosed ? (
+                <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
+                  <IconButton>
+                    <LockIcon color="disabled" />
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                <Tooltip title="Notify me if someone drops this class">
+                  <IconButton onClick={() => handleNotifyDrop(course)}>
+                    <NotificationsActiveIcon color="primary" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </TableCell>
 
-      {/* Remove Button */}
-      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-        <IconButton onClick={() => handleRemoveCourse(course)}>
-          <DeleteIcon />
-        </IconButton>
-      </TableCell>
-    </TableRow>
-  ))}
-</TableBody>
-
+            {/* Remove Button */}
+            <TableCell
+              sx={{
+                color: 'black',
+                padding: '12px',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                borderBottom: '1px solid #E0E0E0',
+              }}
+            >
+              <IconButton onClick={() => handleRemoveCourse(course)}>
+                <DeleteIcon />
+              </IconButton>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
     </Table>
   </TableContainer>
 )}
 
 
-        {showSelectedCourses && selectedCourses.length === 0 && (
+
+{showSelectedCourses && selectedCourses.length === 0 && (
           <Typography sx={{ marginBottom: '20px' }}>Haven't added your Fall 2024 timetable on CourseMe? Add now!!</Typography>
         )}
 
-        <Box
+<Box
           sx={{
             display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
@@ -678,115 +940,113 @@ const Timetable = () => {
               ),
             }}
           />
-         <FormControl variant="outlined" sx={{ minWidth: isMobile ? '100%' : 200, marginTop: '25px' }}>
-  <InputLabel
-    sx={{
-      color: '#571CE0',
-      '&.Mui-focused': {
-        color: '#571CE0',
-      },
-    }}
-  >
-    Subject
-  </InputLabel>
-  <Select
-    value={selectedSubject}
-    onChange={handleSubjectChange}
-    label="Subject"
-    sx={{
-      borderRadius: '20px',
-      height: '40px', 
-      backgroundColor: 'transparent',
-      color: '#571CE0',
-      fontWeight: '600',
-      fontSize: '16px',
-      fontFamily: 'SF Pro Display, sans-serif',
-      textTransform: 'none',
-      border: '1px solid #571CE0',
-      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-      '& .MuiOutlinedInput-root': {
-        '& fieldset': {
-          borderColor: '#571CE0',
-        },
-        '&:hover fieldset': {
-          borderColor: '#571CE0',
-        },
-        '&.Mui-focused fieldset': {
-          borderColor: '#571CE0',
-        },
-        backgroundColor: 'transparent',
-        height: '40px',
-      },
-      '& .MuiSelect-icon': {
-        color: '#571CE0',
-      },
-      '&:hover': {
-        backgroundColor: 'rgba(87, 28, 224, 0.1)',
-      },
-      '&:focus': {
-        outline: 'none',
-        boxShadow: '0 0 0 4px rgba(0, 122, 255, 0.5)',
-      },
-    }}
-  >
-    <MenuItem value="">
-      <em>All Subjects</em>
-    </MenuItem>
-    {subjects.map((subject, index) => (
-      <MenuItem key={index} value={subject}>
-        {subject}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
+          <FormControl variant="outlined" sx={{ minWidth: isMobile ? '100%' : 200, marginTop: '25px' }}>
+            <InputLabel
+              sx={{
+                color: '#571CE0',
+                '&.Mui-focused': {
+                  color: '#571CE0',
+                },
+              }}
+            >
+              Subject
+            </InputLabel>
+            <Select
+              value={selectedSubject}
+              onChange={handleSubjectChange}
+              label="Subject"
+              sx={{
+                borderRadius: '20px',
+                height: '40px',
+                backgroundColor: 'transparent',
+                color: '#571CE0',
+                fontWeight: '600',
+                fontSize: '16px',
+                fontFamily: 'SF Pro Display, sans-serif',
+                textTransform: 'none',
+                border: '1px solid #571CE0',
+                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#571CE0',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#571CE0',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#571CE0',
+                  },
+                  backgroundColor: 'transparent',
+                  height: '40px',
+                },
+                '& .MuiSelect-icon': {
+                  color: '#571CE0',
+                },
+                '&:hover': {
+                  backgroundColor: 'rgba(87, 28, 224, 0.1)',
+                },
+                '&:focus': {
+                  outline: 'none',
+                  boxShadow: '0 0 0 4px rgba(0, 122, 255, 0.5)',
+                },
+              }}
+            >
+              <MenuItem value="">
+                <em>All Subjects</em>
+              </MenuItem>
+              {subjects.map((subject, index) => (
+                <MenuItem key={index} value={subject}>
+                  {subject}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-<Button
-  variant="contained"
-  sx={{
-    marginTop: isMobile ? '20px' : '25px',
-    padding: '10px 20px',
-    borderRadius: '20px',
-    height: '40px',
-    backgroundColor: 'transparent',
-    color: '#571CE0',
-    fontWeight: '600',
-    fontSize: '16px',
-    fontFamily: 'SF Pro Display, sans-serif',
-    textTransform: 'none',
-    border: '1px solid #571CE0',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    '&:hover': {
-      backgroundColor: 'rgba(87, 28, 224, 0.1)',
-      borderColor: '#571CE0',
-    },
-    '&:focus': {
-      outline: 'none',
-      boxShadow: '0 0 0 4px rgba(0, 122, 255, 0.5)',
-    },
-  }}
-  onClick={() => setShowSelectedCourses(!showSelectedCourses)}
->
-  {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
-</Button>
-
-
-
+          <Button
+            variant="contained"
+            sx={{
+              marginTop: isMobile ? '20px' : '25px',
+              padding: '10px 20px',
+              borderRadius: '20px',
+              height: '40px',
+              backgroundColor: 'transparent',
+              color: '#571CE0',
+              fontWeight: '600',
+              fontSize: '16px',
+              fontFamily: 'SF Pro Display, sans-serif',
+              textTransform: 'none',
+              border: '1px solid #571CE0',
+              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+              '&:hover': {
+                backgroundColor: 'rgba(87, 28, 224, 0.1)',
+                borderColor: '#571CE0',
+              },
+              '&:focus': {
+                outline: 'none',
+                boxShadow: '0 0 0 4px rgba(0, 122, 255, 0.5)',
+              },
+            }}
+            onClick={() => setShowSelectedCourses(!showSelectedCourses)}
+          >
+            {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
+          </Button>
         </Box>
 
         <Typography
-  variant="body2"
-  color="textSecondary"
-  sx={{
-    marginBottom: '20px',
-    marginTop: '20px',
-    fontFamily: 'SF Pro Display, sans-serif',
-    color: '#1D1D1F',
-  }}
->
-<strong>Add your Fall Timetable to your calendar in one click, and get notified if a class spot opens up!</strong> 
-  Simply select your courses to add them to your profile, and use the "Add to Calendar" feature to seamlessly integrate them into your personal schedule. 
-  Additionally, you can opt to be notified if someone drops a class, giving you the chance to enroll in a previously full course.
-  This data will also help train the AI model we are working on, which will eventually assist with complete major planning.</Typography>
+          variant="body2"
+          color="textSecondary"
+          sx={{
+            marginBottom: '20px',
+            marginTop: '20px',
+            fontFamily: 'SF Pro Display, sans-serif',
+            color: '#1D1D1F',
+          }}
+        >
+          <strong>Add your Fall Timetable to your calendar in one click, and get notified if a class spot opens up!</strong> 
+          Simply select your courses to add them to your profile, and use the "Add to Calendar" feature to seamlessly integrate them into your personal schedule. 
+          Additionally, you can opt to be notified if someone drops a class, giving you the chance to enroll in a previously full course.
+          This data will also help train the AI model we are working on, which will eventually assist with complete major planning.
+        </Typography>
 
         {loading ? (
           <Box
@@ -816,93 +1076,364 @@ const Timetable = () => {
           <Alert severity="error">Error loading courses: {error.message}</Alert>
         ) : filteredCourses.length > 0 ? (
           <>
-            <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius: '12px', maxWidth: '100%' }}>
-              <Table>
-                <TableHead sx={{ backgroundColor: '#571CE0' }}>
-                  <TableRow>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Subject</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Number</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Section</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Title</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Period</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Timing</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Room</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Building</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Instructor</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Add to Calendar</TableCell>
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Notify when the class is Available</TableCell>                 
-                    <TableCell sx={{ color: '#fff', textAlign: 'left', fontWeight: 'bold', padding: '10px' }}>Add Fall Courses</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {paginatedCourses.map((course, index) => {
-                    const isSelected = selectedCourses.some((c) => c.title === course.title);
+            <TableContainer 
+  component={Paper} 
+  sx={{ 
+    backgroundColor: '#fff', 
+    marginTop: '20px', 
+    boxShadow: 3, 
+    borderRadius: '12px', 
+    maxWidth: '100%' 
+  }}
+>
+  <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
+    <TableHead sx={{ backgroundColor: '#571CE0' }}>
+      <TableRow>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          Subject
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Number
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Section
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Title
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Period
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Timing
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Room
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Building
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Instructor
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Add to Calendar
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Notify When Available
+        </TableCell>
+        <TableCell 
+          sx={{ 
+            color: '#fff', 
+            textAlign: 'left', 
+            fontWeight: 'bold', 
+            fontSize: '1rem', 
+            padding: '12px 10px', 
+            borderBottom: '2px solid #E0E0E0',
+          }}
+        >
+          Add Course
+        </TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {paginatedCourses.map((course, index) => (
+        <TableRow
+          key={index}
+          sx={{
+            backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+            '&:hover': { backgroundColor: '#e0e0e0' },
+            cursor: 'pointer',
+            textDecoration: 'none',
+            color: 'inherit',
+          }}
+        >
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.subj}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.num}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.sec}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.title}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.period}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.timing}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.room}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.building}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.instructor}
+          </TableCell>
 
-                    return (
-                      <TableRow
-                        key={index}
-                        sx={{
-                          backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                          '&:hover': { backgroundColor: '#e0e0e0' },
-                          cursor: 'pointer',
-                          textDecoration: 'none',
-                          color: 'inherit',
-                        }}
-                      >
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.subj}</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.num}</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.sec}</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.title}</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.period}</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.timing}</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.room}</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.building}</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>{course.instructor}</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '10px', textAlign: 'left' }}>
-                          {course.period !== 'ARR' && course.period !== 'FS' && (
-                            <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
-                              <div className="icon">
-                                <GoogleIcon />
-                              </div>
-                              <span className="text">Add it to your Calendar.</span>
-                            </GoogleCalendarButton>
-                          )}
-                        </TableCell>
-                      <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-                      {isFallAddDropClosed ? (
-                        <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
-                            <IconButton>
-        <LockIcon color="disabled" />
-      </IconButton>
-    </Tooltip>
-  ) : (
-    <Tooltip title="Notify me if someone drops this class">
-      <IconButton onClick={() => handleNotifyDrop(course)}>
-        <NotificationsActiveIcon color="primary" />
-      </IconButton>
-    </Tooltip>
-  )}
-</TableCell>
-                        <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
-                          <IconButton
-                            onClick={() => handleAddCourse(course)}
-                            disabled={isSelected || selectedCourses.length >= 3} 
-                          >
-                            {isSelected ? (
-                              <CheckCircleIcon color="success" />
-                            ) : (
-                              <AddCircleOutlineIcon
-                                color={selectedCourses.length >= 3 ? "disabled" : "primary"} 
-                              />
-                            )}
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
+          {/* Add to Calendar Button */}
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '10px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {course.period !== 'ARR' && course.period !== 'FS' && (
+              <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
+                <div className="icon">
+                  <GoogleIcon />
+                </div>
+                <span className="text">Add to Calendar</span>
+              </GoogleCalendarButton>
+            )}
+          </TableCell>
+
+          {/* Notify when Available Button */}
+          <TableCell
+            sx={{
+              color: 'black',
+              padding: '12px',
+              textAlign: 'left',
+              fontWeight: 500,
+              fontSize: '0.95rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              borderBottom: '1px solid #E0E0E0',
+            }}
+          >
+            {isFallAddDropClosed ? (
+              <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
+                <IconButton>
+                  <LockIcon color="disabled" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Notify me if someone drops this class">
+                <IconButton onClick={() => handleNotifyDrop(course)}>
+                  <NotificationsActiveIcon color="primary" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </TableCell>
+          <TableCell sx={{ color: 'black', padding: '12px', textAlign: 'left' }}>
+            <IconButton
+              onClick={() => handleAddCourse(course)}
+              disabled={selectedCourses.length >= 3}
+            >
+              {selectedCourses.some((c) => c.title === course.title) ? (
+                <CheckCircleIcon color="success" />
+              ) : (
+                <AddCircleOutlineIcon
+                  color={selectedCourses.length >= 3 ? 'disabled' : 'primary'}
+                />
+              )}
+            </IconButton>
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+</TableContainer>
+
 
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
   <IconButton

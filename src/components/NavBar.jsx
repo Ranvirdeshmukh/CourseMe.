@@ -36,8 +36,9 @@ const NavBar = () => {
     }
   };
 
-  // Check if the current page is the Get Started page
+  // Check if the current page is the Get Started page or Login page
   const isGetStartedPage = location.pathname === '/';
+  const isLoginPage = location.pathname === '/login';
 
   // Check if the current page is the Landing page
   const isLandingPage = location.pathname === '/landing';
@@ -59,19 +60,9 @@ const NavBar = () => {
 
   const isSpecialPageStyle = isSpecialPage();
 
-  // Return null to prevent Navbar rendering on the Get Started page
-  if (isGetStartedPage) {
-    return (
-      <Box
-        sx={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          zIndex: 1000,
-        }}
-      >
-      </Box>
-    );
+  // Return null to prevent Navbar rendering on the Get Started and Login pages
+  if (isGetStartedPage || isLoginPage) {
+    return null;
   }
 
   return (
