@@ -1,15 +1,17 @@
 // src/pages/SignUpPage.jsx
 import React, { useRef, useState } from 'react';
-import { Typography, Box, TextField, InputAdornment, IconButton, Link } from '@mui/material';
+import { Typography, Box, TextField, InputAdornment, IconButton, Link, Button } from '@mui/material';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, db, googleProvider } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { useNavigate, Link as RouterLink } from 'react-router-dom'; // Import RouterLink here
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import ReactTypingEffect from 'react-typing-effect';
+
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -28,38 +30,26 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Check if the email is a Dartmouth email
     const email = emailRef.current.value;
     if (!email.endsWith('@dartmouth.edu')) {
       setError('Please use your Dartmouth email address');
       return;
     }
-  
     if (passwordRef.current.value !== confirmPasswordRef.current.value) {
       setError('Passwords do not match');
       return;
     }
-  
     try {
       setError('');
       setLoading(true);
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        emailRef.current.value,
-        passwordRef.current.value
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value);
       const user = userCredential.user;
-  
-      // Add user to Firestore
       await setDoc(doc(db, 'users', user.uid), {
         firstName: firstNameRef.current.value,
         lastName: lastNameRef.current.value,
         email: user.email,
         createdAt: new Date(),
       });
-  
-      // Navigate to profile completion page
       navigate('/complete-profile');
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
@@ -67,20 +57,16 @@ const SignUpPage = () => {
       } else {
         setError('Failed to create an account');
       }
-      console.error('Error creating user:', error);
     } finally {
       setLoading(false);
     }
   };
-  
-
 
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const userDoc = await getDoc(doc(db, 'users', user.uid));
-
       if (!userDoc.exists()) {
         await setDoc(doc(db, 'users', user.uid), {
           firstName: user.displayName.split(' ')[0],
@@ -99,7 +85,6 @@ const SignUpPage = () => {
       }
     } catch (error) {
       setError('Failed to sign in with Google');
-      console.error('Error signing in with Google:', error);
     }
   };
 
@@ -108,61 +93,71 @@ const SignUpPage = () => {
       sx={{
         minHeight: '100vh',
         display: 'flex',
-        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'radial-gradient(circle, #571CE0 0%, #571CE0 40%, black 70%)',
-        color: '#fff',
-        textAlign: 'center',
-        fontFamily: 'SF Pro Display, sans-serif',
-        padding: '40px',
+        background: 'linear-gradient(135deg, #f0f4f8 0%, #fff 100%)',
+        padding: '0 10%',
+        color: '#1D1D1F',
+        flexDirection: { xs: 'column', md: 'row' },
+        textAlign: { xs: 'center', md: 'left' },
       }}
     >
+      <Box
+        sx={{
+          maxWidth: { xs: '100%', md: '50%' },
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: { xs: 'center', md: 'flex-start' },
+          mb: { xs: 0, md: 0 },
+          pt: { xs: 5, md: 0 },
+        }}
+      >
+        <RouterLink to="/landing">
+          <img src="/1.png" alt="CourseMe Logo" style={{ maxWidth: '60%', height: 'auto', marginBottom: '10px' }} />
+        </RouterLink>
+        <Typography
+          variant="h5"
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: 400,
+            color: '#1D1D1F',
+            mb: 4,
+          }}
+        >
+          Create your new account and{' '}
+          <ReactTypingEffect
+            text={["unlock your academic edge"]}
+            speed={100}
+            eraseSpeed={50}
+            eraseDelay={3000}
+            typingDelay={1000}
+            displayTextRenderer={(text, i) => (
+              <span style={{ color: '#00693E' }}>{text}</span>
+            )}
+            onComplete={() => {
+              document.getElementById('typing-fullstop').style.visibility = 'visible';
+            }}
+          />
+          <span id="typing-fullstop" style={{ color: '#F26655', visibility: 'hidden' }}>.</span>
+        </Typography>
+      </Box>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           width: '100%',
-          maxWidth: '500px',
-          backgroundColor: '#f9f9f9',
+          maxWidth: { xs: '85%', md: '400px' },
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(10px)',
           borderRadius: '12px',
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-          padding: '30px',
+          boxShadow: '0px 8px 30px rgba(0, 0, 0, 0.15)',
+          padding: { xs: '20px', md: '30px' },
           color: '#1D1D1F',
+          marginBottom: { xs: 4, md: 0 },
         }}
       >
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 600,
-            color: '#1D1D1F',
-            mb: 1,
-            textAlign: 'left',
-          }}
-        >
-          Create your <span style={{ color: '#571CE0' }}>CourseMe.</span> account
-          <span style={{ color: '#571CE0' }}></span>
-        </Typography>
-
-        <Typography
-          variant="body1"
-          gutterBottom
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 400,
-            color: '#8E8E93',
-            mb: 2,
-            fontSize: '1rem',
-            textAlign: 'left',
-          }}
-        >
-  Simplify your major, amplify your college experience.
-  </Typography>
-  
-
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
             {error}
@@ -184,6 +179,7 @@ const SignUpPage = () => {
                 height: '48px',
                 '& fieldset': {
                   borderColor: '#E0E0E0',
+                  transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
                   borderColor: '#B0B0B0',
@@ -216,6 +212,7 @@ const SignUpPage = () => {
                 height: '48px',
                 '& fieldset': {
                   borderColor: '#E0E0E0',
+                  transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
                   borderColor: '#B0B0B0',
@@ -248,6 +245,7 @@ const SignUpPage = () => {
                 height: '48px',
                 '& fieldset': {
                   borderColor: '#E0E0E0',
+                  transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
                   borderColor: '#B0B0B0',
@@ -281,6 +279,7 @@ const SignUpPage = () => {
                 height: '48px',
                 '& fieldset': {
                   borderColor: '#E0E0E0',
+                  transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
                   borderColor: '#B0B0B0',
@@ -325,6 +324,7 @@ const SignUpPage = () => {
                 height: '48px',
                 '& fieldset': {
                   borderColor: '#E0E0E0',
+                  transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
                   borderColor: '#B0B0B0',
@@ -354,43 +354,36 @@ const SignUpPage = () => {
             }}
           />
           <Typography
-  variant="body2"
-  color="textSecondary"
-  sx={{
-    marginBottom: '20px',
-    fontFamily: 'SF Pro Display, sans-serif',
-    color: '#1D1D1F',
-  }}
->
-  <strong>Please Note:</strong> Please sign up using your Dartmouth email ID.
-</Typography>
-
-          <Box
-            component="button"
-            type="submit"
+            variant="body2"
+            color="textSecondary"
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              height: '48px',
+              marginBottom: '20px',
+              fontFamily: 'SF Pro Display, sans-serif',
+              color: '#1D1D1F',
+            }}
+          >
+            <strong>Please Note:</strong> Sign up using your Dartmouth email ID.
+          </Typography>
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
               backgroundColor: '#4285F4',
-              borderRadius: '20px',
-              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
               color: '#fff',
               fontWeight: 'bold',
               mb: 2,
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'background-color 0.218s, box-shadow 0.218s',
+              height: '48px',
+              borderRadius: '20px',
+              transition: 'transform 0.2s',
               '&:hover': {
-                backgroundColor: '#357ae8',
-                boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
+                backgroundColor: '#357AE8',
+                transform: 'scale(1.05)',
               },
             }}
           >
             Sign Up
-          </Box>
+          </Button>
           <Box
             onClick={handleGoogleSignIn}
             sx={{
