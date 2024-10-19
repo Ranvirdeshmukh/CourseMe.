@@ -341,33 +341,33 @@ const handleQualityVote = async (voteType) => {
   // };
   
   useEffect(() => {
-    let isMounted = true;
-  
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        if (isMounted) {
-          await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        if (isMounted) {
-          setError('Failed to fetch data. Please try refreshing the page.');
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-          console.log('Finished fetching all data');
-        }
+  let isMounted = true;
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      if (isMounted) {
+        await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
       }
-    };
-  
-    fetchData();
-  
-    return () => {
-      isMounted = false;
-    };
-  }, [courseId, department]);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      if (isMounted) {
+        setError('Failed to fetch data. Please try refreshing the page.');
+      }
+    } finally {
+      if (isMounted) {
+        setLoading(false);
+        console.log('Finished fetching all data');
+      }
+    }
+  };
+
+  fetchData();
+
+  return () => {
+    isMounted = false;
+  };
+}, [courseId, department]);
 
   const handleVote = async (voteType) => {
     if (!course || !currentUser) return;
@@ -1047,27 +1047,27 @@ const handleQualityVote = async (voteType) => {
             }}
           >
             <Tooltip title="Upvote Layup">
-              <IconButton
-                onClick={() => handleVote('upvote')}
-                sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
-              >
-                <ArrowUpward sx={{ fontSize: 24 }} />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
-              {course.layup || 0}
-            </Typography>
-            <Tooltip title="Downvote Layup">
-              <IconButton
-                onClick={() => handleVote('downvote')}
-                sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
-              >
-                <ArrowDownward sx={{ fontSize: 24 }} />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
-              Is it a layup?
-            </Typography>
+        <IconButton
+          onClick={() => handleVote('upvote')}
+          sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
+        >
+          <ArrowUpward sx={{ fontSize: 24 }} />
+        </IconButton>
+      </Tooltip>
+      <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
+        {course.layup || 0}
+      </Typography>
+      <Tooltip title="Downvote Layup">
+        <IconButton
+          onClick={() => handleVote('downvote')}
+          sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
+        >
+          <ArrowDownward sx={{ fontSize: 24 }} />
+        </IconButton>
+      </Tooltip>
+      <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
+        Is it a layup?
+      </Typography>
             {/* Info Icon */}
            <Tooltip
              title="Please Note: In the context of courses, 'layup' refers to the perceived ease and workload of the course. A higher layup score typically indicates a course is easier and less time-consuming for students."
