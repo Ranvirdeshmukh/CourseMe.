@@ -595,7 +595,7 @@ const Timetable = () => {
             <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
               <TableHead sx={{ backgroundColor: '#571CE0' }}>
                 <TableRow>
-                  {['Subject', 'Number', 'Section', 'Title', 'Period', 'Timing', 'Room', 'Building', 'Instructor', 'Add to Calendar', 'Notify When Available', 'Remove'].map((header, index) => (
+                  {['Subject', 'Number', 'Section', 'Section', 'Timing', 'Room', 'Building', 'Instructor', 'Add to Calendar', 'Notify When Available', 'Remove'].map((header, index) => (
                     <TableCell
                       key={index}
                       sx={{
@@ -628,29 +628,74 @@ const Timetable = () => {
                       color: 'inherit',
                     }}
                   >
-<TableCell
-  onClick={() => handleCourseClick(course)}
-  sx={{ 
-    color: '#571CE0', // Optional: change text color to indicate interactivity
-    padding: '10px', 
-    fontWeight: 500, 
-    fontSize: '0.95rem', 
-    textAlign: 'left', 
-    fontFamily: 'SF Pro Display, sans-serif', 
-    borderBottom: '1px solid #E0E0E0',
-    cursor: 'pointer',            // Show pointer cursor on hover
-    textDecoration: 'underline',  // Underline text to indicate it's clickable
-    '&:hover': {
-      color: '#3a0fb7',           // Optional: change color on hover
-    },
-  }}
->
-  {course.subj}
-</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.num}</TableCell>
+ <TableCell
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent row click
+          handleCourseClick(course);
+        }}
+        sx={{
+          color: '#571CE0', // Optional: change text color to indicate interactivity
+          padding: '10px',
+          fontWeight: 500,
+          fontSize: '0.95rem',
+          textAlign: 'left',
+          fontFamily: 'SF Pro Display, sans-serif',
+          borderBottom: '1px solid #E0E0E0',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          '&:hover': {
+            color: '#3a0fb7', // Optional: change color on hover
+          },
+        }}
+      >
+        {course.subj}
+      </TableCell>
+      <TableCell
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent row click
+          handleCourseClick(course);
+        }}
+        sx={{
+          color: '#571CE0',
+          padding: '10px',
+          fontWeight: 500,
+          fontSize: '0.95rem',
+          textAlign: 'left',
+          fontFamily: 'SF Pro Display, sans-serif',
+          borderBottom: '1px solid #E0E0E0',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          '&:hover': {
+            color: '#3a0fb7',
+          },
+        }}
+      >
+        {course.num}
+      </TableCell>
+      <TableCell
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent row click
+          handleCourseClick(course);
+        }}
+        sx={{
+          color: '#571CE0',
+          padding: '10px',
+          fontWeight: 500,
+          fontSize: '0.95rem',
+          textAlign: 'left',
+          fontFamily: 'SF Pro Display, sans-serif',
+          borderBottom: '1px solid #E0E0E0',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          '&:hover': {
+            color: '#3a0fb7',
+          },
+        }}
+      >
+        {course.title}
+      </TableCell>
                     <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.sec}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.title}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.period}</TableCell>
+                    {/* <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.period}</TableCell> */}
                     <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.timing}</TableCell>
                     <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.room}</TableCell>
                     <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.building}</TableCell>
@@ -939,7 +984,7 @@ const Timetable = () => {
               <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
                 <TableHead sx={{ backgroundColor: '#571CE0' }}>
                   <TableRow>
-                    {['Subject', 'Number', 'Section', 'Title', 'Period', 'Timing', 'Room', 'Building', 'Instructor', 'Add to Calendar', 'Notify When Available', 'Add Course'].map((header, index) => (
+                    {['Subject', 'Number', 'Title','Section', 'Period', 'Timing', 'Room', 'Building', 'Instructor', 'Add to Calendar', 'Notify When Available', 'Add Course'].map((header, index) => (
                       <TableCell
                         key={index}
                         sx={{
@@ -972,27 +1017,73 @@ const Timetable = () => {
                         color: 'inherit',
                       }}
                     >
-<TableCell
-  onClick={() => handleCourseClick(course)}
-  sx={{ 
-    color: '#571CE0', // Optional: change text color to indicate interactivity
-    padding: '10px', 
-    fontWeight: 500, 
-    fontSize: '0.95rem', 
-    textAlign: 'left', 
-    fontFamily: 'SF Pro Display, sans-serif', 
-    borderBottom: '1px solid #E0E0E0',
-    cursor: 'pointer',            // Show pointer cursor on hover
-    textDecoration: 'underline',  // Underline text to indicate it's clickable
-    '&:hover': {
-      color: '#3a0fb7',           // Optional: change color on hover
-    },
-  }}
->
-  {course.subj}
-</TableCell>                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.num}</TableCell>
+ <TableCell
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent row click
+          handleCourseClick(course);
+        }}
+        sx={{
+          color: '#571CE0', // Optional: change text color to indicate interactivity
+          padding: '10px',
+          fontWeight: 500,
+          fontSize: '0.95rem',
+          textAlign: 'left',
+          fontFamily: 'SF Pro Display, sans-serif',
+          borderBottom: '1px solid #E0E0E0',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          '&:hover': {
+            color: '#3a0fb7', // Optional: change color on hover
+          },
+        }}
+      >
+        {course.subj}
+      </TableCell>
+      <TableCell
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent row click
+          handleCourseClick(course);
+        }}
+        sx={{
+          color: '#571CE0',
+          padding: '10px',
+          fontWeight: 500,
+          fontSize: '0.95rem',
+          textAlign: 'left',
+          fontFamily: 'SF Pro Display, sans-serif',
+          borderBottom: '1px solid #E0E0E0',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          '&:hover': {
+            color: '#3a0fb7',
+          },
+        }}
+      >
+        {course.num}
+      </TableCell>
+      <TableCell
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent row click
+          handleCourseClick(course);
+        }}
+        sx={{
+          color: '#571CE0',
+          padding: '10px',
+          fontWeight: 500,
+          fontSize: '0.95rem',
+          textAlign: 'left',
+          fontFamily: 'SF Pro Display, sans-serif',
+          borderBottom: '1px solid #E0E0E0',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          '&:hover': {
+            color: '#3a0fb7',
+          },
+        }}
+      >
+        {course.title}
+      </TableCell>
                       <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.sec}</TableCell>
-                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.title}</TableCell>
                       <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.period}</TableCell>
                       <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.timing}</TableCell>
                       <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.room}</TableCell>
