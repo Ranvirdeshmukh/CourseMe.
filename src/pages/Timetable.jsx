@@ -214,12 +214,10 @@ const Timetable = () => {
       setLoading(false);
     }
   };
-  const handleCourseClick = (course) => {
+  const handleCourseClick = async (course) => {
     console.log('Received course object:', JSON.stringify(course, null, 2));
   
-    const department = course.subj; // e.g., 'AAAS'
-    
-    // Handle course numbers with decimal points
+    const department = course.subj;
     let courseNumber = course.num;
     if (courseNumber.includes('.')) {
       const [mainPart, decimalPart] = courseNumber.split('.');
@@ -228,31 +226,34 @@ const Timetable = () => {
       courseNumber = courseNumber.padStart(3, '0');
     }
   
-    console.log('Department:', department);
-    console.log('Course Number:', courseNumber);
-    console.log('Original Title:', course.title);
-  
-    // Format the course title
     const formattedTitle = course.title
       .replace(/[^a-zA-Z0-9]+/g, '_')
       .replace(/_+/g, '_')
       .replace(/^_+|_+$/g, '');
   
-    console.log('Formatted Title:', formattedTitle);
-  
-    // Construct the courseId
     const courseId = `${department}_${department}${courseNumber}__${formattedTitle}`;
-  
-    console.log('Course ID:', courseId);
-  
-    // Encode the courseId for the URL
     const encodedCourseId = encodeURIComponent(courseId);
   
-    console.log('Encoded Course ID:', encodedCourseId);
+    // Check if the course exists in Firestore
+    const db = getFirestore();
+    const courseRef = doc(db, 'courses', courseId);
+    const courseSnap = await getDoc(courseRef);
   
-    // Construct the navigation path
+    if (!courseSnap.exists()) {
+      // Course doesn't exist, create it
+      await setDoc(courseRef, {
+        department: department,
+        number: courseNumber,
+        title: course.title,
+        description: 'Course description not available',
+        reviews: {},
+        layup: 0,
+        quality: 0
+      });
+      console.log('Created new course document in Firestore');
+    }
+  
     const coursePath = `/departments/${department}/courses/${encodedCourseId}`;
-    
     console.log('Navigating to:', coursePath);
     navigate(coursePath);
   };
