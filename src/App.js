@@ -65,6 +65,8 @@ const AppContent = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/departments/:department" element={<DepartmentCoursesPage />} />
         <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage />} />
+        <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage />} />
+        <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage />} />
         <Route path="/departments/:department/courses/:courseId/professors/:professor" element={<ProfessorReviewsPage />} />
         <Route path="/complete-profile" element={<CompleteProfilePage />} />
         <Route path="/layups" element={<LayupsPage />} />

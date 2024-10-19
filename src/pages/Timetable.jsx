@@ -39,6 +39,8 @@ import localforage from 'localforage';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import LockIcon from '@mui/icons-material/Lock';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({
   display: 'flex',
@@ -125,6 +127,8 @@ const Timetable = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const totalPages = Math.ceil(filteredCourses.length / classesPerPage); // Total number of pages
+  const navigate = useNavigate();
+
 
   const periodCodeToTiming = {
     "11": "MWF 11:30-12:35, Tu 12:15-1:05",
@@ -184,6 +188,7 @@ const Timetable = () => {
       const coursesData = coursesSnapshot.docs.map((doc) => {
         const periodCode = doc.data()['Period Code'];
         return {
+          documentName: doc.id, // Include the document ID
           subj: doc.data().Subj,
           num: doc.data().Num,
           sec: doc.data().Section,
@@ -208,6 +213,48 @@ const Timetable = () => {
       setError(error);
       setLoading(false);
     }
+  };
+  const handleCourseClick = (course) => {
+    console.log('Received course object:', JSON.stringify(course, null, 2));
+  
+    const department = course.subj; // e.g., 'AAAS'
+    
+    // Handle course numbers with decimal points
+    let courseNumber = course.num;
+    if (courseNumber.includes('.')) {
+      const [mainPart, decimalPart] = courseNumber.split('.');
+      courseNumber = mainPart.padStart(3, '0') + '_' + decimalPart.padStart(2, '0');
+    } else {
+      courseNumber = courseNumber.padStart(3, '0');
+    }
+  
+    console.log('Department:', department);
+    console.log('Course Number:', courseNumber);
+    console.log('Original Title:', course.title);
+  
+    // Format the course title
+    const formattedTitle = course.title
+      .replace(/[^a-zA-Z0-9]+/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  
+    console.log('Formatted Title:', formattedTitle);
+  
+    // Construct the courseId
+    const courseId = `${department}_${department}${courseNumber}__${formattedTitle}`;
+  
+    console.log('Course ID:', courseId);
+  
+    // Encode the courseId for the URL
+    const encodedCourseId = encodeURIComponent(courseId);
+  
+    console.log('Encoded Course ID:', encodedCourseId);
+  
+    // Construct the navigation path
+    const coursePath = `/departments/${department}/courses/${encodedCourseId}`;
+    
+    console.log('Navigating to:', coursePath);
+    navigate(coursePath);
   };
   
   const fetchUserTimetable = async () => {
@@ -444,7 +491,7 @@ const Timetable = () => {
 
     return events;
   };
-
+  
   const parseTime = (date, timeStr, timezone) => {
     let [hour, minute] = timeStr.split(':').map(Number);
 
@@ -580,7 +627,25 @@ const Timetable = () => {
                       color: 'inherit',
                     }}
                   >
-                    <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.subj}</TableCell>
+<TableCell
+  onClick={() => handleCourseClick(course)}
+  sx={{ 
+    color: '#571CE0', // Optional: change text color to indicate interactivity
+    padding: '10px', 
+    fontWeight: 500, 
+    fontSize: '0.95rem', 
+    textAlign: 'left', 
+    fontFamily: 'SF Pro Display, sans-serif', 
+    borderBottom: '1px solid #E0E0E0',
+    cursor: 'pointer',            // Show pointer cursor on hover
+    textDecoration: 'underline',  // Underline text to indicate it's clickable
+    '&:hover': {
+      color: '#3a0fb7',           // Optional: change color on hover
+    },
+  }}
+>
+  {course.subj}
+</TableCell>
                     <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.num}</TableCell>
                     <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.sec}</TableCell>
                     <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.title}</TableCell>
@@ -906,8 +971,25 @@ const Timetable = () => {
                         color: 'inherit',
                       }}
                     >
-                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.subj}</TableCell>
-                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.num}</TableCell>
+<TableCell
+  onClick={() => handleCourseClick(course)}
+  sx={{ 
+    color: '#571CE0', // Optional: change text color to indicate interactivity
+    padding: '10px', 
+    fontWeight: 500, 
+    fontSize: '0.95rem', 
+    textAlign: 'left', 
+    fontFamily: 'SF Pro Display, sans-serif', 
+    borderBottom: '1px solid #E0E0E0',
+    cursor: 'pointer',            // Show pointer cursor on hover
+    textDecoration: 'underline',  // Underline text to indicate it's clickable
+    '&:hover': {
+      color: '#3a0fb7',           // Optional: change color on hover
+    },
+  }}
+>
+  {course.subj}
+</TableCell>                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.num}</TableCell>
                       <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.sec}</TableCell>
                       <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.title}</TableCell>
                       <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.period}</TableCell>
