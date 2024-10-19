@@ -34,6 +34,8 @@ const CourseReviewsPage = () => {
   const [quality, setQuality] = useState(0); // Add this line
   const [showAllProfessors, setShowAllProfessors] = useState(false);
   const [currentInstructors, setCurrentInstructors] = useState([]);
+  const { subject, number } = useParams();
+
 
 
   const [deptAndNumber, ...rest] = courseId.split('__');
@@ -55,13 +57,25 @@ const CourseReviewsPage = () => {
   
     try {
       let data = null;
-      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
-      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+      
+      // Extract department and course number from courseId
+      const [deptCode, courseNumberWithDept] = courseId.split('_')[1].split(/(?<=^[A-Z]+)/);
+      const courseNumber = courseNumberWithDept.replace(deptCode, '').split('__')[0];
+      
+      // Try fetching with the new format: DEPT+NUMBER (e.g., "AAAS18.03")
+      const newFormatId = `${deptCode}${courseNumber}`;
+      data = await fetchDocument(`reviews/${newFormatId}`);
   
-      if (transformedCourseId) {
-        data = await fetchDocument(`reviews/${transformedCourseId}`);
+      // If not found, try the transformed format
+      if (!data) {
+        const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+        const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+        if (transformedCourseId) {
+          data = await fetchDocument(`reviews/${transformedCourseId}`);
+        }
       }
   
+      // If still not found, try the sanitized format
       if (!data) {
         const sanitizedCourseId = courseId.split('_')[1];
         data = await fetchDocument(`reviews/${sanitizedCourseId}`);
@@ -74,9 +88,9 @@ const CourseReviewsPage = () => {
               const termMatch = review.match(/^\d{2}[WSXF]/);
               if (termMatch) {
                 const termCode = termMatch[0]; // Extract term code like '24W'
-                return { instructor, review, reviewIndex: index, courseId, termValue: getTermValue(termCode) };
+                return { instructor, review, reviewIndex: index, courseId: newFormatId, termValue: getTermValue(termCode) };
               } else {
-                return { instructor, review, reviewIndex: index, courseId, termValue: 0 }; // Default termValue for unmatched terms
+                return { instructor, review, reviewIndex: index, courseId: newFormatId, termValue: 0 }; // Default termValue for unmatched terms
               }
             });
           } else {
@@ -206,93 +220,100 @@ const handleQualityVote = async (voteType) => {
       console.log("Fetching course description for courseId:", courseId);
   
       const courseDocRef = doc(db, 'courses', courseId);
-      const courseDocSnap = await getDoc(courseDocRef);
+      let courseDocSnap = await getDoc(courseDocRef);
       
-      if (courseDocSnap.exists()) {
-        const courseData = courseDocSnap.data();
-
-        const courseIdParts = courseId.split('__');
-        const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
-        const courseNumberMatch = courseIdParts[0].match(/\d+/);
-        let instructors = [];
+      if (!courseDocSnap.exists()) {
+        console.log("Course document not found. Creating a new one.");
+        // Parse the courseId to extract department and course number
+        const [deptCode, courseNumberWithDept] = courseId.split('_')[1].split(/(?<=^[A-Z]+)/);
+        const courseNumber = courseNumberWithDept.replace(deptCode, '');
+        
+        // Create a new document with basic information
+        await setDoc(courseDocRef, {
+          department: deptCode,
+          number: courseNumber,
+          // Add any other fields you want to initialize
+        });
+        
+        // Fetch the newly created document
+        courseDocSnap = await getDoc(courseDocRef);
+      }
+  
+      const courseData = courseDocSnap.data();
+  
+      const courseIdParts = courseId.split('__');
+      const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
+      const courseNumberMatch = courseIdParts[0].match(/\d+(\.\d+)?/);
+      let instructors = [];
+      if (deptCodeMatch && courseNumberMatch) {
+        const deptCode = deptCodeMatch[0];
+        const courseNumber = courseNumberMatch[0];
+        console.log("fetching current instructors")
+        try {
+          const fallTimetableRef = collection(db, 'fallTimetable');
+          console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
+          const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+          const querySnapshot = await getDocs(q);
+          
+          let found = false;
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.Instructor) {
+              found = true;
+              if (!instructors.includes(data.Instructor)) {
+                instructors.push(data.Instructor);
+              }
+            }
+          });
+          console.log("Matching instructors:", instructors);
+  
+          setIsTaughtCurrentTerm(found);
+          if (instructors.length > 0) {
+            setCurrentInstructors(instructors);
+          } else {
+            console.log("No instructors found for this course");
+          }
+        } catch (error) {
+          console.error("Error fetching documents:", error);
+        }
+      }
+  
+      // If the description already exists in the document, use it
+      if (courseData.description) {
+        setCourseDescription(courseData.description);
+        setDescriptionError(null);
+        console.log("Course description found in Firestore:", courseData.description);
+      } else {
+        // If the description doesn't exist, fetch it from the Dartmouth website
         if (deptCodeMatch && courseNumberMatch) {
           const deptCode = deptCodeMatch[0];
-          const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
-          console.log("fetching current instructors")
-          try {
-            const fallTimetableRef = collection(db, 'fallTimetable');
-            console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
-            const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
-            const querySnapshot = await getDocs(q);
-            
-            let found = false;
-            querySnapshot.forEach((doc) => {
-              const data = doc.data();
-              if (data.Instructor) {
-                found = true;
-                if (!instructors.includes(data.Instructor)) {
-                  instructors.push(data.Instructor);
-                }
-              }
-            });
-            console.log("Matching instructors:", instructors);
-
-            setIsTaughtCurrentTerm(found);
-            if (instructors.length > 0) {
-              setCurrentInstructors(instructors);
-            } else {
-              console.log("No instructors found for this course");
-            }
-          } catch (error) {
-            console.error("Error fetching documents:", error);
+          const courseNumber = courseNumberMatch[0];
+          console.log("Department:", deptCode, "Course Number:", courseNumber);
+          
+          const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
+          console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
           }
-        }
-        // If the description already exists in the document, use it
-        if (courseData.description) {
-          setCourseDescription(courseData.description);
-          setDescriptionError(null);
-          console.log("Course description found in Firestore:", courseData.description);
-        } else {
-          // If the description doesn't exist, fetch it from the Dartmouth website
+          
+          const data = await response.json();
+          
+          if (data.content) {
+            setCourseDescription(data.content);
+            setDescriptionError(null);
+            console.log("Fetched course description from Dartmouth website:", data.content);
   
-          // Extract department code and course number from courseId
-  
-          if (deptCodeMatch && courseNumberMatch) {
-            const deptCode = deptCodeMatch[0];
-            const courseNumber = courseNumberMatch[0];
-            if (deptCode && courseNumber) {
-              console.log("Department:", deptCode, "Course Number:", courseNumber);
-            }
-            else {
-              console.log("errorsdfasdf;c")
-            }
-            const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
-            console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
-            
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.content) {
-              setCourseDescription(data.content);
-              setDescriptionError(null);
-              console.log("Fetched course description from Dartmouth website:", data.content);
-  
-              // Save the fetched description to the 'courses' collection
-              await updateDoc(courseDocRef, { description: data.content });
-              console.log("Saved course description to Firestore in the 'courses' collection");
-            } else {
-              throw new Error('No content in the response');
-            }
+            // Save the fetched description to the 'courses' collection
+            await updateDoc(courseDocRef, { description: data.content });
+            console.log("Saved course description to Firestore in the 'courses' collection");
           } else {
-            throw new Error('Course number or department code not found');
+            throw new Error('No content in the response');
           }
+        } else {
+          throw new Error('Course number or department code not found');
         }
-      } else {
-        throw new Error('Course not found in Firestore');
       }
     }
     catch (error) {

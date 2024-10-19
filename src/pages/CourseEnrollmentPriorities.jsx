@@ -27,7 +27,6 @@ const CourseEnrollmentPriorities = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        // Check if data is available in localStorage
         const cachedData = localStorage.getItem('courseEnrollmentPriorities');
         if (cachedData) {
           setDepartments(JSON.parse(cachedData));
@@ -35,7 +34,6 @@ const CourseEnrollmentPriorities = () => {
           return;
         }
 
-        // If not, fetch from Firestore
         const coursesCollection = collection(db, 'CoursePriorities');
         const courseSnapshot = await getDocs(coursesCollection);
 
@@ -45,7 +43,6 @@ const CourseEnrollmentPriorities = () => {
             ...doc.data(),
           }));
 
-          // Group courses by department
           const departmentsMap = coursesList.reduce((acc, course) => {
             const departmentName = course.Department || 'Unknown Department';
             if (!acc[departmentName]) {
@@ -60,7 +57,6 @@ const CourseEnrollmentPriorities = () => {
             courses: departmentsMap[department],
           }));
 
-          // Cache the data in localStorage
           localStorage.setItem('courseEnrollmentPriorities', JSON.stringify(departmentsArray));
 
           setDepartments(departmentsArray);
@@ -85,30 +81,31 @@ const CourseEnrollmentPriorities = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#E4E2DD',
-        padding: '40px', // Consistent padding for all pages
+        backgroundColor: '#F9F9F9',
+        padding: '30px', 
+        fontFamily: 'SF Pro Display, sans-serif', // Apple-like typography
       }}
     >
       <Container maxWidth="lg">
         <Typography
-          variant="h3" // Match variant with LayupsPage for consistency
+          variant="h3"
           gutterBottom
           align="left"
           sx={{
             fontWeight: 600,
-            marginBottom: '16px', // Improved spacing
+            marginBottom: '16px',
             fontFamily: 'SF Pro Display, sans-serif',
             color: '#571CE0', // Consistent heading color
           }}
         >
-          Course Enrollment Priorities for <span style={{ color: 'green' }}>Fall 24</span>
+          Course Enrollment Priorities for <span style={{ color: '#349966' }}>Fall 24</span>
         </Typography>
 
         <Typography
-          variant="body1" // Adjust size for better readability
+          variant="body1"
           color="textSecondary"
           sx={{
-            marginBottom: '24px', // Consistent spacing with LayupsPage
+            marginBottom: '24px',
             fontFamily: 'SF Pro Display, sans-serif',
             color: '#1D1D1F',
             lineHeight: 1.5,
@@ -124,13 +121,54 @@ const CourseEnrollmentPriorities = () => {
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : departments.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3, borderRadius:'12px' }}>
+          <TableContainer
+            component={Paper}
+            sx={{
+              backgroundColor: '#FFFFFF',
+              marginTop: '20px',
+              borderRadius: '12px', // Rounded edges for a modern look
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)', // Soft shadow effect
+            }}
+          >
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Sr. No.</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold' }}>Department</TableCell>
-                  <TableCell sx={{ color: '#571CE0', textAlign: 'center', fontWeight: 'bold' }}>Number of Courses</TableCell>
+                  <TableCell
+                    sx={{ 
+                      color: '#571CE0', 
+                      textAlign: 'left', 
+                      fontWeight: 'bold', 
+                      fontSize: '1rem', 
+                      borderBottom: 'none', 
+                      paddingBottom: '15px' 
+                    }}
+                  >
+                    Sr. No.
+                  </TableCell>
+                  <TableCell
+                    sx={{ 
+                      color: '#571CE0', 
+                      textAlign: 'left', 
+                      fontWeight: 'bold', 
+                      fontSize: '1rem', 
+                      borderBottom: 'none', 
+                      paddingBottom: '15px' 
+                    }}
+                  >
+                    Department
+                  </TableCell>
+                  <TableCell
+                    sx={{ 
+                      color: '#571CE0', 
+                      textAlign: 'center', 
+                      fontWeight: 'bold', 
+                      fontSize: '1rem', 
+                      borderBottom: 'none', 
+                      paddingBottom: '15px' 
+                    }}
+                  >
+                    Number of Courses
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -140,20 +178,26 @@ const CourseEnrollmentPriorities = () => {
                     component={Link}
                     to={`/course-enrollment-priorities/${encodeURIComponent(department.name)}`}
                     sx={{
-                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                      '&:hover': { backgroundColor: '#e0e0e0' },
+                      backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+                      transition: 'transform 0.3s ease, background-color 0.3s ease',
+                      '&:hover': {
+                        backgroundColor: '#E9E9E9',
+                        transform: 'scale(1.03)', // Subtle scaling effect
+                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)', // Slight shadow on hover
+                      },
                       cursor: 'pointer',
                       textDecoration: 'none',
                       color: 'inherit',
+                      borderRadius: '8px',
                     }}
                   >
-                    <TableCell sx={{ color: 'BLACK', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                    <TableCell sx={{ color: '#333', padding: '15px', fontSize: '1rem', borderBottom: 'none' }}>
                       {index + 1}
                     </TableCell>
-                    <TableCell sx={{ color: 'BLACK', padding: isMobile ? '5px' : '10px', textAlign: 'left' }}>
+                    <TableCell sx={{ color: '#333', padding: '15px', fontSize: '1rem', borderBottom: 'none' }}>
                       {department.name}
                     </TableCell>
-                    <TableCell sx={{ color: 'BLACK', padding: isMobile ? '5px' : '10px', textAlign: 'center' }}>
+                    <TableCell sx={{ color: '#333', padding: '15px', fontSize: '1rem', borderBottom: 'none', textAlign: 'center' }}>
                       {department.courses.length}
                     </TableCell>
                   </TableRow>

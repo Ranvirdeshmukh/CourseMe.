@@ -17,7 +17,6 @@ import {
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
-
 const DepartmentCoursesWithPriorities = () => {
   const { department } = useParams(); // Extract department from URL
   const [courses, setCourses] = useState([]);
@@ -71,8 +70,9 @@ const DepartmentCoursesWithPriorities = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#E4E2DD',
-        padding: '40px',
+        backgroundColor: '#F9F9F9', // Sleek, modern background color
+        padding: '30px', // Consistent padding for all pages
+        fontFamily: 'SF Pro Display, sans-serif', // Apple-like typography
       }}
     >
       <Container maxWidth="lg">
@@ -84,7 +84,7 @@ const DepartmentCoursesWithPriorities = () => {
             fontWeight: 600,
             marginBottom: '16px',
             fontFamily: 'SF Pro Display, sans-serif',
-            color: '#571CE0',
+            color: '#571CE0', // Consistent heading color
           }}
         >
           Courses in {decodeURIComponent(department)}
@@ -103,11 +103,21 @@ const DepartmentCoursesWithPriorities = () => {
         </Typography>
 
         {loading ? (
-          <CircularProgress color="primary" />
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+            <CircularProgress color="primary" />
+          </Box>
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : courses.length > 0 ? (
-          <TableContainer component={Paper} sx={{ backgroundColor: '#fff', marginTop: '20px', boxShadow: 3 }}>
+          <TableContainer
+            component={Paper}
+            sx={{
+              backgroundColor: '#FFFFFF', // Clean, white background for table
+              marginTop: '20px',
+              borderRadius: '12px', // Rounded edges for modern look
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)', // Soft shadow for elevation
+            }}
+          >
             <Table>
               <TableHead>
                 <TableRow>
@@ -120,7 +130,7 @@ const DepartmentCoursesWithPriorities = () => {
                   <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: '#571CE0' }}>
                     Enrollment Limit
                   </TableCell>
-                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', color: '#571CE0' }}>
+                  <TableCell sx={{ textAlign: 'left', fontWeight: 'bold', color: '#571CE0' }}>
                     Priorities
                   </TableCell>
                 </TableRow>
@@ -130,8 +140,15 @@ const DepartmentCoursesWithPriorities = () => {
                   <TableRow
                     key={index}
                     sx={{
-                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                      '&:hover': { backgroundColor: '#e0e0e0' },
+                      backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF', // Alternating row colors
+                      '&:hover': {
+                        backgroundColor: '#E9E9E9', // Subtle hover effect
+                        transform: 'scale(1.03)', // Slight scaling effect on hover
+                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)', // Soft shadow for hover effect
+                      },
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      borderRadius: '8px', // Rounded row corners
                     }}
                   >
                     <TableCell sx={{ padding: '10px', textAlign: 'left' }}>
