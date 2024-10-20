@@ -19,6 +19,8 @@ import {
 } from '@mui/material';
 import { collection, query, orderBy, getDocs, where, limit } from 'firebase/firestore';
 import { db } from '../firebase';
+import HiddenLayups from './HiddenLayups';
+
 
 const LayupsPage = () => {
   const [courses, setCourses] = useState([]);
@@ -511,6 +513,24 @@ const LayupsPage = () => {
   <Typography>No courses available</Typography>
 )}
       </Container>
+      
+      <Container maxWidth="lg">
+  <Card
+    sx={{
+      width: '100%',
+      maxWidth: 1100,
+      marginTop: '20px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      backgroundColor: '#FFFFFF',
+      borderRadius: '12px',
+      padding: 4,
+    }}
+  >
+    <CardContent>
+      <HiddenLayups />
+    </CardContent>
+  </Card>
+</Container>
 
       <Container maxWidth="lg">
   <Card
@@ -524,6 +544,7 @@ const LayupsPage = () => {
       padding: 4,
     }}
   >
+    
     <CardContent>
       <Typography
         variant="h4"
