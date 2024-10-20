@@ -203,8 +203,8 @@ const HiddenLayups = () => {
         Hidden Gems 💎
       </Typography>
       <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
-        Vote on these courses to determine if they are hidden layups!
-      </Typography>
+      Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 
+      Do you agree? Vote to help other students discover these gems!      </Typography>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <Grid container spacing={2}>
         {hiddenLayups.map((layup) => {
