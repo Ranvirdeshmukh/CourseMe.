@@ -24,9 +24,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import departmentOverview from '../classstructure/departmentOverview';
 import _ from 'lodash';
 import { styled, tooltipClasses } from '@mui/material/styles';
+import axios from 'axios'; // Assuming you're using axios for HTTP requests
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 
-const CACHE_KEY = 'departmentData';
-const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+const CACHE_KEY = 'departmentCoursesData';
+const CACHE_EXPIRATION = 120 * 24 * 60 * 60 * 1000; // 90 days in milliseconds
 
 const departmentEmojis = {
   'African and African American Studies': '🏫',
@@ -126,20 +129,20 @@ const CustomTooltip = styled(({ className, ...props }) => (
   },
 });
 
-// Tooltip content can also be improved by adding emojis or icons
-const getMostPopularCourseTooltip = (department) => {
-  const courseName = getMostPopularCourse(department);
-  return (
-    <React.Fragment>
-      <Typography sx={{ fontWeight: 600, color: '#571CE0', fontSize: '1.1rem' }}>
-        📘 Most Popular Course
-      </Typography>
-      <Typography sx={{ fontWeight: 400, color: '#333', fontSize: '1rem' }}>
-        {courseName !== 'No data available' ? courseName : 'No popular course found'}
-      </Typography>
-    </React.Fragment>
-  );
-};
+// // Tooltip content can also be improved by adding emojis or icons
+// const getMostPopularCourseTooltip = (department) => {
+//   const courseName = getMostPopularCourse(department);
+//   return (
+//     <React.Fragment>
+//       <Typography sx={{ fontWeight: 600, color: '#571CE0', fontSize: '1.1rem' }}>
+//         📘 Most Popular Course
+//       </Typography>
+//       <Typography sx={{ fontWeight: 400, color: '#333', fontSize: '1rem' }}>
+//         {courseName !== 'No data available' ? courseName : 'No popular course found'}
+//       </Typography>
+//     </React.Fragment>
+//   );
+// };
 
 const AllClassesPage = () => {
   const [departments, setDepartments] = useState([]);
@@ -152,6 +155,9 @@ const AllClassesPage = () => {
   const charIndexRef = useRef(0);
   const forwardRef = useRef(true);
   const [placeholder, setPlaceholder] = useState('');
+  const [popularCourses, setPopularCourses] = useState({});
+  const [popularLoading, setPopularLoading] = useState(true);
+
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const departmentExamples = useMemo(() => ['Search Departments', 'Computer Science', 'Biology', 'Chemistry', 'History', 'Mathematics'], []);
@@ -161,26 +167,61 @@ const AllClassesPage = () => {
     setShowEmojis(!showEmojis);
   };
 
-  // Pre-fetch department data and cache it
-  useEffect(() => {
-    const fetchDepartments = async () => {
+  // Function to check if the cache is valid
+  const isCacheValid = (cachedData) => {
+    return cachedData && (Date.now() - cachedData.timestamp) < CACHE_EXPIRATION;
+  };
+
+  // Fetch and cache the most popular course for each department
+  const fetchAndCachePopularCourses = async () => {
+    setPopularLoading(true);
+    const popularCoursesData = {};
+  
+    for (const department of Object.keys(departmentOverview)) {
       try {
-        const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
-        const now = new Date().getTime();
-
-        if (cachedData && (now - cachedData.timestamp < CACHE_EXPIRATION)) {
-          setDepartments(cachedData.departments);
-          setFilteredDepartments(cachedData.departments);
+        // Query Firestore for courses in the department
+        const q = query(collection(db, 'courses'), where('department', '==', department));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          const courses = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          const sortedCourses = courses.sort((a, b) => b.layup - a.layup);
+          popularCoursesData[department] = sortedCourses[0]?.name || 'No popular course found';
         } else {
-          const departmentCodes = Object.keys(departmentOverview);
-          setDepartments(departmentCodes);
-          setFilteredDepartments(departmentCodes);
+          popularCoursesData[department] = 'No data available';
+        }
+      } catch (error) {
+        console.error(`Error fetching data for ${department}:`, error);
+        popularCoursesData[department] = 'Error fetching data';
+      }
+    }
+  
+    // Cache the data with a timestamp
+    const cacheData = {
+      data: popularCoursesData,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
-          // Cache the data
-          localStorage.setItem(CACHE_KEY, JSON.stringify({
-            timestamp: now,
-            departments: departmentCodes,
-          }));
+    setPopularCourses(popularCoursesData);
+    setPopularLoading(false);
+  };
+
+  // Pre-fetch department data and dynamically fetch or load cached popular courses
+  useEffect(() => {
+    const fetchDepartments = () => {
+      try {
+        const departmentCodes = Object.keys(departmentOverview);
+        setDepartments(departmentCodes);
+        setFilteredDepartments(departmentCodes);
+
+        // Check for cached data
+        const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+        if (isCacheValid(cachedData)) {
+          setPopularCourses(cachedData.data);
+          setPopularLoading(false);
+        } else {
+          fetchAndCachePopularCourses();
         }
       } catch (error) {
         setError('Failed to fetch departments.');
@@ -238,6 +279,33 @@ const AllClassesPage = () => {
 
   const getEmoji = (departmentName) => {
     return showEmojis ? (departmentEmojis[departmentName] || '🏫') : ''; // Conditionally show emoji
+  };
+
+  const getMostPopularCourseTooltip = (department) => {
+    if (popularLoading) {
+      return (
+        <React.Fragment>
+          <Typography sx={{ fontWeight: 600, color: '#571CE0', fontSize: '1.1rem' }}>
+            📘 Most Popular Course
+          </Typography>
+          <Typography sx={{ fontWeight: 400, color: '#333', fontSize: '1rem' }}>
+            Loading...
+          </Typography>
+        </React.Fragment>
+      );
+    }
+
+    const courseName = popularCourses[department] || 'No data available';
+    return (
+      <React.Fragment>
+        <Typography sx={{ fontWeight: 600, color: '#571CE0', fontSize: '1.1rem' }}>
+          📘 Most Popular Course
+        </Typography>
+        <Typography sx={{ fontWeight: 400, color: '#333', fontSize: '1rem' }}>
+          {courseName}
+        </Typography>
+      </React.Fragment>
+    );
   };
 
   return (
@@ -308,8 +376,8 @@ const AllClassesPage = () => {
           />
         </Box>
 
-        {/* Switch to toggle emoji display */}
-        <Box sx={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
+       {/* Switch to toggle emoji display */}
+       <Box sx={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
           <FormControlLabel
             control={
               <Switch checked={showEmojis} onChange={toggleEmojiDisplay} color="primary" />
@@ -378,67 +446,78 @@ const AllClassesPage = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-  {filteredDepartments.map((department, index) => (
-    <CustomTooltip 
-      key={index} 
-      title={getMostPopularCourseTooltip(department)} // Enhanced content
-      placement="top" 
-      arrow
-    >
-      <TableRow
-        component={Link}
-        to={`/departments/${department}`}
-        sx={{
-          backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
-          transition: 'transform 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease',
-          '&:hover': {
-            backgroundColor: '#E9E9E9',  // Subtle background color change
-            transform: 'scale(1.03)',  // Slight scaling effect to create a hover "pop"
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)',  // A soft shadow to simulate elevation
-            border: '1px solid rgba(87, 28, 224, 0.1)',  // Subtle border on hover
-          },
-          cursor: 'pointer',
-          textDecoration: 'none',
-          color: 'inherit',
-          borderRadius: '10px',
-        }}
-      >
-        <TableCell
-          sx={{
-            color: '#333',
-            padding: '15px',
-            fontSize: '1rem',
-            borderBottom: 'none',
-          }}
-        >
-          {department} {getEmoji(departmentOverview[department]?.name || department)}
-        </TableCell>
-        <TableCell
-          sx={{
-            color: '#333',
-            padding: '15px',
-            fontSize: '1rem',
-            borderBottom: 'none',
-          }}
-        >
-          {departmentOverview[department]?.name || department}
-        </TableCell>
-        {!isMobile && (
-          <TableCell
-            sx={{
-              color: '#333',
-              padding: '15px',
-              fontSize: '1rem',
-              borderBottom: 'none',
-            }}
-          >
-            {departmentOverview[department]?.courses || 'N/A'}
-          </TableCell>
+                {filteredDepartments.map((department, index) => (
+                  <CustomTooltip 
+                    key={index} 
+                    title={getMostPopularCourseTooltip(department)}
+                    placement="top" 
+                    arrow
+                  >
+                    <TableRow
+                      component={Link}
+                      to={`/departments/${department}`}
+                      sx={{
+                        backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+                        transition: 'transform 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease',
+                        '&:hover': {
+                          backgroundColor: '#E9E9E9',
+                          transform: 'scale(1.03)',
+                          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)',
+                          border: '1px solid rgba(87, 28, 224, 0.1)',
+                        },
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        borderRadius: '10px',
+                      }}
+                    >
+                      <TableCell
+                        sx={{
+                          color: '#333',
+                          padding: '15px',
+                          fontSize: '1rem',
+                          borderBottom: 'none',
+                        }}
+                      >
+                        {department} {getEmoji(departmentOverview[department]?.name || department)}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: '#333',
+                          padding: '15px',
+                          fontSize: '1rem',
+                          borderBottom: 'none',
+                        }}
+                      >
+                        {departmentOverview[department]?.name || department}
+                      </TableCell>
+                      {!isMobile && (
+                        <TableCell
+                          sx={{
+                            color: '#333',
+                            padding: '15px',
+                            fontSize: '1rem',
+                            borderBottom: 'none',
+                          }}
+                        >
+                          {departmentOverview[department]?.courses || 'N/A'}
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  </CustomTooltip>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <Typography>No departments available</Typography>
         )}
-      </TableRow>
-    </CustomTooltip>
-  ))}
-</TableBody>
+      </Container>
+    </Box>
+  );
+};
+
+export default AllClassesPage;
 
 {/* <TableRow
   component={Link}
@@ -489,16 +568,3 @@ const AllClassesPage = () => {
     </TableCell>
   )}
 </TableRow> */}
-
-
-            </Table>
-          </TableContainer>
-        ) : (
-          <Typography>No departments available</Typography>
-        )}
-      </Container>
-    </Box>
-  );
-};
-
-export default AllClassesPage;
