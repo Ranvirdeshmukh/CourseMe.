@@ -1,20 +1,20 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import useAuth
+import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import NavBar from './components/NavBar';
+import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import useAuth
+import AllClassesPage from './pages/AllClassesPage';
+import CompleteProfilePage from './pages/CompleteProfilePage';
+import CourseEnrollmentPrioritiesPage from './pages/CourseEnrollmentPriorities';
+import CourseReviewsPage from './pages/CourseReviewsPage/CourseReviewsPage';
+import DepartmentCoursesPage from './pages/DepartmentCoursesPage';
+import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities';
 import GetStartedPage from './pages/GetStartedPage';
 import LandingPage from './pages/LandingPage';
-import AllClassesPage from './pages/AllClassesPage';
+import LayupsPage from './pages/LayupsPage';
+import LoginPage from './pages/LoginPage';
+import ProfessorReviewsPage from './pages/ProfessorReviewsPage';
 import ProfilePage from './pages/ProfilePage';
 import SignUpPage from './pages/SignUpPage';
-import LoginPage from './pages/LoginPage';
-import DepartmentCoursesPage from './pages/DepartmentCoursesPage';
-import CourseReviewsPage from './pages/CourseReviewsPage';
-import ProfessorReviewsPage from './pages/ProfessorReviewsPage';
-import CompleteProfilePage from './pages/CompleteProfilePage';
-import LayupsPage from './pages/LayupsPage';
-import CourseEnrollmentPrioritiesPage from './pages/CourseEnrollmentPriorities';
-import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities';
 import Timetable from './pages/Timetable';
 import TranscriptParser from './pages/TranscriptParser';
 

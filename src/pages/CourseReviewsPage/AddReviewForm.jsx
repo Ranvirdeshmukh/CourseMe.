@@ -12,8 +12,8 @@ import {
   Card,
 } from '@mui/material';
 import { doc, updateDoc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-import { useAuth } from '../contexts/AuthContext';
+import { db } from '../../firebase';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AddReviewForm = ({ onReviewAdded }) => {
   const { courseId } = useParams();

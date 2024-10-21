@@ -1,22 +1,29 @@
-
-
-import { Container, Typography, Box, Alert, Table, TableBody, TextField, TableCell, TableContainer,
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip,
-  MenuItem, Select, FormControl, InputLabel, CircularProgress, Card, Badge
+  MenuItem, Select, FormControl, InputLabel, CircularProgress, Card, Badge, Tabs, Tab, LinearProgress,
+  TextField, Autocomplete
 } from '@mui/material';
-import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin } from '@mui/icons-material';
+import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin, Description, Grade, Input } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
 import { doc, getDoc, updateDoc, setDoc, collection, getDocs, deleteDoc, arrayUnion, arrayRemove, query, where } from 'firebase/firestore';
-import { useAuth } from '../contexts/AuthContext';
-import { db } from '../firebase';
+import { useAuth } from '../../contexts/AuthContext.js';
+import { db } from '../../firebase';
 import AddReviewForm from './AddReviewForm';
 import AddReplyForm from './AddReplyForm';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import e from 'cors';
+import { styled } from '@mui/material/styles';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend as RechartsLegend, ResponsiveContainer } from 'recharts';
+import InteractiveGradeScale from './InteractiveGradeScale';
+import GradeChart from './CustomGradeChart';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import CanvasGradeTable from './CanvasGradeTable';
+import CourseInputDataForm from './CourseInputDataForm';
+
 
 const CourseReviewsPage = () => {
   const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
@@ -34,8 +41,18 @@ const CourseReviewsPage = () => {
   const [quality, setQuality] = useState(0); // Add this line
   const [showAllProfessors, setShowAllProfessors] = useState(false);
   const [currentInstructors, setCurrentInstructors] = useState([]);
-  const { subject, number } = useParams();
-
+  const [tabValue, setTabValue] = useState(0);
+  const [reviewInstructors, setReviewInstructors] = useState([]);
+  const [allProfessors, setAllProfessors] = useState([]);
+  const [professorInput, setProfessorInput] = useState('');
+  const gradeToNum = {
+    'A': 11, 'A-': 10, 'A/A-': 10.5,
+    'B+': 9, 'A-/B+': 9.5, 'B': 8, 'B+/B': 8.5, 'B-': 7, 'B/B-': 7.5,
+    'C+': 6, 'B-/C+': 6.5, 'C': 5, 'C/C+': 5.5, 'C-': 4, 'C/C-': 4.5,
+    'D+': 3, 'C-/D+': 3.5, 'D': 2, 'D+/D': 2.5, 'D-': 1, 'D/D-': 1.5,
+    'F': 0
+  };
+  const numToGrade = Object.fromEntries(Object.entries(gradeToNum).map(([k, v]) => [v, k]));
 
 
   const [deptAndNumber, ...rest] = courseId.split('__');
@@ -45,6 +62,371 @@ const CourseReviewsPage = () => {
   const match = courseId.match(numberRegex);
   const [descriptionError, setDescriptionError] = useState(null);
   const reviewsPerPage = 5;
+  const [isBetaUser, setIsBetaUser] = useState(false);
+
+  useEffect(() => {
+    const checkBetaStatus = async () => {
+      if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          setIsBetaUser(userData.beta === true);
+        }
+      }
+    };
+
+    checkBetaStatus();
+  }, [currentUser]);
+
+  const StyledTab = styled(Tab)(({ theme }) => ({
+    minHeight: 'auto',
+    padding: '8px 16px',
+    color: theme.palette.text.primary,
+    '&.Mui-selected': {
+      color: theme.palette.primary.main,
+      fontWeight: 'bold',
+    },
+  }));
+
+  const [gradeData, setGradeData] = useState([]);
+  const [newGradeData, setNewGradeData] = useState({
+    Term: '',
+    Professors: [],
+    Grade: ''
+  });
+
+  const handleGradeChange = (newGrade) => {
+    setNewGradeData(prevData => ({
+      ...prevData,
+      Grade: newGrade
+    }));
+  };
+
+
+  const handleFinalGradeSelect = (finalGrade) => {
+    console.log('Final grade selected:', finalGrade);
+    setNewGradeData(prevData => ({
+      ...prevData,
+      Grade: finalGrade
+    }));
+  };
+  
+
+  const normalizeName = (name) => {
+    return name.toLowerCase().replace(/\s+/g, ' ').trim();
+  };
+
+  const compareNames = (name1, name2) => {
+    if (!name1 || !name2) return false;
+    
+    const norm1 = normalizeName(name1);
+    const norm2 = normalizeName(name2);
+  
+    // Check for exact match
+    if (norm1 === norm2) return true;
+  
+    // Check if one name is a subset of the other
+    if (norm1.includes(norm2) || norm2.includes(norm1)) return true;
+  
+    // Split names into parts and check for partial matches
+    const parts1 = norm1.split(' ');
+    const parts2 = norm2.split(' ');
+  
+    // Check if all parts of the shorter name are in the longer name
+    const [shorter, longer] = parts1.length < parts2.length ? [parts1, parts2] : [parts2, parts1];
+    return shorter.every(part => longer.some(longPart => longPart.includes(part)));
+  };
+
+  const handleProfessorChange = (event, newValue) => {
+    setNewGradeData(prevData => ({
+      ...prevData,
+      Professors: newValue
+    }));
+  };
+  
+  const handleProfessorInputChange = (event, newInputValue) => {
+    setProfessorInput(newInputValue);
+  };
+
+  const CourseMetricsIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 3v18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M18 9l-5 5-2-2-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+
+  const ReportCardIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
+      <line x1="7" y1="8" x2="17" y2="8" stroke="currentColor" strokeWidth="2"/>
+      <line x1="7" y1="12" x2="17" y2="12" stroke="currentColor" strokeWidth="2"/>
+      <line x1="7" y1="16" x2="13" y2="16" stroke="currentColor" strokeWidth="2"/>
+    </svg>
+  );
+  
+  // Custom styled Tabs component
+  const StyledTabs = styled(Tabs)(({ theme }) => ({
+    minHeight: 'auto',
+    '& .MuiTabs-indicator': {
+      display: 'none',
+    },
+  }));
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
+  const renderTabContent = () => {
+    switch (tabValue) {
+      case 0:
+        // Description tab content (unchanged)
+        return (
+          <Box sx={{ padding: '20px' }}>
+            <Typography
+              variant="body1"
+              sx={{ fontSize: '0.95rem', color: 'black', textAlign: 'left', lineHeight: '1.6' }}
+              dangerouslySetInnerHTML={{ __html: courseDescription }}
+            />
+          </Box>
+        );
+        case 1:
+          // Updated Grades tab content with CanvasGradeTable
+          return (
+            <Box sx={{ padding: '20px' }}>
+              <Typography variant="h6" gutterBottom>Grades Distribution</Typography>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  fontSize: '0.7rem', 
+                  fontStyle: 'italic', 
+                  color: 'text.secondary',
+                  mt: 1,
+                  display: 'block'
+                }}
+              >
+                *Note: Sections with different medians may be averaged for the term.
+              </Typography>
+              {gradeData.length > 0 ? (
+                <>
+                  {renderGradeChart()}
+                  <CanvasGradeTable gradeData={gradeData.sort((a, b) => {
+                    const aYear = parseInt(a.Term.slice(0, 2));
+                    const bYear = parseInt(b.Term.slice(0, 2));
+                    if (aYear !== bYear) return bYear - aYear;
+                    const termOrder = { 'F': 0, 'X': 1, 'S': 2, 'W': 3 };
+                    return termOrder[a.Term.slice(2)] - termOrder[b.Term.slice(2)];
+                  })} />
+                </>
+              ) : (
+                <Typography>No grade distribution information available. Add medians from previous classes to improve our offerings.</Typography>
+              )}
+              <Box sx={{ marginTop: 4 }}>
+                <Typography variant="h6" gutterBottom>Add New Grade Data</Typography>
+                <TextField
+                  name="Term"
+                  label="Term"
+                  value={newGradeData.Term}
+                  onChange={(e) => {
+                    const value = e.target.value.toUpperCase(); // Convert input to uppercase
+                  
+                    // Allow only two digits (00-24) followed by F, W, S, or X
+                    const regex = /^(?:2[0-4]|1\d|0?\d)([FWSX])?$/;
+                    
+                    if (regex.test(value) || value === '') {
+                      setNewGradeData(prev => ({ ...prev, Term: value }));
+                    }
+                  }}
+                  fullWidth
+                  margin="normal"
+                />
+                <Autocomplete
+                  multiple
+                  id="professors-input"
+                  options={allProfessors}
+                  value={newGradeData.Professors}
+                  onChange={(event, newValue) => setNewGradeData(prev => ({ ...prev, Professors: newValue }))}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Professors"
+                      placeholder="Select or enter professors"
+                      fullWidth
+                      margin="normal"
+                    />
+                  )}
+                  freeSolo
+                  sx={{ marginTop: 2, marginBottom: 2 }}
+                />
+                <InteractiveGradeScale
+                  value={newGradeData.Grade}
+                  onChange={handleGradeChange}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddNewGradeData}
+                  sx={{ marginTop: 2 }}
+                >
+                  Add Grade Data
+                </Button>
+              </Box>
+            </Box>
+          );
+          case 2:
+            // Input Data tab content (new)
+            return (
+              <Box sx={{ padding: '20px' }}>
+                <Typography variant="h6" gutterBottom>Input Course Data</Typography>
+                <CourseInputDataForm courseId={courseId} allProfessors={allProfessors} />
+              </Box>
+            );
+      case 3:
+        return (
+          <Box sx={{ padding: '20px' }}>
+            <Typography variant="h6" gutterBottom>Course Metrics</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Box sx={{ width: '60%' }}>
+                <Typography variant="subtitle1" gutterBottom>Difficulty</Typography>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={60} 
+                  sx={{ 
+                    height: 10, 
+                    borderRadius: 5, 
+                    backgroundColor: '#e0e0e0',
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: '#ff9800'
+                    }
+                  }} 
+                />
+                <Typography variant="body2" color="textSecondary">Moderately Difficult</Typography>
+
+                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>Easiness</Typography>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={40} 
+                  sx={{ 
+                    height: 10, 
+                    borderRadius: 5, 
+                    backgroundColor: '#e0e0e0',
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: '#4caf50'
+                    }
+                  }} 
+                />
+                <Typography variant="body2" color="textSecondary">Somewhat Easy</Typography>
+
+                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>Overall Quality</Typography>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={75} 
+                  sx={{ 
+                    height: 10, 
+                    borderRadius: 5, 
+                    backgroundColor: '#e0e0e0',
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: '#2196f3'
+                    }
+                  }} 
+                />
+                <Typography variant="body2" color="textSecondary">Good Quality</Typography>
+              </Box>
+              
+              {course && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    borderRadius: '20px',
+                    backgroundColor: '#FFF',
+                    border: '2px solid #571CE0',
+                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
+                    padding: '20px',
+                    width: '200px',
+                  }}
+                >
+                  {/* Layup voting */}
+                  <Box sx={{ marginBottom: '20px' }}>
+                    <Tooltip title="Upvote Layup">
+                      <IconButton
+                        onClick={() => handleVote('upvote')}
+                        sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}
+                      >
+                        <ArrowUpward />
+                      </IconButton>
+                    </Tooltip>
+                    <Typography variant="h6" sx={{ color: '#571CE0', fontWeight: 700 }}>
+                      {course.layup || 0}
+                    </Typography>
+                    <Tooltip title="Downvote Layup">
+                      <IconButton
+                        onClick={() => handleVote('downvote')}
+                        sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}
+                      >
+                        <ArrowDownward />
+                      </IconButton>
+                    </Tooltip>
+                    <Typography variant="caption" sx={{ color: '#571CE0', fontWeight: 500 }}>
+                      Is it a layup?
+                    </Typography>
+                  </Box>
+                  {/* Quality voting */}
+                  <Box>
+                    <Tooltip title="Upvote Quality">
+                      <IconButton
+                        onClick={() => handleQualityVote('upvote')}
+                        sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}
+                      >
+                        <ArrowUpward />
+                      </IconButton>
+                    </Tooltip>
+                    <Typography variant="h6" sx={{ color: '#571CE0', fontWeight: 700 }}>
+                      {quality || 0}
+                    </Typography>
+                    <Tooltip title="Downvote Quality">
+                      <IconButton
+                        onClick={() => handleQualityVote('downvote')}
+                        sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}
+                      >
+                        <ArrowDownward />
+                      </IconButton>
+                    </Tooltip>
+                    <Typography variant="caption" sx={{ color: '#571CE0', fontWeight: 500 }}>
+                      Is it a good class?
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </Box>
+        );
+      default:
+        return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchAllProfessors = async () => {
+      try {
+        const courseDocRef = doc(db, 'courses', courseId);
+        const courseDocSnap = await getDoc(courseDocRef);
+        
+        if (courseDocSnap.exists()) {
+          const courseData = courseDocSnap.data();
+          if (courseData.professors) {
+            setAllProfessors(courseData.professors);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching all professors:', error);
+      }
+    };
+
+    fetchAllProfessors();
+  }, [courseId]);
+
 
   const fetchReviews = useCallback(async () => {
     setLoading(true);
@@ -57,64 +439,277 @@ const CourseReviewsPage = () => {
   
     try {
       let data = null;
-      
-      // Extract department and course number from courseId
-      const [deptCode, courseNumberWithDept] = courseId.split('_')[1].split(/(?<=^[A-Z]+)/);
-      const courseNumber = courseNumberWithDept.replace(deptCode, '').split('__')[0];
-      
-      // Try fetching with the new format: DEPT+NUMBER (e.g., "AAAS18.03")
-      const newFormatId = `${deptCode}${courseNumber}`;
-      data = await fetchDocument(`reviews/${newFormatId}`);
+      const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+      const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
   
-      // If not found, try the transformed format
-      if (!data) {
-        const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
-        const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
-        if (transformedCourseId) {
-          data = await fetchDocument(`reviews/${transformedCourseId}`);
-        }
+      if (transformedCourseId) {
+        data = await fetchDocument(`reviews/${transformedCourseId}`);
       }
   
-      // If still not found, try the sanitized format
       if (!data) {
         const sanitizedCourseId = courseId.split('_')[1];
         data = await fetchDocument(`reviews/${sanitizedCourseId}`);
       }
   
       if (data) {
-        const reviewsArray = Object.entries(data).flatMap(([instructor, reviewList]) => {
+        const reviewsArray = [];
+        const professorsSet = new Set();
+
+        Object.entries(data).forEach(([instructor, reviewList]) => {
+          professorsSet.add(instructor);
+
           if (Array.isArray(reviewList)) {
-            return reviewList.map((review, index) => {
-              const termMatch = review.match(/^\d{2}[WSXF]/);
-              if (termMatch) {
-                const termCode = termMatch[0]; // Extract term code like '24W'
-                return { instructor, review, reviewIndex: index, courseId: newFormatId, termValue: getTermValue(termCode) };
-              } else {
-                return { instructor, review, reviewIndex: index, courseId: newFormatId, termValue: 0 }; // Default termValue for unmatched terms
+            reviewList.forEach((review, index) => {
+              // Match terms using the updated regex pattern
+              const termMatch = review.match(/^(0[1-9]|1[0-9]|2[0-4]|[1-9])[WSXF]/);
+              const termCode = termMatch ? termMatch[0] : null;
+          
+              // Use try-catch to safely call getTermValue
+              let termValue = 0; // Default value
+              if (termCode) {
+                try {
+                  termValue = getTermValue(termCode); // Retrieve the term value
+                } catch (error) {
+                  console.error("Error retrieving term value:", error);
+                }
               }
+          
+              reviewsArray.push({
+                instructor,
+                review,
+                reviewIndex: index,
+                courseId,
+                termValue,
+              });
             });
-          } else {
-            return [];
           }
+          
         });
   
         // Sort by termValue in descending order (latest first)
         reviewsArray.sort((a, b) => b.termValue - a.termValue);
   
         setReviews(reviewsArray);
+        setAllProfessors(Array.from(professorsSet));
       } else {
         setError('No reviews found for this course.');
+        setAllProfessors([]);
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
       setError('Failed to fetch reviews.');
+      setAllProfessors([]);
     } finally {
       setLoading(false);
       console.log('Finished fetching reviews');
     }
   }, [courseId]);
+
+  const fetchGradeData = useCallback(async () => {
+    try {
+      const courseDocRef = doc(db, 'courses', courseId);
+      const courseDocSnap = await getDoc(courseDocRef);
+      
+      if (courseDocSnap.exists()) {
+        const courseData = courseDocSnap.data();
+        if (courseData.medians && Array.isArray(courseData.medians)) {
+          const updatedMedians = courseData.medians.map(median => ({
+            ...median,
+            verified: median.verified !== undefined ? median.verified : true,
+            submissions: median.submissions || []
+          }));
+          setGradeData(updatedMedians);
+
+          // Update the document if any changes were made
+          if (JSON.stringify(updatedMedians) !== JSON.stringify(courseData.medians)) {
+            await updateDoc(courseDocRef, { medians: updatedMedians });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching grade data:', error);
+      setError('Failed to fetch grade data.');
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    let isMounted = true;
   
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        if (isMounted) {
+          await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription(), fetchGradeData()]);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (isMounted) {
+          setError('Failed to fetch data. Please try refreshing the page.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          console.log('Finished fetching all data');
+        }
+      }
+    };
   
+    fetchData();
+  
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId, department, fetchGradeData]);
+
+  const handleNewGradeDataChange = (event) => {
+    const { name, value } = event.target;
+    setNewGradeData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleAddNewGradeData = async () => {
+    if (!currentUser) {
+      setError('You must be logged in to submit grade data.');
+      return;
+    }
+  
+    console.log('Current newGradeData:', newGradeData);
+  
+    if (!newGradeData.Term.trim()) {
+      setError('Please enter a term.');
+      return;
+    }
+  
+    if (!newGradeData.Grade) {
+      setError('Please select a grade.');
+      return;
+    }
+  
+    if (newGradeData.Professors.length === 0) {
+      setError('Please enter at least one professor.');
+      return;
+    }
+  
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDocSnap = await getDoc(userDocRef);
+  
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const existingSubmission = userData.gradeSubmissions?.find(
+          sub => sub.courseId === courseId
+        );
+  
+        if (existingSubmission) {
+          setError('You have already submitted a median for this course. You can only submit one median per course.');
+          return;
+        }
+      }
+  
+      const courseDocRef = doc(db, 'courses', courseId);
+      const courseDocSnap = await getDoc(courseDocRef);
+      
+      if (courseDocSnap.exists()) {
+        const courseData = courseDocSnap.data();
+        const existingMedian = courseData.medians.find(m => m.Term === newGradeData.Term);
+  
+        if (existingMedian && existingMedian.verified) {
+          setError('This term already has verified grade data. Your submission cannot be accepted.');
+          return;
+        }
+  
+        const newSubmission = {
+          Grade: newGradeData.Grade,
+          timestamp: new Date().toISOString(),
+          userId: currentUser.uid
+        };
+  
+        if (existingMedian) {
+          // Update existing unverified median
+          const updatedMedians = courseData.medians.map(m => 
+            m.Term === newGradeData.Term 
+              ? { 
+                  ...m, 
+                  submissions: [...m.submissions, newSubmission],
+                  Professors: [...new Set([...m.Professors, ...newGradeData.Professors])]
+                }
+              : m
+          );
+  
+          await updateDoc(courseDocRef, { medians: updatedMedians });
+        } else {
+          // Add new unverified median
+          await updateDoc(courseDocRef, {
+            medians: arrayUnion({
+              Term: newGradeData.Term,
+              Professors: newGradeData.Professors,
+              verified: false,
+              submissions: [newSubmission]
+            })
+          });
+        }
+  
+        // Add user submission
+        await updateDoc(userDocRef, {
+          gradeSubmissions: arrayUnion({
+            courseId,
+            Term: newGradeData.Term,
+            Professors: newGradeData.Professors,
+            Grade: newGradeData.Grade,
+            timestamp: new Date().toISOString()
+          })
+        });
+  
+        await fetchGradeData();
+        
+        setNewGradeData({
+          Term: '',
+          Professors: [],
+          Grade: ''
+        });
+  
+        setError(null);
+      }
+    } catch (error) {
+      console.error('Error adding new grade data:', error);
+      setError('Failed to add new grade data.');
+    }
+  };
+
+  const calculateMedianGrade = (submissions) => {
+    if (!submissions || submissions.length === 0) return 'N/A';
+    const validGrades = submissions.map(sub => gradeToNum[sub.Grade]).filter(grade => grade !== undefined);
+    if (validGrades.length === 0) return 'N/A';
+    
+    validGrades.sort((a, b) => a - b);
+    const mid = Math.floor(validGrades.length / 2);
+    const median = validGrades.length % 2 !== 0 ? validGrades[mid] : (validGrades[mid - 1] + validGrades[mid]) / 2;
+    
+    return numToGrade[Math.round(median)] || 'N/A';
+  };
+
+
+  // const calculateAverageGrade = (submissions) => {
+  //   if (!submissions || submissions.length === 0) return 'N/A';
+  //   const validSubmissions = submissions.filter(sub => sub.Grade in gradeToNum);
+  //   if (validSubmissions.length === 0) return 'N/A';
+  //   const sum = validSubmissions.reduce((acc, sub) => acc + gradeToNum[sub.Grade], 0);
+  //   const average = sum / validSubmissions.length;
+  //   const closestGrade = Object.entries(gradeToNum).reduce((a, b) => 
+  //     Math.abs(b[1] - average) < Math.abs(a[1] - average) ? b : a
+  //   )[0];
+  //   return closestGrade;
+  // };
+  const renderGradeChart = () => {
+    const processedGradeData = gradeData.map(item => ({
+      ...item,
+      Grade: item.verified ? item.Grade : calculateMedianGrade(item.submissions),
+      submissionCount: item.submissions ? item.submissions.length : 0
+    }));
+    return <GradeChart gradeData={processedGradeData} />;
+  };
   // helper function to the sort the reviews
   const getTermValue = (termCode) => {
     const year = parseInt(termCode.slice(0, 2), 10);
@@ -220,100 +815,93 @@ const handleQualityVote = async (voteType) => {
       console.log("Fetching course description for courseId:", courseId);
   
       const courseDocRef = doc(db, 'courses', courseId);
-      let courseDocSnap = await getDoc(courseDocRef);
+      const courseDocSnap = await getDoc(courseDocRef);
       
-      if (!courseDocSnap.exists()) {
-        console.log("Course document not found. Creating a new one.");
-        // Parse the courseId to extract department and course number
-        const [deptCode, courseNumberWithDept] = courseId.split('_')[1].split(/(?<=^[A-Z]+)/);
-        const courseNumber = courseNumberWithDept.replace(deptCode, '');
-        
-        // Create a new document with basic information
-        await setDoc(courseDocRef, {
-          department: deptCode,
-          number: courseNumber,
-          // Add any other fields you want to initialize
-        });
-        
-        // Fetch the newly created document
-        courseDocSnap = await getDoc(courseDocRef);
-      }
-  
-      const courseData = courseDocSnap.data();
-  
-      const courseIdParts = courseId.split('__');
-      const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
-      const courseNumberMatch = courseIdParts[0].match(/\d+(\.\d+)?/);
-      let instructors = [];
-      if (deptCodeMatch && courseNumberMatch) {
-        const deptCode = deptCodeMatch[0];
-        const courseNumber = courseNumberMatch[0];
-        console.log("fetching current instructors")
-        try {
-          const fallTimetableRef = collection(db, 'fallTimetable');
-          console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
-          const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
-          const querySnapshot = await getDocs(q);
-          
-          let found = false;
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.Instructor) {
-              found = true;
-              if (!instructors.includes(data.Instructor)) {
-                instructors.push(data.Instructor);
-              }
-            }
-          });
-          console.log("Matching instructors:", instructors);
-  
-          setIsTaughtCurrentTerm(found);
-          if (instructors.length > 0) {
-            setCurrentInstructors(instructors);
-          } else {
-            console.log("No instructors found for this course");
-          }
-        } catch (error) {
-          console.error("Error fetching documents:", error);
-        }
-      }
-  
-      // If the description already exists in the document, use it
-      if (courseData.description) {
-        setCourseDescription(courseData.description);
-        setDescriptionError(null);
-        console.log("Course description found in Firestore:", courseData.description);
-      } else {
-        // If the description doesn't exist, fetch it from the Dartmouth website
+      if (courseDocSnap.exists()) {
+        const courseData = courseDocSnap.data();
+
+        const courseIdParts = courseId.split('__');
+        const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
+        const courseNumberMatch = courseIdParts[0].match(/\d+/);
+        let instructors = [];
         if (deptCodeMatch && courseNumberMatch) {
           const deptCode = deptCodeMatch[0];
-          const courseNumber = courseNumberMatch[0];
-          console.log("Department:", deptCode, "Course Number:", courseNumber);
-          
-          const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
-          console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
-          
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
+          console.log("fetching current instructors")
+          try {
+            const fallTimetableRef = collection(db, 'fallTimetable');
+            console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
+            const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+            const querySnapshot = await getDocs(q);
+            
+            let found = false;
+            querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              if (data.Instructor) {
+                found = true;
+                if (!instructors.includes(data.Instructor)) {
+                  instructors.push(data.Instructor);
+                }
+              }
+            });
+            console.log("Matching instructors:", instructors);
+
+            setIsTaughtCurrentTerm(found);
+            if (instructors.length > 0) {
+              setCurrentInstructors(instructors);
+            } else {
+              console.log("No instructors found for this course");
+            }
+          } catch (error) {
+            console.error("Error fetching documents:", error);
           }
-          
-          const data = await response.json();
-          
-          if (data.content) {
-            setCourseDescription(data.content);
-            setDescriptionError(null);
-            console.log("Fetched course description from Dartmouth website:", data.content);
-  
-            // Save the fetched description to the 'courses' collection
-            await updateDoc(courseDocRef, { description: data.content });
-            console.log("Saved course description to Firestore in the 'courses' collection");
-          } else {
-            throw new Error('No content in the response');
-          }
-        } else {
-          throw new Error('Course number or department code not found');
         }
+        // If the description already exists in the document, use it
+        if (courseData.description) {
+          setCourseDescription(courseData.description);
+          setDescriptionError(null);
+          console.log("Course description found in Firestore:", courseData.description);
+        } else {
+          // If the description doesn't exist, fetch it from the Dartmouth website
+  
+          // Extract department code and course number from courseId
+  
+          if (deptCodeMatch && courseNumberMatch) {
+            const deptCode = deptCodeMatch[0];
+            const courseNumber = courseNumberMatch[0];
+            if (deptCode && courseNumber) {
+              console.log("Department:", deptCode, "Course Number:", courseNumber);
+            }
+            else {
+              console.log("errorsdfasdf;c")
+            }
+            const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
+            console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
+            
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.content) {
+              setCourseDescription(data.content);
+              setDescriptionError(null);
+              console.log("Fetched course description from Dartmouth website:", data.content);
+  
+              // Save the fetched description to the 'courses' collection
+              await updateDoc(courseDocRef, { description: data.content });
+              console.log("Saved course description to Firestore in the 'courses' collection");
+            } else {
+              throw new Error('No content in the response');
+            }
+          } else {
+            throw new Error('Course number or department code not found');
+          }
+        }
+      } else {
+        throw new Error('Course not found in Firestore');
       }
     }
     catch (error) {
@@ -323,51 +911,117 @@ const handleQualityVote = async (voteType) => {
     }
   };
   
-  
+  const fetchInstructors = useCallback(async () => {
+    try {
+      const courseIdParts = courseId.split('__');
+      const deptCodeMatch = courseIdParts[0].match(/[A-Z]+/);
+      const courseNumberMatch = courseIdParts[0].match(/\d+/);
+
+      if (deptCodeMatch && courseNumberMatch) {
+        const deptCode = deptCodeMatch[0];
+        const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
+        console.log("Fetching current instructors");
+
+        const fallTimetableRef = collection(db, 'fallTimetable');
+        const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+        const querySnapshot = await getDocs(q);
+        
+        let instructors = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.Instructor && !instructors.includes(data.Instructor)) {
+            instructors.push(data.Instructor);
+          }
+        });
+
+        setCurrentInstructors(instructors);
+        console.log("Current instructors:", instructors);
+        let data = null;
+        const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
+        const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
+        var reviewsRef = null
+        if (transformedCourseId) {
+          reviewsRef = doc(db, 'reviews', `${transformedCourseId}`);
+        }
+    
+        if (!data) {
+          const sanitizedCourseId = courseId.split('_')[1];
+          reviewsRef = doc(db, 'reviews', `${sanitizedCourseId}`);
+        }
+        if (!reviewsRef) {
+          return;
+        }
+        // Fetch review instructors
+        const reviewsDoc = await getDoc(reviewsRef);
+        
+        if (reviewsDoc.exists()) {
+          const reviewsData = reviewsDoc.data();
+          const reviewInstructors = Object.keys(reviewsData);
+          setReviewInstructors(reviewInstructors);
+          console.log("Review instructors:", reviewInstructors);
+
+          // Compare and update if necessary
+          const instructorsToAdd = instructors.filter(instructor => 
+            !reviewInstructors.some(reviewInstructor => compareNames(instructor, reviewInstructor))
+          );
+
+          if (instructorsToAdd.length > 0) {
+            const updatedReviews = { ...reviewsData };
+            instructorsToAdd.forEach(instructor => {
+              updatedReviews[instructor] = [];
+            });
+
+            await setDoc(reviewsRef, updatedReviews);
+            console.log("Added new instructors to reviews:", instructorsToAdd);
+          }
+        } else {
+          // If the document doesn't exist, create it with the current instructors
+          const newReviewsData = {};
+          instructors.forEach(instructor => {
+            newReviewsData[instructor] = [];
+          });
+          await setDoc(reviewsRef, newReviewsData);
+          console.log("Created new reviews document with instructors:", instructors);
+        }
+
+        setIsTaughtCurrentTerm(instructors.length > 0);
+      }
+    } catch (error) {
+      console.error("Error fetching and updating instructors:", error);
+    }
+  }, [courseId]);
   
 
   const API_URL = process.env.REACT_APP_API_URL || 'https://url-text-fetcher-368299696124.us-central1.run.app';
-
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error);
-  //   } finally {
-  //     setLoading(false);
-  //     console.log('Finished fetching all data');
-  //   }
-  // };
   
   useEffect(() => {
-  let isMounted = true;
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      if (isMounted) {
-        await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription()]);
+    let isMounted = true;
+  
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        if (isMounted) {
+          await Promise.all([fetchCourse(), fetchReviews(), fetchUserVote(), fetchCourseDescription(), fetchGradeData(), fetchInstructors()]);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (isMounted) {
+          setError('Failed to fetch data. Please try refreshing the page.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          console.log('Finished fetching all data');
+        }
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      if (isMounted) {
-        setError('Failed to fetch data. Please try refreshing the page.');
-      }
-    } finally {
-      if (isMounted) {
-        setLoading(false);
-        console.log('Finished fetching all data');
-      }
-    }
-  };
-
-  fetchData();
-
-  return () => {
-    isMounted = false;
-  };
-}, [courseId, department]);
+    };
+  
+    fetchData();
+  
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId, department, fetchGradeData, fetchInstructors]);
 
   const handleVote = async (voteType) => {
     if (!course || !currentUser) return;
@@ -436,11 +1090,6 @@ const handleQualityVote = async (voteType) => {
 
   const handleChangePage = (pageNumber) => {
     setCurrentPage(pageNumber);
-  };
-
-  const handleProfessorChange = (event) => {
-    setSelectedProfessor(event.target.value);
-    setCurrentPage(1);
   };
 
   const addReplyLocally = (reviewIndex, newReply) => {
@@ -934,7 +1583,7 @@ const handleQualityVote = async (voteType) => {
       width: '100%',
     }}
   >
-                <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 3, justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 3, justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography 
                 variant="h4" 
@@ -974,153 +1623,24 @@ const handleQualityVote = async (voteType) => {
                   </Box>
                 </Tooltip>
               )}
+              </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <StyledTabs value={tabValue} onChange={handleTabChange}>
+                <StyledTab icon={<Description />} label="Description" />
+                <StyledTab icon={<ReportCardIcon />} label="Medians" />
+                {isBetaUser && <StyledTab icon={<CourseMetricsIcon />} label="Input Data" />}
+                {/* <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" /> */}
+              </StyledTabs>
+              <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
+                <IconButton onClick={handlePinCourse} sx={{ /* existing styles */ }}>
+                  <PushPin sx={{ fontSize: 30 }} />
+                </IconButton>
+              </Tooltip>
             </Box>
-            <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
-              <IconButton
-                onClick={handlePinCourse}
-                sx={{
-                  color: pinned ? '#571CE0' : 'grey',
-                  marginLeft: 1,
-                  marginTop: '-10px',
-                  transition: 'color 0.3s',
-                  '&:hover': {
-                    color: pinned ? '#FF0000' : '#571CE0',
-                  },
-                }}
-              >
-                <PushPin sx={{ fontSize: 30 }} />
-              </IconButton>
-            </Tooltip>
           </Box>
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row', // Align items horizontally
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        gap: '20px', // Space between course description and the voting box
-      }}
-    >
-      {courseDescription && (
-        <Box
-          sx={{
-            textAlign: 'left',
-            backgroundColor: 'transparent',
-            color: 'black',
-            padding: '20px',
-            borderRadius: '12px',
-            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-            flex: 1, // Allow the description to take up available space
-          }}
-        >
-          <Typography
-            variant="body1"
-            sx={{ fontSize: '0.95rem', color: 'black', textAlign: 'left', lineHeight: '1.6' }}
-            dangerouslySetInnerHTML={{ __html: courseDescription }}
-          />
-        </Box>
-      )}
-      
-      {course && (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column', // Stack the content vertically
-            alignItems: 'center',
-            borderRadius: '20px', // Rounded corners for a smoother look
-            backgroundColor: '#FFF', // White background for contrast
-            border: '2px solid #571CE0',
-            boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
-            padding: '20px', // Padding to give space around content
-            justifyContent: 'center',
-            width: '130px', // Adjust width for vertical layout
-            boxSizing: 'border-box',
-            flexShrink: 0, // Prevent the box from shrinking
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              marginBottom: '20px', // Space between layup and quality sections
-            }}
-          >
-            <Tooltip title="Upvote Layup">
-        <IconButton
-          onClick={() => handleVote('upvote')}
-          sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
-        >
-          <ArrowUpward sx={{ fontSize: 24 }} />
-        </IconButton>
-      </Tooltip>
-      <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
-        {course.layup || 0}
-      </Typography>
-      <Tooltip title="Downvote Layup">
-        <IconButton
-          onClick={() => handleVote('downvote')}
-          sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
-        >
-          <ArrowDownward sx={{ fontSize: 24 }} />
-        </IconButton>
-      </Tooltip>
-      <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
-        Is it a layup?
-      </Typography>
-            {/* Info Icon */}
-           <Tooltip
-             title="Please Note: In the context of courses, 'layup' refers to the perceived ease and workload of the course. A higher layup score typically indicates a course is easier and less time-consuming for students."
-             placement="top"
-           >
-             <IconButton
-               sx={{
-                 color: '#8e8e8e',
-                 padding: 0,
-                 '&:hover': {
-                   color: '#000',
-                 },
-               }}
-             >
-               <InfoOutlinedIcon sx={{ fontSize: 22 }} />
-             </IconButton>
-           </Tooltip>
-          </Box>
-
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Tooltip title="Upvote Quality">
-              <IconButton
-                onClick={() => handleQualityVote('upvote')}
-                sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
-              >
-                <ArrowUpward sx={{ fontSize: 24 }} />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
-              {quality || 0}
-            </Typography>
-            <Tooltip title="Downvote Quality">
-              <IconButton
-                onClick={() => handleQualityVote('downvote')}
-                sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
-              >
-                <ArrowDownward sx={{ fontSize: 24 }} />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
-              Is it a good class?
-            </Typography>
-          </Box>
-        </Box>
-      )}
-    </Box>
-  </Card>
+          
+          {renderTabContent()}
+        </Card>
 
 
 
@@ -1250,84 +1770,63 @@ const handleQualityVote = async (voteType) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                {Object.entries(
-                  reviews.reduce((acc, review) => {
-                    const { instructor } = review;
-                    if (!acc[instructor]) {
-                      acc[instructor] = [];
-                    }
-                    acc[instructor].push(review);
-                    return acc;
-                  }, {})
-                )
-                  .sort(([a], [b]) => {
-                    const aIsCurrent = currentInstructors.includes(a);
-                    const bIsCurrent = currentInstructors.includes(b);
-                    if (aIsCurrent && !bIsCurrent) return -1;
-                    if (!aIsCurrent && bIsCurrent) return 1;
-                    return 0;
-                  })
-                  .slice(0, showAllProfessors ? undefined : 12)
-                  .map(([instructor, reviewList], index) => {
-                    const isCurrent = currentInstructors.includes(instructor);
-                    const isNew = !reviews.some(review => review.instructor === instructor);
-                    return (
-                      <TableRow
-                        key={index}
-                        component={Link}
-                        to={`/departments/${department}/courses/${courseId}/professors/${instructor}`}
-                        sx={{
-                          backgroundColor: isCurrent 
-                            ? '#e6f7ff'  // Light blue background for current instructors
-                            : index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                          '&:hover': { backgroundColor: '#e0e0e0' },
-                          cursor: 'pointer',
-                          textDecoration: 'none',
-                          color: 'inherit',
+              {allProfessors
+                .sort((a, b) => {
+                  const aIsCurrent = currentInstructors.includes(a);
+                  const bIsCurrent = currentInstructors.includes(b);
+                  if (aIsCurrent && !bIsCurrent) return -1;
+                  if (!aIsCurrent && bIsCurrent) return 1;
+                  return 0;
+                })
+                .slice(0, showAllProfessors ? undefined : 12)
+                .map((professor, index) => {
+                  const isCurrent = currentInstructors.includes(professor);
+                  const reviewCount = reviews.filter(review => review.instructor === professor).length;
+                  return (
+                    <TableRow
+                      key={index}
+                      component={Link}
+                      to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
+                      sx={{
+                        backgroundColor: isCurrent 
+                          ? '#e6f7ff'  // Light blue background for current instructors
+                          : index % 2 === 0 ? '#fafafa' : '#f4f4f4',
+                        '&:hover': { backgroundColor: '#e0e0e0' },
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                      }}
+                    >
+                      <TableCell 
+                        sx={{ 
+                          color: '#1D1D1F', 
+                          padding: '10px', 
+                          textAlign: 'left', 
+                          fontWeight: isCurrent ? 700 : 500,
                         }}
                       >
-                        <TableCell 
-                          sx={{ 
-                            color: '#1D1D1F', 
-                            padding: '10px', 
-                            textAlign: 'left', 
-                            fontWeight: isCurrent ? 700 : 500,  // Bold for current instructors
-                          }}
-                        >
-                          {instructor}{isNew ? ' *' : ''}
-                        </TableCell>
-                        <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
-                          {Array.isArray(reviewList) ? reviewList.length : 0}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                }
-
-                
-    
-  {Object.keys(
-    reviews.reduce((acc, review) => {
-      const { instructor } = review;
-      if (!acc[instructor]) {
-        acc[instructor] = [];
-      }
-      acc[instructor].push(review);
-      return acc;
-    }, {})
-  ).length > 12 && (
-    <TableRow>
-      <TableCell colSpan={2} sx={{ textAlign: 'center', padding: '10px' }}>
-        <Button
-          onClick={() => setShowAllProfessors((prev) => !prev)}
-          sx={{ color: '#571CE0', fontWeight: 500 }}
-        >
-          {showAllProfessors ? 'Show Less' : 'More Professors'}
-        </Button>
-      </TableCell>
-    </TableRow>
-  )}
-</TableBody>
+                        {professor}
+                      </TableCell>
+                      <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
+                        {reviewCount}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              }
+              {allProfessors.length > 12 && (
+                <TableRow>
+                  <TableCell colSpan={2} sx={{ textAlign: 'center', padding: '10px' }}>
+                    <Button
+                      onClick={() => setShowAllProfessors((prev) => !prev)}
+                      sx={{ color: '#571CE0', fontWeight: 500 }}
+                    >
+                      {showAllProfessors ? 'Show Less' : 'More Professors'}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
 
               </Table>
             </TableContainer>
@@ -1475,11 +1974,6 @@ const handleQualityVote = async (voteType) => {
               <Box
                 sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}
               >
-                {/* <img
-                  // src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnYzdG9sMWVoa2p5aWY3NmF2cTM5c2UzNnI3c20waWRjYTF5b2drOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/USbM2BJpAg7Di/giphy.gif"
-                  alt="No Reviews"
-                  style={{ width: '300px', height: '300px', borderRadius: '8px' }} */}
-                {/* /> */}
               </Box>
             </Box>
           </>

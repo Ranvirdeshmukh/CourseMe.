@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { TextField, Button } from '@mui/material';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc, addDoc, collection, updateDoc, arrayUnion } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db } from '../../firebase';
 
 const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
   const [reply, setReply] = useState('');
