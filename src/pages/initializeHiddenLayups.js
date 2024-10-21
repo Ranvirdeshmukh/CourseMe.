@@ -16,7 +16,18 @@ const hiddenLayupsCourses = [
     id: 'CRWT_CRWT010__Introduction_to_Creative_Writing',
     name: 'Introduction to Creative Writing',
     department: 'CRWT'
+  },
+  {
+    id: 'ENGL_ENGL055_01__Modern_American_Women_Poets',
+    name: 'Modern American Women Poets',
+    department: 'ENGL'
   }
+,
+{
+  id: 'HIST_HIST092_04__Partition_in_South_Asia',
+  name: 'Partition in South Asia',
+  department: 'HIST'
+}
 ];
 
 export const initializeHiddenLayups = async () => {

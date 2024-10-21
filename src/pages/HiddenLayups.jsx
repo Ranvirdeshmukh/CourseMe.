@@ -7,8 +7,8 @@ import {
   Button,
   CircularProgress,
   Alert,
-  LinearProgress,
   Tooltip,
+  Container,
 } from '@mui/material';
 import { collection, query, getDocs, doc, updateDoc, increment, setDoc, getDoc, runTransaction } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -198,160 +198,166 @@ const HiddenLayups = () => {
   }
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
-        Hidden Gems 💎
-      </Typography>
-      <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
-      Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 
-      Do you agree? Vote to help other students discover these gems!      </Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Grid container spacing={2}>
-        {hiddenLayups.map((layup) => {
-          const yesCount = layup.yes_count || 0;
-          const noCount = layup.no_count || 0;
-          const yesPercentage = calculatePercentage(yesCount, noCount);
-          const noPercentage = 100 - yesPercentage;
-          
-          return (
-            <Grid item xs={12} sm={6} md={4} key={layup.id}>
-              <Box 
-                sx={{ 
-                  border: '1px solid #ecf0f1',
-                  borderRadius: '8px',
-                  padding: '16px',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  backgroundColor: '#ffffff',
-                  '&:hover': {
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  },
-                  transition: 'box-shadow 0.3s ease-in-out',
-                }}
-              >
-                <Box>
-                  <Tooltip title={layup.name} arrow>
-                    <Typography 
-                      variant="subtitle1" 
-                      component={Link}
-                      to={`/departments/${layup.department}/courses/${layup.id}`}
-                      sx={{ 
-                        fontWeight: 600, 
-                        mb: 1, 
-                        textDecoration: 'none',
-                        color: '#2c3e50',
-                        display: 'block',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {layup.name}
-                    </Typography>
-                  </Tooltip>
-                  <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
-                    {layup.department}
-                  </Typography>
-                  <Tooltip
-                    title={`Yes: ${yesPercentage.toFixed(1)}% | No: ${noPercentage.toFixed(1)}%`}
-                    arrow
-                  >
-                    <Box sx={{ width: '100%', mb: 1, position: 'relative' }}>
-                      <Box
-                        sx={{
-                          height: 8,
-                          borderRadius: 4,
-                          backgroundColor: '#f6f6f6',
-                          position: 'relative',
+    <Container maxWidth="lg">
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h4" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
+          Hidden Gems 💎
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
+          Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 
+          Do you agree? Vote to help other students discover these gems!
+        </Typography>
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        <Grid container spacing={3}>
+          {hiddenLayups.map((layup, index) => {
+            const yesCount = layup.yes_count || 0;
+            const noCount = layup.no_count || 0;
+            const yesPercentage = calculatePercentage(yesCount, noCount);
+            const noPercentage = 100 - yesPercentage;
+            
+            return (
+              <Grid item xs={12} sm={6} md={4} key={layup.id} sx={{
+                // Add margin-bottom to create space between rows
+                mb: index < hiddenLayups.length - 1 ? 3 : 0,
+              }}>
+                <Box 
+                  sx={{ 
+                    border: '1px solid #ecf0f1',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#ffffff',
+                    '&:hover': {
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                    },
+                    transition: 'box-shadow 0.3s ease-in-out',
+                  }}
+                >
+                  <Box>
+                    <Tooltip title={layup.name} arrow>
+                      <Typography 
+                        variant="subtitle1" 
+                        component={Link}
+                        to={`/departments/${layup.department}/courses/${layup.id}`}
+                        sx={{ 
+                          fontWeight: 600, 
+                          mb: 1, 
+                          textDecoration: 'none',
+                          color: '#2c3e50',
+                          display: 'block',
                           overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
                         }}
                       >
+                        {layup.name}
+                      </Typography>
+                    </Tooltip>
+                    <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
+                      {layup.department}
+                    </Typography>
+                    <Tooltip
+                      title={`Yes: ${yesPercentage.toFixed(1)}% | No: ${noPercentage.toFixed(1)}%`}
+                      arrow
+                    >
+                      <Box sx={{ width: '100%', mb: 1, position: 'relative' }}>
                         <Box
                           sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            height: '100%',
-                            width: `${yesPercentage}%`,
-                            backgroundColor: '#00693E',
-                            transition: 'width 0.3s ease-in-out',
+                            height: 8,
+                            borderRadius: 4,
+                            backgroundColor: '#f6f6f6',
+                            position: 'relative',
+                            overflow: 'hidden',
                           }}
-                        />
+                        >
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              height: '100%',
+                              width: `${yesPercentage}%`,
+                              backgroundColor: '#00693E',
+                              transition: 'width 0.3s ease-in-out',
+                            }}
+                          />
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            mt: 0.5,
+                          }}
+                        >
+                          <Typography variant="caption" sx={{ color: '#00693E' }}>
+                            {yesPercentage > 0 ? `${yesPercentage.toFixed(0)}%` : ''}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#e74c3c' }}>
+                            {noPercentage > 0 ? `${noPercentage.toFixed(0)}%` : ''}
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          mt: 0.5,
-                        }}
-                      >
-                        <Typography variant="caption" sx={{ color: '#00693E' }}>
-                          {yesPercentage > 0 ? `${yesPercentage.toFixed(0)}%` : ''}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#e74c3c' }}>
-                          {noPercentage > 0 ? `${noPercentage.toFixed(0)}%` : ''}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Tooltip>
-                  <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, color: '#7f8c8d' }}>
-                    <span>Yes: {yesCount}</span>
-                    <span>No: {noCount}</span>
-                  </Typography>
+                    </Tooltip>
+                    <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, color: '#7f8c8d' }}>
+                      <span>Yes: {yesCount}</span>
+                      <span>No: {noCount}</span>
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                    <Button 
+                      variant="contained" 
+                      size="small"
+                      color={layup.userVote === true ? "primary" : "inherit"}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleVote(layup.id, 'yes');
+                      }}
+                      sx={{ 
+                        mr: 1, 
+                        flex: 1, 
+                        boxShadow: 'none',
+                        backgroundColor: layup.userVote === true ? '#00693E' : '#ecf0f1',
+                        color: layup.userVote === true ? '#ffffff' : '#34495e',
+                        '&:hover': {
+                          backgroundColor: '#571ce0',
+                          color: '#ffffff',
+                        },
+                      }}
+                    >
+                      Yes
+                    </Button>
+                    <Button 
+                      variant="contained" 
+                      size="small"
+                      color={layup.userVote === false ? "primary" : "inherit"}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleVote(layup.id, 'no');
+                      }}
+                      sx={{ 
+                        flex: 1,
+                        boxShadow: 'none',
+                        backgroundColor: layup.userVote === false ? '#00693E' : '#ecf0f1',
+                        color: layup.userVote === false ? '#ffffff' : '#34495e',
+                        '&:hover': {
+                          backgroundColor: '#c0392b',
+                          color: '#ffffff',
+                        },
+                      }}
+                    >
+                      No
+                    </Button>
+                  </Box>
                 </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                  <Button 
-                    variant="contained" 
-                    size="small"
-                    color={layup.userVote === true ? "primary" : "inherit"}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleVote(layup.id, 'yes');
-                    }}
-                    sx={{ 
-                      mr: 1, 
-                      flex: 1, 
-                      boxShadow: 'none',
-                      backgroundColor: layup.userVote === true ? '#00693E' : '#ecf0f1',
-                      color: layup.userVote === true ? '#ffffff' : '#34495e',
-                      '&:hover': {
-                        backgroundColor: '#571ce0',
-                        color: '#ffffff',
-                      },
-                    }}
-                  >
-                    Yes
-                  </Button>
-                  <Button 
-                    variant="contained" 
-                    size="small"
-                    color={layup.userVote === false ? "primary" : "inherit"}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleVote(layup.id, 'no');
-                    }}
-                    sx={{ 
-                      flex: 1,
-                      boxShadow: 'none',
-                      backgroundColor: layup.userVote === false ? '#00693E' : '#ecf0f1',
-                      color: layup.userVote === false ? '#ffffff' : '#34495e',
-                      '&:hover': {
-                        backgroundColor: '#c0392b',
-                        color: '#ffffff',
-                      },
-                    }}
-                  >
-                    No
-                  </Button>
-                </Box>
-              </Box>
-            </Grid>
-          );
-        })}
-      </Grid>
-    </Box>
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Box>
+    </Container>
   );
 };
 
