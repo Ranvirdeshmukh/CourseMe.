@@ -216,16 +216,13 @@ const HiddenLayups = () => {
             const noPercentage = 100 - yesPercentage;
             
             return (
-              <Grid item xs={12} sm={6} md={4} key={layup.id} sx={{
-                // Add margin-bottom to create space between rows
-                mb: index < hiddenLayups.length - 1 ? 3 : 0,
-              }}>
+              <Grid item xs={12} sm={6} md={4} key={layup.id}>
                 <Box 
                   sx={{ 
                     border: '1px solid #ecf0f1',
                     borderRadius: '8px',
                     padding: '16px',
-                    height: '100%',
+                    height: '200px', // Set a fixed height
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
