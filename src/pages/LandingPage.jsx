@@ -105,7 +105,6 @@ const LandingPage = () => {
     }
   };
 
-  // ... (other functions remain the same)
 
   const getDifficultyLevel = (score) => {
     if (score < -0.5) return "Very Challenging";
@@ -156,67 +155,12 @@ const handleLoginRedirect = () => {
   }
 };
 
-
-
-
-
-
-
-
   // Typing effect messages
   const typingMessages = [
     "Simplify Your Major, Amplify Your College Life.",
     "Find Easy Courses in Seconds.",
     "Plan Your Perfect Schedule Today."
   ];
-
-  // const handleSearch = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setError('');
-  //   setAnswer('');
-  //   setDepartment('');
-  //   setCourseNumber('');
-  //   setDocumentName('');
-  //   setShowScrollMessage(false); // Reset scroll message
-
-  //   try {
-  //     const response = await axios.post(API_URL, 
-  //       { question },
-  //       {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       }
-  //     );
-  //     console.log('API Response:', response.data);
-  //     if (typeof response.data === 'object' && response.data.answer) {
-  //       setAnswer(response.data.answer);
-  //       setDepartment(response.data.department || '');
-  //       setCourseNumber(response.data.course_number || '');
-        
-  //       if (response.data.department && response.data.course_number) {
-  //         await fetchCourseData(response.data.department, response.data.course_number);
-  //       }
-  //     } else if (typeof response.data === 'string') {
-  //       setAnswer(response.data);
-  //     } else {
-  //       throw new Error('Unexpected response format');
-  //     }
-
-  //     // Display scroll message if department and course number are available
-  //     if (response.data.department && response.data.course_number) {
-  //       setShowScrollMessage(true);
-  //     }
-
-  //   } catch (error) {
-  //     console.error('Error fetching answer:', error);
-  //     setError('An error occurred while fetching the answer. Please try again.');
-  //     setSnackbarOpen(true);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const formatAnswer = (text) => {
     const customRenderers = {

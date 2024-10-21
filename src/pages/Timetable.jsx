@@ -1,29 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
-  Box,
-  Container,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  TextField,
-  InputAdornment,
-  CircularProgress,
-  Alert,
-  useMediaQuery,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Snackbar,
-  Button,
-  IconButton,
-  ButtonBase,
-  Tooltip,
+  Box, Container, Paper, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Typography, TextField, InputAdornment, CircularProgress,
+  Alert, useMediaQuery, MenuItem, Select, FormControl, InputLabel, Snackbar, Button,
+  IconButton, ButtonBase, Tooltip,
 } from '@mui/material';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { getFirestore, collection, getDocs, where, query, doc, updateDoc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
@@ -123,6 +103,9 @@ const Timetable = () => {
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const classesPerPage = 50; // Number of classes per page
   const isFallAddDropClosed = true; // Replace with logic that checks if the fall add/drop period is over
+  const [documentName, setDocumentName] = useState('');
+
+  var courseNameLong = ""
 
   const isMobile = useMediaQuery('(max-width:600px)');
 
@@ -214,48 +197,81 @@ const Timetable = () => {
       setLoading(false);
     }
   };
+
+  const fetchCourseData = async (dept, course) => {
+    const db = getFirestore();
+    try {
+      const q = query(
+        collection(db, "courses"), 
+        where("department", "==", dept), 
+        where("course_number", "==", course)
+      );
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        courseNameLong = querySnapshot.docs[0].id;
+        console.log("updated, " + courseNameLong)
+      } else {
+        console.log("No matching documents in Firebase.");
+      }
+    } catch (error) {
+      console.error("Error fetching course data from Firebase:", error);
+    }
+  };
+
+  const normalizeCourseNumber = (number) => {
+    if (number.includes('.')) {
+      const [integerPart, decimalPart] = number.split('.');
+      return `${integerPart.padStart(3, '0')}.${decimalPart}`;
+    } else {
+      return number.padStart(3, '0');
+    }
+  };
+
   const handleCourseClick = async (course) => {
     console.log('Received course object:', JSON.stringify(course, null, 2));
-  
     const department = course.subj;
-    let courseNumber = course.num;
-    if (courseNumber.includes('.')) {
-      const [mainPart, decimalPart] = courseNumber.split('.');
-      courseNumber = mainPart.padStart(3, '0') + '_' + decimalPart.padStart(2, '0');
-    } else {
-      courseNumber = courseNumber.padStart(3, '0');
-    }
+    let courseNumber = normalizeCourseNumber(course.num);
+    console.log(department + " department")
+    console.log("department number " + courseNumber);
+    await fetchCourseData(department, courseNumber);
+    console.log("course name" + courseNameLong)
+    navigate(`/departments/${department}/courses/${courseNameLong}`);
+    // if (courseNumber.includes('.')) {
+    //   const [mainPart, decimalPart] = courseNumber.split('.');
+    //   courseNumber = mainPart.padStart(3, '0') + '_' + decimalPart.padStart(2, '0');
+    // } else {
+    //   courseNumber = courseNumber.padStart(3, '0');
+    // }
   
-    const formattedTitle = course.title
-      .replace(/[^a-zA-Z0-9]+/g, '_')
-      .replace(/_+/g, '_')
-      .replace(/^_+|_+$/g, '');
+    // const formattedTitle = course.title
+    //   .replace(/[^a-zA-Z0-9]+/g, '_')
+    //   .replace(/_+/g, '_')
+    //   .replace(/^_+|_+$/g, '');
   
-    const courseId = `${department}_${department}${courseNumber}__${formattedTitle}`;
-    const encodedCourseId = encodeURIComponent(courseId);
+    // const courseId = `${department}_${department}${courseNumber}__${formattedTitle}`;
+    // const encodedCourseId = encodeURIComponent(courseId);
   
-    // Check if the course exists in Firestore
-    const db = getFirestore();
-    const courseRef = doc(db, 'courses', courseId);
-    const courseSnap = await getDoc(courseRef);
+    // // Check if the course exists in Firestore
+    // const courseRef = doc(db, 'courses', courseId);
+    // const courseSnap = await getDoc(courseRef);
   
-    if (!courseSnap.exists()) {
-      // Course doesn't exist, create it
-      await setDoc(courseRef, {
-        department: department,
-        number: courseNumber,
-        title: course.title,
-        description: 'Course description not available',
-        reviews: {},
-        layup: 0,
-        quality: 0
-      });
-      console.log('Created new course document in Firestore');
-    }
+    // if (!courseSnap.exists()) {
+    //   // Course doesn't exist, create it
+    //   await setDoc(courseRef, {
+    //     department: department,
+    //     number: courseNumber,
+    //     title: course.title,
+    //     description: 'Course description not available',
+    //     reviews: {},
+    //     layup: 0,
+    //     quality: 0
+    //   });
+    //   console.log('Created new course document in Firestore');
+    // }
   
-    const coursePath = `/departments/${department}/courses/${encodedCourseId}`;
-    console.log('Navigating to:', coursePath);
-    navigate(coursePath);
+    // const coursePath = `/departments/${department}/courses/${encodedCourseId}`;
+    // console.log('Navigating to:', coursePath);
+    // navigate(coursePath);
   };
   
   const fetchUserTimetable = async () => {
