@@ -18,6 +18,7 @@ import SignUpPage from './pages/SignUpPage';
 import Timetable from './pages/Timetable';
 import TranscriptParser from './pages/TranscriptParser';
 
+
 const App = () => {
   return (
     <AuthProvider>

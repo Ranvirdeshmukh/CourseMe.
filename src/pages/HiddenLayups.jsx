@@ -14,12 +14,17 @@ import { collection, query, getDocs, doc, updateDoc, increment, setDoc, getDoc, 
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { db } from '../firebase';
 import { initializeHiddenLayups } from './initializeHiddenLayups';
+// Update these import lines at the top of HiddenLayups.jsx
+import CourseRecommendationDialog from '../components/CourseRecommendationDialog';
+import AdminRecommendations from '../components/AdminRecommendations';
+
 
 const HiddenLayups = () => {
   const [hiddenLayups, setHiddenLayups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
+  const [recommendationOpen, setRecommendationOpen] = useState(false);
 
   useEffect(() => {
     const auth = getAuth();
@@ -200,14 +205,44 @@ const HiddenLayups = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
-          Hidden Gems 💎
-        </Typography>
-        <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
-          Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 
-          Do you agree? Vote to help other students discover these gems!
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Box>
+            <Typography variant="h3" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
+              Hidden Gems 💎
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
+              Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 
+              Do you agree? Vote to help other students discover these gems!
+            </Typography>
+          </Box>
+          {user && (
+            <Button 
+            onClick={() => setRecommendationOpen(true)}
+            variant="contained"
+            sx={{ 
+              backgroundColor: '#f6f6f6',
+              color: '#000000', // Black font color
+              fontSize: '0.85rem', // Smaller font size
+              fontWeight: '500', // Semi-bold for better readability
+              borderRadius: '20px', // Curved edges
+              padding: '6px 16px', // Smaller padding for a compact look
+              '&:hover': {
+                backgroundColor: '#571ce0', // Black background on hover
+                color: '#ffffff', // White font color on hover for contrast
+              },
+              height: 'fit-content',
+              ml: 2,
+              transition: 'background-color 0.3s, color 0.3s', // Smooth transition for hover effect
+            }}
+          >
+            Recommend a Course
+          </Button>
+          
+          )}
+        </Box>
+        
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        
         <Grid container spacing={3}>
           {hiddenLayups.map((layup, index) => {
             const yesCount = layup.yes_count || 0;
@@ -222,7 +257,7 @@ const HiddenLayups = () => {
                     border: '1px solid #ecf0f1',
                     borderRadius: '8px',
                     padding: '16px',
-                    height: '200px', // Set a fixed height
+                    height: '200px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
@@ -353,9 +388,24 @@ const HiddenLayups = () => {
             );
           })}
         </Grid>
+
+        <CourseRecommendationDialog
+          open={recommendationOpen}
+          onClose={() => setRecommendationOpen(false)}
+          user={user}
+        />
+        
+        {user?.isAdmin && (
+          <Box sx={{ mt: 6, mb: 4 }}>
+            <Typography variant="h5" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
+              Pending Recommendations
+            </Typography>
+            <AdminRecommendations user={user} />
+          </Box>
+        )}
       </Box>
     </Container>
-  );
+);
 };
 
 export default HiddenLayups;

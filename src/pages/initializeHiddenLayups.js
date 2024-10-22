@@ -30,6 +30,7 @@ const hiddenLayupsCourses = [
 }
 ];
 
+
 export const initializeHiddenLayups = async () => {
   for (const course of hiddenLayupsCourses) {
     const courseRef = doc(db, 'hidden_layups', course.id);

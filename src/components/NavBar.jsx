@@ -161,7 +161,9 @@ const NavBar = () => {
               >
                 Profile
               </Typography>
+              
             </>
+            
           ) : (
             <Typography
               component={Link}
@@ -178,7 +180,9 @@ const NavBar = () => {
             >
               Log In
             </Typography>
+            
           )}
+          
         </Box>
 
         {/* Mobile Hamburger Menu */}
