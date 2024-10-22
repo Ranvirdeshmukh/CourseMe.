@@ -28,6 +28,8 @@ const HiddenLayups = () => {
   const [user, setUser] = useState(null);
   const [recommendationOpen, setRecommendationOpen] = useState(false);
 
+  
+
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -57,36 +59,23 @@ const HiddenLayups = () => {
     setLoading(true);
     setError(null);
     try {
-      // Get hidden layups data first
+      // Single query to get all hidden layups
       const hiddenLayupsSnapshot = await getDocs(collection(db, 'hidden_layups'));
       const hiddenLayupDocs = hiddenLayupsSnapshot.docs
-        .filter(doc => hiddenLayupCourseIds.includes(doc.id));
-  
-      // Get data for only the courses we need
-      const coursesData = await Promise.all(
-        hiddenLayupDocs.map(async layupDoc => {
-          const courseRef = doc(db, 'courses', layupDoc.id);
-          const courseSnapshot = await getDoc(courseRef);
-          const courseData = courseSnapshot.data() || {};
-          const userVote = currentUser ? await getUserVote(layupDoc.id, currentUser.uid) : null;
-  
-          // Get distribs from course data and convert to array if needed
-          const distribs = courseData.distribs
-            ? courseData.distribs.split(',').map(d => d.trim())
-            : [];
-  
+        .filter(doc => hiddenLayupCourseIds.includes(doc.id))
+        .map(async doc => {
+          const data = doc.data();
+          const userVote = currentUser ? await getUserVote(doc.id, currentUser.uid) : null;
+          
           return {
-            id: layupDoc.id,
-            ...layupDoc.data(),
-            distribs,
-            layup: parseFloat(courseData.layup) || 0,
+            id: doc.id,
+            ...data,
             userVote
           };
-        })
-      );
-  
-      console.log('Fetched layups data:', coursesData);
-      setHiddenLayups(coursesData);
+        });
+
+      const layupsData = await Promise.all(hiddenLayupDocs);
+      setHiddenLayups(layupsData);
     } catch (err) {
       console.error('Error fetching hidden layups:', err);
       setError('Failed to fetch hidden layups. Please try refreshing the page.');
