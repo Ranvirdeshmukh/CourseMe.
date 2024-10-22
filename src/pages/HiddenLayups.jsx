@@ -17,6 +17,8 @@ import { initializeHiddenLayups } from './initializeHiddenLayups';
 // Update these import lines at the top of HiddenLayups.jsx
 import CourseRecommendationDialog from '../components/CourseRecommendationDialog';
 import AdminRecommendations from '../components/AdminRecommendations';
+import { hiddenLayupCourseIds } from '../constants/hiddenLayupConstants';
+
 
 
 const HiddenLayups = () => {
@@ -51,22 +53,28 @@ const HiddenLayups = () => {
     }
   };
 
-  const fetchHiddenLayups = async (currentUser) => {
+// Fetch hidden layups based on the specified list of course IDs
+const fetchHiddenLayups = async (currentUser) => {
     setLoading(true);
     setError(null);
     try {
       const q = query(collection(db, 'hidden_layups'));
       const querySnapshot = await getDocs(q);
-      const layupsData = await Promise.all(querySnapshot.docs.map(async doc => {
-        const data = doc.data();
-        const userVote = currentUser ? await getUserVote(doc.id, currentUser.uid) : null;
-        return {
-          id: doc.id,
-          ...data,
-          userVote
-        };
-      }));
-      
+
+      // Filter the fetched data to only include courses in the hiddenLayupCourseIds list
+      const layupsData = await Promise.all(querySnapshot.docs
+        .filter(doc => hiddenLayupCourseIds.includes(doc.id))
+        .map(async doc => {
+          const data = doc.data();
+          const userVote = currentUser ? await getUserVote(doc.id, currentUser.uid) : null;
+          return {
+            id: doc.id,
+            ...data,
+            userVote
+          };
+        })
+      );
+
       setHiddenLayups(layupsData);
     } catch (err) {
       console.error('Error fetching hidden layups:', err);
@@ -75,6 +83,8 @@ const HiddenLayups = () => {
       setLoading(false);
     }
   };
+
+  
 
   const getUserVote = async (courseId, userId) => {
     if (!userId) return null;
