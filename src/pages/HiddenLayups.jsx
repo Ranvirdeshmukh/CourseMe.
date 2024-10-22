@@ -53,29 +53,40 @@ const HiddenLayups = () => {
     }
   };
 
-// Fetch hidden layups based on the specified list of course IDs
-const fetchHiddenLayups = async (currentUser) => {
+  const fetchHiddenLayups = async (currentUser) => {
     setLoading(true);
     setError(null);
     try {
-      const q = query(collection(db, 'hidden_layups'));
-      const querySnapshot = await getDocs(q);
-
-      // Filter the fetched data to only include courses in the hiddenLayupCourseIds list
-      const layupsData = await Promise.all(querySnapshot.docs
-        .filter(doc => hiddenLayupCourseIds.includes(doc.id))
-        .map(async doc => {
-          const data = doc.data();
-          const userVote = currentUser ? await getUserVote(doc.id, currentUser.uid) : null;
+      // Get hidden layups data first
+      const hiddenLayupsSnapshot = await getDocs(collection(db, 'hidden_layups'));
+      const hiddenLayupDocs = hiddenLayupsSnapshot.docs
+        .filter(doc => hiddenLayupCourseIds.includes(doc.id));
+  
+      // Get data for only the courses we need
+      const coursesData = await Promise.all(
+        hiddenLayupDocs.map(async layupDoc => {
+          const courseRef = doc(db, 'courses', layupDoc.id);
+          const courseSnapshot = await getDoc(courseRef);
+          const courseData = courseSnapshot.data() || {};
+          const userVote = currentUser ? await getUserVote(layupDoc.id, currentUser.uid) : null;
+  
+          // Get distribs from course data and convert to array if needed
+          const distribs = courseData.distribs
+            ? courseData.distribs.split(',').map(d => d.trim())
+            : [];
+  
           return {
-            id: doc.id,
-            ...data,
+            id: layupDoc.id,
+            ...layupDoc.data(),
+            distribs,
+            layup: parseFloat(courseData.layup) || 0,
             userVote
           };
         })
       );
-
-      setHiddenLayups(layupsData);
+  
+      console.log('Fetched layups data:', coursesData);
+      setHiddenLayups(coursesData);
     } catch (err) {
       console.error('Error fetching hidden layups:', err);
       setError('Failed to fetch hidden layups. Please try refreshing the page.');
@@ -83,8 +94,6 @@ const fetchHiddenLayups = async (currentUser) => {
       setLoading(false);
     }
   };
-
-  
 
   const getUserVote = async (courseId, userId) => {
     if (!userId) return null;
@@ -279,28 +288,69 @@ const fetchHiddenLayups = async (currentUser) => {
                   }}
                 >
                   <Box>
-                    <Tooltip title={layup.name} arrow>
-                      <Typography 
-                        variant="subtitle1" 
-                        component={Link}
-                        to={`/departments/${layup.department}/courses/${layup.id}`}
-                        sx={{ 
-                          fontWeight: 600, 
-                          mb: 1, 
-                          textDecoration: 'none',
-                          color: '#2c3e50',
-                          display: 'block',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {layup.name}
-                      </Typography>
-                    </Tooltip>
-                    <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
-                      {layup.department}
-                    </Typography>
+  <Tooltip title={layup.name} arrow>
+    <Typography 
+      variant="subtitle1" 
+      component={Link}
+      to={`/departments/${layup.department}/courses/${layup.id}`}
+      sx={{ 
+        fontWeight: 600, 
+        mb: 1, 
+        textDecoration: 'none',
+        color: '#2c3e50',
+        display: 'block',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {layup.name}
+    </Typography>
+  </Tooltip>
+
+  <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+    {/* <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
+      {layup.department}
+    </Typography> */}
+    {layup.distribs && layup.distribs.length > 0 && (
+      <Tooltip title="Distribution Requirements" arrow>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          {layup.distribs.map((distrib, index) => (
+            <Typography 
+              key={index} 
+              variant="body2" 
+              sx={{ 
+                backgroundColor: '#e8f5e9',
+                color: '#2e7d32',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                fontSize: '0.75rem'
+              }}
+            >
+              {distrib}
+            </Typography>
+          ))}
+        </Box>
+      </Tooltip>
+    )}
+    {layup.layup !== undefined && (
+  <Tooltip title="Course Layup Rating" arrow>
+    <Typography 
+      variant="body2" 
+      sx={{ 
+        backgroundColor: '#e3f2fd',
+        color: '#1565c0',
+        padding: '2px 6px',
+        borderRadius: '4px',
+        fontSize: '0.75rem',
+        ml: 'auto'
+      }}
+    >
+      Layup score: {Math.round(layup.layup)}
+    </Typography>
+  </Tooltip>
+)}
+  </Box>
                     <Tooltip
                       title={`Yes: ${yesPercentage.toFixed(1)}% | No: ${noPercentage.toFixed(1)}%`}
                       arrow
