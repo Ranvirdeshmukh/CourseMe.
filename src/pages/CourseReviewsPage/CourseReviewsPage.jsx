@@ -180,159 +180,181 @@ const CourseReviewsPage = () => {
   const renderTabContent = () => {
     switch (tabValue) {
       case 0:
-        // Description tab content (unchanged)
+        // Description tab content
         return (
           <Box sx={{ padding: '20px' }}>
             <Typography
               variant="body1"
-              sx={{ fontSize: '0.95rem', color: 'black', textAlign: 'left', lineHeight: '1.6' }}
+              sx={{ fontSize: '0.95rem', color: 'text.primary', textAlign: 'left', lineHeight: '1.6' }}
               dangerouslySetInnerHTML={{ __html: courseDescription }}
             />
           </Box>
         );
-        case 1:
-          // Updated Grades tab content with CanvasGradeTable
-          return (
-            <Box sx={{ padding: '20px' }}>
-              <Typography variant="h6" gutterBottom>Grades Distribution</Typography>
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  fontSize: '0.7rem', 
-                  fontStyle: 'italic', 
-                  color: 'text.secondary',
-                  mt: 1,
-                  display: 'block'
-                }}
-              >
-                *Note: Sections with different medians may be averaged for the term.
-              </Typography>
-              {gradeData.length > 0 ? (
-                <>
-                  {renderGradeChart()}
-                  <CanvasGradeTable gradeData={gradeData.sort((a, b) => {
+      case 1:
+        // Grades Distribution tab content
+        return (
+          <Box sx={{ padding: '20px' }}>
+            <Typography variant="h6" gutterBottom>
+              Grades Distribution
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: '0.7rem',
+                fontStyle: 'italic',
+                color: 'text.secondary',
+                mt: 1,
+                display: 'block',
+              }}
+            >
+              *Note: Sections with different medians may be averaged for the term.
+            </Typography>
+            {gradeData.length > 0 ? (
+              <>
+                {renderGradeChart()}
+                <CanvasGradeTable
+                  gradeData={gradeData.sort((a, b) => {
                     const aYear = parseInt(a.Term.slice(0, 2));
                     const bYear = parseInt(b.Term.slice(0, 2));
                     if (aYear !== bYear) return bYear - aYear;
-                    const termOrder = { 'F': 0, 'X': 1, 'S': 2, 'W': 3 };
+                    const termOrder = { F: 0, X: 1, S: 2, W: 3 };
                     return termOrder[a.Term.slice(2)] - termOrder[b.Term.slice(2)];
-                  })} />
-                </>
-              ) : (
-                <Typography>No grade distribution information available. Add medians from previous classes to improve our offerings.</Typography>
-              )}
-              <Box sx={{ marginTop: 4 }}>
-                <Typography variant="h6" gutterBottom>Add New Grade Data</Typography>
-                <TextField
-                  name="Term"
-                  label="Term"
-                  value={newGradeData.Term}
-                  onChange={(e) => {
-                    const value = e.target.value.toUpperCase(); // Convert input to uppercase
-                  
-                    // Allow only two digits (00-24) followed by F, W, S, or X
-                    const regex = /^(?:2[0-4]|1\d|0?\d)([FWSX])?$/;
-                    
-                    if (regex.test(value) || value === '') {
-                      setNewGradeData(prev => ({ ...prev, Term: value }));
-                    }
-                  }}
-                  fullWidth
-                  margin="normal"
+                  })}
                 />
-                <Autocomplete
-                  multiple
-                  id="professors-input"
-                  options={allProfessors}
-                  value={newGradeData.Professors}
-                  onChange={(event, newValue) => setNewGradeData(prev => ({ ...prev, Professors: newValue }))}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Professors"
-                      placeholder="Select or enter professors"
-                      fullWidth
-                      margin="normal"
-                    />
-                  )}
-                  freeSolo
-                  sx={{ marginTop: 2, marginBottom: 2 }}
-                />
-                <InteractiveGradeScale
-                  value={newGradeData.Grade}
-                  onChange={handleGradeChange}
-                />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleAddNewGradeData}
-                  sx={{ marginTop: 2 }}
-                >
-                  Add Grade Data
-                </Button>
-              </Box>
+              </>
+            ) : (
+              <Typography>
+                No grade distribution information available. Add medians from previous classes to improve our offerings.
+              </Typography>
+            )}
+            <Box sx={{ marginTop: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                Add New Grade Data
+              </Typography>
+              <TextField
+                name="Term"
+                label="Term"
+                value={newGradeData.Term}
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase(); // Convert input to uppercase
+  
+                  // Allow only two digits (00-24) followed by F, W, S, or X
+                  const regex = /^(?:2[0-4]|1\d|0?\d)([FWSX])?$/;
+  
+                  if (regex.test(value) || value === '') {
+                    setNewGradeData((prev) => ({ ...prev, Term: value }));
+                  }
+                }}
+                fullWidth
+                margin="normal"
+              />
+              <Autocomplete
+                multiple
+                id="professors-input"
+                options={allProfessors}
+                value={newGradeData.Professors}
+                onChange={(event, newValue) => setNewGradeData((prev) => ({ ...prev, Professors: newValue }))}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Professors"
+                    placeholder="Select or enter professors"
+                    fullWidth
+                    margin="normal"
+                  />
+                )}
+                freeSolo
+                sx={{ marginTop: 2, marginBottom: 2 }}
+              />
+              <InteractiveGradeScale value={newGradeData.Grade} onChange={handleGradeChange} />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAddNewGradeData}
+                sx={{ marginTop: 2 }}
+              >
+                Add Grade Data
+              </Button>
             </Box>
-          );
-          case 2:
-            // Input Data tab content (new)
-            return (
-              <Box sx={{ padding: '20px' }}>
-                <Typography variant="h6" gutterBottom>Input Course Data</Typography>
-                <CourseInputDataForm courseId={courseId} allProfessors={allProfessors} />
-              </Box>
-            );
-      case 3:
+          </Box>
+        );
+      case 2:
+        // Input Data tab content
         return (
           <Box sx={{ padding: '20px' }}>
-            <Typography variant="h6" gutterBottom>Course Metrics</Typography>
+            <Typography variant="h6" gutterBottom>
+              Input Course Data
+            </Typography>
+            <CourseInputDataForm courseId={courseId} allProfessors={allProfessors} />
+          </Box>
+        );
+      case 3:
+        // Course Metrics tab content
+        return (
+          <Box sx={{ padding: '20px' }}>
+            <Typography variant="h6" gutterBottom>
+              Course Metrics
+            </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Box sx={{ width: '60%' }}>
-                <Typography variant="subtitle1" gutterBottom>Difficulty</Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={60} 
-                  sx={{ 
-                    height: 10, 
-                    borderRadius: 5, 
+                <Typography variant="subtitle1" gutterBottom>
+                  Difficulty
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={60}
+                  sx={{
+                    height: 10,
+                    borderRadius: 5,
                     backgroundColor: '#e0e0e0',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#ff9800'
-                    }
-                  }} 
+                      backgroundColor: '#ff9800',
+                    },
+                  }}
                 />
-                <Typography variant="body2" color="textSecondary">Moderately Difficult</Typography>
-
-                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>Easiness</Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={40} 
-                  sx={{ 
-                    height: 10, 
-                    borderRadius: 5, 
+                <Typography variant="body2" color="text.secondary">
+                  Moderately Difficult
+                </Typography>
+  
+                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+                  Easiness
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={40}
+                  sx={{
+                    height: 10,
+                    borderRadius: 5,
                     backgroundColor: '#e0e0e0',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#4caf50'
-                    }
-                  }} 
+                      backgroundColor: '#4caf50',
+                    },
+                  }}
                 />
-                <Typography variant="body2" color="textSecondary">Somewhat Easy</Typography>
-
-                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>Overall Quality</Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={75} 
-                  sx={{ 
-                    height: 10, 
-                    borderRadius: 5, 
+                <Typography variant="body2" color="text.secondary">
+                  Somewhat Easy
+                </Typography>
+  
+                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+                  Overall Quality
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={75}
+                  sx={{
+                    height: 10,
+                    borderRadius: 5,
                     backgroundColor: '#e0e0e0',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#2196f3'
-                    }
-                  }} 
+                      backgroundColor: '#2196f3',
+                    },
+                  }}
                 />
-                <Typography variant="body2" color="textSecondary">Good Quality</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Good Quality
+                </Typography>
               </Box>
-              
+  
               {course && (
                 <Box
                   sx={{
@@ -348,7 +370,7 @@ const CourseReviewsPage = () => {
                   }}
                 >
                   {/* Layup voting */}
-                  <Box sx={{ marginBottom: '20px' }}>
+                  <Box sx={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <Tooltip title="Upvote Layup">
                       <IconButton
                         onClick={() => handleVote('upvote')}
@@ -372,8 +394,9 @@ const CourseReviewsPage = () => {
                       Is it a layup?
                     </Typography>
                   </Box>
+  
                   {/* Quality voting */}
-                  <Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <Tooltip title="Upvote Quality">
                       <IconButton
                         onClick={() => handleQualityVote('upvote')}
@@ -406,6 +429,7 @@ const CourseReviewsPage = () => {
         return null;
     }
   };
+  
 
   useEffect(() => {
     const fetchAllProfessors = async () => {
@@ -1563,7 +1587,7 @@ const handleQualityVote = async (voteType) => {
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        backgroundColor: '#E4E2DD', // Change this to the previous color
+        background: 'linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%)',
         color: '#1D1D1F',
         textAlign: 'left',
         fontFamily: 'SF Pro Display, sans-serif',
