@@ -53,22 +53,38 @@ const DepartmentCoursesPage = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        console.log(`Fetching courses for department: ${department}`);  // Debug log
         const q = query(collection(db, 'courses'), where('department', '==', department));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
-          const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setCourses(coursesData);
-          setFilteredCourses(coursesData); // Initialize filteredCourses
-
-          // Cache the data
+          const coursesData = querySnapshot.docs.map(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            console.log('Document data:', data);  // Debug log for each document
+            return data;
+          });
+          
+          // Generate custom IDs for each course
+          const coursesWithCustomIds = coursesData.map(course => ({
+            ...course,
+            id: `${course.department}_${course.course_number}__${course.name.replace(/\s+/g, '_')}`
+          }));
+          
+          console.log('Processed courses data:', coursesWithCustomIds);  // Debug log
+          
+          setCourses(coursesWithCustomIds);
+          setFilteredCourses(coursesWithCustomIds);
+    
+          // Cache the data with custom IDs
           localStorage.setItem(`${CACHE_PREFIX}${department}`, JSON.stringify({
             timestamp: new Date().getTime(),
-            courses: coursesData,
+            courses: coursesWithCustomIds,
           }));
         } else {
+          console.log('No courses found for this department.');
           setError('No courses found for this department.');
         }
       } catch (error) {
+        console.error('Error fetching courses:', error);
         setError('Failed to fetch courses.');
       } finally {
         setLoading(false);
@@ -78,8 +94,9 @@ const DepartmentCoursesPage = () => {
     const checkCache = () => {
       const cachedData = JSON.parse(localStorage.getItem(`${CACHE_PREFIX}${department}`));
       const now = new Date().getTime();
-
+    
       if (cachedData && (now - cachedData.timestamp < CACHE_EXPIRATION)) {
+        console.log('Using cached data:', cachedData.courses);  // Debug log
         setCourses(cachedData.courses);
         setFilteredCourses(cachedData.courses);
         setLoading(false);
@@ -107,12 +124,12 @@ const DepartmentCoursesPage = () => {
       }
 
       // Filter by Distribs
-      if (selectedDistribs.length > 0) {
-        updatedCourses = updatedCourses.filter(course => 
-          selectedDistribs.some(distrib => course.distribs.includes(distrib))
-        );
-      }
-
+      // Filter by Distribs
+if (selectedDistribs.length > 0) {
+  updatedCourses = updatedCourses.filter(course => 
+    selectedDistribs.some(distrib => course.distribs?.includes(distrib))
+  );
+}
       // Filter by Quality
       updatedCourses = updatedCourses.filter(course => 
         course.quality >= qualityFilter[0] && course.quality <= qualityFilter[1]
@@ -549,7 +566,7 @@ const DepartmentCoursesPage = () => {
                             height: '100%',
                           }}
                         >
-                          {course.distribs.split(',').map((distrib, idx) => (
+{course.distribs ? course.distribs.split(',').map((distrib, idx) => (
                             <Box
                               key={idx}
                               sx={{
@@ -573,7 +590,7 @@ const DepartmentCoursesPage = () => {
                             >
                               {distrib.trim()}
                             </Box>
-                          ))}
+                          )): 'No distribs'}
                         </Box>
                       </TableCell>
                     )}

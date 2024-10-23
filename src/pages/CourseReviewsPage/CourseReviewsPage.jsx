@@ -1563,7 +1563,7 @@ const handleQualityVote = async (voteType) => {
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        backgroundColor: '#E4E2DD', // Change this to the previous color
+        backgroundColor: '#f9f9f9', // Change this to the previous color
         color: '#1D1D1F',
         textAlign: 'left',
         fontFamily: 'SF Pro Display, sans-serif',
@@ -1629,7 +1629,7 @@ const handleQualityVote = async (voteType) => {
                 <StyledTab icon={<Description />} label="Description" />
                 <StyledTab icon={<ReportCardIcon />} label="Medians" />
                 {isBetaUser && <StyledTab icon={<CourseMetricsIcon />} label="Input Data" />}
-                {/* <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" /> */}
+                <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" />
               </StyledTabs>
               <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
                 <IconButton onClick={handlePinCourse} sx={{ /* existing styles */ }}>
@@ -1654,7 +1654,7 @@ const handleQualityVote = async (voteType) => {
           </Alert>
         ) : reviews.length > 0 ? (
           <>
-          {/* {course && (
+          {course && (
             <Box
               sx={{
                 position: 'fixed',
@@ -1745,7 +1745,7 @@ const handleQualityVote = async (voteType) => {
               </Box>
             </Box>
           )}
-         */}
+        
             <Typography variant="h4" gutterBottom textAlign="left" sx={{ marginTop: 4, fontWeight: 700 }}>
               Professors
             </Typography>

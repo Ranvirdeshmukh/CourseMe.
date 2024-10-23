@@ -112,7 +112,7 @@ const ProfessorReviewsPage = () => {
         flexDirection: 'column',
         justifyContent: 'flex-start', // Align items at the top
         alignItems: 'center',
-        backgroundColor: '#E4E2DD', // Light background color
+        backgroundColor: '#f9f9f9', // Light background color
         color: '#571CE0', // Purple text color
         textAlign: 'center',
         fontFamily: 'SF Pro Display, sans-serif',
