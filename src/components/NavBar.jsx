@@ -36,10 +36,11 @@ const NavBar = () => {
     }
   };
 
-  // Check if the current page is the Get Started, Login, or Sign Up page
+  // Check if the current page is one where the navbar should be hidden
   const isGetStartedPage = location.pathname === '/';
   const isLoginPage = location.pathname === '/login';
   const isSignUpPage = location.pathname === '/signup';
+  const isCompleteProfilePage = location.pathname === '/complete-profile'; // Add this line
 
   // Check if the current page is the Landing page
   const isLandingPage = location.pathname === '/landing';
@@ -61,11 +62,10 @@ const NavBar = () => {
 
   const isSpecialPageStyle = isSpecialPage();
 
-  // Return null to prevent Navbar rendering on the Get Started, Login, and SignUp pages
-  if (isGetStartedPage || isLoginPage || isSignUpPage) {
+  // Return null to prevent Navbar rendering on specific pages
+  if (isGetStartedPage || isLoginPage || isSignUpPage || isCompleteProfilePage) { // Add isCompleteProfilePage
     return null;
   }
-
   return (
     <AppBar
       position="static"

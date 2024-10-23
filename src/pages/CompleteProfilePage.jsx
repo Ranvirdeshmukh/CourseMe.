@@ -1,23 +1,21 @@
 import React, { useState } from 'react';
-import {
-  Container,
-  Typography,
-  Box,
-  TextField,
-  Button,
-  Grid,
-  Select,
-  MenuItem,
+import { 
+  Typography, 
+  Box, 
+  TextField, 
+  Button, 
   FormControl,
-  InputLabel,
   Autocomplete,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import SchoolIcon from '@mui/icons-material/School';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import InputAdornment from '@mui/material/InputAdornment';
+import ReactTypingEffect from 'react-typing-effect';
 
-// List of common majors
 const majorOptions = [
   'African and African American Studies',
   'Anthropology',
@@ -64,10 +62,12 @@ const majorOptions = [
   'Sociology',
   'Spanish',
   'Theater',
-  'Women’s, Gender, and Sexuality Studies',
-  'Undecided'
+  'Womens, Gender, and Sexuality Studies',
+  'Undecided',
+  'Graduate Student- MEM, etc.'
 ];
 
+const yearOptions = [2025, 2026, 2027, 2028, 2029];
 
 const CompleteProfilePage = () => {
   const { currentUser } = useAuth();
@@ -77,34 +77,21 @@ const CompleteProfilePage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleClassYearChange = (event) => {
-    setClassYear(event.target.value);
-  };
-
-  const handleMajorChange = (event, newValue) => {
-    setMajor(newValue);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setError('');
       setLoading(true);
-
-      // Update user profile in Firestore
       const userDocRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userDocRef, {
         major: major,
         classYear: classYear,
       });
-
       navigate('/');
     } catch (error) {
       setError('Failed to update profile');
       console.error('Error updating profile:', error);
     }
-
     setLoading(false);
   };
 
@@ -113,46 +100,76 @@ const CompleteProfilePage = () => {
       sx={{
         minHeight: '100vh',
         display: 'flex',
-        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'radial-gradient(circle, #571CE0 0%, #571CE0 40%, black 70%)',
-        color: '#fff',
-        textAlign: 'center',
-        fontFamily: 'SF Pro Display, sans-serif',
-        padding: '20px', // Reduced padding for mobile
+        background: 'linear-gradient(135deg, #f0f4f8 0%, #fff 100%)',
+        padding: '0 10%',
+        color: '#1D1D1F',
+        flexDirection: { xs: 'column', md: 'row' },
+        textAlign: { xs: 'center', md: 'left' },
       }}
     >
-      <Container
+      {/* Left section with logo and tagline */}
+      <Box
+        sx={{
+          maxWidth: { xs: '100%', md: '50%' },
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: { xs: 'center', md: 'flex-start' },
+          mb: { xs: 0, md: 0 },
+          pt: { xs: 5, md: 0 },
+        }}
+      >
+        <RouterLink to="/landing">
+          <img src="/1.png" alt="CourseMe Logo" style={{ maxWidth: '60%', height: 'auto', marginBottom: '10px' }} />
+        </RouterLink>
+        <Typography
+          variant="h5"
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: 400,
+            color: '#1D1D1F',
+            mb: 4,
+          }}
+        >
+          Complete your profile{' '}
+          <ReactTypingEffect
+            text={["and personalise your experience."]}
+            speed={100}
+            eraseSpeed={50}
+            eraseDelay={3000}
+            typingDelay={1000}
+            displayTextRenderer={(text, i) => {
+              const isTypingComplete = i === 0 && text === "Dartmouth";
+              return (
+                <span style={{ color: '#00693E' }}>
+                  {text}
+                  {isTypingComplete && <span style={{ color: '#F26655' }}>.</span>}
+                </span>
+              );
+            }}
+          />
+        </Typography>
+      </Box>
+
+      {/* Right section with form */}
+      <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          width: '90%', // Adjusted width for mobile
-          maxWidth: '400px',
-          backgroundColor: '#f9f9f9',
+          width: '100%',
+          maxWidth: { xs: '85%', md: '400px' },
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(10px)',
           borderRadius: '12px',
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-          padding: { xs: '20px', md: '40px' }, // Dynamic padding for mobile and desktop
+          boxShadow: '0px 8px 30px rgba(0, 0, 0, 0.15)',
+          padding: { xs: '20px', md: '30px' },
           color: '#1D1D1F',
-          margin: '20px auto',
+          marginBottom: { xs: 4, md: 0 },
         }}
       >
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 600,
-            color: '#1D1D1F',
-            mb: 2,
-            textAlign: 'left',
-            fontSize: { xs: '1.5rem', md: '2.125rem' }, // Responsive font size
-          }}
-        >
-          Let’s Get to Know You Better!!
-        </Typography>
-
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>
             {error}
@@ -160,105 +177,121 @@ const CompleteProfilePage = () => {
         )}
 
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 2 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Autocomplete
-                value={major}
-                onChange={handleMajorChange}
-                freeSolo // Allows users to enter their own values if not in the list
-                options={majorOptions}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    placeholder="Major"
-                    required
-                    fullWidth
-                    sx={{
-                      bgcolor: '#FFFFFF',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '8px',
-                        height: '48px',
-                        '& fieldset': {
-                          borderColor: '#E0E0E0',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#B0B0B0',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#571CE0',
-                        },
-                      },
-                    }}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel id="class-year-label">Class Year</InputLabel>
-                <Select
-                  labelId="class-year-label"
-                  id="class-year"
-                  value={classYear}
-                  label="Class Year"
-                  onChange={handleClassYearChange}
-                  sx={{
-                    bgcolor: '#FFFFFF',
+          <Autocomplete
+            value={major}
+            onChange={(event, newValue) => setMajor(newValue)}
+            options={majorOptions}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Major"
+                required
+                sx={{
+                  mb: 2,
+                  bgcolor: '#FFFFFF',
+                  borderRadius: '8px',
+                  width: '100%',
+                  '& .MuiOutlinedInput-root': {
                     borderRadius: '8px',
-                    boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
-                    textAlign: 'left',
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '8px',
-                      height: '48px',
-                      '& fieldset': {
-                        borderColor: '#E0E0E0',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#B0B0B0',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#571CE0',
-                      },
+                    '& fieldset': {
+                      borderColor: '#E0E0E0',
+                      transition: 'border-color 0.3s ease',
                     },
-                  }}
-                >
-                  <MenuItem value={2025}>2025</MenuItem>
-                  <MenuItem value={2026}>2026</MenuItem>
-                  <MenuItem value={2027}>2027</MenuItem>
-                  <MenuItem value={2028}>2028</MenuItem>
-                  <MenuItem value={2029}>2029</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
+                    '&:hover fieldset': {
+                      borderColor: '#B0B0B0',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#571CE0',
+                    },
+                  },
+                }}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SchoolIcon sx={{ color: '#571CE0' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          />
+
+          <Autocomplete
+            value={classYear}
+            onChange={(event, newValue) => setClassYear(newValue)}
+            options={yearOptions}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Class Year"
+                required
+                sx={{
+                  mb: 2,
+                  bgcolor: '#FFFFFF',
+                  borderRadius: '8px',
+                  width: '100%',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                    '& fieldset': {
+                      borderColor: '#E0E0E0',
+                      transition: 'border-color 0.3s ease',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#B0B0B0',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#571CE0',
+                    },
+                  },
+                }}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CalendarTodayIcon sx={{ color: '#571CE0' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          />
+
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            sx={{
+              marginBottom: '20px',
+              fontFamily: 'SF Pro Display, sans-serif',
+              color: '#1D1D1F',
+            }}
+          >
+            <strong>Please Note:</strong> This information helps us personalize your experience.
+          </Typography>
 
           <Button
             type="submit"
             variant="contained"
-            color="primary"
             disabled={loading}
             sx={{
-              mt: 3,
-              background: 'linear-gradient(90deg, rgba(87,28,224,1) 0%, rgba(144,19,254,1) 100%)',
-              borderRadius: '8px',
-              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
-              color: 'white',
+              backgroundColor: '#4285F4',
+              color: '#fff',
               fontWeight: 'bold',
-              padding: { xs: '8px 16px', md: '10px 20px' }, // Adjusted for mobile
-              textTransform: 'none',
-              transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+              mb: 2,
+              height: '48px',
+              borderRadius: '20px',
+              width: '100%',
+              transition: 'transform 0.2s',
               '&:hover': {
+                backgroundColor: '#357AE8',
                 transform: 'scale(1.05)',
-                boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
               },
             }}
           >
             Complete Profile
           </Button>
         </Box>
-      </Container>
+      </Box>
     </Box>
   );
 };
