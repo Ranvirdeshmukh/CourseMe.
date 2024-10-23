@@ -1563,7 +1563,7 @@ const handleQualityVote = async (voteType) => {
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        backgroundColor: '#f9f9f9', // Change this to the previous color
+        backgroundColor: '#E4E2DD', // Change this to the previous color
         color: '#1D1D1F',
         textAlign: 'left',
         fontFamily: 'SF Pro Display, sans-serif',
