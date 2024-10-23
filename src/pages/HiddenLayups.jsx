@@ -14,12 +14,10 @@ import { collection, query, getDocs, doc, updateDoc, increment, setDoc, getDoc, 
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { db } from '../firebase';
 import { initializeHiddenLayups } from './initializeHiddenLayups';
-// Update these import lines at the top of HiddenLayups.jsx
 import CourseRecommendationDialog from '../components/CourseRecommendationDialog';
 import AdminRecommendations from '../components/AdminRecommendations';
 import { hiddenLayupCourseIds } from '../constants/hiddenLayupConstants';
-
-
+import FilterControls from '../components/filtercontrols';
 
 const HiddenLayups = () => {
   const [hiddenLayups, setHiddenLayups] = useState([]);
@@ -27,8 +25,25 @@ const HiddenLayups = () => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [recommendationOpen, setRecommendationOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(6);
+  const [filters, setFilters] = useState({
+    department: '',
+    distribs: [],
+    layupScore: 0,
+    approvalRate: 0
+  });
+  const [departments, setDepartments] = useState([]);
+  const [allDistribs, setAllDistribs] = useState([]);
 
-  
+  // Data fetching logic
+  useEffect(() => {
+    if (hiddenLayups.length > 0) {
+      const depts = [...new Set(hiddenLayups.map(layup => layup.department))];
+      const distribs = [...new Set(hiddenLayups.flatMap(layup => layup.distribs || []))];
+      setDepartments(depts.sort());
+      setAllDistribs(distribs.sort());
+    }
+  }, [hiddenLayups]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -40,7 +55,6 @@ const HiddenLayups = () => {
         setLoading(false);
       }
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -59,14 +73,12 @@ const HiddenLayups = () => {
     setLoading(true);
     setError(null);
     try {
-      // Single query to get all hidden layups
       const hiddenLayupsSnapshot = await getDocs(collection(db, 'hidden_layups'));
       const hiddenLayupDocs = hiddenLayupsSnapshot.docs
         .filter(doc => hiddenLayupCourseIds.includes(doc.id))
         .map(async doc => {
           const data = doc.data();
           const userVote = currentUser ? await getUserVote(doc.id, currentUser.uid) : null;
-          
           return {
             id: doc.id,
             ...data,
@@ -95,6 +107,7 @@ const HiddenLayups = () => {
     }
   };
 
+  // Voting logic
   const handleVote = async (id, voteType) => {
     if (!user) {
       setError('You must be logged in to vote.');
@@ -102,12 +115,11 @@ const HiddenLayups = () => {
     }
 
     setError(null);
-
     try {
       await runTransaction(db, async (transaction) => {
         const layupRef = doc(db, 'hidden_layups', id);
         const userVoteRef = doc(db, 'hidden_layups', id, 'votes', user.uid);
-
+        
         const layupDoc = await transaction.get(layupRef);
         const userVoteDoc = await transaction.get(userVoteRef);
 
@@ -115,20 +127,15 @@ const HiddenLayups = () => {
           throw new Error("Hidden layup document does not exist!");
         }
 
-        const layupData = layupDoc.data();
         const previousVote = userVoteDoc.exists() ? userVoteDoc.data().vote : null;
-
         let updates = {};
 
         if (previousVote === null) {
-          // New vote
           updates[`${voteType}_count`] = increment(1);
         } else if (previousVote !== (voteType === 'yes')) {
-          // Changed vote
           updates[`${voteType}_count`] = increment(1);
           updates[`${previousVote ? 'yes' : 'no'}_count`] = increment(-1);
         } else {
-          // User is trying to vote the same way again, remove the vote
           updates[`${voteType}_count`] = increment(-1);
           transaction.delete(userVoteRef);
           transaction.update(layupRef, updates);
@@ -136,18 +143,13 @@ const HiddenLayups = () => {
         }
 
         transaction.update(layupRef, updates);
-        
-        // Include user information in the vote document
-        const userName = user.displayName || user.email || user.uid;
-        transaction.set(userVoteRef, { 
+        transaction.set(userVoteRef, {
           vote: voteType === 'yes',
-          userName: userName,
+          userName: user.displayName || user.email || user.uid,
           timestamp: new Date()
         });
       });
 
-      console.log("Vote successfully cast");
-      
       // Update local state
       setHiddenLayups(prevLayups => 
         prevLayups.map(layup => {
@@ -156,10 +158,8 @@ const HiddenLayups = () => {
             let newNoCount = layup.no_count || 0;
             
             if (layup.userVote === null) {
-              // New vote
               voteType === 'yes' ? newYesCount++ : newNoCount++;
             } else if (layup.userVote !== (voteType === 'yes')) {
-              // Changed vote
               if (voteType === 'yes') {
                 newYesCount++;
                 newNoCount--;
@@ -168,7 +168,6 @@ const HiddenLayups = () => {
                 newNoCount++;
               }
             } else {
-              // Removing vote
               voteType === 'yes' ? newYesCount-- : newNoCount--;
               return { ...layup, yes_count: newYesCount, no_count: newNoCount, userVote: null };
             }
@@ -194,6 +193,25 @@ const HiddenLayups = () => {
     return total > 0 ? (yes / total) * 100 : 50;
   };
 
+  // Handle showing more courses
+  const handleShowMore = () => {
+    setVisibleCount(prev => prev + 6);
+  };
+
+  // Filter logic
+  const filteredLayups = hiddenLayups.filter(layup => {
+    if (filters.department && layup.department !== filters.department) return false;
+    if (filters.distribs.length > 0 && !filters.distribs.every(d => layup.distribs?.includes(d))) return false;
+    if (layup.layup < filters.layupScore) return false;
+    
+    const totalVotes = (layup.yes_count || 0) + (layup.no_count || 0);
+    const approvalRate = totalVotes > 0 ? ((layup.yes_count || 0) / totalVotes) * 100 : 0;
+    if (approvalRate < filters.approvalRate) return false;
+    
+    return true;
+  });
+
+  // Loading and error states
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
@@ -210,49 +228,66 @@ const HiddenLayups = () => {
     );
   }
 
+  // Determine which layups to display
+  const displayedLayups = !filters.department && !filters.distribs.length && 
+    filters.layupScore === 0 && filters.approvalRate === 0
+    ? filteredLayups.slice(0, visibleCount)
+    : filteredLayups;
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box>
-            <Typography variant="h3" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
-              Hidden Gems 💎
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
-              Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 
-              Do you agree? Vote to help other students discover these gems!
-            </Typography>
-          </Box>
-          {user && (
-            <Button 
-            onClick={() => setRecommendationOpen(true)}
-            variant="contained"
-            sx={{ 
-              backgroundColor: '#f6f6f6',
-              color: '#000000', // Black font color
-              fontSize: '0.85rem', // Smaller font size
-              fontWeight: '500', // Semi-bold for better readability
-              borderRadius: '20px', // Curved edges
-              padding: '6px 16px', // Smaller padding for a compact look
-              '&:hover': {
-                backgroundColor: '#571ce0', // Black background on hover
-                color: '#ffffff', // White font color on hover for contrast
-              },
-              height: 'fit-content',
-              ml: 2,
-              transition: 'background-color 0.3s, color 0.3s', // Smooth transition for hover effect
-            }}
-          >
-            Recommend a Course
-          </Button>
-          
-          )}
-        </Box>
+        {/* Header Section */}
+<Box sx={{ mb: 3 }}>
+  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+    <Box>
+      <Typography variant="h3" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
+        Hidden Gems 💎
+      </Typography>
+      <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
+        Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 
+        Do you agree? Vote to help other students discover these gems!
+      </Typography>
+    </Box>
+    {user && (
+      <Button 
+        onClick={() => setRecommendationOpen(true)}
+        variant="contained"
+        sx={{ 
+          backgroundColor: '#f6f6f6',
+          color: '#000000',
+          fontSize: '0.85rem',
+          fontWeight: '500',
+          borderRadius: '20px',
+          padding: '6px 16px',
+          '&:hover': {
+            backgroundColor: '#571ce0',
+            color: '#ffffff',
+          },
+          height: 'fit-content',
+          ml: 2,
+          transition: 'background-color 0.3s, color 0.3s',
+        }}
+      >
+        Recommend a Course
+      </Button>
+    )}
+  </Box>
+  
+  <FilterControls
+    departments={departments}
+    distribs={allDistribs}
+    filters={filters}
+    setFilters={setFilters}
+  />
+</Box>
         
+        {/* Error Alert */}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         
+        {/* Course Grid */}
         <Grid container spacing={3}>
-          {hiddenLayups.map((layup, index) => {
+          {displayedLayups.map((layup) => {
             const yesCount = layup.yes_count || 0;
             const noCount = layup.no_count || 0;
             const yesPercentage = calculatePercentage(yesCount, noCount);
@@ -276,70 +311,69 @@ const HiddenLayups = () => {
                     transition: 'box-shadow 0.3s ease-in-out',
                   }}
                 >
+                  {/* Course Card Content */}
                   <Box>
-  <Tooltip title={layup.name} arrow>
-    <Typography 
-      variant="subtitle1" 
-      component={Link}
-      to={`/departments/${layup.department}/courses/${layup.id}`}
-      sx={{ 
-        fontWeight: 600, 
-        mb: 1, 
-        textDecoration: 'none',
-        color: '#2c3e50',
-        display: 'block',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {layup.name}
-    </Typography>
-  </Tooltip>
+                    <Tooltip title={layup.name} arrow>
+                      <Typography 
+                        variant="subtitle1" 
+                        component={Link}
+                        to={`/departments/${layup.department}/courses/${layup.id}`}
+                        sx={{ 
+                          fontWeight: 600, 
+                          mb: 1, 
+                          textDecoration: 'none',
+                          color: '#2c3e50',
+                          display: 'block',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {layup.name}
+                      </Typography>
+                    </Tooltip>
 
-  <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-    {/* <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
-      {layup.department}
-    </Typography> */}
-    {layup.distribs && layup.distribs.length > 0 && (
-      <Tooltip title="Distribution Requirements" arrow>
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          {layup.distribs.map((distrib, index) => (
-            <Typography 
-              key={index} 
-              variant="body2" 
-              sx={{ 
-                backgroundColor: '#e8f5e9',
-                color: '#2e7d32',
-                padding: '2px 6px',
-                borderRadius: '4px',
-                fontSize: '0.75rem'
-              }}
-            >
-              {distrib}
-            </Typography>
-          ))}
-        </Box>
-      </Tooltip>
-    )}
-    {layup.layup !== undefined && (
-  <Tooltip title="Course Layup Rating" arrow>
-    <Typography 
-      variant="body2" 
-      sx={{ 
-        backgroundColor: '#e3f2fd',
-        color: '#1565c0',
-        padding: '2px 6px',
-        borderRadius: '4px',
-        fontSize: '0.75rem',
-        ml: 'auto'
-      }}
-    >
-      Layup score: {Math.round(layup.layup)}
-    </Typography>
-  </Tooltip>
-)}
-  </Box>
+                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {layup.distribs && layup.distribs.length > 0 && (
+                        <Tooltip title="Distribution Requirements" arrow>
+                          <Box sx={{ display: 'flex', gap: 0.5 }}>
+                            {layup.distribs.map((distrib, index) => (
+                              <Typography 
+                                key={index} 
+                                variant="body2" 
+                                sx={{ 
+                                  backgroundColor: '#e8f5e9',
+                                  color: '#2e7d32',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontSize: '0.75rem'
+                                }}
+                              >
+                                {distrib}
+                              </Typography>
+                            ))}
+                          </Box>
+                        </Tooltip>
+                      )}
+                      {layup.layup !== undefined && (
+                        <Tooltip title="Course Layup Rating" arrow>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              backgroundColor: '#e3f2fd',
+                              color: '#1565c0',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontSize: '0.75rem',
+                              ml: 'auto'
+                            }}
+                          >
+                            Layup score: {Math.round(layup.layup)}
+                          </Typography>
+                        </Tooltip>
+                      )}
+                    </Box>
+
                     <Tooltip
                       title={`Yes: ${yesPercentage.toFixed(1)}% | No: ${noPercentage.toFixed(1)}%`}
                       arrow
@@ -351,110 +385,153 @@ const HiddenLayups = () => {
                             borderRadius: 4,
                             backgroundColor: '#f6f6f6',
                             position: 'relative',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              height: '100%',
-                              width: `${yesPercentage}%`,
-                              backgroundColor: '#00693E',
-                              transition: 'width 0.3s ease-in-out',
-                            }}
-                          />
-                        </Box>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            mt: 0.5,
-                          }}
-                        >
-                          <Typography variant="caption" sx={{ color: '#00693E' }}>
-                            {yesPercentage > 0 ? `${yesPercentage.toFixed(0)}%` : ''}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: '#e74c3c' }}>
-                            {noPercentage > 0 ? `${noPercentage.toFixed(0)}%` : ''}
-                          </Typography>
-                        </Box>
+                            overflow: 'hidden',}}
+                            >
+                              <Box
+                                sx={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0,
+                                  height: '100%',
+                                  width: `${yesPercentage}%`,
+                                  backgroundColor: '#00693E',
+                                  transition: 'width 0.3s ease-in-out',
+                                }}
+                              />
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                mt: 0.5,
+                              }}
+                            >
+                              <Typography variant="caption" sx={{ color: '#00693E' }}>
+                                {yesPercentage > 0 ? `${yesPercentage.toFixed(0)}%` : ''}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: '#e74c3c' }}>
+                                {noPercentage > 0 ? `${noPercentage.toFixed(0)}%` : ''}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Tooltip>
+                        
+                        <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, color: '#7f8c8d' }}>
+                          <span>Yes: {yesCount}</span>
+                          <span>No: {noCount}</span>
+                        </Typography>
                       </Box>
-                    </Tooltip>
-                    <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, color: '#7f8c8d' }}>
-                      <span>Yes: {yesCount}</span>
-                      <span>No: {noCount}</span>
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                    <Button 
-                      variant="contained" 
-                      size="small"
-                      color={layup.userVote === true ? "primary" : "inherit"}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleVote(layup.id, 'yes');
-                      }}
-                      sx={{ 
-                        mr: 1, 
-                        flex: 1, 
-                        boxShadow: 'none',
-                        backgroundColor: layup.userVote === true ? '#00693E' : '#ecf0f1',
-                        color: layup.userVote === true ? '#ffffff' : '#34495e',
-                        '&:hover': {
-                          backgroundColor: '#571ce0',
-                          color: '#ffffff',
-                        },
-                      }}
-                    >
-                      Yes
-                    </Button>
-                    <Button 
-                      variant="contained" 
-                      size="small"
-                      color={layup.userVote === false ? "primary" : "inherit"}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleVote(layup.id, 'no');
-                      }}
-                      sx={{ 
-                        flex: 1,
-                        boxShadow: 'none',
-                        backgroundColor: layup.userVote === false ? '#00693E' : '#ecf0f1',
-                        color: layup.userVote === false ? '#ffffff' : '#34495e',
-                        '&:hover': {
-                          backgroundColor: '#c0392b',
-                          color: '#ffffff',
-                        },
-                      }}
-                    >
-                      No
-                    </Button>
-                  </Box>
-                </Box>
-              </Grid>
-            );
-          })}
-        </Grid>
-
-        <CourseRecommendationDialog
-          open={recommendationOpen}
-          onClose={() => setRecommendationOpen(false)}
-          user={user}
-        />
-        
-        {user?.isAdmin && (
-          <Box sx={{ mt: 6, mb: 4 }}>
-            <Typography variant="h5" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
-              Pending Recommendations
-            </Typography>
-            <AdminRecommendations user={user} />
+    
+                      {/* Vote Buttons */}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                        <Button 
+                          variant="contained" 
+                          size="small"
+                          color={layup.userVote === true ? "primary" : "inherit"}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleVote(layup.id, 'yes');
+                          }}
+                          sx={{ 
+                            mr: 1, 
+                            flex: 1, 
+                            boxShadow: 'none',
+                            backgroundColor: layup.userVote === true ? '#00693E' : '#ecf0f1',
+                            color: layup.userVote === true ? '#ffffff' : '#34495e',
+                            '&:hover': {
+                              backgroundColor: '#571ce0',
+                              color: '#ffffff',
+                            },
+                          }}
+                        >
+                          Yes
+                        </Button>
+                        <Button 
+                          variant="contained" 
+                          size="small"
+                          color={layup.userVote === false ? "primary" : "inherit"}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleVote(layup.id, 'no');
+                          }}
+                          sx={{ 
+                            flex: 1,
+                            boxShadow: 'none',
+                            backgroundColor: layup.userVote === false ? '#00693E' : '#ecf0f1',
+                            color: layup.userVote === false ? '#ffffff' : '#34495e',
+                            '&:hover': {
+                              backgroundColor: '#c0392b',
+                              color: '#ffffff',
+                            },
+                          }}
+                        >
+                          No
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Grid>
+                );
+              })}
+            </Grid>
+    
+            {/* Show More Button */}
+            {!filters.department && !filters.distribs.length && 
+              filters.layupScore === 0 && filters.approvalRate === 0 && 
+              filteredLayups.length > visibleCount && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <Button
+                  onClick={handleShowMore}
+                  sx={{ 
+                    bgcolor: 'background.paper',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: '20px',
+                    px: 3,
+                    py: 1,
+                    color: 'text.primary',
+                    fontWeight: 500,
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      bgcolor: 'rgba(87, 28, 224, 0.04)',
+                    },
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  Show More
+                </Button>
+              </Box>
+            )}
+    
+            {/* Results Summary */}
+            <Box sx={{ mt: 4, mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
+                Showing {displayedLayups.length} of {filteredLayups.length} courses
+              </Typography>
+              {filteredLayups.length === 0 && (
+                <Typography variant="body2" sx={{ color: '#e74c3c' }}>
+                  No courses match your filters. Try adjusting your criteria.
+                </Typography>
+              )}
+            </Box>
+    
+            {/* Dialogs and Admin Section */}
+            <CourseRecommendationDialog
+              open={recommendationOpen}
+              onClose={() => setRecommendationOpen(false)}
+              user={user}
+            />
+            
+            {user?.isAdmin && (
+              <Box sx={{ mt: 6, mb: 4 }}>
+                <Typography variant="h5" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
+                  Pending Recommendations
+                </Typography>
+                <AdminRecommendations user={user} />
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
-    </Container>
-);
-};
-
-export default HiddenLayups;
+        </Container>
+      );
+    };
+    
+    export default HiddenLayups;
