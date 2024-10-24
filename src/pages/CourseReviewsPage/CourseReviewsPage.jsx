@@ -294,6 +294,8 @@ const CourseReviewsPage = () => {
           </Box>
         );
       case 3:
+        console.log('Course Metrics Tab: course =', course);
+
         // Course Metrics tab content
         return (
           <Box sx={{ padding: '20px' }}>
@@ -359,74 +361,98 @@ const CourseReviewsPage = () => {
                   Good Quality
                 </Typography>
               </Box>
-  
+              
+
               {course && (
+            <Box
+            sx={{
+              width: '35%', // Adjust as needed
+              minWidth: '200px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column', // Stack the content vertically
+                  alignItems: 'center',
+                  borderRadius: '20px', // Rounded corners for a smoother look
+                  backgroundColor: '#FFF', // White background for contrast
+                  border: '2px solid #571CE0',
+                  boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
+                  padding: '20px', // Padding to give space around content
+                  justifyContent: 'center',
+                  width: '130px', // Adjust width for vertical layout
+                  boxSizing: 'border-box',
+                }}
+              >
                 <Box
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    borderRadius: '20px',
-                    backgroundColor: '#FFF',
-                    border: '2px solid #571CE0',
-                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
-                    padding: '20px',
-                    width: '200px',
+                    marginBottom: '20px', // Space between layup and quality sections
                   }}
                 >
-                  {/* Layup voting */}
-                  <Box sx={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Tooltip title="Upvote Layup">
-                      <IconButton
-                        onClick={() => handleVote('upvote')}
-                        sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}
-                      >
-                        <ArrowUpward />
-                      </IconButton>
-                    </Tooltip>
-                    <Typography variant="h6" sx={{ color: '#571CE0', fontWeight: 700 }}>
-                      {course.layup || 0}
-                    </Typography>
-                    <Tooltip title="Downvote Layup">
-                      <IconButton
-                        onClick={() => handleVote('downvote')}
-                        sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}
-                      >
-                        <ArrowDownward />
-                      </IconButton>
-                    </Tooltip>
-                    <Typography variant="caption" sx={{ color: '#571CE0', fontWeight: 500 }}>
-                      Is it a layup?
-                    </Typography>
-                  </Box>
-  
-                  {/* Quality voting */}
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Tooltip title="Upvote Quality">
-                      <IconButton
-                        onClick={() => handleQualityVote('upvote')}
-                        sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}
-                      >
-                        <ArrowUpward />
-                      </IconButton>
-                    </Tooltip>
-                    <Typography variant="h6" sx={{ color: '#571CE0', fontWeight: 700 }}>
-                      {quality || 0}
-                    </Typography>
-                    <Tooltip title="Downvote Quality">
-                      <IconButton
-                        onClick={() => handleQualityVote('downvote')}
-                        sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}
-                      >
-                        <ArrowDownward />
-                      </IconButton>
-                    </Tooltip>
-                    <Typography variant="caption" sx={{ color: '#571CE0', fontWeight: 500 }}>
-                      Is it a good class?
-                    </Typography>
-                  </Box>
+                  <Tooltip title="Upvote Layup">
+                    <IconButton
+                      onClick={() => handleVote('upvote')}
+                      sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowUpward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
+                    {course.layup || 0}
+                  </Typography>
+                  <Tooltip title="Downvote Layup">
+                    <IconButton
+                      onClick={() => handleVote('downvote')}
+                      sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowDownward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
+                    Is it a layup?
+                  </Typography>
                 </Box>
-              )}
+        
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Tooltip title="Upvote Quality">
+                    <IconButton
+                      onClick={() => handleQualityVote('upvote')}
+                      sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowUpward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
+                    {quality || 0}
+                  </Typography>
+                  <Tooltip title="Downvote Quality">
+                    <IconButton
+                      onClick={() => handleQualityVote('downvote')}
+                      sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowDownward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
+                    Quality of the course?
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          )}
             </Box>
           </Box>
         );
@@ -1227,6 +1253,7 @@ const handleQualityVote = async (voteType) => {
     };
 
     return (
+      
       <motion.div
         ref={ref}
         initial={{ opacity: 0, y: 20 }}
@@ -1787,7 +1814,7 @@ const handleQualityVote = async (voteType) => {
           </Alert>
         ) : reviews.length > 0 ? (
           <>
-          {course && (
+          {/* {course && (
             <Box
               sx={{
                 position: 'fixed',
@@ -1877,7 +1904,7 @@ const handleQualityVote = async (voteType) => {
                 </Box>
               </Box>
             </Box>
-          )}
+          )} */}
         
         <Typography
   variant="h5"
