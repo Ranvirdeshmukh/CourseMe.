@@ -279,7 +279,7 @@ const LayupsPage = () => {
           sx={{
             fontWeight: 600,
             marginBottom: '20px',
-            color: '#571CE0',
+            color: '#34495E',
           }}
         >
           The Biggest Layups Of All Time
@@ -553,7 +553,7 @@ const LayupsPage = () => {
         sx={{
           fontWeight: 600,
           marginBottom: '25px',
-          color: '#571CE0',
+          color: '#34495E',
           padding: '8px 16px',
           backgroundColor: '#F0F4FF',
           borderRadius: '6px',
@@ -839,7 +839,7 @@ const LayupsPage = () => {
         sx={{
           fontWeight: 600,
           marginBottom: '25px',
-          color: '#571CE0',
+          color: '#34495E',
           padding: '8px 16px',
           backgroundColor: '#F0F4FF',
           borderRadius: '6px',
