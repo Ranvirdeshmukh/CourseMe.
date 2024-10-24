@@ -147,9 +147,12 @@ const CourseReviewsPage = () => {
     }));
   };
   
-  const handleProfessorInputChange = (event, newInputValue) => {
-    setProfessorInput(newInputValue);
+  const handleProfessorFilterChange = (event) => {
+    setSelectedProfessor(event.target.value);
+    setCurrentPage(1); // Reset to the first page
   };
+  
+  
 
   const CourseMetricsIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1375,7 +1378,10 @@ const handleQualityVote = async (voteType) => {
   
 
   const renderReviews = () => {
-    const filteredReviews = selectedProfessor ? reviews.filter((item) => item.instructor === selectedProfessor) : reviews;
+    const filteredReviews = selectedProfessor
+      ? reviews.filter((item) => item.instructor === selectedProfessor)
+      : reviews;
+  
     const indexOfLastReview = currentPage * reviewsPerPage;
     const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
     const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
@@ -1399,7 +1405,15 @@ const handleQualityVote = async (voteType) => {
           return (
             <React.Fragment key={idx}>
               {showInstructor && (
-                <Typography variant="h6" sx={{ marginTop: '20px', color: '#1D1D1F', textAlign: 'left', fontWeight: 600 }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    marginTop: '20px',
+                    color: '#1D1D1F',
+                    textAlign: 'left',
+                    fontWeight: 600,
+                  }}
+                >
                   {item.instructor}
                 </Typography>
               )}
@@ -1419,6 +1433,7 @@ const handleQualityVote = async (voteType) => {
       </List>
     );
   };
+  
 
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
@@ -1987,7 +2002,7 @@ const handleQualityVote = async (voteType) => {
   </Table>
 </TableContainer>
 {/* Legend component */}
-<Typography variant="caption" sx={{ color: '#8E8E93', marginTop: 2 }}>
+<Typography variant="caption" sx={{ color: '#black', marginTop: 2 }}>
   <span
     style={{
       backgroundColor: '#E5F0FF',
@@ -2027,22 +2042,23 @@ const handleQualityVote = async (voteType) => {
   >
     <InputLabel
       id="select-professor-label"
-      sx={{ fontWeight: 400, color: 'linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%)' }}
+      sx={{ fontWeight: 400, color: '#00693E' }}
     >
       Professor
     </InputLabel>
     <Select
-      labelId="select-professor-label"
-      value={selectedProfessor}
-      onChange={handleProfessorChange}
-      label="Professor"
-      sx={{
-        fontWeight: 400,
-        '& .MuiSelect-select': {
-          padding: '8px 12px',
-        },
-      }}
-    >
+  labelId="select-professor-label"
+  value={selectedProfessor}
+  onChange={handleProfessorFilterChange}
+  label="Professor"
+  sx={{
+    fontWeight: 400,
+    '& .MuiSelect-select': {
+      padding: '8px 12px',
+    },
+  }}
+>
+
       <MenuItem value="">
         <em>All</em>
       </MenuItem>
