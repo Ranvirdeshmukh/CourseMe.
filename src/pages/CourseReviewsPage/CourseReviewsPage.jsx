@@ -1226,92 +1226,153 @@ const handleQualityVote = async (voteType) => {
     return (
       <motion.div
         ref={ref}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        style={{ margin: '20px 0', borderRadius: '12px', overflow: 'hidden' }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        style={{ width: '100%' }}
       >
-        <ListItem
+        <Box
           sx={{
-            backgroundColor: '#fff',
+            my: 2,
+            background: 'linear-gradient(135deg, #FAFAFA 0%, #F4F4F4 100%)',
             borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            padding: '16px',
-            fontFamily: 'SF Pro Display, sans-serif',
+            overflow: 'hidden',
+            border: '1px solid #E0E0E0',
+            boxShadow:
+              '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow:
+                '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
+            },
           }}
         >
-          <ListItemText
-            primary={
-              <>
-                <Typography component="span" sx={{ color: '#000', fontWeight: 600, fontSize: '1rem' }}>
+          <ListItem sx={{ p: 3, alignItems: 'flex-start' }}>
+            <Box sx={{ width: '100%' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                <Box
+                  sx={{
+                    width: '4px',
+                    height: '24px',
+                    bgcolor: '#00693E', // Dartmouth green
+                    borderRadius: '4px',
+                  }}
+                />
+                <Typography
+                  component="span"
+                  sx={{
+                    color: '#1D1D1F',
+                    fontWeight: 600,
+                    letterSpacing: '0.3px',
+                    fontSize: '1rem',
+                  }}
+                >
                   {prefix}
-                </Typography>{' '}
-                <Typography component="span" sx={{ color: '#333', fontSize: '0.9rem' }}>
-                  {rest}
                 </Typography>
-              </>
-            }
-          />
-          <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-            <IconButton onClick={handleLike} sx={{ color: hasLiked ? '#571CE0' : '#999' }}>
-              <Typography variant="body2" sx={{ fontSize: '1.5rem' }}>
-                🔥
+              </Box>
+              <Typography
+                component="p"
+                sx={{
+                  color: '#1D1D1F',
+                  pl: '28px',
+                  lineHeight: 1.6,
+                  fontSize: '0.95rem',
+                }}
+              >
+                {rest}
               </Typography>
-              <Typography variant="body2" sx={{ marginLeft: '5px', fontWeight: 500, color: '#666' }}>
-                {likeCount}
-              </Typography>
-            </IconButton>
-            <IconButton onClick={toggleReplies} sx={{ color: '#571CE0' }}>
-              <ChatBubbleOutlineIcon />
-              <Typography variant="body2" sx={{ marginLeft: '5px', fontWeight: 500, color: '#666' }}>
-                {replyCount}
-              </Typography>
-            </IconButton>
-          </Box>
-        </ListItem>
-        {showReplies && (
-          <>
-            <List sx={{ pl: 4 }}>
-              {replies.map((reply, index) => (
-                <ListItem key={index} sx={{ backgroundColor: '#f7f7f7', borderRadius: '8px', marginTop: '10px' }}>
-                  <ListItemText
-                    primary={
-                      <>
-                        <Typography
-                          component="span"
-                          sx={{ color: '#000', fontWeight: 600, fontSize: '0.9rem' }}
-                        >
-                          Reply:
-                        </Typography>{' '}
-                        <Typography component="span" sx={{ color: '#333', fontSize: '0.8rem' }}>
-                          {reply.reply}
-                        </Typography>
-                        <Typography
-                          component="span"
-                          sx={{ color: '#999', fontSize: '0.7rem', marginLeft: '10px' }}
-                        >
-                          {new Date(reply.timestamp).toLocaleString()}
-                        </Typography>
-                      </>
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
-            <AddReplyForm
-              reviewData={{ instructor, reviewIndex }}
-              courseId={courseId}
-              onReplyAdded={(newReply) => {
-                addReplyLocally(reviewIndex, newReply);
-                setReplies((prevReplies) => [...prevReplies, newReply]);
-                setReplyCount(replyCount + 1);
-              }}
-            />
-          </>
-        )}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mt: 2,
+                  pl: '28px',
+                  gap: 2,
+                }}
+              >
+                <IconButton
+                  onClick={handleLike}
+                  sx={{
+                    color: hasLiked ? '#007AFF' : '#8E8E93',
+                    padding: '6px',
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontSize: '1.2rem' }}>
+                    🔥
+                  </Typography>
+                </IconButton>
+                <Typography variant="body2" sx={{ color: '#8E8E93' }}>
+                  {likeCount}
+                </Typography>
+                <IconButton
+                  onClick={toggleReplies}
+                  sx={{ color: '#007AFF', padding: '6px' }}
+                >
+                  <ChatBubbleOutlineIcon />
+                </IconButton>
+                <Typography variant="body2" sx={{ color: '#8E8E93' }}>
+                  {replyCount}
+                </Typography>
+              </Box>
+            </Box>
+          </ListItem>
+          {showReplies && (
+            <>
+              <List sx={{ pl: 4 }}>
+                {replies.map((reply, index) => (
+                  <ListItem
+                    key={index}
+                    sx={{
+                      backgroundColor: '#F9F9F9',
+                      borderRadius: '8px',
+                      marginTop: '8px',
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    <ListItemText
+                      primary={
+                        <>
+                          <Typography
+                            component="span"
+                            sx={{ color: '#1D1D1F', fontWeight: 600, fontSize: '0.9rem' }}
+                          >
+                            Reply:
+                          </Typography>{' '}
+                          <Typography
+                            component="span"
+                            sx={{ color: '#1D1D1F', fontSize: '0.85rem' }}
+                          >
+                            {reply.reply}
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ color: '#8E8E93', fontSize: '0.75rem', marginLeft: '10px' }}
+                          >
+                            {new Date(reply.timestamp).toLocaleString()}
+                          </Typography>
+                        </>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              <AddReplyForm
+                reviewData={{ instructor, reviewIndex }}
+                courseId={courseId}
+                onReplyAdded={(newReply) => {
+                  // Add the new reply to the local state
+                  setReplies((prevReplies) => [...prevReplies, newReply]);
+                  setReplyCount(replyCount + 1);
+                }}
+              />
+            </>
+          )}
+        </Box>
       </motion.div>
     );
   };
+  
 
   const renderReviews = () => {
     const filteredReviews = selectedProfessor ? reviews.filter((item) => item.instructor === selectedProfessor) : reviews;
@@ -1589,7 +1650,7 @@ const handleQualityVote = async (voteType) => {
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        background: 'linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%)',
+        background: '#f9f9f9',
         color: '#1D1D1F',
         textAlign: 'left',
         fontFamily: 'SF Pro Display, sans-serif',
