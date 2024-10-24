@@ -23,6 +23,8 @@ import GradeChart from './CustomGradeChart';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CanvasGradeTable from './CanvasGradeTable';
 import CourseInputDataForm from './CourseInputDataForm';
+import { PushPinOutlined } from '@mui/icons-material';
+
 
 
 const CourseReviewsPage = () => {
@@ -1676,14 +1678,19 @@ const handleQualityVote = async (voteType) => {
           title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}
         >
           <IconButton
-            onClick={handlePinCourse}
-            sx={{
-              color: '#007AFF', // Apple's blue color
-              marginLeft: 1,
-            }}
-          >
-            <PushPin sx={{ fontSize: 24 }} />
-          </IconButton>
+  onClick={handlePinCourse}
+  sx={{
+    color: pinned ? '#007AFF' : '#8E8E93', // Blue if pinned, gray if not
+    marginLeft: 1,
+  }}
+>
+  {pinned ? (
+    <PushPin sx={{ fontSize: 24 }} />
+  ) : (
+    <PushPinOutlined sx={{ fontSize: 24 }} />
+  )}
+</IconButton>
+
         </Tooltip>
       </Box>
     </Box>
