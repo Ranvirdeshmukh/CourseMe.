@@ -1601,70 +1601,96 @@ const handleQualityVote = async (voteType) => {
       padding: 4,
       backgroundColor: '#FFFFFF',
       color: '#1D1D1F',
-      boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
+      boxShadow: 'none', // Remove heavy shadow for a cleaner look
       borderRadius: '16px',
+      border: '1px solid #D1D1D6', // Add a subtle border
       maxWidth: 1100,
       width: '100%',
     }}
   >
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 3, justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography 
-                variant="h4" 
-                gutterBottom 
-                textAlign="left" 
-                sx={{ 
-                  fontWeight: 700, 
-                  fontSize: '2rem',
-                  marginBottom: 0, // Remove bottom margin to ensure proper centering
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: 3,
+        justifyContent: 'space-between',
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          textAlign="left"
+          sx={{
+            fontWeight: 600, // Use semi-bold font weight
+            fontSize: '2rem',
+            marginBottom: 0, // Remove bottom margin to ensure proper centering
+            color: '#1D1D1F', // Primary text color
+          }}
+        >
+          {courseName}
+        </Typography>
+        {isTaughtCurrentTerm && (
+          <Tooltip title="Taught this term" placement="right">
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                height: '2rem', // Match the line height of the Typography
+                marginLeft: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: '#E5F0FF', // Light blue background
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
-                {courseName}
-              </Typography>
-              {isTaughtCurrentTerm && (
-                <Tooltip title="Taught this term" placement="right">
-                  <Box 
-                    sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      height: '2rem', // Match the line height of the Typography
-                      marginLeft: 3,
-                    }}
-                  >
-                    <Badge
-                      badgeContent="24F"
-                      color="error"
-                      sx={{
-                        '& .MuiBadge-badge': {
-                          fontSize: '1rem',
-                          height: '28px',
-                          minWidth: '28px',
-                          borderRadius: '14px',
-                          padding: '0 8px',
-                        },
-                      }}
-                    />
-                  </Box>
-                </Tooltip>
-              )}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#1D1D1F', // Text color
+                  }}
+                >
+                  24F
+                </Typography>
               </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <StyledTabs value={tabValue} onChange={handleTabChange}>
-                <StyledTab icon={<Description />} label="Description" />
-                <StyledTab icon={<ReportCardIcon />} label="Medians" />
-                {isBetaUser && <StyledTab icon={<CourseMetricsIcon />} label="Input Data" />}
-                <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" />
-              </StyledTabs>
-              <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
-                <IconButton onClick={handlePinCourse} sx={{ /* existing styles */ }}>
-                  <PushPin sx={{ fontSize: 30 }} />
-                </IconButton>
-              </Tooltip>
             </Box>
-          </Box>
-          
-          {renderTabContent()}
-        </Card>
+          </Tooltip>
+        )}
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <StyledTabs value={tabValue} onChange={handleTabChange}>
+          <StyledTab icon={<Description />} label="Description" />
+          <StyledTab icon={<ReportCardIcon />} label="Medians" />
+          {isBetaUser && (
+            <StyledTab icon={<CourseMetricsIcon />} label="Input Data" />
+          )}
+          <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" />
+        </StyledTabs>
+        <Tooltip
+          title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}
+        >
+          <IconButton
+            onClick={handlePinCourse}
+            sx={{
+              color: '#007AFF', // Apple's blue color
+              marginLeft: 1,
+            }}
+          >
+            <PushPin sx={{ fontSize: 24 }} />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Box>
+
+    {renderTabContent()}
+  </Card>
+
 
 
 
@@ -1770,133 +1796,196 @@ const handleQualityVote = async (voteType) => {
             </Box>
           )}
         
-            <Typography variant="h4" gutterBottom textAlign="left" sx={{ marginTop: 4, fontWeight: 700 }}>
-              Professors
-            </Typography>
-            <TableContainer
-              component={Paper}
+        <Typography
+  variant="h5"
+  gutterBottom
+  sx={{ fontWeight: 600, color: '#1D1D1F', marginTop: 4 }}
+>
+  Professors
+</Typography>
+<TableContainer
+  component={Paper}
+  sx={{
+    backgroundColor: '#FFFFFF',
+    marginTop: '20px',
+    borderRadius: '12px',
+    boxShadow: 'none',
+    border: '1px solid #D1D1D6',
+  }}
+>
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell
+          sx={{
+            color: '#1D1D1F',
+            textAlign: 'left',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '12px 16px',
+          }}
+        >
+          Name
+        </TableCell>
+        <TableCell
+          sx={{
+            color: '#1D1D1F',
+            textAlign: 'left',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '12px 16px',
+          }}
+        >
+          Reviews
+        </TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {allProfessors
+        .sort((a, b) => {
+          const aIsCurrent = currentInstructors.includes(a);
+          const bIsCurrent = currentInstructors.includes(b);
+          if (aIsCurrent && !bIsCurrent) return -1;
+          if (!aIsCurrent && bIsCurrent) return 1;
+          return 0;
+        })
+        .slice(0, showAllProfessors ? undefined : 12)
+        .map((professor, index) => {
+          const isCurrent = currentInstructors.includes(professor);
+          const reviewCount = reviews.filter(
+            (review) => review.instructor === professor
+          ).length;
+          return (
+            <TableRow
+              key={index}
+              component={Link}
+              to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
               sx={{
-                backgroundColor: '#fff',
-                marginTop: '20px',
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-                borderRadius: '12px',
+                backgroundColor: isCurrent
+                  ? '#E5F0FF' // Light blue background for current instructors
+                  : index % 2 === 0
+                  ? '#FFFFFF'
+                  : '#F2F2F7',
+                '&:hover': { backgroundColor: '#E5E5EA' },
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'inherit',
               }}
             >
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', fontSize: '1rem' }}>
-                      Name
-                    </TableCell>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', fontSize: '1rem' }}>
-                      Reviews
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-              {allProfessors
-                .sort((a, b) => {
-                  const aIsCurrent = currentInstructors.includes(a);
-                  const bIsCurrent = currentInstructors.includes(b);
-                  if (aIsCurrent && !bIsCurrent) return -1;
-                  if (!aIsCurrent && bIsCurrent) return 1;
-                  return 0;
-                })
-                .slice(0, showAllProfessors ? undefined : 12)
-                .map((professor, index) => {
-                  const isCurrent = currentInstructors.includes(professor);
-                  const reviewCount = reviews.filter(review => review.instructor === professor).length;
-                  return (
-                    <TableRow
-                      key={index}
-                      component={Link}
-                      to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
-                      sx={{
-                        backgroundColor: isCurrent 
-                          ? '#e6f7ff'  // Light blue background for current instructors
-                          : index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                        '&:hover': { backgroundColor: '#e0e0e0' },
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                      }}
-                    >
-                      <TableCell 
-                        sx={{ 
-                          color: '#1D1D1F', 
-                          padding: '10px', 
-                          textAlign: 'left', 
-                          fontWeight: isCurrent ? 700 : 500,
-                        }}
-                      >
-                        {professor}
-                      </TableCell>
-                      <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
-                        {reviewCount}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              }
-              {allProfessors.length > 12 && (
-                <TableRow>
-                  <TableCell colSpan={2} sx={{ textAlign: 'center', padding: '10px' }}>
-                    <Button
-                      onClick={() => setShowAllProfessors((prev) => !prev)}
-                      sx={{ color: '#571CE0', fontWeight: 500 }}
-                    >
-                      {showAllProfessors ? 'Show Less' : 'More Professors'}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-
-              </Table>
-            </TableContainer>
-            <Legend />
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '-10px',
-                marginTop: '60px',
-              }}
-            >
-              <Typography variant="h4" gutterBottom textAlign="left" sx={{ fontWeight: 700 }}>
-                Reviews
-              </Typography>
-              <FormControl
-                size="small"
+              <TableCell
                 sx={{
-                  minWidth: 150,
-                  backgroundColor: '#fff',
-                  borderRadius: '8px',
-                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                  color: '#1C1C1E',
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: isCurrent ? 600 : 400,
                 }}
               >
-                <InputLabel id="select-professor-label" sx={{ fontWeight: 500 }}>
-                  Professor
-                </InputLabel>
-                <Select
-                  labelId="select-professor-label"
-                  value={selectedProfessor}
-                  onChange={handleProfessorChange}
-                  label="Professor"
-                  sx={{ fontWeight: 500 }}
-                >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
-                  {uniqueProfessors.map((professor, index) => (
-                    <MenuItem key={index} value={professor} sx={{ fontWeight: 500 }}>
-                      {professor}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
+                {professor}
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: '#1C1C1E',
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: 400,
+                }}
+              >
+                {reviewCount}
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      {allProfessors.length > 12 && (
+        <TableRow>
+          <TableCell colSpan={2} sx={{ textAlign: 'center', padding: '16px' }}>
+            <Button
+              onClick={() => setShowAllProfessors((prev) => !prev)}
+              sx={{
+                color: '#007AFF',
+                fontWeight: 500,
+                textTransform: 'none',
+                padding: '8px 16px',
+                '&:hover': {
+                  backgroundColor: '#E5E5EA',
+                },
+              }}
+            >
+              {showAllProfessors ? 'Show Less' : 'More Professors'}
+            </Button>
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  </Table>
+</TableContainer>
+{/* Legend component */}
+<Typography variant="caption" sx={{ color: '#8E8E93', marginTop: 2 }}>
+  <span
+    style={{
+      backgroundColor: '#E5F0FF',
+      padding: '2px 4px',
+      borderRadius: '4px',
+    }}
+  >
+    Highlighted professors
+  </span>{' '}
+  are teaching the current term.
+</Typography>
+
+<Box
+  sx={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '-10px',
+    marginTop: '60px',
+  }}
+>
+  <Typography
+    variant="h5"
+    gutterBottom
+    sx={{ fontWeight: 600, color: '#1D1D1F' }}
+  >
+    Reviews
+  </Typography>
+  <FormControl
+    size="small"
+    sx={{
+      minWidth: 150,
+      backgroundColor: '#FFFFFF',
+      borderRadius: '8px',
+      border: '1px solid #D1D1D6',
+    }}
+  >
+    <InputLabel
+      id="select-professor-label"
+      sx={{ fontWeight: 400, color: 'linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%)' }}
+    >
+      Professor
+    </InputLabel>
+    <Select
+      labelId="select-professor-label"
+      value={selectedProfessor}
+      onChange={handleProfessorChange}
+      label="Professor"
+      sx={{
+        fontWeight: 400,
+        '& .MuiSelect-select': {
+          padding: '8px 12px',
+        },
+      }}
+    >
+      <MenuItem value="">
+        <em>All</em>
+      </MenuItem>
+      {uniqueProfessors.map((professor, index) => (
+        <MenuItem key={index} value={professor} sx={{ fontWeight: 400 }}>
+          {professor}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+</Box>
 
             {renderReviews()}
 
