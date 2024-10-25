@@ -17,6 +17,9 @@ import ProfilePage from './pages/ProfilePage';
 import SignUpPage from './pages/SignUpPage';
 import Timetable from './pages/Timetable';
 import TranscriptParser from './pages/TranscriptParser';
+import Professors from './pages/Professors';
+import ProfessorDetails from './pages/ProfessorDetails';
+import ProfessorDirectory from './pages/ProfessorDirectory';
 
 
 const App = () => {
@@ -54,6 +57,8 @@ const AppContent = () => {
     '/course-review',
     '/timetable',
     '/transcript-parser',
+    '/professors',
+    // '/professorDirectory'
   ].includes(location.pathname);
 
   return (
@@ -77,6 +82,9 @@ const AppContent = () => {
         <Route path="/course-enrollment-priorities/:department" element={<DepartmentCoursesWithPriorities />} />
         <Route path="/timetable" element={<Timetable />} />
         <Route path="/upload-unique-transcript" element={<TranscriptParser />} />
+        {/* <Route path="/professors" element={<Professors />} /> */}
+        <Route path="/professors/:professorId" element={<ProfessorDetails />} />
+        <Route path="/professors" element={<ProfessorDirectory/>} />
       </Routes>
     </>
   );

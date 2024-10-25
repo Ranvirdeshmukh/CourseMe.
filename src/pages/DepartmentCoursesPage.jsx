@@ -513,70 +513,76 @@ const DepartmentCoursesPage = () => {
         
                     {/* Displaying Course Name */}
                     <TableCell 
-                      sx={{ 
-                        color: '#333', 
-                        padding: '10px 20px',
-                        fontSize: '0.95rem', 
-                        borderBottom: '1px solid #E0E0E0',
-                        width: '50%'
-                      }}
-                    >
-                      {course.name.includes(':') ? course.name.split(':')[1].trim() : course.name}
-                    </TableCell>
-        
-                    {/* Distribs */}
-                    {!isMobile && (
-                      <TableCell 
-                        sx={{ 
-                          color: '#333', 
-                          padding: '10px', 
-                          fontSize: '0.9rem', 
-                          textAlign: 'center', 
-                          borderBottom: '1px solid #E0E0E0',
-                          verticalAlign: 'middle',
-                          height: 'auto',
-                        }}
-                      >
-                        <Box 
-                          sx={{ 
-                            display: 'flex', 
-                            gap: '5px', 
-                            justifyContent: 'center', 
-                            flexWrap: 'nowrap', 
-                            maxWidth: '200px',  
-                            whiteSpace: 'nowrap', 
-                            alignItems: 'center',  
-                            height: '100%',
-                          }}
-                        >
-                          {course.distribs.split(',').map((distrib, idx) => (
-                            <Box
-                              key={idx}
-                              sx={{
-                                backgroundColor: '#F0F0F0',  
-                                color: '#333',             
-                                padding: '4px 10px',       
-                                borderRadius: '20px',      
-                                fontSize: '0.85rem',
-                                fontWeight: 500,
-                                whiteSpace: 'nowrap',
-                                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', 
-                                transition: 'background-color 0.2s ease',
-                                lineHeight: '1.5',
-                                display: 'flex',
-                                alignItems: 'center',
-                                '&:hover': {
-                                  backgroundColor: '#E0E0E0', 
-                                  boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
-                                },
-                              }}
-                            >
-                              {distrib.trim()}
-                            </Box>
-                          ))}
-                        </Box>
-                      </TableCell>
-                    )}
+  sx={{ 
+    color: '#333', 
+    padding: '10px 20px',
+    fontSize: '0.95rem', 
+    borderBottom: '1px solid #E0E0E0',
+    width: '50%'
+  }}
+>
+  {course.name ? 
+    (course.name.includes(':') ? 
+      course.name.split(':')[1].trim() : 
+      course.name
+    ) : 
+    'Untitled Course'
+  }
+</TableCell>
+
+{/* Also add a safety check for the distribs array mapping */}
+{!isMobile && (
+  <TableCell 
+    sx={{ 
+      color: '#333', 
+      padding: '10px', 
+      fontSize: '0.9rem', 
+      textAlign: 'center', 
+      borderBottom: '1px solid #E0E0E0',
+      verticalAlign: 'middle',
+      height: 'auto',
+    }}
+  >
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        gap: '5px', 
+        justifyContent: 'center', 
+        flexWrap: 'nowrap', 
+        maxWidth: '200px',  
+        whiteSpace: 'nowrap', 
+        alignItems: 'center',  
+        height: '100%',
+      }}
+    >
+      {(course.distribs ? course.distribs.split(',') : []).map((distrib, idx) => (
+        <Box
+          key={idx}
+          sx={{
+            backgroundColor: '#F0F0F0',  
+            color: '#333',             
+            padding: '4px 10px',       
+            borderRadius: '20px',      
+            fontSize: '0.85rem',
+            fontWeight: 500,
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', 
+            transition: 'background-color 0.2s ease',
+            lineHeight: '1.5',
+            display: 'flex',
+            alignItems: 'center',
+            '&:hover': {
+              backgroundColor: '#E0E0E0', 
+              boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
+            },
+          }}
+        >
+          {distrib.trim()}
+        </Box>
+      ))}
+    </Box>
+  </TableCell>
+)}
         
                     {/* Num of Reviews */}
                     <TableCell 
