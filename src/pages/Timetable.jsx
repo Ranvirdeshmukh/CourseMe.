@@ -170,7 +170,7 @@ const Timetable = () => {
   const fetchAndUpdateCache = async () => {
     try {
       const db = getFirestore();
-      const coursesSnapshot = await getDocs(collection(db, 'fallTimetable'));
+      const coursesSnapshot = await getDocs(collection(db, 'winterTimetable'));
       const coursesData = coursesSnapshot.docs.map((doc) => {
         const periodCode = doc.data()['Period Code'];
         return {
@@ -933,6 +933,11 @@ const Timetable = () => {
       '&.Mui-focused': {
         color: '#00693E',
       },
+      // Add these properties to center the label
+      transform: 'translate(14px, 8px) scale(1)',
+      '&[data-shrink="true"]': {
+        transform: 'translate(14px, -9px) scale(0.75)',
+      },
     }}
   >
     Subject
@@ -965,15 +970,21 @@ const Timetable = () => {
         backgroundColor: 'transparent',
         height: '40px',
       },
+      '& .MuiSelect-select': {  // Add this to center the selected text
+        paddingTop: '8px',
+        paddingBottom: '8px',
+        display: 'flex',
+        alignItems: 'center',
+      },
       '& .MuiSelect-icon': {
         color: '#00693E',
       },
       '&:hover': {
-        backgroundColor: 'rgba(0, 105, 62, 0.1)', // Adjusted for Dartmouth Green
+        backgroundColor: 'rgba(0, 105, 62, 0.1)',
       },
       '&:focus': {
         outline: 'none',
-        boxShadow: '0 0 0 4px rgba(0, 105, 62, 0.5)', // Adjusted for Dartmouth Green
+        boxShadow: '0 0 0 4px rgba(0, 105, 62, 0.5)',
       },
     }}
   >
