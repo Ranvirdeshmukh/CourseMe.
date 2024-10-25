@@ -98,7 +98,7 @@ const CourseEnrollmentPriorities = () => {
             color: '#571CE0', // Consistent heading color
           }}
         >
-          Course Enrollment Priorities for <span style={{ color: '#349966' }}>Fall 24</span>
+          Course Enrollment Priorities for <span style={{ color: '#349966' }}>Winter 25</span>
         </Typography>
 
         <Typography
@@ -111,7 +111,7 @@ const CourseEnrollmentPriorities = () => {
             lineHeight: 1.5,
           }}
         >
-          <strong>**Please note:**</strong> This page is updated every term. The information below pertains to the Fall 2024 term.
+          <strong>**Please note:**</strong> This page is updated every term. The information below pertains to the Winter 2025 term.
         </Typography>
 
         {loading ? (

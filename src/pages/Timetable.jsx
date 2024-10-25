@@ -480,8 +480,8 @@ const Timetable = () => {
 
     if (!timing) return [];
 
-    const eventStartDate = '20240915'; 
-    const eventEndDate = '20241127'; 
+    const eventStartDate = '20250105'; 
+    const eventEndDate = '20250314'; 
     const timezone = 'America/New_York';
 
     const timingParts = timing.split(', ');
@@ -591,7 +591,7 @@ const Timetable = () => {
               fontFamily: 'SF Pro Display, sans-serif',
             }}
           >
-            Your Fall 2024 Classes
+            Your Winter 2025 Classes
           </Typography>
         )}
   
@@ -865,7 +865,7 @@ const Timetable = () => {
   
         {showSelectedCourses && selectedCourses.length === 0 && (
           <Typography sx={{ marginBottom: '20px', color: '#1D1D1F' }}>
-            Haven't added your Fall 2024 timetable on CourseMe? Add now!
+            Haven't added your Winter 2024 timetable on CourseMe? Add now!
           </Typography>
         )}
 
@@ -891,7 +891,7 @@ const Timetable = () => {
       fontFamily: 'SF Pro Display, sans-serif',
     }}
   >
-    Fall 2024 Timetable.
+    Winter 2025 Timetable.
   </Typography>
   <TextField
   variant="outlined"
