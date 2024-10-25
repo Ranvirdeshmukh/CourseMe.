@@ -600,7 +600,7 @@ const ProfilePage = () => {
                           marginBottom: 2,
                         }}
                       >
-                        Winter 2025 Course Enrollment Priority.
+                        Fall 2024 Course Enrollment Priority.
                       </Typography>
                       <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
                       <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
@@ -759,7 +759,7 @@ const ProfilePage = () => {
             marginBottom: 0.9, // Adjusted margin for clean separation
           }}
         >
-          Winter 2025 Timetable
+          Fall 2024 Timetable
         </Typography>
         <Divider sx={{ marginBottom: 2, backgroundColor: '#EEE' }} /> {/* Softer divider */}
         {renderTimetable()}
