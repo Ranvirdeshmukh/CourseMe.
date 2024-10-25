@@ -10,10 +10,10 @@ import {
   Tooltip,
   Container,
 } from '@mui/material';
-import { collection, query, getDocs, doc, updateDoc, increment, setDoc, getDoc, runTransaction } from 'firebase/firestore';
+import { collection, query, getDocs, doc, updateDoc, increment, setDoc, getDoc, runTransaction, onSnapshot } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { db } from '../firebase';
-import { initializeHiddenLayups } from './initializeHiddenLayups';
+import { initializeHiddenLayups, getUserVotes } from './initializeHiddenLayups';
 import CourseRecommendationDialog from '../components/CourseRecommendationDialog';
 import AdminRecommendations from '../components/AdminRecommendations';
 import { hiddenLayupCourseIds } from '../constants/hiddenLayupConstants';
@@ -33,7 +33,7 @@ const HiddenLayups = () => {
   });
   const [departments, setDepartments] = useState([]);
   const [allDistribs, setAllDistribs] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(6);  // Increase this number
+  const [visibleCount, setVisibleCount] = useState(6);
 
   // Data fetching logic
   useEffect(() => {
@@ -47,72 +47,91 @@ const HiddenLayups = () => {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    let unsubscribeVotes = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        initializeAndFetch(currentUser);
+        const setupData = async () => {
+          unsubscribeVotes = await initializeAndFetch(currentUser);
+        };
+        setupData();
       } else {
         setLoading(false);
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeVotes) {
+        unsubscribeVotes();
+      }
+    };
   }, []);
 
   const initializeAndFetch = async (currentUser) => {
-    try {
-      await initializeHiddenLayups();
-      await fetchHiddenLayups(currentUser);
-    } catch (err) {
-      console.error('Error initializing or fetching hidden layups:', err);
-      setError('Failed to load hidden layups. Please try refreshing the page.');
-      setLoading(false);
-    }
-  };
-
-  const fetchHiddenLayups = async (currentUser) => {
     setLoading(true);
     setError(null);
     try {
-      console.log('Fetching hidden layups with courseIds:', hiddenLayupCourseIds);
-      const hiddenLayupsSnapshot = await getDocs(collection(db, 'hidden_layups'));
-      console.log('Raw hidden layups docs:', hiddenLayupsSnapshot.docs.map(doc => ({id: doc.id, data: doc.data()})));
+      // Get initial data
+      const initialData = await initializeHiddenLayups();
       
-      const hiddenLayupDocs = hiddenLayupsSnapshot.docs
-        .filter(doc => {
-          const included = hiddenLayupCourseIds.includes(doc.id);
-          console.log(`Document ${doc.id} included in filter: ${included}`);
-          return included;
-        })
-        .map(async doc => {
-          const data = doc.data();
-          const userVote = currentUser ? await getUserVote(doc.id, currentUser.uid) : null;
-          console.log(`Processed doc ${doc.id}:`, {...data, userVote});
-          return {
-            id: doc.id,
-            ...data,
-            userVote
-          };
-        });
-  
-      const layupsData = await Promise.all(hiddenLayupDocs);
-      console.log('Final layups data:', layupsData);
-      setHiddenLayups(layupsData);
-    } catch (err) {
-      console.error('Error fetching hidden layups:', err);
-      setError('Failed to fetch hidden layups. Please try refreshing the page.');
-    } finally {
-      setLoading(false);
-    }
-  };
+      // Set up real-time listener for vote changes
+      const unsubscribe = onSnapshot(
+        collection(db, 'hidden_layups'),
+        async (snapshot) => {
+          try {
+            // Get current vote counts
+            const voteCounts = {};
+            snapshot.docs.forEach(doc => {
+              if (hiddenLayupCourseIds.includes(doc.id)) {
+                voteCounts[doc.id] = {
+                  yes_count: doc.data().yes_count || 0,
+                  no_count: doc.data().no_count || 0
+                };
+              }
+            });
 
-  const getUserVote = async (courseId, userId) => {
-    if (!userId) return null;
-    try {
-      const voteDoc = await getDoc(doc(db, 'hidden_layups', courseId, 'votes', userId));
-      return voteDoc.exists() ? voteDoc.data().vote : null;
+            // Get user votes in parallel
+            const userVotesPromises = hiddenLayupCourseIds.map(async courseId => {
+              const vote = await getUserVotes(courseId, currentUser.uid);
+              return [courseId, vote];
+            });
+            
+            const userVotes = await Promise.all(userVotesPromises);
+            const userVotesMap = Object.fromEntries(userVotes);
+
+            // Combine all data
+            const combinedData = hiddenLayupCourseIds
+              .map(id => initialData[id])
+              .filter(Boolean)
+              .map(course => ({
+                ...course,
+                yes_count: voteCounts[course.id]?.yes_count || 0,
+                no_count: voteCounts[course.id]?.no_count || 0,
+                userVote: userVotesMap[course.id] || null
+              }));
+
+            setHiddenLayups(combinedData);
+            setLoading(false);
+          } catch (err) {
+            console.error('Error processing snapshot:', err);
+            setError('Error updating votes. Please refresh the page.');
+          }
+        },
+        (error) => {
+          console.error('Error in vote subscription:', error);
+          setError('Failed to get real-time updates. Please refresh the page.');
+          setLoading(false);
+        }
+      );
+
+      return unsubscribe;
     } catch (err) {
-      console.error('Error fetching user vote:', err);
-      return null;
+      console.error('Error initializing hidden layups:', err);
+      setError('Failed to load hidden layups. Please try refreshing the page.');
+      setLoading(false);
+      return () => {};
     }
   };
 
