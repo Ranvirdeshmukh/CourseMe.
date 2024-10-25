@@ -1,11 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Box, Typography, FormControl, InputLabel, Select, MenuItem, 
-  Slider, Button, Grid, Paper 
+  Button, Grid, Paper, styled 
 } from '@mui/material';
-import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../contexts/AuthContext.js';
+
+// Styled components
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  maxWidth: '42rem',
+  margin: '0 auto',
+  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  backdropFilter: 'blur(10px)',
+  borderRadius: '16px',
+  border: '1px solid rgba(209, 213, 219, 0.3)',
+  padding: theme.spacing(4)
+}));
+
+const StyledFormButton = styled(Button)(({ theme, selected }) => ({
+  padding: theme.spacing(1.5),
+  width: '100%',
+  textTransform: 'none',
+  borderRadius: '12px',
+  fontSize: '0.875rem',
+  backgroundColor: selected ? theme.palette.primary.main : 'rgb(249, 250, 251)',
+  color: selected ? '#fff' : 'rgb(75, 85, 99)',
+  '&:hover': {
+    backgroundColor: selected ? theme.palette.primary.dark : 'rgb(243, 244, 246)',
+  },
+  transition: 'all 0.2s ease-in-out',
+  transform: selected ? 'scale(1.05)' : 'scale(1)',
+  boxShadow: selected ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
+}));
+
+const StyledSelect = styled(Select)(({ theme }) => ({
+  backgroundColor: 'rgb(249, 250, 251)',
+  borderRadius: '12px',
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: 'rgb(209, 213, 219)'
+  }
+}));
 
 const CourseInputDataForm = ({ courseId, allProfessors }) => {
   const { currentUser } = useAuth();
@@ -23,8 +58,8 @@ const CourseInputDataForm = ({ courseId, allProfessors }) => {
     setSelectedProfessor(event.target.value);
   };
 
-  const handleSliderChange = (name) => (event, newValue) => {
-    setFormData({ ...formData, [name]: newValue });
+  const handleOptionSelect = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (event) => {
@@ -52,7 +87,6 @@ const CourseInputDataForm = ({ courseId, allProfessors }) => {
       });
 
       alert('Data submitted successfully!');
-      // Reset form
       setSelectedProfessor('');
       setFormData({
         xHourRequired: 1,
@@ -78,14 +112,26 @@ const CourseInputDataForm = ({ courseId, allProfessors }) => {
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Course Input Data
-      </Typography>
+    <StyledPaper elevation={0}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ 
+          fontWeight: 500, 
+          color: 'rgb(17, 24, 39)'
+        }}>
+          Course Feedback
+        </Typography>
+      </Box>
+      
       <form onSubmit={handleSubmit}>
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel id="professor-select-label">Professor</InputLabel>
-          <Select
+        <FormControl fullWidth sx={{ mb: 4 }}>
+          <InputLabel id="professor-select-label" sx={{ 
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            color: 'rgb(55, 65, 81)'
+          }}>
+            Professor
+          </InputLabel>
+          <StyledSelect
             labelId="professor-select-label"
             value={selectedProfessor}
             label="Professor"
@@ -94,38 +140,59 @@ const CourseInputDataForm = ({ courseId, allProfessors }) => {
             {allProfessors.map((professor, index) => (
               <MenuItem key={index} value={professor}>{professor}</MenuItem>
             ))}
-          </Select>
+          </StyledSelect>
         </FormControl>
 
-        <Grid container spacing={3}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {Object.entries(sliderLabels).map(([key, labels]) => (
-            <Grid item xs={12} key={key}>
-              <Typography gutterBottom>
+            <Box key={key}>
+              <Typography sx={{ 
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: 'rgb(55, 65, 81)',
+                mb: 2
+              }}>
                 {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
               </Typography>
-              <Slider
-                value={formData[key]}
-                onChange={handleSliderChange(key)}
-                step={1}
-                marks
-                min={1}
-                max={5}
-                valueLabelDisplay="auto"
-                valueLabelFormat={(value) => labels[value - 1]}
-              />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="caption">{labels[0]}</Typography>
-                <Typography variant="caption">{labels[4]}</Typography>
-              </Box>
-            </Grid>
+              <Grid container spacing={1}>
+                {labels.map((label, index) => (
+                  <Grid item xs={12/5} key={index}>
+                    <StyledFormButton
+                      onClick={() => handleOptionSelect(key, index + 1)}
+                      selected={formData[key] === index + 1}
+                      variant={formData[key] === index + 1 ? "contained" : "outlined"}
+                    >
+                      {label}
+                    </StyledFormButton>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
 
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-          Submit Data
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{
+            mt: 4,
+            py: 1.5,
+            borderRadius: '12px',
+            textTransform: 'none',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            background: 'linear-gradient(to right, #2563eb, #3b82f6)',
+            '&:hover': {
+              background: 'linear-gradient(to right, #1d4ed8, #2563eb)',
+            },
+            transition: 'all 0.2s ease-in-out'
+          }}
+        >
+          Submit Feedback
         </Button>
       </form>
-    </Paper>
+    </StyledPaper>
   );
 };
 

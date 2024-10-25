@@ -56,91 +56,145 @@ const ProfessorReviewsPage = () => {
     return { prefix, rest };
   };
 
-  const renderReviews = () => {
-    return (
-      <List>
-        {reviews.map((review, idx) => {
-          const { prefix, rest } = splitReviewText(review);
-          return (
-            <ReviewItem key={idx} prefix={prefix} rest={rest} />
-          );
-        })}
-      </List>
-    );
-  };
-
   const ReviewItem = ({ prefix, rest }) => {
     const { ref, inView } = useInView({
-      // triggerOnce: true,
       threshold: 0.1,
     });
 
     return (
       <motion.div
         ref={ref}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        style={{ margin: '10px 0', borderRadius: '8px', overflow: 'hidden' }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        style={{ width: '100%' }}
       >
-        <ListItem sx={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', padding: '10px', fontFamily: 'SF Pro Display, sans-serif' }}>
-          <ListItemText
-            primary={
-              <>
-                <Typography component="span" sx={{ color: 'black', fontWeight: 'bold', fontSize: '1rem' }}>
-                  {prefix}
-                </Typography>{' '}
-                <Typography component="span" sx={{ color: 'black', fontSize: '0.9rem' }}>
-                  {rest}
-                </Typography>
-              </>
+        <Box
+          sx={{
+            my: 3,
+            background: 'linear-gradient(to right, rgba(238, 242, 255, 0.8), rgba(245, 243, 255, 0.8))',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            border: '1px solid rgba(99, 102, 241, 0.1)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
             }
-          />
-        </ListItem>
+          }}
+        >
+          <ListItem sx={{ p: 4 }}>
+            <Box sx={{ width: '100%' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <Box
+                  sx={{
+                    width: '4px',
+                    height: '24px',
+                    bgcolor: 'primary.main',
+                    borderRadius: '4px'
+                  }}
+                />
+                <Typography
+                  component="span"
+                  sx={{
+                    color: 'text.primary',
+                    fontWeight: 600,
+                    letterSpacing: '0.3px',
+                    fontSize: '1rem'
+                  }}
+                >
+                  {prefix}
+                </Typography>
+              </Box>
+              <Typography
+                component="p"
+                sx={{
+                  color: 'text.secondary',
+                  pl: '28px',
+                  lineHeight: 1.7,
+                  fontSize: '0.95rem'
+                }}
+              >
+                {rest}
+              </Typography>
+            </Box>
+          </ListItem>
+        </Box>
       </motion.div>
     );
   };
 
-  // Extract the course name from the courseId (assuming the format is consistent)
+  const renderReviews = () => (
+    <List sx={{ width: '100%', p: 0 }}>
+      {reviews.map((review, idx) => {
+        const { prefix, rest } = splitReviewText(review);
+        return <ReviewItem key={idx} prefix={prefix} rest={rest} />;
+      })}
+    </List>
+  );
+
   const courseName = courseId.split('__')[1]?.replace(/_/g, ' ') || courseId;
 
   return (
     <Box
       sx={{
         minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start', // Align items at the top
-        alignItems: 'center',
-        backgroundColor: '#E4E2DD', // Light background color
-        color: '#571CE0', // Purple text color
-        textAlign: 'center',
-        fontFamily: 'SF Pro Display, sans-serif',
-        padding: '20px'
+        background: 'linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%)',
+        py: 4
       }}
     >
-      <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-          <Typography 
-            variant="h3" 
-            align='left'
-            sx={{ 
-              fontWeight: 600, 
-              fontFamily: 'SF Pro Display, sans-serif', 
-              color: 'black',  // Black color for headings
-              marginBottom: '0px',
-              marginTop: '20px'
+      <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+        <Box sx={{ mb: 6 }}>
+          <Typography
+            variant="h3"
+            sx={{
+              color: 'text.primary',
+              fontWeight: 700,
+              letterSpacing: '-0.5px',
+              mb: 1
             }}
           >
-            Reviews for {professor} in Class - {courseName}
+            Reviews for {professor}
+          </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              color: 'primary.main',
+              fontWeight: 500,
+              opacity: 0.9
+            }}
+          >
+            {courseName}
           </Typography>
         </Box>
+
         {loading ? (
-          <Typography>Loading...</Typography>
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography sx={{ color: 'text.secondary' }}>
+              Loading...
+            </Typography>
+          </Box>
         ) : error ? (
-          <Alert severity="error">{error}</Alert>
-        ) : reviews.length > 0 ? renderReviews() : (
-          <Typography>No reviews available</Typography>
+          <Alert
+            severity="error"
+            sx={{
+              borderRadius: 2,
+              '& .MuiAlert-message': {
+                fontSize: '0.95rem'
+              }
+            }}
+          >
+            {error}
+          </Alert>
+        ) : reviews.length > 0 ? (
+          renderReviews()
+        ) : (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography sx={{ color: 'text.secondary' }}>
+              No reviews available
+            </Typography>
+          </Box>
         )}
       </Container>
     </Box>

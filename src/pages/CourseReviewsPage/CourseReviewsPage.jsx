@@ -23,6 +23,8 @@ import GradeChart from './CustomGradeChart';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CanvasGradeTable from './CanvasGradeTable';
 import CourseInputDataForm from './CourseInputDataForm';
+import { PushPinOutlined } from '@mui/icons-material';
+
 
 
 const CourseReviewsPage = () => {
@@ -145,9 +147,12 @@ const CourseReviewsPage = () => {
     }));
   };
   
-  const handleProfessorInputChange = (event, newInputValue) => {
-    setProfessorInput(newInputValue);
+  const handleProfessorFilterChange = (event) => {
+    setSelectedProfessor(event.target.value);
+    setCurrentPage(1); // Reset to the first page
   };
+  
+  
 
   const CourseMetricsIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -180,225 +185,274 @@ const CourseReviewsPage = () => {
   const renderTabContent = () => {
     switch (tabValue) {
       case 0:
-        // Description tab content (unchanged)
+        // Description tab content
         return (
           <Box sx={{ padding: '20px' }}>
             <Typography
               variant="body1"
-              sx={{ fontSize: '0.95rem', color: 'black', textAlign: 'left', lineHeight: '1.6' }}
+              sx={{ fontSize: '0.95rem', color: 'text.primary', textAlign: 'left', lineHeight: '1.6' }}
               dangerouslySetInnerHTML={{ __html: courseDescription }}
             />
           </Box>
         );
-        case 1:
-          // Updated Grades tab content with CanvasGradeTable
-          return (
-            <Box sx={{ padding: '20px' }}>
-              <Typography variant="h6" gutterBottom>Grades Distribution</Typography>
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  fontSize: '0.7rem', 
-                  fontStyle: 'italic', 
-                  color: 'text.secondary',
-                  mt: 1,
-                  display: 'block'
-                }}
-              >
-                *Note: Sections with different medians may be averaged for the term.
-              </Typography>
-              {gradeData.length > 0 ? (
-                <>
-                  {renderGradeChart()}
-                  <CanvasGradeTable gradeData={gradeData.sort((a, b) => {
+      case 1:
+        // Grades Distribution tab content
+        return (
+          <Box sx={{ padding: '20px' }}>
+            <Typography variant="h6" gutterBottom>
+              Grades Distribution
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: '0.7rem',
+                fontStyle: 'italic',
+                color: 'text.secondary',
+                mt: 1,
+                display: 'block',
+              }}
+            >
+              *Note: Sections with different medians may be averaged for the term.
+            </Typography>
+            {gradeData.length > 0 ? (
+              <>
+                {renderGradeChart()}
+                <CanvasGradeTable
+                  gradeData={gradeData.sort((a, b) => {
                     const aYear = parseInt(a.Term.slice(0, 2));
                     const bYear = parseInt(b.Term.slice(0, 2));
                     if (aYear !== bYear) return bYear - aYear;
-                    const termOrder = { 'F': 0, 'X': 1, 'S': 2, 'W': 3 };
+                    const termOrder = { F: 0, X: 1, S: 2, W: 3 };
                     return termOrder[a.Term.slice(2)] - termOrder[b.Term.slice(2)];
-                  })} />
-                </>
-              ) : (
-                <Typography>No grade distribution information available. Add medians from previous classes to improve our offerings.</Typography>
-              )}
-              <Box sx={{ marginTop: 4 }}>
-                <Typography variant="h6" gutterBottom>Add New Grade Data</Typography>
-                <TextField
-                  name="Term"
-                  label="Term"
-                  value={newGradeData.Term}
-                  onChange={(e) => {
-                    const value = e.target.value.toUpperCase(); // Convert input to uppercase
-                  
-                    // Allow only two digits (00-24) followed by F, W, S, or X
-                    const regex = /^(?:2[0-4]|1\d|0?\d)([FWSX])?$/;
-                    
-                    if (regex.test(value) || value === '') {
-                      setNewGradeData(prev => ({ ...prev, Term: value }));
-                    }
-                  }}
-                  fullWidth
-                  margin="normal"
+                  })}
                 />
-                <Autocomplete
-                  multiple
-                  id="professors-input"
-                  options={allProfessors}
-                  value={newGradeData.Professors}
-                  onChange={(event, newValue) => setNewGradeData(prev => ({ ...prev, Professors: newValue }))}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Professors"
-                      placeholder="Select or enter professors"
-                      fullWidth
-                      margin="normal"
-                    />
-                  )}
-                  freeSolo
-                  sx={{ marginTop: 2, marginBottom: 2 }}
-                />
-                <InteractiveGradeScale
-                  value={newGradeData.Grade}
-                  onChange={handleGradeChange}
-                />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleAddNewGradeData}
-                  sx={{ marginTop: 2 }}
-                >
-                  Add Grade Data
-                </Button>
-              </Box>
+              </>
+            ) : (
+              <Typography>
+                No grade distribution information available. Add medians from previous classes to improve our offerings.
+              </Typography>
+            )}
+            <Box sx={{ marginTop: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                Add New Grade Data
+              </Typography>
+              <TextField
+                name="Term"
+                label="Term"
+                value={newGradeData.Term}
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase(); // Convert input to uppercase
+  
+                  // Allow only two digits (00-24) followed by F, W, S, or X
+                  const regex = /^(?:2[0-4]|1\d|0?\d)([FWSX])?$/;
+  
+                  if (regex.test(value) || value === '') {
+                    setNewGradeData((prev) => ({ ...prev, Term: value }));
+                  }
+                }}
+                fullWidth
+                margin="normal"
+              />
+              <Autocomplete
+                multiple
+                id="professors-input"
+                options={allProfessors}
+                value={newGradeData.Professors}
+                onChange={(event, newValue) => setNewGradeData((prev) => ({ ...prev, Professors: newValue }))}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Professors"
+                    placeholder="Select or enter professors"
+                    fullWidth
+                    margin="normal"
+                  />
+                )}
+                freeSolo
+                sx={{ marginTop: 2, marginBottom: 2 }}
+              />
+              <InteractiveGradeScale value={newGradeData.Grade} onChange={handleGradeChange} />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAddNewGradeData}
+                sx={{ marginTop: 2 }}
+              >
+                Add Grade Data
+              </Button>
             </Box>
-          );
-          case 2:
-            // Input Data tab content (new)
-            return (
-              <Box sx={{ padding: '20px' }}>
-                <Typography variant="h6" gutterBottom>Input Course Data</Typography>
-                <CourseInputDataForm courseId={courseId} allProfessors={allProfessors} />
-              </Box>
-            );
-      case 3:
+          </Box>
+        );
+      case 2:
+        // Input Data tab content
         return (
           <Box sx={{ padding: '20px' }}>
-            <Typography variant="h6" gutterBottom>Course Metrics</Typography>
+            <Typography variant="h6" gutterBottom>
+              Input Course Data
+            </Typography>
+            <CourseInputDataForm courseId={courseId} allProfessors={allProfessors} />
+          </Box>
+        );
+      case 3:
+        console.log('Course Metrics Tab: course =', course);
+
+        // Course Metrics tab content
+        return (
+          <Box sx={{ padding: '20px' }}>
+            <Typography variant="h6" gutterBottom>
+              Course Metrics
+            </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Box sx={{ width: '60%' }}>
-                <Typography variant="subtitle1" gutterBottom>Difficulty</Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={60} 
-                  sx={{ 
-                    height: 10, 
-                    borderRadius: 5, 
+                <Typography variant="subtitle1" gutterBottom>
+                  Difficulty
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={60}
+                  sx={{
+                    height: 10,
+                    borderRadius: 5,
                     backgroundColor: '#e0e0e0',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#ff9800'
-                    }
-                  }} 
+                      backgroundColor: '#ff9800',
+                    },
+                  }}
                 />
-                <Typography variant="body2" color="textSecondary">Moderately Difficult</Typography>
-
-                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>Easiness</Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={40} 
-                  sx={{ 
-                    height: 10, 
-                    borderRadius: 5, 
+                <Typography variant="body2" color="text.secondary">
+                  Moderately Difficult
+                </Typography>
+  
+                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+                  Easiness
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={40}
+                  sx={{
+                    height: 10,
+                    borderRadius: 5,
                     backgroundColor: '#e0e0e0',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#4caf50'
-                    }
-                  }} 
+                      backgroundColor: '#4caf50',
+                    },
+                  }}
                 />
-                <Typography variant="body2" color="textSecondary">Somewhat Easy</Typography>
-
-                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>Overall Quality</Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={75} 
-                  sx={{ 
-                    height: 10, 
-                    borderRadius: 5, 
+                <Typography variant="body2" color="text.secondary">
+                  Somewhat Easy
+                </Typography>
+  
+                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+                  Overall Quality
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={75}
+                  sx={{
+                    height: 10,
+                    borderRadius: 5,
                     backgroundColor: '#e0e0e0',
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#2196f3'
-                    }
-                  }} 
+                      backgroundColor: '#2196f3',
+                    },
+                  }}
                 />
-                <Typography variant="body2" color="textSecondary">Good Quality</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Good Quality
+                </Typography>
               </Box>
               
+
               {course && (
+            <Box
+            sx={{
+              width: '35%', // Adjust as needed
+              minWidth: '200px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column', // Stack the content vertically
+                  alignItems: 'center',
+                  borderRadius: '20px', // Rounded corners for a smoother look
+                  backgroundColor: '#FFF', // White background for contrast
+                  border: '2px solid #571CE0',
+                  boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
+                  padding: '20px', // Padding to give space around content
+                  justifyContent: 'center',
+                  width: '130px', // Adjust width for vertical layout
+                  boxSizing: 'border-box',
+                }}
+              >
                 <Box
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    borderRadius: '20px',
-                    backgroundColor: '#FFF',
-                    border: '2px solid #571CE0',
-                    boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
-                    padding: '20px',
-                    width: '200px',
+                    marginBottom: '20px', // Space between layup and quality sections
                   }}
                 >
-                  {/* Layup voting */}
-                  <Box sx={{ marginBottom: '20px' }}>
-                    <Tooltip title="Upvote Layup">
-                      <IconButton
-                        onClick={() => handleVote('upvote')}
-                        sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}
-                      >
-                        <ArrowUpward />
-                      </IconButton>
-                    </Tooltip>
-                    <Typography variant="h6" sx={{ color: '#571CE0', fontWeight: 700 }}>
-                      {course.layup || 0}
-                    </Typography>
-                    <Tooltip title="Downvote Layup">
-                      <IconButton
-                        onClick={() => handleVote('downvote')}
-                        sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}
-                      >
-                        <ArrowDownward />
-                      </IconButton>
-                    </Tooltip>
-                    <Typography variant="caption" sx={{ color: '#571CE0', fontWeight: 500 }}>
-                      Is it a layup?
-                    </Typography>
-                  </Box>
-                  {/* Quality voting */}
-                  <Box>
-                    <Tooltip title="Upvote Quality">
-                      <IconButton
-                        onClick={() => handleQualityVote('upvote')}
-                        sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey' }}
-                      >
-                        <ArrowUpward />
-                      </IconButton>
-                    </Tooltip>
-                    <Typography variant="h6" sx={{ color: '#571CE0', fontWeight: 700 }}>
-                      {quality || 0}
-                    </Typography>
-                    <Tooltip title="Downvote Quality">
-                      <IconButton
-                        onClick={() => handleQualityVote('downvote')}
-                        sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey' }}
-                      >
-                        <ArrowDownward />
-                      </IconButton>
-                    </Tooltip>
-                    <Typography variant="caption" sx={{ color: '#571CE0', fontWeight: 500 }}>
-                      Is it a good class?
-                    </Typography>
-                  </Box>
+                  <Tooltip title="Upvote Layup">
+                    <IconButton
+                      onClick={() => handleVote('upvote')}
+                      sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowUpward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
+                    {course.layup || 0}
+                  </Typography>
+                  <Tooltip title="Downvote Layup">
+                    <IconButton
+                      onClick={() => handleVote('downvote')}
+                      sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowDownward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
+                    Is it a layup?
+                  </Typography>
                 </Box>
-              )}
+        
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Tooltip title="Upvote Quality">
+                    <IconButton
+                      onClick={() => handleQualityVote('upvote')}
+                      sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowUpward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
+                    {quality || 0}
+                  </Typography>
+                  <Tooltip title="Downvote Quality">
+                    <IconButton
+                      onClick={() => handleQualityVote('downvote')}
+                      sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
+                    >
+                      <ArrowDownward sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
+                    Quality of the course?
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          )}
             </Box>
           </Box>
         );
@@ -406,6 +460,7 @@ const CourseReviewsPage = () => {
         return null;
     }
   };
+  
 
   useEffect(() => {
     const fetchAllProfessors = async () => {
@@ -1198,97 +1253,162 @@ const handleQualityVote = async (voteType) => {
     };
 
     return (
+      
       <motion.div
         ref={ref}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        style={{ margin: '20px 0', borderRadius: '12px', overflow: 'hidden' }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        style={{ width: '100%' }}
       >
-        <ListItem
+        <Box
           sx={{
-            backgroundColor: '#fff',
+            my: 2,
+            background: 'linear-gradient(135deg, #FAFAFA 0%, #F4F4F4 100%)',
             borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            padding: '16px',
-            fontFamily: 'SF Pro Display, sans-serif',
+            overflow: 'hidden',
+            border: '1px solid #E0E0E0',
+            boxShadow:
+              '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow:
+                '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
+            },
           }}
         >
-          <ListItemText
-            primary={
-              <>
-                <Typography component="span" sx={{ color: '#000', fontWeight: 600, fontSize: '1rem' }}>
+          <ListItem sx={{ p: 3, alignItems: 'flex-start' }}>
+            <Box sx={{ width: '100%' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                <Box
+                  sx={{
+                    width: '4px',
+                    height: '24px',
+                    bgcolor: '#00693E', // Dartmouth green
+                    borderRadius: '4px',
+                  }}
+                />
+                <Typography
+                  component="span"
+                  sx={{
+                    color: '#1D1D1F',
+                    fontWeight: 600,
+                    letterSpacing: '0.3px',
+                    fontSize: '1rem',
+                  }}
+                >
                   {prefix}
-                </Typography>{' '}
-                <Typography component="span" sx={{ color: '#333', fontSize: '0.9rem' }}>
-                  {rest}
                 </Typography>
-              </>
-            }
-          />
-          <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-            <IconButton onClick={handleLike} sx={{ color: hasLiked ? '#571CE0' : '#999' }}>
-              <Typography variant="body2" sx={{ fontSize: '1.5rem' }}>
-                🔥
+              </Box>
+              <Typography
+                component="p"
+                sx={{
+                  color: '#1D1D1F',
+                  pl: '28px',
+                  lineHeight: 1.6,
+                  fontSize: '0.95rem',
+                }}
+              >
+                {rest}
               </Typography>
-              <Typography variant="body2" sx={{ marginLeft: '5px', fontWeight: 500, color: '#666' }}>
-                {likeCount}
-              </Typography>
-            </IconButton>
-            <IconButton onClick={toggleReplies} sx={{ color: '#571CE0' }}>
-              <ChatBubbleOutlineIcon />
-              <Typography variant="body2" sx={{ marginLeft: '5px', fontWeight: 500, color: '#666' }}>
-                {replyCount}
-              </Typography>
-            </IconButton>
-          </Box>
-        </ListItem>
-        {showReplies && (
-          <>
-            <List sx={{ pl: 4 }}>
-              {replies.map((reply, index) => (
-                <ListItem key={index} sx={{ backgroundColor: '#f7f7f7', borderRadius: '8px', marginTop: '10px' }}>
-                  <ListItemText
-                    primary={
-                      <>
-                        <Typography
-                          component="span"
-                          sx={{ color: '#000', fontWeight: 600, fontSize: '0.9rem' }}
-                        >
-                          Reply:
-                        </Typography>{' '}
-                        <Typography component="span" sx={{ color: '#333', fontSize: '0.8rem' }}>
-                          {reply.reply}
-                        </Typography>
-                        <Typography
-                          component="span"
-                          sx={{ color: '#999', fontSize: '0.7rem', marginLeft: '10px' }}
-                        >
-                          {new Date(reply.timestamp).toLocaleString()}
-                        </Typography>
-                      </>
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
-            <AddReplyForm
-              reviewData={{ instructor, reviewIndex }}
-              courseId={courseId}
-              onReplyAdded={(newReply) => {
-                addReplyLocally(reviewIndex, newReply);
-                setReplies((prevReplies) => [...prevReplies, newReply]);
-                setReplyCount(replyCount + 1);
-              }}
-            />
-          </>
-        )}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mt: 2,
+                  pl: '28px',
+                  gap: 2,
+                }}
+              >
+                <IconButton
+                  onClick={handleLike}
+                  sx={{
+                    color: hasLiked ? '#007AFF' : '#8E8E93',
+                    padding: '6px',
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontSize: '1.2rem' }}>
+                    🔥
+                  </Typography>
+                </IconButton>
+                <Typography variant="body2" sx={{ color: '#8E8E93' }}>
+                  {likeCount}
+                </Typography>
+                <IconButton
+                  onClick={toggleReplies}
+                  sx={{ color: '#007AFF', padding: '6px' }}
+                >
+                  <ChatBubbleOutlineIcon />
+                </IconButton>
+                <Typography variant="body2" sx={{ color: '#8E8E93' }}>
+                  {replyCount}
+                </Typography>
+              </Box>
+            </Box>
+          </ListItem>
+          {showReplies && (
+            <>
+              <List sx={{ pl: 4 }}>
+                {replies.map((reply, index) => (
+                  <ListItem
+                    key={index}
+                    sx={{
+                      backgroundColor: '#F9F9F9',
+                      borderRadius: '8px',
+                      marginTop: '8px',
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    <ListItemText
+                      primary={
+                        <>
+                          <Typography
+                            component="span"
+                            sx={{ color: '#1D1D1F', fontWeight: 600, fontSize: '0.9rem' }}
+                          >
+                            Reply:
+                          </Typography>{' '}
+                          <Typography
+                            component="span"
+                            sx={{ color: '#1D1D1F', fontSize: '0.85rem' }}
+                          >
+                            {reply.reply}
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ color: '#8E8E93', fontSize: '0.75rem', marginLeft: '10px' }}
+                          >
+                            {new Date(reply.timestamp).toLocaleString()}
+                          </Typography>
+                        </>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              <AddReplyForm
+                reviewData={{ instructor, reviewIndex }}
+                courseId={courseId}
+                onReplyAdded={(newReply) => {
+                  // Add the new reply to the local state
+                  setReplies((prevReplies) => [...prevReplies, newReply]);
+                  setReplyCount(replyCount + 1);
+                }}
+              />
+            </>
+          )}
+        </Box>
       </motion.div>
     );
   };
+  
 
   const renderReviews = () => {
-    const filteredReviews = selectedProfessor ? reviews.filter((item) => item.instructor === selectedProfessor) : reviews;
+    const filteredReviews = selectedProfessor
+      ? reviews.filter((item) => item.instructor === selectedProfessor)
+      : reviews;
+  
     const indexOfLastReview = currentPage * reviewsPerPage;
     const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
     const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
@@ -1312,7 +1432,15 @@ const handleQualityVote = async (voteType) => {
           return (
             <React.Fragment key={idx}>
               {showInstructor && (
-                <Typography variant="h6" sx={{ marginTop: '20px', color: '#1D1D1F', textAlign: 'left', fontWeight: 600 }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    marginTop: '20px',
+                    color: '#1D1D1F',
+                    textAlign: 'left',
+                    fontWeight: 600,
+                  }}
+                >
                   {item.instructor}
                 </Typography>
               )}
@@ -1332,6 +1460,7 @@ const handleQualityVote = async (voteType) => {
       </List>
     );
   };
+  
 
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
@@ -1563,7 +1692,7 @@ const handleQualityVote = async (voteType) => {
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        backgroundColor: '#E4E2DD', // Change this to the previous color
+        background: '#f9f9f9',
         color: '#1D1D1F',
         textAlign: 'left',
         fontFamily: 'SF Pro Display, sans-serif',
@@ -1577,70 +1706,101 @@ const handleQualityVote = async (voteType) => {
       padding: 4,
       backgroundColor: '#FFFFFF',
       color: '#1D1D1F',
-      boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
+      boxShadow: 'none', // Remove heavy shadow for a cleaner look
       borderRadius: '16px',
+      border: '1px solid #D1D1D6', // Add a subtle border
       maxWidth: 1100,
       width: '100%',
     }}
   >
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 3, justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography 
-                variant="h4" 
-                gutterBottom 
-                textAlign="left" 
-                sx={{ 
-                  fontWeight: 700, 
-                  fontSize: '2rem',
-                  marginBottom: 0, // Remove bottom margin to ensure proper centering
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: 3,
+        justifyContent: 'space-between',
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          textAlign="left"
+          sx={{
+            fontWeight: 600, // Use semi-bold font weight
+            fontSize: '2rem',
+            marginBottom: 0, // Remove bottom margin to ensure proper centering
+            color: '#1D1D1F', // Primary text color
+          }}
+        >
+          {courseName}
+        </Typography>
+        {isTaughtCurrentTerm && (
+          <Tooltip title="Taught this term" placement="right">
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                height: '2rem', // Match the line height of the Typography
+                marginLeft: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: '#E5F0FF', // Light blue background
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
-                {courseName}
-              </Typography>
-              {isTaughtCurrentTerm && (
-                <Tooltip title="Taught this term" placement="right">
-                  <Box 
-                    sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      height: '2rem', // Match the line height of the Typography
-                      marginLeft: 3,
-                    }}
-                  >
-                    <Badge
-                      badgeContent="24F"
-                      color="error"
-                      sx={{
-                        '& .MuiBadge-badge': {
-                          fontSize: '1rem',
-                          height: '28px',
-                          minWidth: '28px',
-                          borderRadius: '14px',
-                          padding: '0 8px',
-                        },
-                      }}
-                    />
-                  </Box>
-                </Tooltip>
-              )}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#1D1D1F', // Text color
+                  }}
+                >
+                  24F
+                </Typography>
               </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <StyledTabs value={tabValue} onChange={handleTabChange}>
-                <StyledTab icon={<Description />} label="Description" />
-                <StyledTab icon={<ReportCardIcon />} label="Medians" />
-                {isBetaUser && <StyledTab icon={<CourseMetricsIcon />} label="Input Data" />}
-                {/* <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" /> */}
-              </StyledTabs>
-              <Tooltip title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}>
-                <IconButton onClick={handlePinCourse} sx={{ /* existing styles */ }}>
-                  <PushPin sx={{ fontSize: 30 }} />
-                </IconButton>
-              </Tooltip>
             </Box>
-          </Box>
-          
-          {renderTabContent()}
-        </Card>
+          </Tooltip>
+        )}
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <StyledTabs value={tabValue} onChange={handleTabChange}>
+          <StyledTab icon={<Description />} label="Description" />
+          <StyledTab icon={<ReportCardIcon />} label="Medians" />
+          {isBetaUser && (
+            <StyledTab icon={<CourseMetricsIcon />} label="Input Data" />
+          )}
+          <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" />
+        </StyledTabs>
+        <Tooltip
+          title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}
+        >
+          <IconButton
+  onClick={handlePinCourse}
+  sx={{
+    color: pinned ? '#007AFF' : '#8E8E93', // Blue if pinned, gray if not
+    marginLeft: 1,
+  }}
+>
+  {pinned ? (
+    <PushPin sx={{ fontSize: 24 }} />
+  ) : (
+    <PushPinOutlined sx={{ fontSize: 24 }} />
+  )}
+</IconButton>
+
+        </Tooltip>
+      </Box>
+    </Box>
+
+    {renderTabContent()}
+  </Card>
+
 
 
 
@@ -1744,135 +1904,199 @@ const handleQualityVote = async (voteType) => {
                 </Box>
               </Box>
             </Box>
-          )}
-         */}
-            <Typography variant="h4" gutterBottom textAlign="left" sx={{ marginTop: 4, fontWeight: 700 }}>
-              Professors
-            </Typography>
-            <TableContainer
-              component={Paper}
+          )} */}
+        
+        <Typography
+  variant="h5"
+  gutterBottom
+  sx={{ fontWeight: 600, color: '#1D1D1F', marginTop: 4 }}
+>
+  Professors
+</Typography>
+<TableContainer
+  component={Paper}
+  sx={{
+    backgroundColor: '#FFFFFF',
+    marginTop: '20px',
+    borderRadius: '12px',
+    boxShadow: 'none',
+    border: '1px solid #D1D1D6',
+  }}
+>
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell
+          sx={{
+            color: '#1D1D1F',
+            textAlign: 'left',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '12px 16px',
+          }}
+        >
+          Name
+        </TableCell>
+        <TableCell
+          sx={{
+            color: '#1D1D1F',
+            textAlign: 'left',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '12px 16px',
+          }}
+        >
+          Reviews
+        </TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {allProfessors
+        .sort((a, b) => {
+          const aIsCurrent = currentInstructors.includes(a);
+          const bIsCurrent = currentInstructors.includes(b);
+          if (aIsCurrent && !bIsCurrent) return -1;
+          if (!aIsCurrent && bIsCurrent) return 1;
+          return 0;
+        })
+        .slice(0, showAllProfessors ? undefined : 12)
+        .map((professor, index) => {
+          const isCurrent = currentInstructors.includes(professor);
+          const reviewCount = reviews.filter(
+            (review) => review.instructor === professor
+          ).length;
+          return (
+            <TableRow
+              key={index}
+              component={Link}
+              to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
               sx={{
-                backgroundColor: '#fff',
-                marginTop: '20px',
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-                borderRadius: '12px',
+                backgroundColor: isCurrent
+                  ? '#E5F0FF' // Light blue background for current instructors
+                  : index % 2 === 0
+                  ? '#FFFFFF'
+                  : '#F2F2F7',
+                '&:hover': { backgroundColor: '#E5E5EA' },
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'inherit',
               }}
             >
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', fontSize: '1rem' }}>
-                      Name
-                    </TableCell>
-                    <TableCell sx={{ color: '#571CE0', textAlign: 'left', fontWeight: 'bold', fontSize: '1rem' }}>
-                      Reviews
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-              {allProfessors
-                .sort((a, b) => {
-                  const aIsCurrent = currentInstructors.includes(a);
-                  const bIsCurrent = currentInstructors.includes(b);
-                  if (aIsCurrent && !bIsCurrent) return -1;
-                  if (!aIsCurrent && bIsCurrent) return 1;
-                  return 0;
-                })
-                .slice(0, showAllProfessors ? undefined : 12)
-                .map((professor, index) => {
-                  const isCurrent = currentInstructors.includes(professor);
-                  const reviewCount = reviews.filter(review => review.instructor === professor).length;
-                  return (
-                    <TableRow
-                      key={index}
-                      component={Link}
-                      to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
-                      sx={{
-                        backgroundColor: isCurrent 
-                          ? '#e6f7ff'  // Light blue background for current instructors
-                          : index % 2 === 0 ? '#fafafa' : '#f4f4f4',
-                        '&:hover': { backgroundColor: '#e0e0e0' },
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                      }}
-                    >
-                      <TableCell 
-                        sx={{ 
-                          color: '#1D1D1F', 
-                          padding: '10px', 
-                          textAlign: 'left', 
-                          fontWeight: isCurrent ? 700 : 500,
-                        }}
-                      >
-                        {professor}
-                      </TableCell>
-                      <TableCell sx={{ color: '#1D1D1F', padding: '10px', textAlign: 'left', fontWeight: 500 }}>
-                        {reviewCount}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              }
-              {allProfessors.length > 12 && (
-                <TableRow>
-                  <TableCell colSpan={2} sx={{ textAlign: 'center', padding: '10px' }}>
-                    <Button
-                      onClick={() => setShowAllProfessors((prev) => !prev)}
-                      sx={{ color: '#571CE0', fontWeight: 500 }}
-                    >
-                      {showAllProfessors ? 'Show Less' : 'More Professors'}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-
-              </Table>
-            </TableContainer>
-            <Legend />
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '-10px',
-                marginTop: '60px',
-              }}
-            >
-              <Typography variant="h4" gutterBottom textAlign="left" sx={{ fontWeight: 700 }}>
-                Reviews
-              </Typography>
-              <FormControl
-                size="small"
+              <TableCell
                 sx={{
-                  minWidth: 150,
-                  backgroundColor: '#fff',
-                  borderRadius: '8px',
-                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                  color: '#1C1C1E',
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: isCurrent ? 600 : 400,
                 }}
               >
-                <InputLabel id="select-professor-label" sx={{ fontWeight: 500 }}>
-                  Professor
-                </InputLabel>
-                <Select
-                  labelId="select-professor-label"
-                  value={selectedProfessor}
-                  onChange={handleProfessorChange}
-                  label="Professor"
-                  sx={{ fontWeight: 500 }}
-                >
-                  <MenuItem value="">
-                    <em>All</em>
-                  </MenuItem>
-                  {uniqueProfessors.map((professor, index) => (
-                    <MenuItem key={index} value={professor} sx={{ fontWeight: 500 }}>
-                      {professor}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
+                {professor}
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: '#1C1C1E',
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: 400,
+                }}
+              >
+                {reviewCount}
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      {allProfessors.length > 12 && (
+        <TableRow>
+          <TableCell colSpan={2} sx={{ textAlign: 'center', padding: '16px' }}>
+            <Button
+              onClick={() => setShowAllProfessors((prev) => !prev)}
+              sx={{
+                color: '#007AFF',
+                fontWeight: 500,
+                textTransform: 'none',
+                padding: '8px 16px',
+                '&:hover': {
+                  backgroundColor: '#E5E5EA',
+                },
+              }}
+            >
+              {showAllProfessors ? 'Show Less' : 'More Professors'}
+            </Button>
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  </Table>
+</TableContainer>
+{/* Legend component */}
+<Typography variant="caption" sx={{ color: '#black', marginTop: 2 }}>
+  <span
+    style={{
+      backgroundColor: '#E5F0FF',
+      padding: '2px 4px',
+      borderRadius: '4px',
+    }}
+  >
+    Highlighted professors
+  </span>{' '}
+  are teaching the current term.
+</Typography>
+
+<Box
+  sx={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '-10px',
+    marginTop: '60px',
+  }}
+>
+  <Typography
+    variant="h5"
+    gutterBottom
+    sx={{ fontWeight: 600, color: '#1D1D1F' }}
+  >
+    Reviews
+  </Typography>
+  <FormControl
+    size="small"
+    sx={{
+      minWidth: 150,
+      backgroundColor: '#FFFFFF',
+      borderRadius: '8px',
+      border: '1px solid #D1D1D6',
+    }}
+  >
+    <InputLabel
+      id="select-professor-label"
+      sx={{ fontWeight: 400, color: '#00693E' }}
+    >
+      Professor
+    </InputLabel>
+    <Select
+  labelId="select-professor-label"
+  value={selectedProfessor}
+  onChange={handleProfessorFilterChange}
+  label="Professor"
+  sx={{
+    fontWeight: 400,
+    '& .MuiSelect-select': {
+      padding: '8px 12px',
+    },
+  }}
+>
+
+      <MenuItem value="">
+        <em>All</em>
+      </MenuItem>
+      {uniqueProfessors.map((professor, index) => (
+        <MenuItem key={index} value={professor} sx={{ fontWeight: 400 }}>
+          {professor}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+</Box>
 
             {renderReviews()}
 

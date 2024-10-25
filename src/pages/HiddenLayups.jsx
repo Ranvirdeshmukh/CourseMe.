@@ -25,7 +25,6 @@ const HiddenLayups = () => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [recommendationOpen, setRecommendationOpen] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(6);
   const [filters, setFilters] = useState({
     department: '',
     distribs: [],
@@ -34,6 +33,7 @@ const HiddenLayups = () => {
   });
   const [departments, setDepartments] = useState([]);
   const [allDistribs, setAllDistribs] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(6);  // Increase this number
 
   // Data fetching logic
   useEffect(() => {
@@ -73,20 +73,29 @@ const HiddenLayups = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('Fetching hidden layups with courseIds:', hiddenLayupCourseIds);
       const hiddenLayupsSnapshot = await getDocs(collection(db, 'hidden_layups'));
+      console.log('Raw hidden layups docs:', hiddenLayupsSnapshot.docs.map(doc => ({id: doc.id, data: doc.data()})));
+      
       const hiddenLayupDocs = hiddenLayupsSnapshot.docs
-        .filter(doc => hiddenLayupCourseIds.includes(doc.id))
+        .filter(doc => {
+          const included = hiddenLayupCourseIds.includes(doc.id);
+          console.log(`Document ${doc.id} included in filter: ${included}`);
+          return included;
+        })
         .map(async doc => {
           const data = doc.data();
           const userVote = currentUser ? await getUserVote(doc.id, currentUser.uid) : null;
+          console.log(`Processed doc ${doc.id}:`, {...data, userVote});
           return {
             id: doc.id,
             ...data,
             userVote
           };
         });
-
+  
       const layupsData = await Promise.all(hiddenLayupDocs);
+      console.log('Final layups data:', layupsData);
       setHiddenLayups(layupsData);
     } catch (err) {
       console.error('Error fetching hidden layups:', err);
@@ -199,18 +208,45 @@ const HiddenLayups = () => {
   };
 
   // Filter logic
-  const filteredLayups = hiddenLayups.filter(layup => {
-    if (filters.department && layup.department !== filters.department) return false;
-    if (filters.distribs.length > 0 && !filters.distribs.every(d => layup.distribs?.includes(d))) return false;
-    if (layup.layup < filters.layupScore) return false;
-    
-    const totalVotes = (layup.yes_count || 0) + (layup.no_count || 0);
-    const approvalRate = totalVotes > 0 ? ((layup.yes_count || 0) / totalVotes) * 100 : 0;
-    if (approvalRate < filters.approvalRate) return false;
-    
-    return true;
-  });
+  // Replace your existing filter logic with this:
+const filteredLayups = hiddenLayups.filter(layup => {
+  // Department filter
+  if (filters.department && layup.department !== filters.department) return false;
+  
+  // Distribs filter
+  if (filters.distribs.length > 0 && !filters.distribs.every(d => layup.distribs?.includes(d))) return false;
+  
+  // Layup score filter - handle negative values
+  const layupScore = layup.layup ?? 0;
+  if (filters.layupScore > 0 && layupScore < filters.layupScore) return false;
+  
+  // Approval rate filter
+  const totalVotes = (layup.yes_count || 0) + (layup.no_count || 0);
+  const approvalRate = totalVotes > 0 ? ((layup.yes_count || 0) / totalVotes) * 100 : 0;
+  if (filters.approvalRate > 0 && approvalRate < filters.approvalRate) return false;
+  
+  return true;
+});
 
+// Update the display logic to handle all cases
+const displayedLayups = !filters.department && !filters.distribs.length && 
+  filters.layupScore === 0 && filters.approvalRate === 0
+  ? filteredLayups.slice(0, visibleCount)
+  : filteredLayups;
+
+// Add this debugging console log
+console.log('Filtering debug:', {
+  totalCourses: hiddenLayups.length,
+  afterFiltering: filteredLayups.length,
+  displayed: displayedLayups.length,
+  filters,
+  visibleCount,
+  courses: displayedLayups.map(l => ({
+    name: l.name,
+    layup: l.layup,
+    department: l.department
+  }))
+});
   // Loading and error states
   if (loading) {
     return (
@@ -229,10 +265,6 @@ const HiddenLayups = () => {
   }
 
   // Determine which layups to display
-  const displayedLayups = !filters.department && !filters.distribs.length && 
-    filters.layupScore === 0 && filters.approvalRate === 0
-    ? filteredLayups.slice(0, visibleCount)
-    : filteredLayups;
 
   return (
     <Container maxWidth="lg">

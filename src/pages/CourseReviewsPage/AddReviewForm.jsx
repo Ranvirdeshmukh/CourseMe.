@@ -3,13 +3,12 @@ import { useParams } from 'react-router-dom';
 import {
   TextField,
   Button,
-  Container,
   Typography,
   Alert,
   Autocomplete,
   createFilterOptions,
   Box,
-  Card,
+  Paper,
 } from '@mui/material';
 import { doc, updateDoc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -74,7 +73,7 @@ const AddReviewForm = ({ onReviewAdded }) => {
 
     try {
       const sanitizedProfessor = sanitizeFieldPath(professor);
-      const reviewData = `review: "${term} with ${professor}: ${review}"`;
+      const reviewData = `${term} with ${professor}: ${review}`;
 
       let data = null;
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -123,24 +122,42 @@ const AddReviewForm = ({ onReviewAdded }) => {
   });
 
   return (
-    <Container sx={{ textAlign: 'left', maxWidth: 'md', padding: '20px 0' }}>
-      <Card
+    <Box
+      sx={{
+        background: 'f9f9f9',
+        padding: '40px',
+        borderRadius: '16px',
+        width: '100%',
+        maxWidth: '800px',
+        margin: '0 auto',
+      }}
+    >
+      <Paper
+        elevation={3}
         sx={{
-          padding: 4,
-          backgroundColor: '#f9f9f9',
-          color: '#1D1D1F',
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-          borderRadius: '12px',
+          padding: '32px',
+          backgroundColor: '#FFFFFF',
+          borderRadius: '16px',
+          border: '1px solid #D1D1D6',
         }}
       >
         <Typography
           variant="h5"
           gutterBottom
-          sx={{ fontFamily: 'SF Pro Display, sans-serif', fontWeight: 600, color: '#1D1D1F' }}
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: 600,
+            color: '#1D1D1F',
+            marginBottom: '24px',
+          }}
         >
           Write a Review for {courseId.split('_')[1]}
         </Typography>
-        {error && <Alert severity="error">{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ marginBottom: '16px' }}>
+            {error}
+          </Alert>
+        )}
         <form onSubmit={handleSubmit}>
           <TextField
             label="Term"
@@ -152,10 +169,20 @@ const AddReviewForm = ({ onReviewAdded }) => {
             placeholder="e.g., 24F"
             InputProps={{
               sx: {
-                backgroundColor: 'white',
-                color: 'black',
-                borderRadius: '8px',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                backgroundColor: '#F2F2F7',
+                color: '#1D1D1F',
+                borderRadius: '12px',
+                '&:hover': {
+                  backgroundColor: '#E5E5EA',
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#E5E5EA',
+                },
+              },
+            }}
+            InputLabelProps={{
+              sx: {
+                color: '#8E8E93',
               },
             }}
           />
@@ -182,10 +209,20 @@ const AddReviewForm = ({ onReviewAdded }) => {
                 InputProps={{
                   ...params.InputProps,
                   sx: {
-                    backgroundColor: 'white',
-                    color: 'black',
-                    borderRadius: '8px',
-                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                    backgroundColor: '#F2F2F7',
+                    color: '#1D1D1F',
+                    borderRadius: '12px',
+                    '&:hover': {
+                      backgroundColor: '#E5E5EA',
+                    },
+                    '&.Mui-focused': {
+                      backgroundColor: '#E5E5EA',
+                    },
+                  },
+                }}
+                InputLabelProps={{
+                  sx: {
+                    color: '#8E8E93',
                   },
                 }}
               />
@@ -200,39 +237,51 @@ const AddReviewForm = ({ onReviewAdded }) => {
             multiline
             rows={4}
             required
+            placeholder="Write your review here..."
             InputProps={{
               sx: {
-                backgroundColor: 'white',
-                color: 'black',
-                borderRadius: '8px',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                backgroundColor: '#F2F2F7',
+                color: '#1D1D1F',
+                borderRadius: '12px',
+                '&:hover': {
+                  backgroundColor: '#E5E5EA',
+                },
+                '&.Mui-focused': {
+                  backgroundColor: '#E5E5EA',
+                },
+              },
+            }}
+            InputLabelProps={{
+              sx: {
+                color: '#8E8E93',
               },
             }}
           />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            sx={{
-              mt: 2,
-              fontFamily: 'SF Pro Display, sans-serif',
-              fontWeight: 500,
-              borderRadius: '8px',
-              boxShadow: 'none',
-              backgroundColor: '#571CE0',
-              '&:hover': {
-                backgroundColor: '#7E55CC',
-              },
-              textTransform: 'none',
-              paddingX: 3,
-              paddingY: 1,
-            }}
-          >
-            Submit
-          </Button>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontWeight: 500,
+                borderRadius: '12px',
+                boxShadow: 'none',
+                backgroundColor: '#571CE0',
+                '&:hover': {
+                  backgroundColor: '#7E55CC',
+                },
+                textTransform: 'none',
+                paddingX: 4,
+                paddingY: 1.5,
+              }}
+            >
+              Submit Review
+            </Button>
+          </Box>
         </form>
-      </Card>
-    </Container>
+      </Paper>
+    </Box>
   );
 };
 

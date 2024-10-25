@@ -20,6 +20,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import LockIcon from '@mui/icons-material/Lock';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Collapse } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({
@@ -104,6 +106,7 @@ const Timetable = () => {
   const classesPerPage = 50; // Number of classes per page
   const isFallAddDropClosed = true; // Replace with logic that checks if the fall add/drop period is over
   const [documentName, setDocumentName] = useState('');
+  const [showFeatures, setShowFeatures] = useState(false);
 
   var courseNameLong = ""
 
@@ -569,164 +572,245 @@ const Timetable = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
         backgroundColor: '#F9F9F9',
         padding: '40px',
         fontFamily: 'SF Pro Display, sans-serif',
       }}
     >
       <Container maxWidth="xl">
-
         {/* "Your Fall 2024 Classes" Section */}
-{showSelectedCourses && (
-  <Typography
-    variant="h3"
-    align="left"
-    sx={{
-      fontWeight: 600,
-      fontFamily: 'SF Pro Display, sans-serif',
-      color: '#571CE0',
-      marginBottom: '0px',
-      marginTop: '30px',
-    }}
-  >
-    Your Fall 2024 Classes
-  </Typography>
-)}
-
-{showSelectedCourses && selectedCourses.length > 0 && (
-  <TableContainer
-    component={Paper}
-    sx={{
-      backgroundColor: '#FFFFFF',
-      marginTop: '10px', // Changed from marginBottom to marginTop
-      boxShadow: 3,
-      borderRadius: '12px',
-      overflowX: 'auto',
-      maxWidth: '100%',
-    }}
-  >
+        {showSelectedCourses && (
+          <Typography
+            variant="h3"
+            align="left"
+            sx={{
+              fontWeight: 600,
+              color: '#34495E',
+              marginBottom: '20px',
+              marginTop: '30px',
+              fontFamily: 'SF Pro Display, sans-serif',
+            }}
+          >
+            Your Fall 2024 Classes
+          </Typography>
+        )}
+  
+        {showSelectedCourses && selectedCourses.length > 0 && (
+          <TableContainer
+            component={Paper}
+            sx={{
+              backgroundColor: '#FFFFFF',
+              marginTop: '10px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              borderRadius: '12px',
+              overflowX: 'auto',
+              maxWidth: '100%',
+            }}
+          >
             <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
-              <TableHead sx={{ backgroundColor: '#571CE0' }}>
-                <TableRow>
-                  {['Subject', 'Number', 'Section', 'Section', 'Timing', 'Room', 'Building', 'Instructor', 'Add to Calendar', 'Notify When Available', 'Remove'].map((header, index) => (
-                    <TableCell
-                      key={index}
-                      sx={{
-                        color: '#fff',
-                        textAlign: 'left',
-                        fontWeight: 'bold', // Unified fontWeight
-                        fontSize: '1rem',
-                        padding: '12px 10px',
-                        borderBottom: '2px solid #E0E0E0',
-                      }}
-                    >
-                      {header}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
+            <TableHead sx={{ backgroundColor: '#F8F8F8', position: 'sticky', top: 0, zIndex: 1 }}>
+  <TableRow>
+    {[
+      'Subject',
+      'Number',
+      'Title',
+      'Section',
+      'Timing',
+      'Room',
+      'Building',
+      'Instructor',
+      'Add to Calendar',
+      'Notify When Available',
+      'Remove',
+    ].map((header, index) => (
+      <TableCell
+        key={index}
+        sx={{
+          color: '#333333',
+          textAlign: 'left',
+          fontWeight: 700, // Increased font weight for emphasis
+          fontSize: '1rem', // Slightly larger font size for clarity
+          padding: '16px 12px', // Increased padding for better spacing
+          borderBottom: '2px solid #E0E0E0', // Thicker bottom border for distinction
+          backgroundColor: '#F8F8F8', // Consistent background color for the header
+          // Optional: Add a subtle box-shadow for depth
+          boxShadow: index === 0 ? '0 2px 4px rgba(0, 0, 0, 0.05)' : 'none',
+          fontFamily: 'SF Pro Display, sans-serif',
+
+        }}
+      >
+        {header}
+      </TableCell>
+    ))}
+  </TableRow>
+</TableHead>
+
               <TableBody>
                 {selectedCourses.map((course, index) => (
                   <TableRow
                     key={index}
                     sx={{
-                      backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4', // Unified alternating colors
-                      transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
+                      backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9F9F9',
+                      transition: 'background-color 0.3s ease',
                       '&:hover': {
-                        backgroundColor: '#e0e0e0', // Unified hover color
-                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                        backgroundColor: '#E5E5EA',
                       },
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      color: 'inherit',
+                      cursor: 'default',
                     }}
                   >
- <TableCell
-        onClick={(e) => {
-          e.stopPropagation(); // Prevent row click
-          handleCourseClick(course);
-        }}
-        sx={{
-          color: '#571CE0', // Optional: change text color to indicate interactivity
-          padding: '10px',
-          fontWeight: 500,
-          fontSize: '0.95rem',
-          textAlign: 'left',
-          fontFamily: 'SF Pro Display, sans-serif',
-          borderBottom: '1px solid #E0E0E0',
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          '&:hover': {
-            color: '#3a0fb7', // Optional: change color on hover
-          },
-        }}
-      >
-        {course.subj}
-      </TableCell>
-      <TableCell
-        onClick={(e) => {
-          e.stopPropagation(); // Prevent row click
-          handleCourseClick(course);
-        }}
-        sx={{
-          color: '#571CE0',
-          padding: '10px',
-          fontWeight: 500,
-          fontSize: '0.95rem',
-          textAlign: 'left',
-          fontFamily: 'SF Pro Display, sans-serif',
-          borderBottom: '1px solid #E0E0E0',
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          '&:hover': {
-            color: '#3a0fb7',
-          },
-        }}
-      >
-        {course.num}
-      </TableCell>
-      <TableCell
-        onClick={(e) => {
-          e.stopPropagation(); // Prevent row click
-          handleCourseClick(course);
-        }}
-        sx={{
-          color: '#571CE0',
-          padding: '10px',
-          fontWeight: 500,
-          fontSize: '0.95rem',
-          textAlign: 'left',
-          fontFamily: 'SF Pro Display, sans-serif',
-          borderBottom: '1px solid #E0E0E0',
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          '&:hover': {
-            color: '#3a0fb7',
-          },
-        }}
-      >
-        {course.title}
-      </TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.sec}</TableCell>
-                    {/* <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.period}</TableCell> */}
-                    <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.timing}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.room}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.building}</TableCell>
-                    <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.instructor}</TableCell>
+                    {/* Subject */}
+                    <TableCell
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCourseClick(course);
+                      }}
+                      sx={{
+                        color: '#571ce0',
+                        padding: '10px',
+                        fontWeight: 500,
+                        fontSize: '0.95rem',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline',
+                        },
+                        fontFamily: 'SF Pro Display, sans-serif',
 
+                      }}
+                    >
+                      {course.subj}
+                    </TableCell>
+  
+                    {/* Number */}
+                    <TableCell
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCourseClick(course);
+                      }}
+                      sx={{
+                        color: '#571ce0',
+                        padding: '10px',
+                        fontWeight: 500,
+                        fontSize: '0.95rem',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline',
+                        },
+                        fontFamily: 'SF Pro Display, sans-serif',
+
+                      }}
+                    >
+                      {course.num}
+                    </TableCell>
+  
+                    {/* Title */}
+                    <TableCell
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCourseClick(course);
+                      }}
+                      sx={{
+                        color: '#571ce0',
+                        padding: '10px',
+                        fontWeight: 500,
+                        fontSize: '0.95rem',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline',
+                        },
+                        fontFamily: 'SF Pro Display, sans-serif',
+
+                      }}
+                    >
+                      {course.title}
+                    </TableCell>
+  
+                    {/* Section */}
+                    <TableCell
+                      sx={{
+                        color: '#1D1D1F',
+                        padding: '10px',
+                        fontWeight: 400,
+                        fontSize: '0.95rem',
+                        textAlign: 'left',
+                        fontFamily: 'SF Pro Display, sans-serif',
+
+                      }}
+                      
+                    >
+                      {course.sec}
+                    </TableCell>
+  
+                    {/* Timing */}
+                    <TableCell
+                      sx={{
+                        color: '#1D1D1F',
+                        padding: '10px',
+                        fontWeight: 400,
+                        fontSize: '0.95rem',
+                        textAlign: 'left',
+                        fontFamily: 'SF Pro Display, sans-serif',
+
+                      }}
+                    >
+                      {course.timing}
+                    </TableCell>
+  
+                    {/* Room */}
+                    <TableCell
+                      sx={{
+                        color: '#1D1D1F',
+                        padding: '10px',
+                        fontWeight: 400,
+                        fontSize: '0.95rem',
+                        textAlign: 'left',
+                        fontFamily: 'SF Pro Display, sans-serif',
+
+                      }}
+                    >
+                      {course.room}
+                    </TableCell>
+  
+                    {/* Building */}
+                    <TableCell
+                      sx={{
+                        color: '#1D1D1F',
+                        padding: '10px',
+                        fontWeight: 400,
+                        fontSize: '0.95rem',
+                        textAlign: 'left',
+                        fontFamily: 'SF Pro Display, sans-serif',
+
+                      }}
+                    >
+                      {course.building}
+                    </TableCell>
+  
+                    {/* Instructor */}
+                    <TableCell
+                      sx={{
+                        color: '#1D1D1F',
+                        padding: '10px',
+                        fontWeight: 400,
+                        fontSize: '0.95rem',
+                        textAlign: 'left',
+                              fontFamily: 'SF Pro Display, sans-serif',
+
+                      }}
+                    >
+                      {course.instructor}
+                    </TableCell>
+  
                     {/* Add to Calendar Button */}
                     <TableCell
                       sx={{
-                        color: 'black',
                         padding: '10px',
-                        fontSize: '0.95rem',
                         textAlign: 'left',
-                        fontWeight: 500,
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        borderBottom: '1px solid #E0E0E0',
                       }}
                     >
                       {course.period !== 'ARR' && course.period !== 'FS' && (
@@ -738,17 +822,12 @@ const Timetable = () => {
                         </GoogleCalendarButton>
                       )}
                     </TableCell>
-
+  
                     {/* Notify when Available Button */}
                     <TableCell
                       sx={{
-                        color: 'black',
                         padding: '12px',
-                        fontSize: '0.95rem',
                         textAlign: 'left',
-                        fontWeight: 500,
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        borderBottom: '1px solid #E0E0E0',
                       }}
                     >
                       {isFallAddDropClosed ? (
@@ -760,26 +839,21 @@ const Timetable = () => {
                       ) : (
                         <Tooltip title="Notify me if someone drops this class">
                           <IconButton onClick={() => handleNotifyDrop(course)}>
-                            <NotificationsActiveIcon color="primary" />
+                            <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
                           </IconButton>
                         </Tooltip>
                       )}
                     </TableCell>
-
+  
                     {/* Remove Button */}
                     <TableCell
                       sx={{
-                        color: 'black',
                         padding: '12px',
-                        fontSize: '0.95rem',
                         textAlign: 'left',
-                        fontWeight: 500,
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        borderBottom: '1px solid #E0E0E0',
                       }}
                     >
                       <IconButton onClick={() => handleRemoveCourse(course)}>
-                        <DeleteIcon />
+                        <DeleteIcon sx={{ color: '#FF3B30' }} />
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -788,428 +862,455 @@ const Timetable = () => {
             </Table>
           </TableContainer>
         )}
-
+  
         {showSelectedCourses && selectedCourses.length === 0 && (
-          <Typography sx={{ marginBottom: '20px' }}>Haven't added your Fall 2024 timetable on CourseMe? Add now!!</Typography>
+          <Typography sx={{ marginBottom: '20px', color: '#1D1D1F' }}>
+            Haven't added your Fall 2024 timetable on CourseMe? Add now!
+          </Typography>
         )}
 
         {/* Filters and Controls */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
-            gap: '16px',
-          }}
-        >
-          <Typography
-            variant="h3"
-            align="left"
-            sx={{
-              fontWeight: 600,
-              fontFamily: 'SF Pro Display, sans-serif',
-              color: '#571CE0',
-              marginBottom: '0px',
-              marginTop: '20px',
-            }}
-          >
-            Fall '24 Timetable
-          </Typography>
-          <TextField
-            variant="outlined"
-            placeholder="Search Courses"
-            value={searchTerm}
-            onChange={handleSearch}
-            sx={{
-              width: isMobile ? '100%' : '300px',
-              height: '40px',
-              borderRadius: '20px',
-              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-              marginTop: '25px',
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: '#571CE0',
-                },
-                '&:hover fieldset': {
-                  borderColor: '#571CE0',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#571CE0',
-                },
-                borderRadius: '20px',
-                height: '40px',
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#571CE0' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <FormControl variant="outlined" sx={{ minWidth: isMobile ? '100%' : 200, marginTop: '25px' }}>
-            <InputLabel
+<Box
+  sx={{
+    display: 'flex',
+    flexDirection: isMobile ? 'column' : 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    gap: '16px',
+  }}
+>
+  <Typography
+    variant="h3"
+    align="left"
+    sx={{
+      fontWeight: 600,
+      color: '#000000',
+      marginBottom: '20px',
+      marginTop: '30px',
+      fontFamily: 'SF Pro Display, sans-serif',
+    }}
+  >
+    Fall 2024 Timetable.
+  </Typography>
+  <TextField
+  variant="outlined"
+  placeholder="Search Courses"
+  value={searchTerm}
+  onChange={handleSearch}
+  sx={{
+    width: isMobile ? '100%' : '300px',
+    height: '40px',
+    borderRadius: '20px',
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+    marginTop: '25px',
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: '#00693E',
+      },
+      '&:hover fieldset': {
+        borderColor: '#00693E',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#00693E',
+      },
+      borderRadius: '20px',
+      height: '40px',
+    },
+  }}
+  InputProps={{
+    startAdornment: (
+      <InputAdornment position="start">
+        <SearchIcon sx={{ color: '#00693E' }} />
+      </InputAdornment>
+    ),
+  }}
+/>
+<FormControl variant="outlined" sx={{ minWidth: isMobile ? '100%' : 200, marginTop: '25px' }}>
+  <InputLabel
+    sx={{
+      color: '#000000',
+      '&.Mui-focused': {
+        color: '#00693E',
+      },
+    }}
+  >
+    Subject
+  </InputLabel>
+  <Select
+    value={selectedSubject}
+    onChange={handleSubjectChange}
+    label="Subject"
+    sx={{
+      borderRadius: '20px',
+      height: '40px',
+      backgroundColor: 'transparent',
+      color: '#000000',
+      fontWeight: '600',
+      fontSize: '16px',
+      fontFamily: 'SF Pro Display, sans-serif',
+      textTransform: 'none',
+      border: '1px solid #00693E',
+      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+      '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+          borderColor: '#000000',
+        },
+        '&:hover fieldset': {
+          borderColor: '#000000',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: '#000000',
+        },
+        backgroundColor: 'transparent',
+        height: '40px',
+      },
+      '& .MuiSelect-icon': {
+        color: '#00693E',
+      },
+      '&:hover': {
+        backgroundColor: 'rgba(0, 105, 62, 0.1)', // Adjusted for Dartmouth Green
+      },
+      '&:focus': {
+        outline: 'none',
+        boxShadow: '0 0 0 4px rgba(0, 105, 62, 0.5)', // Adjusted for Dartmouth Green
+      },
+    }}
+  >
+    <MenuItem value="">
+      <em>All Subjects</em>
+    </MenuItem>
+    {subjects.map((subject, index) => (
+      <MenuItem key={index} value={subject}>
+        {subject}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
+<Button
+  variant="contained"
+  sx={{
+    marginTop: isMobile ? '20px' : '25px',
+    padding: '10px 20px',
+    borderRadius: '20px',
+    height: '40px',
+    backgroundColor: 'transparent',
+    color: '#00693E',
+    fontWeight: '600',
+    fontSize: '16px',
+    fontFamily: 'SF Pro Display, sans-serif',
+    textTransform: 'none',
+    border: '1px solid #00693E',
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+    '&:hover': {
+      backgroundColor: 'rgba(0, 105, 62, 0.1)', // Adjusted for Dartmouth Green
+      borderColor: '#00693E',
+    },
+    '&:focus': {
+      outline: 'none',
+      boxShadow: '0 0 0 4px rgba(0, 105, 62, 0.5)', // Adjusted for Dartmouth Green
+    },
+  }}
+  onClick={() => setShowSelectedCourses(!showSelectedCourses)}
+>
+  {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
+</Button>
+</Box>
+
+<Box sx={{ position: 'relative' }}>
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      cursor: 'pointer',
+      marginBottom: '10px',
+      marginTop: '10px',
+    }}
+    onClick={() => setShowFeatures(!showFeatures)}
+  >
+    <Typography
+      variant="body2"
+      sx={{
+        fontFamily: 'SF Pro Display, sans-serif',
+        color: '#1D1D1F',
+        fontWeight: 600,
+      }}
+    >
+      The most intuitive AI powered course planning experience you'll ever need
+    </Typography>
+    <KeyboardArrowDownIcon 
+      sx={{ 
+        marginLeft: '8px', 
+        color: '#00693E',
+        transform: showFeatures ? 'rotate(180deg)' : 'none',
+        transition: 'transform 0.3s ease',
+      }} 
+    />
+  </Box>
+
+  <Collapse in={showFeatures}>
+    <Box 
+      component="ul" 
+      sx={{ 
+        margin: '0',
+        paddingLeft: '20px',
+        marginBottom: '20px',
+        color: '#1D1D1F',
+        fontFamily: 'SF Pro Display, sans-serif',
+      }}
+    >
+      <li>Sync your timetable to Google Calendar in one click</li>
+      <li>Get instant notifications when a course spot opens up</li>
+      <li>Send templated emails to professors in one click.</li>
+      <li> Navigate to the course reviews in one click.</li>
+
+      
+    </Box>
+  </Collapse>
+</Box>
+{/* Main "Fall '24 Timetable" Table */}
+{loading ? (
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '60vh',
+    }}
+  >
+    <CircularProgress sx={{ color: '#007AFF' }} size={60} />
+    <Typography
+      variant="h6"
+      sx={{
+        marginTop: '20px',
+        fontFamily: 'SF Pro Display, sans-serif',
+        color: 'black',
+        textAlign: 'center',
+        padding: '0 20px',
+      }}
+    >
+      Great things take time—please hold on while we fetch the latest data for you!
+    </Typography>
+  </Box>
+) : error ? (
+  <Alert severity="error">Error loading courses: {error.message}</Alert>
+) : filteredCourses.length > 0 ? (
+  <>
+    <TableContainer 
+      component={Paper} 
+      sx={{ 
+        backgroundColor: '#FFFFFF',
+        marginTop: '10px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        borderRadius: '12px',
+        overflowX: 'auto',
+        maxWidth: '100%'
+        
+      }}
+    >
+      <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
+        <TableHead sx={{ backgroundColor: '#F8F8F8', position: 'sticky', top: 0, zIndex: 1 }}>
+          <TableRow>
+            {['Subject', 'Number', 'Title', 'Section', 'Period', 'Timing', 'Room', 'Building', 'Instructor', 'Add to Calendar', 'Notify When Available', 'Add Course'].map((header, index) => (
+              <TableCell
+                key={index}
+                sx={{
+                  color: '#333333',
+                  textAlign: 'left',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  padding: '16px 12px',
+                  borderBottom: '2px solid #E0E0E0',
+                  backgroundColor: '#F8F8F8',
+                  boxShadow: index === 0 ? '0 2px 4px rgba(0, 0, 0, 0.05)' : 'none',
+                  fontFamily: 'SF Pro Display, sans-serif',
+
+                }}
+              >
+                {header}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {paginatedCourses.map((course, index) => (
+            <TableRow
+              key={index}
               sx={{
-                color: '#571CE0',
-                '&.Mui-focused': {
-                  color: '#571CE0',
-                },
-              }}
-            >
-              Subject
-            </InputLabel>
-            <Select
-              value={selectedSubject}
-              onChange={handleSubjectChange}
-              label="Subject"
-              sx={{
-                borderRadius: '20px',
-                height: '40px',
-                backgroundColor: 'transparent',
-                color: '#571CE0',
-                fontWeight: '600',
-                fontSize: '16px',
-                fontFamily: 'SF Pro Display, sans-serif',
-                textTransform: 'none',
-                border: '1px solid #571CE0',
-                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#571CE0',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#571CE0',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#571CE0',
-                  },
-                  backgroundColor: 'transparent',
-                  height: '40px',
-                },
-                '& .MuiSelect-icon': {
-                  color: '#571CE0',
-                },
+                backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9F9F9',
+                transition: 'background-color 0.3s ease',
                 '&:hover': {
-                  backgroundColor: 'rgba(87, 28, 224, 0.1)',
+                  backgroundColor: '#E5E5EA',
                 },
-                '&:focus': {
-                  outline: 'none',
-                  boxShadow: '0 0 0 4px rgba(0, 122, 255, 0.5)',
-                },
+                cursor: 'default',
               }}
             >
-              <MenuItem value="">
-                <em>All Subjects</em>
-              </MenuItem>
-              {subjects.map((subject, index) => (
-                <MenuItem key={index} value={subject}>
-                  {subject}
-                </MenuItem>
+              {/* Interactive cells (Subject, Number, Title) */}
+              <TableCell
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCourseClick(course);
+                }}
+                sx={{
+                  color: '#571ce0',
+                  padding: '10px',
+                  fontWeight: 500,
+                  fontSize: '0.95rem',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
+                {course.subj}
+              </TableCell>
+              <TableCell
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCourseClick(course);
+                }}
+                sx={{
+                  color: '#571ce0',
+                  padding: '10px',
+                  fontWeight: 500,
+                  fontSize: '0.95rem',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
+                {course.num}
+              </TableCell>
+              <TableCell
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCourseClick(course);
+                }}
+                sx={{
+                  color: '#571ce0',
+                  padding: '10px',
+                  fontWeight: 500,
+                  fontSize: '0.95rem',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
+                {course.title}
+              </TableCell>
+
+              {/* Regular cells */}
+              {['sec', 'period', 'timing', 'room', 'building', 'instructor'].map((field) => (
+                <TableCell
+                  key={field}
+                  sx={{
+                    color: '#1D1D1F',
+                    padding: '10px',
+                    fontWeight: 400,
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                  }}
+                >
+                  {course[field]}
+                </TableCell>
               ))}
-            </Select>
-          </FormControl>
 
-          <Button
-            variant="contained"
-            sx={{
-              marginTop: isMobile ? '20px' : '25px',
-              padding: '10px 20px',
-              borderRadius: '20px',
-              height: '40px',
-              backgroundColor: 'transparent',
-              color: '#571CE0',
-              fontWeight: '600',
-              fontSize: '16px',
-              fontFamily: 'SF Pro Display, sans-serif',
-              textTransform: 'none',
-              border: '1px solid #571CE0',
-              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-              '&:hover': {
-                backgroundColor: 'rgba(87, 28, 224, 0.1)',
-                borderColor: '#571CE0',
-              },
-              '&:focus': {
-                outline: 'none',
-                boxShadow: '0 0 0 4px rgba(0, 122, 255, 0.5)',
-              },
-            }}
-            onClick={() => setShowSelectedCourses(!showSelectedCourses)}
-          >
-            {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
-          </Button>
-        </Box>
+              {/* Add to Calendar Button */}
+              <TableCell sx={{ padding: '10px', textAlign: 'left' }}>
+                {course.period !== 'ARR' && course.period !== 'FS' && (
+                  <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
+                    <div className="icon">
+                      <GoogleIcon />
+                    </div>
+                    <span className="text">Add to Calendar</span>
+                  </GoogleCalendarButton>
+                )}
+              </TableCell>
 
-        <Typography
-          variant="body2"
-          color="textSecondary"
-          sx={{
-            marginBottom: '20px',
-            marginTop: '20px',
-            fontFamily: 'SF Pro Display, sans-serif',
-            color: '#1D1D1F',
-          }}
-        >
-          <strong>Add your Fall Timetable to your calendar in one click, and get notified if a class spot opens up!</strong> 
-          Simply select your courses to add them to your profile, and use the "Add to Calendar" feature to seamlessly integrate them into your personal schedule. 
-          Additionally, you can opt to be notified if someone drops a class, giving you the chance to enroll in a previously full course.
-          This data will also help train the AI model we are working on, which will eventually assist with complete major planning.
-        </Typography>
+              {/* Notify When Available Button */}
+              <TableCell sx={{ padding: '12px', textAlign: 'left' }}>
+                {isFallAddDropClosed ? (
+                  <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
+                    <IconButton>
+                      <LockIcon sx={{ color: '#999999' }} />
+                    </IconButton>
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="Notify me if someone drops this class">
+                    <IconButton onClick={() => handleNotifyDrop(course)}>
+                      <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </TableCell>
 
-        {/* Main "Fall '24 Timetable" Table */}
-        {loading ? (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '60vh',
-            }}
-          >
-            <CircularProgress color="primary" size={60} />
-            <Typography
-              variant="h6"
-              sx={{
-                marginTop: '20px',
-                fontFamily: 'SF Pro Display, sans-serif',
-                color: 'black',
-                textAlign: 'center',
-                padding: '0 20px',
-              }}
-            >
-              Great things take time—please hold on while we fetch the latest data for you!
-            </Typography>
-          </Box>
-        ) : error ? (
-          <Alert severity="error">Error loading courses: {error.message}</Alert>
-        ) : filteredCourses.length > 0 ? (
-          <>
-            <TableContainer 
-              component={Paper} 
-              sx={{ 
-                backgroundColor: '#FFFFFF', 
-                marginTop: '20px', 
-                boxShadow: 3, 
-                borderRadius: '12px', 
-                maxWidth: '100%' 
-              }}
-            >
-              <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
-                <TableHead sx={{ backgroundColor: '#571CE0' }}>
-                  <TableRow>
-                    {['Subject', 'Number', 'Title','Section', 'Period', 'Timing', 'Room', 'Building', 'Instructor', 'Add to Calendar', 'Notify When Available', 'Add Course'].map((header, index) => (
-                      <TableCell
-                        key={index}
-                        sx={{
-                          color: '#fff',
-                          textAlign: 'left',
-                          fontWeight: 'bold', // Unified fontWeight
-                          fontSize: '1rem',
-                          padding: '12px 10px',
-                          borderBottom: '2px solid #E0E0E0',
-                        }}
-                      >
-                        {header}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {paginatedCourses.map((course, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        backgroundColor: index % 2 === 0 ? '#fafafa' : '#f4f4f4', // Unified alternating colors
-                        transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
-                        '&:hover': {
-                          backgroundColor: '#e0e0e0', // Unified hover color
-                          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
-                        },
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                      }}
-                    >
- <TableCell
-        onClick={(e) => {
-          e.stopPropagation(); // Prevent row click
-          handleCourseClick(course);
-        }}
-        sx={{
-          color: '#571CE0', // Optional: change text color to indicate interactivity
-          padding: '10px',
-          fontWeight: 500,
-          fontSize: '0.95rem',
-          textAlign: 'left',
-          fontFamily: 'SF Pro Display, sans-serif',
-          borderBottom: '1px solid #E0E0E0',
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          '&:hover': {
-            color: '#3a0fb7', // Optional: change color on hover
-          },
+              {/* Add Course Button */}
+              <TableCell sx={{ padding: '12px', textAlign: 'left' }}>
+                <IconButton
+                  onClick={() => handleAddCourse(course)}
+                  disabled={selectedCourses.length >= 3}
+                >
+                  {selectedCourses.some((c) => c.title === course.title) ? (
+                    <CheckCircleIcon sx={{ color: '#34C759' }} />
+                  ) : (
+                    <AddCircleOutlineIcon
+                      sx={{ color: selectedCourses.length >= 3 ? '#999999' : '#007AFF' }}
+                    />
+                  )}
+                </IconButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+
+    {/* Pagination Controls */}
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
+      <IconButton
+        onClick={handlePreviousPage}
+        disabled={currentPage === 1}
+        sx={{ 
+          marginRight: '10px',
+          color: '#007AFF',
+          '&.Mui-disabled': {
+            color: '#999999'
+          }
         }}
       >
-        {course.subj}
-      </TableCell>
-      <TableCell
-        onClick={(e) => {
-          e.stopPropagation(); // Prevent row click
-          handleCourseClick(course);
-        }}
-        sx={{
-          color: '#571CE0',
-          padding: '10px',
-          fontWeight: 500,
-          fontSize: '0.95rem',
-          textAlign: 'left',
-          fontFamily: 'SF Pro Display, sans-serif',
-          borderBottom: '1px solid #E0E0E0',
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          '&:hover': {
-            color: '#3a0fb7',
-          },
+        <ArrowBackIcon />
+      </IconButton>
+      <Typography variant="body1">
+        Page {currentPage} of {totalPages}
+      </Typography>
+      <IconButton
+        onClick={handleNextPage}
+        disabled={currentPage === totalPages}
+        sx={{ 
+          marginLeft: '10px',
+          color: '#007AFF',
+          '&.Mui-disabled': {
+            color: '#999999'
+          }
         }}
       >
-        {course.num}
-      </TableCell>
-      <TableCell
-        onClick={(e) => {
-          e.stopPropagation(); // Prevent row click
-          handleCourseClick(course);
-        }}
-        sx={{
-          color: '#571CE0',
-          padding: '10px',
-          fontWeight: 500,
-          fontSize: '0.95rem',
-          textAlign: 'left',
-          fontFamily: 'SF Pro Display, sans-serif',
-          borderBottom: '1px solid #E0E0E0',
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          '&:hover': {
-            color: '#3a0fb7',
-          },
-        }}
-      >
-        {course.title}
-      </TableCell>
-                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.sec}</TableCell>
-                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.period}</TableCell>
-                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.timing}</TableCell>
-                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.room}</TableCell>
-                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.building}</TableCell>
-                      <TableCell sx={{ color: 'black', padding: '10px', fontWeight: 500, fontSize: '0.95rem', textAlign: 'left', fontFamily: 'SF Pro Display, sans-serif', borderBottom: '1px solid #E0E0E0' }}>{course.instructor}</TableCell>
-
-                      {/* Add to Calendar Button */}
-                      <TableCell
-                        sx={{
-                          color: 'black',
-                          padding: '10px',
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          fontWeight: 500,
-                          fontFamily: 'SF Pro Display, sans-serif',
-                          borderBottom: '1px solid #E0E0E0',
-                        }}
-                      >
-                        {course.period !== 'ARR' && course.period !== 'FS' && (
-                          <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
-                            <div className="icon">
-                              <GoogleIcon />
-                            </div>
-                            <span className="text">Add to Calendar</span>
-                          </GoogleCalendarButton>
-                        )}
-                      </TableCell>
-
-                      {/* Notify When Available Button */}
-                      <TableCell
-                        sx={{
-                          color: 'black',
-                          padding: '12px',
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          fontWeight: 500,
-                          fontFamily: 'SF Pro Display, sans-serif',
-                          borderBottom: '1px solid #E0E0E0',
-                        }}
-                      >
-                        {isFallAddDropClosed ? (
-                          <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
-                            <IconButton>
-                              <LockIcon color="disabled" />
-                            </IconButton>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip title="Notify me if someone drops this class">
-                            <IconButton onClick={() => handleNotifyDrop(course)}>
-                              <NotificationsActiveIcon color="primary" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </TableCell>
-
-                      {/* Add Course Button */}
-                      <TableCell
-                        sx={{
-                          color: 'black',
-                          padding: '12px',
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          fontWeight: 500,
-                          fontFamily: 'SF Pro Display, sans-serif',
-                          borderBottom: '1px solid #E0E0E0',
-                        }}
-                      >
-                        <IconButton
-                          onClick={() => handleAddCourse(course)}
-                          disabled={selectedCourses.length >= 3}
-                        >
-                          {selectedCourses.some((c) => c.title === course.title) ? (
-                            <CheckCircleIcon color="success" />
-                          ) : (
-                            <AddCircleOutlineIcon
-                              color={selectedCourses.length >= 3 ? 'disabled' : 'primary'}
-                            />
-                          )}
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            {/* Pagination Controls */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
-              <IconButton
-                onClick={handlePreviousPage}
-                disabled={currentPage === 1}
-                sx={{ marginRight: '10px' }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-              <Typography variant="body1">
-                Page {currentPage} of {totalPages}
-              </Typography>
-              <IconButton
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-                sx={{ marginLeft: '10px' }}
-              >
-                <ArrowForwardIcon />
-              </IconButton>
-            </Box>
-          </>
-        ) : (
-          <Typography>No courses available</Typography>
-        )}
+        <ArrowForwardIcon />
+      </IconButton>
+    </Box>
+  </>
+) : (
+  <Typography>No courses available</Typography>
+)}
       </Container>
 
       {/* Snackbars */}
