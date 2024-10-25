@@ -53,38 +53,22 @@ const DepartmentCoursesPage = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        console.log(`Fetching courses for department: ${department}`);  // Debug log
         const q = query(collection(db, 'courses'), where('department', '==', department));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
-          const coursesData = querySnapshot.docs.map(doc => {
-            const data = { id: doc.id, ...doc.data() };
-            console.log('Document data:', data);  // Debug log for each document
-            return data;
-          });
-          
-          // Generate custom IDs for each course
-          const coursesWithCustomIds = coursesData.map(course => ({
-            ...course,
-            id: `${course.department}_${course.course_number}__${course.name.replace(/\s+/g, '_')}`
-          }));
-          
-          console.log('Processed courses data:', coursesWithCustomIds);  // Debug log
-          
-          setCourses(coursesWithCustomIds);
-          setFilteredCourses(coursesWithCustomIds);
-    
-          // Cache the data with custom IDs
+          const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setCourses(coursesData);
+          setFilteredCourses(coursesData); // Initialize filteredCourses
+
+          // Cache the data
           localStorage.setItem(`${CACHE_PREFIX}${department}`, JSON.stringify({
             timestamp: new Date().getTime(),
-            courses: coursesWithCustomIds,
+            courses: coursesData,
           }));
         } else {
-          console.log('No courses found for this department.');
           setError('No courses found for this department.');
         }
       } catch (error) {
-        console.error('Error fetching courses:', error);
         setError('Failed to fetch courses.');
       } finally {
         setLoading(false);
@@ -94,9 +78,8 @@ const DepartmentCoursesPage = () => {
     const checkCache = () => {
       const cachedData = JSON.parse(localStorage.getItem(`${CACHE_PREFIX}${department}`));
       const now = new Date().getTime();
-    
+
       if (cachedData && (now - cachedData.timestamp < CACHE_EXPIRATION)) {
-        console.log('Using cached data:', cachedData.courses);  // Debug log
         setCourses(cachedData.courses);
         setFilteredCourses(cachedData.courses);
         setLoading(false);
@@ -124,12 +107,12 @@ const DepartmentCoursesPage = () => {
       }
 
       // Filter by Distribs
-      // Filter by Distribs
-if (selectedDistribs.length > 0) {
-  updatedCourses = updatedCourses.filter(course => 
-    selectedDistribs.some(distrib => course.distribs?.includes(distrib))
-  );
-}
+      if (selectedDistribs.length > 0) {
+        updatedCourses = updatedCourses.filter(course => 
+          selectedDistribs.some(distrib => course.distribs.includes(distrib))
+        );
+      }
+
       // Filter by Quality
       updatedCourses = updatedCourses.filter(course => 
         course.quality >= qualityFilter[0] && course.quality <= qualityFilter[1]
@@ -530,70 +513,76 @@ if (selectedDistribs.length > 0) {
         
                     {/* Displaying Course Name */}
                     <TableCell 
-                      sx={{ 
-                        color: '#333', 
-                        padding: '10px 20px',
-                        fontSize: '0.95rem', 
-                        borderBottom: '1px solid #E0E0E0',
-                        width: '50%'
-                      }}
-                    >
-                      {course.name.includes(':') ? course.name.split(':')[1].trim() : course.name}
-                    </TableCell>
-        
-                    {/* Distribs */}
-                    {!isMobile && (
-                      <TableCell 
-                        sx={{ 
-                          color: '#333', 
-                          padding: '10px', 
-                          fontSize: '0.9rem', 
-                          textAlign: 'center', 
-                          borderBottom: '1px solid #E0E0E0',
-                          verticalAlign: 'middle',
-                          height: 'auto',
-                        }}
-                      >
-                        <Box 
-                          sx={{ 
-                            display: 'flex', 
-                            gap: '5px', 
-                            justifyContent: 'center', 
-                            flexWrap: 'nowrap', 
-                            maxWidth: '200px',  
-                            whiteSpace: 'nowrap', 
-                            alignItems: 'center',  
-                            height: '100%',
-                          }}
-                        >
-{course.distribs ? course.distribs.split(',').map((distrib, idx) => (
-                            <Box
-                              key={idx}
-                              sx={{
-                                backgroundColor: '#F0F0F0',  
-                                color: '#333',             
-                                padding: '4px 10px',       
-                                borderRadius: '20px',      
-                                fontSize: '0.85rem',
-                                fontWeight: 500,
-                                whiteSpace: 'nowrap',
-                                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', 
-                                transition: 'background-color 0.2s ease',
-                                lineHeight: '1.5',
-                                display: 'flex',
-                                alignItems: 'center',
-                                '&:hover': {
-                                  backgroundColor: '#E0E0E0', 
-                                  boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
-                                },
-                              }}
-                            >
-                              {distrib.trim()}
-                            </Box>
-                          )): 'No distribs'}
-                        </Box>
-                      </TableCell>
-                    )}
+  sx={{ 
+    color: '#333', 
+    padding: '10px 20px',
+    fontSize: '0.95rem', 
+    borderBottom: '1px solid #E0E0E0',
+    width: '50%'
+  }}
+>
+  {course.name ? 
+    (course.name.includes(':') ? 
+      course.name.split(':')[1].trim() : 
+      course.name
+    ) : 
+    'Untitled Course'
+  }
+</TableCell>
+
+{/* Also add a safety check for the distribs array mapping */}
+{!isMobile && (
+  <TableCell 
+    sx={{ 
+      color: '#333', 
+      padding: '10px', 
+      fontSize: '0.9rem', 
+      textAlign: 'center', 
+      borderBottom: '1px solid #E0E0E0',
+      verticalAlign: 'middle',
+      height: 'auto',
+    }}
+  >
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        gap: '5px', 
+        justifyContent: 'center', 
+        flexWrap: 'nowrap', 
+        maxWidth: '200px',  
+        whiteSpace: 'nowrap', 
+        alignItems: 'center',  
+        height: '100%',
+      }}
+    >
+      {(course.distribs ? course.distribs.split(',') : []).map((distrib, idx) => (
+        <Box
+          key={idx}
+          sx={{
+            backgroundColor: '#F0F0F0',  
+            color: '#333',             
+            padding: '4px 10px',       
+            borderRadius: '20px',      
+            fontSize: '0.85rem',
+            fontWeight: 500,
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', 
+            transition: 'background-color 0.2s ease',
+            lineHeight: '1.5',
+            display: 'flex',
+            alignItems: 'center',
+            '&:hover': {
+              backgroundColor: '#E0E0E0', 
+              boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
+            },
+          }}
+        >
+          {distrib.trim()}
+        </Box>
+      ))}
+    </Box>
+  </TableCell>
+)}
         
                     {/* Num of Reviews */}
                     <TableCell 
