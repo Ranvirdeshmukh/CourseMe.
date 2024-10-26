@@ -1649,8 +1649,9 @@ useEffect(() => {
       boxShadow: 'none', // Remove heavy shadow for a cleaner look
       borderRadius: '16px',
       border: '1px solid #D1D1D6', // Add a subtle border
-      maxWidth: 1100,
       width: '100%',
+      maxWidth: '100%', // Change this from 1100 to '100%' to make the card fill the container
+
     }}
   >
     <Box
@@ -1659,6 +1660,7 @@ useEffect(() => {
         alignItems: 'center',
         marginBottom: 3,
         justifyContent: 'space-between',
+
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
