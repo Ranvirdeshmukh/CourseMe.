@@ -22,6 +22,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { Collapse } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { memo } from 'react';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({
@@ -107,6 +108,10 @@ const Timetable = () => {
   const isFallAddDropClosed = true; // Replace with logic that checks if the fall add/drop period is over
   const [documentName, setDocumentName] = useState('');
   const [showFeatures, setShowFeatures] = useState(false);
+  const [professorMappings, setProfessorMappings] = useState({});
+  const [professorNames, setProfessorNames] = useState([]);
+  const [professorMap, setProfessorMap] = useState(new Map());
+  // const debouncedApplyFilters = useMemo(() => debounce(applyFilters, 300), [applyFilters]);
 
   var courseNameLong = ""
 
@@ -136,6 +141,42 @@ const Timetable = () => {
     "LSA": "Language Study Abroad",
   };
 
+  // Move this up before any useEffects
+const applyFilters = useCallback(() => {
+  let filtered = [...courses];
+
+  if (searchTerm) {
+    const searchLower = searchTerm.toLowerCase();
+    filtered = filtered.filter(
+      (course) =>
+        (course.title?.toLowerCase()?.includes(searchLower) ?? false) ||
+        (course.subj?.toLowerCase()?.includes(searchLower) ?? false) ||
+        (course.instructor?.toLowerCase()?.includes(searchLower) ?? false)
+    );
+  }
+
+  if (selectedSubject) {
+    filtered = filtered.filter((course) => course.subj === selectedSubject);
+  }
+
+  setFilteredCourses(filtered);
+  setCurrentPage(1);
+}, [courses, searchTerm, selectedSubject]);
+
+// Then create debouncedApplyFilters after applyFilters is defined
+const debouncedApplyFilters = useMemo(
+  () => debounce(applyFilters, 300),
+  [applyFilters]
+);
+
+// Now your useEffects can use these functions
+useEffect(() => {
+  debouncedApplyFilters();
+  return () => {
+    debouncedApplyFilters.cancel();
+  };
+}, [debouncedApplyFilters]);
+
   useEffect(() => {
     fetchFirestoreCourses();
     fetchUserTimetable(); 
@@ -144,6 +185,124 @@ const Timetable = () => {
   useEffect(() => {
     applyFilters(); 
   }, [searchTerm, selectedSubject]);
+
+  useEffect(() => {
+    fetchProfessorData();
+  }, []);
+
+  const handleProfessorClick = (professorName, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const professorId = findClosestProfessorMatch(professorName, professorNames);
+    if (professorId) {
+      navigate(`/professors/${professorId}`, { replace: false, state: { from: 'timetable' } });
+      window.scrollTo(0, 0); // Force scroll to top
+    }
+  };
+  const formatProfessorId = (name) => {
+    if (!name) return '';
+    // Split on common delimiters and clean up
+    const parts = name.split(/[,;]/)[0].trim().split(' ');
+    if (parts.length < 2) return name;
+    return `${parts[0]}_${parts[parts.length - 1]}`;
+  };
+  
+  // Add this function to find the closest matching professor
+  const findClosestProfessorMatch = useCallback((professorName) => {
+    if (!professorName) return null;
+    
+    const nameLower = professorName.toLowerCase();
+    // Direct lookup from map
+    if (professorMap.has(nameLower)) {
+      return professorMap.get(nameLower);
+    }
+  
+    // If no exact match, try formatted ID
+    const formattedId = formatProfessorId(professorName);
+    for (const [, id] of professorMap) {
+      if (id === formattedId) return id;
+    }
+  
+    return null;
+  }, [professorMap]);
+
+  const ProfessorCell = memo(({ instructor }) => {
+    const professorId = findClosestProfessorMatch(instructor);
+    const navigate = useNavigate();
+  
+    const handleClick = useCallback((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (professorId) {
+        navigate(`/professors/${professorId}`);
+        window.scrollTo(0, 0);
+      }
+    }, [professorId, navigate]);
+  
+    return (
+      <TableCell
+        onClick={handleClick}
+        sx={{
+          color: professorId ? '#571ce0' : '#1D1D1F',
+          padding: '10px',
+          fontWeight: 400,
+          fontSize: '0.95rem',
+          textAlign: 'left',
+          cursor: professorId ? 'pointer' : 'default',
+          '&:hover': professorId ? {
+            textDecoration: 'underline',
+          } : {},
+        }}
+      >
+        {instructor}
+      </TableCell>
+    );
+  });
+
+  const fetchProfessorData = async () => {
+    try {
+      // Check cache first
+      const cachedProfessors = await localforage.getItem('cachedProfessors');
+      const cacheTimestamp = await localforage.getItem('professorsCacheTimestamp');
+      const now = Date.now();
+  
+      if (cachedProfessors && cacheTimestamp && (now - cacheTimestamp) < 5184000000) {
+        setProfessorNames(cachedProfessors);
+        // Create mapping for faster lookups
+        const mapping = new Map(
+          cachedProfessors.map(prof => [
+            prof.displayName.toLowerCase(),
+            prof.id
+          ])
+        );
+        setProfessorMap(mapping);
+        return;
+      }
+  
+      const db = getFirestore();
+      const professorsSnapshot = await getDocs(collection(db, 'professors'));
+      const professorsData = professorsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        displayName: doc.data().name || doc.id.replace('_', ' ')
+      }));
+  
+      // Update cache
+      await localforage.setItem('cachedProfessors', professorsData);
+      await localforage.setItem('professorsCacheTimestamp', now);
+  
+      setProfessorNames(professorsData);
+      // Create mapping for faster lookups
+      const mapping = new Map(
+        professorsData.map(prof => [
+          prof.displayName.toLowerCase(),
+          prof.id
+        ])
+      );
+      setProfessorMap(mapping);
+    } catch (error) {
+      console.error('Error fetching professor data:', error);
+    }
+  };
 
   const fetchFirestoreCourses = async () => {
     try {
@@ -364,34 +523,7 @@ const Timetable = () => {
     setSubjects([...subjectsSet]);
   };
 
-  const applyFilters = useCallback(() => {
-    let filtered = [...courses];
 
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (course) =>
-          course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          course.subj.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (selectedSubject) {
-      filtered = filtered.filter((course) => course.subj === selectedSubject);
-    }
-
-    setFilteredCourses(filtered);
-    setCurrentPage(1); // Reset to first page on filter change
-  }, [courses, searchTerm, selectedSubject]);
-
-  const debouncedApplyFilters = useMemo(() => debounce(applyFilters, 300), [applyFilters]);
-
-  useEffect(() => {
-    debouncedApplyFilters();
-    return () => {
-      debouncedApplyFilters.cancel();
-    };
-  }, [debouncedApplyFilters]);
 
   const handleSearch = (event) => {
     const term = event.target.value;
@@ -1221,7 +1353,7 @@ const Timetable = () => {
               </TableCell>
 
               {/* Regular cells */}
-              {['sec', 'period', 'timing', 'room', 'building', 'instructor'].map((field) => (
+              {['sec', 'period', 'timing', 'room', 'building'].map((field) => (
                 <TableCell
                   key={field}
                   sx={{
@@ -1235,6 +1367,7 @@ const Timetable = () => {
                   {course[field]}
                 </TableCell>
               ))}
+              <ProfessorCell instructor={course.instructor} />
 
               {/* Add to Calendar Button */}
               <TableCell sx={{ padding: '10px', textAlign: 'left' }}>

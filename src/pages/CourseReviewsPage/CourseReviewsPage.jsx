@@ -24,7 +24,13 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import CanvasGradeTable from './CanvasGradeTable';
 import CourseInputDataForm from './CourseInputDataForm';
 import { PushPinOutlined } from '@mui/icons-material';
-
+import { Sparkles } from 'lucide-react';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import ScienceIcon from '@mui/icons-material/Science';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import CourseAnalytics from './CourseAnalytics.jsx';
+import CourseVoting from './CourseVoting.jsx';
 
 
 const CourseReviewsPage = () => {
@@ -161,15 +167,6 @@ const CourseReviewsPage = () => {
     </svg>
   );
 
-  const ReportCardIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
-      <line x1="7" y1="8" x2="17" y2="8" stroke="currentColor" strokeWidth="2"/>
-      <line x1="7" y1="12" x2="17" y2="12" stroke="currentColor" strokeWidth="2"/>
-      <line x1="7" y1="16" x2="13" y2="16" stroke="currentColor" strokeWidth="2"/>
-    </svg>
-  );
-  
   // Custom styled Tabs component
   const StyledTabs = styled(Tabs)(({ theme }) => ({
     minHeight: 'auto',
@@ -177,6 +174,92 @@ const CourseReviewsPage = () => {
       display: 'none',
     },
   }));
+
+  const CourseDescriptionSection = () => {
+    const hasValidMetrics = course?.metrics && (
+      course.metrics.difficulty_score > 0 ||
+      course.metrics.quality_score > 0 ||
+      course.metrics.sentiment_score > 0 ||
+      course.metrics.workload_score > 0
+    );
+  
+    return (
+      <Box sx={{ padding: '20px' }}>
+        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1D1D1F' }}>
+          College Description
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ 
+            fontSize: '0.95rem', 
+            color: 'text.primary', 
+            textAlign: 'left', 
+            lineHeight: '1.6',
+            marginBottom: '2rem'
+          }}
+          dangerouslySetInnerHTML={{ __html: courseDescription }}
+        />
+  
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 2, 
+          marginBottom: '1rem'
+        }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: '#1D1D1F' }}>
+            AI Summary
+          </Typography>
+          <div className="flex-shrink-0 relative group">
+            <Sparkles className="w-5 h-5 text-indigo-600 cursor-help" />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-white rounded-lg shadow-lg text-xs text-gray-600 border">
+              <div className="text-center">
+                AI-generated summary based on student reviews
+              </div>
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rotate-45 border-r border-b" />
+            </div>
+          </div>
+        </Box>
+  
+        {course?.summary ? (
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: '0.95rem',
+              color: 'text.primary',
+              textAlign: 'left',
+              lineHeight: '1.6',
+              padding: '1rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '8px',
+              border: '1px solid #e9ecef'
+            }}
+          >
+            {course.summary}
+          </Typography>
+        ) : (
+          <Box
+            sx={{
+              padding: '1rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '8px',
+              border: '1px solid #e9ecef'
+            }}
+          >
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: '0.95rem',
+                color: 'text.secondary',
+                fontStyle: 'italic'
+              }}
+            >
+              Not enough data to generate an AI summary. This will be available once more students review the course.
+            </Typography>
+          </Box>
+        )}
+      </Box>
+    );
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -186,15 +269,7 @@ const CourseReviewsPage = () => {
     switch (tabValue) {
       case 0:
         // Description tab content
-        return (
-          <Box sx={{ padding: '20px' }}>
-            <Typography
-              variant="body1"
-              sx={{ fontSize: '0.95rem', color: 'text.primary', textAlign: 'left', lineHeight: '1.6' }}
-              dangerouslySetInnerHTML={{ __html: courseDescription }}
-            />
-          </Box>
-        );
+        return <CourseDescriptionSection />;
       case 1:
         // Grades Distribution tab content
         return (
@@ -283,7 +358,7 @@ const CourseReviewsPage = () => {
             </Box>
           </Box>
         );
-      case 2:
+      case 3:
         // Input Data tab content
         return (
           <Box sx={{ padding: '20px' }}>
@@ -293,169 +368,23 @@ const CourseReviewsPage = () => {
             <CourseInputDataForm courseId={courseId} allProfessors={allProfessors} />
           </Box>
         );
-      case 3:
-        console.log('Course Metrics Tab: course =', course);
-
-        // Course Metrics tab content
-        return (
-          <Box sx={{ padding: '20px' }}>
-            <Typography variant="h6" gutterBottom>
-              Course Metrics
-            </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Box sx={{ width: '60%' }}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Difficulty
-                </Typography>
-                <LinearProgress
-                  variant="determinate"
-                  value={60}
-                  sx={{
-                    height: 10,
-                    borderRadius: 5,
-                    backgroundColor: '#e0e0e0',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#ff9800',
-                    },
-                  }}
-                />
-                <Typography variant="body2" color="text.secondary">
-                  Moderately Difficult
-                </Typography>
-  
-                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-                  Easiness
-                </Typography>
-                <LinearProgress
-                  variant="determinate"
-                  value={40}
-                  sx={{
-                    height: 10,
-                    borderRadius: 5,
-                    backgroundColor: '#e0e0e0',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#4caf50',
-                    },
-                  }}
-                />
-                <Typography variant="body2" color="text.secondary">
-                  Somewhat Easy
-                </Typography>
-  
-                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-                  Overall Quality
-                </Typography>
-                <LinearProgress
-                  variant="determinate"
-                  value={75}
-                  sx={{
-                    height: 10,
-                    borderRadius: 5,
-                    backgroundColor: '#e0e0e0',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#2196f3',
-                    },
-                  }}
-                />
-                <Typography variant="body2" color="text.secondary">
-                  Good Quality
-                </Typography>
-              </Box>
-              
-
-              {course && (
-            <Box
-            sx={{
-              width: '35%', // Adjust as needed
-              minWidth: '200px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-            >
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column', // Stack the content vertically
-                  alignItems: 'center',
-                  borderRadius: '20px', // Rounded corners for a smoother look
-                  backgroundColor: '#FFF', // White background for contrast
-                  border: '2px solid #571CE0',
-                  boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
-                  padding: '20px', // Padding to give space around content
-                  justifyContent: 'center',
-                  width: '130px', // Adjust width for vertical layout
-                  boxSizing: 'border-box',
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    marginBottom: '20px', // Space between layup and quality sections
-                  }}
-                >
-                  <Tooltip title="Upvote Layup">
-                    <IconButton
-                      onClick={() => handleVote('upvote')}
-                      sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
-                    >
-                      <ArrowUpward sx={{ fontSize: 24 }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
-                    {course.layup || 0}
-                  </Typography>
-                  <Tooltip title="Downvote Layup">
-                    <IconButton
-                      onClick={() => handleVote('downvote')}
-                      sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
-                    >
-                      <ArrowDownward sx={{ fontSize: 24 }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
-                    Is it a layup?
-                  </Typography>
-                </Box>
-        
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Tooltip title="Upvote Quality">
-                    <IconButton
-                      onClick={() => handleQualityVote('upvote')}
-                      sx={{ color: vote === 'upvote' ? '#571CE0' : 'grey', padding: 0 }}
-                    >
-                      <ArrowUpward sx={{ fontSize: 24 }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Typography variant="h6" sx={{ color: '#571CE0', fontSize: '1.5rem', fontWeight: 700 }}>
-                    {quality || 0}
-                  </Typography>
-                  <Tooltip title="Downvote Quality">
-                    <IconButton
-                      onClick={() => handleQualityVote('downvote')}
-                      sx={{ color: vote === 'downvote' ? '#571CE0' : 'grey', padding: 0 }}
-                    >
-                      <ArrowDownward sx={{ fontSize: 24 }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Typography variant="caption" sx={{ color: '#571CE0', marginTop: '10px', textAlign: 'center', fontWeight: 500 }}>
-                    Quality of the course?
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          )}
-            </Box>
-          </Box>
-        );
+        case 2:
+  return (
+    <Box sx={{ padding: '20px' }}>
+      <Typography variant="h6" gutterBottom>
+        Course Metrics
+      </Typography>
+      
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <CourseVoting 
+          course={course}
+          courseId={courseId}
+          currentUser={currentUser}
+        />
+        <CourseAnalytics metrics={course?.metrics} />
+      </Box>
+    </Box>
+  );
       default:
         return null;
     }
@@ -1460,7 +1389,18 @@ const handleQualityVote = async (voteType) => {
       </List>
     );
   };
-  
+  const [courseMetrics, setCourseMetrics] = useState(null);
+
+useEffect(() => {
+  const fetchMetrics = async () => {
+    const courseDoc = await getDoc(doc(db, 'courses', courseId));
+    if (courseDoc.exists()) {
+      setCourseMetrics(courseDoc.data().metrics);
+    }
+  };
+  fetchMetrics();
+}, [courseId]);
+
 
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
@@ -1770,12 +1710,12 @@ const handleQualityVote = async (voteType) => {
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <StyledTabs value={tabValue} onChange={handleTabChange}>
-          <StyledTab icon={<Description />} label="Description" />
-          <StyledTab icon={<ReportCardIcon />} label="Medians" />
+          <StyledTab icon={<AutoAwesomeIcon />} label="Description" />
+          <StyledTab icon={<EqualizerIcon />} label="Medians" />
+          <StyledTab icon={<QueryStatsIcon />} label="Course Metrics" />
           {isBetaUser && (
-            <StyledTab icon={<CourseMetricsIcon />} label="Input Data" />
+            <StyledTab icon={<ScienceIcon />} label="Beta" />
           )}
-          <StyledTab icon={<CourseMetricsIcon />} label="Course Metrics" />
         </StyledTabs>
         <Tooltip
           title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}

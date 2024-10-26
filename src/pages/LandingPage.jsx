@@ -593,10 +593,12 @@ const handleLoginRedirect = () => {
               </Box>
               
               {/* Enhanced Scroll message effect */}
+              {/* Enhanced Scroll message effect */}
               {showScrollMessage && (
-                <Tooltip title="Scroll down to see more course details" placement="top">
+                <Tooltip title="Click or scroll down to see more course details" placement="top">
                   <Fade in={showScrollMessage}>
                     <Box 
+                      onClick={() => documentName && navigate(`/departments/${department}/courses/${documentName}`)}
                       sx={{ 
                         display: 'flex',
                         flexDirection: 'column',
@@ -607,10 +609,15 @@ const handleLoginRedirect = () => {
                         borderRadius: 2,
                         boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
                         transition: 'all 0.3s ease',
+                        cursor: 'pointer', // Add cursor pointer to indicate clickability
                         '&:hover': {
                           bgcolor: '#e6f3ff',
                           transform: 'translateY(-2px)',
                           boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                        },
+                        '&:active': {
+                          transform: 'translateY(0)',
+                          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
                         },
                       }}
                     >
