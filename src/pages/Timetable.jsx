@@ -114,6 +114,8 @@ const Timetable = () => {
   // const debouncedApplyFilters = useMemo(() => debounce(applyFilters, 300), [applyFilters]);
 
   var courseNameLong = ""
+   // Add this near your other state declarations
+   const CACHE_VERSION = 'winter_2025_v1';
 
   const isMobile = useMediaQuery('(max-width:600px)');
 
@@ -304,13 +306,31 @@ useEffect(() => {
     }
   };
 
+  // Replace your existing fetchFirestoreCourses function with this updated version
   const fetchFirestoreCourses = async () => {
     try {
+      // First check if we have cached data
       const cachedCourses = await localforage.getItem('cachedCourses');
       const cacheTimestamp = await localforage.getItem('cacheTimestamp');
+      const cachedVersion = await localforage.getItem('cacheVersion');
       const now = Date.now();
   
-      if (cachedCourses && cacheTimestamp && (now - cacheTimestamp) < 5184000000) { // 60 days
+      console.log('Cache status:', {
+        hasCachedCourses: !!cachedCourses,
+        cacheTimestamp,
+        cachedVersion,
+        currentVersion: CACHE_VERSION
+      });
+  
+      // Check if cache is valid
+      const isCacheValid = 
+        cachedCourses && 
+        cacheTimestamp && 
+        cachedVersion === CACHE_VERSION && 
+        (now - cacheTimestamp) < 5184000000;
+  
+      if (isCacheValid) {
+        console.log('Using cached data');
         setCourses(cachedCourses);
         setFilteredCourses(cachedCourses);
         extractSubjects(cachedCourses);
@@ -318,22 +338,21 @@ useEffect(() => {
         return;
       }
   
-      await fetchAndUpdateCache();
-    } catch (error) {
-      console.error('Error fetching Firestore courses:', error);
-      setError(error);
-      setLoading(false);
-    }
-  };
+      console.log('Cache invalid or expired, fetching new data');
   
-  const fetchAndUpdateCache = async () => {
-    try {
+      // If cache version doesn't match, clear everything
+      if (cachedVersion !== CACHE_VERSION) {
+        console.log('Version mismatch, clearing cache');
+        await localforage.clear();
+      }
+  
+      // Fetch new data
       const db = getFirestore();
       const coursesSnapshot = await getDocs(collection(db, 'winterTimetable'));
       const coursesData = coursesSnapshot.docs.map((doc) => {
         const periodCode = doc.data()['Period Code'];
         return {
-          documentName: doc.id, // Include the document ID
+          documentName: doc.id,
           subj: doc.data().Subj,
           num: doc.data().Num,
           sec: doc.data().Section,
@@ -346,15 +365,21 @@ useEffect(() => {
         };
       });
   
-      await localforage.setItem('cachedCourses', coursesData);
-      await localforage.setItem('cacheTimestamp', Date.now());
+      // Store the new data in cache
+      await Promise.all([
+        localforage.setItem('cachedCourses', coursesData),
+        localforage.setItem('cacheTimestamp', now),
+        localforage.setItem('cacheVersion', CACHE_VERSION)
+      ]);
   
+      console.log('New data cached');
       setCourses(coursesData);
       setFilteredCourses(coursesData);
       extractSubjects(coursesData);
       setLoading(false);
+  
     } catch (error) {
-      console.error('Error updating Firestore courses:', error);
+      console.error('Error fetching Firestore courses:', error);
       setError(error);
       setLoading(false);
     }
@@ -612,8 +637,8 @@ useEffect(() => {
 
     if (!timing) return [];
 
-    const eventStartDate = '20240915'; 
-    const eventEndDate = '20241127'; 
+    const eventStartDate = '20250105'; 
+    const eventEndDate = '20250314'; 
     const timezone = 'America/New_York';
 
     const timingParts = timing.split(', ');
@@ -723,7 +748,7 @@ useEffect(() => {
               fontFamily: 'SF Pro Display, sans-serif',
             }}
           >
-            Your Fall 2024 Classes
+            Your Winter 2025 Classes
           </Typography>
         )}
   
@@ -997,7 +1022,7 @@ useEffect(() => {
   
         {showSelectedCourses && selectedCourses.length === 0 && (
           <Typography sx={{ marginBottom: '20px', color: '#1D1D1F' }}>
-            Haven't added your Fall 2024 timetable on CourseMe? Add now!
+            Haven't added your Winter 2024 timetable on CourseMe? Add now!
           </Typography>
         )}
 
@@ -1023,7 +1048,7 @@ useEffect(() => {
       fontFamily: 'SF Pro Display, sans-serif',
     }}
   >
-    Fall 2024 Timetable.
+    Winter 2025 Timetable.
   </Typography>
   <TextField
   variant="outlined"

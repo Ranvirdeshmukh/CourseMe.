@@ -284,7 +284,7 @@ const ProfilePage = () => {
             
           }}
         >
-          Make your term more organized by adding your Fall 2024 classes to CourseMe
+          Make your term more organized by adding your Winter 2025 classes to CourseMe
           <span style={{ color: '#F26655' }}>.</span> and your personal Google Calendar.{' '}
           <span 
             style={{ 
