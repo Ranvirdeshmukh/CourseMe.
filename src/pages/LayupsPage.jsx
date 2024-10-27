@@ -270,7 +270,7 @@ const LayupsPage = () => {
           Fetching Live Courses
         </Typography>
       </Box>
-
+  
       <Container maxWidth="lg">
         <Typography
           variant="h3"
@@ -284,7 +284,7 @@ const LayupsPage = () => {
         >
           The Biggest Layups Of All Time
         </Typography>
-
+  
         <Typography
           variant="body1"
           sx={{
@@ -294,224 +294,227 @@ const LayupsPage = () => {
             padding: '15px',
             borderRadius: '8px',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            maxWidth:1100
           }}
         >
           <strong>Note:</strong> In the context of courses, "layup" refers to the perceived ease and workload of the course. A higher layup score typically indicates a course is easier and less time-consuming for students.
         </Typography>
-
+  
         {loading ? (
-  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '200px' }}>
-    <CircularProgress color="primary" />
-  </Box>
-) : error ? (
-  <Alert severity="error">{error}</Alert>
-) : courses.length > 0 ? (
-  <TableContainer 
-    component={Paper} 
-    sx={{ 
-      backgroundColor: '#FFFFFF', 
-      borderRadius: '10px', 
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', 
-      padding: '10px',
-      overflowX: 'auto',
-      flex: '3',
-    }}
-  >
-    <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
-      <TableHead>
-        <TableRow>
-          <TableCell 
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '200px' }}>
+            <CircularProgress color="primary" />
+          </Box>
+        ) : error ? (
+          <Alert severity="error">{error}</Alert>
+        ) : courses.length > 0 ? (
+          <TableContainer 
+            component={Paper} 
             sx={{ 
-              color: 'black', 
-              textAlign: 'left', 
-              fontWeight: 600, 
-              fontSize: '1rem', 
-              padding: '12px 10px',
-              borderBottom: '2px solid #E0E0E0',
-              width: '5%', 
-              whiteSpace: 'nowrap'
+              backgroundColor: '#FFFFFF', 
+              borderRadius: '10px', 
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', 
+              padding: '10px',
+              overflowX: 'auto',
+              flex: '3',
+              mb: 3,
+              maxWidth:1100
             }}
           >
-            #
-          </TableCell>
-          <TableCell 
-            sx={{ 
-              color: 'black', 
-              textAlign: 'left', 
-              fontWeight: 600, 
-              fontSize: '1rem', 
-              padding: '12px 20px',
-              borderBottom: '2px solid #E0E0E0',
-              width: '50%' 
-            }}
-          >
-            Course Name
-          </TableCell>
-          {!isMobile && (
-            <TableCell 
-              sx={{ 
-                color: 'black', 
-                textAlign: 'center', 
-                fontWeight: 600, 
-                fontSize: '1rem', 
-                padding: '10px', 
-                borderBottom: '2px solid #E0E0E0' 
-              }}
-            >
-              Distribs
-            </TableCell>
-          )}
-          <TableCell 
-            sx={{ 
-              color: 'black', 
-              textAlign: 'center', 
-              fontWeight: 600, 
-              fontSize: '1rem', 
-              padding: '10px', 
-              borderBottom: '2px solid #E0E0E0' 
-            }}
-          >
-            Num of Reviews
-          </TableCell>
-          <TableCell 
-            sx={{ 
-              color: 'black', 
-              textAlign: 'center', 
-              fontWeight: 600, 
-              fontSize: '1rem', 
-              padding: '10px', 
-              borderBottom: '2px solid #E0E0E0' 
-            }}
-          >
-            Layup
-          </TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {courses.map((course, index) => (
-          <TableRow
-            key={course.id}
-            component={Link}
-            to={`/departments/${course.department}/courses/${course.id}`}
-            sx={{
-              backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
-              transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
-              '&:hover': {
-                backgroundColor: '#E9E9E9',
-                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)', 
-              },
-              cursor: 'pointer',
-              textDecoration: 'none',
-              color: 'inherit',
-              borderRadius: '6px',
-            }}
-          >
-            <TableCell 
-              sx={{ 
-                color: '#000', 
-                fontWeight: 600, 
-                padding: '10px', 
-                fontSize: '0.95rem', 
-                borderBottom: '1px solid #E0E0E0',
-                width: '5%', 
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {index + 1}
-            </TableCell>
-            <TableCell 
-              sx={{ 
-                color: '#333', 
-                padding: '10px 20px',
-                fontSize: '0.95rem', 
-                borderBottom: '1px solid #E0E0E0',
-                width: '50%'
-              }}
-            >
-              {course.name}
-            </TableCell>
-            {!isMobile && (
-              <TableCell 
-                sx={{ 
-                  color: '#333', 
-                  padding: '10px', 
-                  fontSize: '0.9rem', 
-                  textAlign: 'center', 
-                  borderBottom: '1px solid #E0E0E0',
-                  verticalAlign: 'middle',
-                  height: 'auto',
-                }}
-              >
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    gap: '5px', 
-                    justifyContent: 'center', 
-                    flexWrap: 'nowrap', 
-                    maxWidth: '200px',  
-                    whiteSpace: 'nowrap', 
-                    alignItems: 'center',  
-                    height: '100%',
-                  }}
-                >
-                  {typeof course.distribs === 'string' && course.distribs.split(',').map((distrib, idx) => (
-                    <Box
-                      key={idx}
-                      sx={{
-                        backgroundColor: '#F0F0F0',  
-                        color: '#333',             
-                        padding: '4px 10px',       
-                        borderRadius: '20px',      
-                        fontSize: '0.85rem',
-                        fontWeight: 500,
-                        whiteSpace: 'nowrap',
-                        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', 
-                        transition: 'background-color 0.2s ease',
-                        lineHeight: '1.5',
-                        display: 'flex',
-                        alignItems: 'center',
-                        '&:hover': {
-                          backgroundColor: '#E0E0E0', 
-                          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
-                        },
+            <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell 
+                    sx={{ 
+                      color: 'black', 
+                      textAlign: 'left', 
+                      fontWeight: 600, 
+                      fontSize: '1rem', 
+                      padding: '12px 10px',
+                      borderBottom: '2px solid #E0E0E0',
+                      width: '5%', 
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    #
+                  </TableCell>
+                  <TableCell 
+                    sx={{ 
+                      color: 'black', 
+                      textAlign: 'left', 
+                      fontWeight: 600, 
+                      fontSize: '1rem', 
+                      padding: '12px 20px',
+                      borderBottom: '2px solid #E0E0E0',
+                      width: '50%' 
+                    }}
+                  >
+                    Course Name
+                  </TableCell>
+                  {!isMobile && (
+                    <TableCell 
+                      sx={{ 
+                        color: 'black', 
+                        textAlign: 'center', 
+                        fontWeight: 600, 
+                        fontSize: '1rem', 
+                        padding: '10px', 
+                        borderBottom: '2px solid #E0E0E0' 
                       }}
                     >
-                      {distrib.trim()}
-                    </Box>
-                  ))}
-                </Box>
-              </TableCell>
-            )}
-            <TableCell 
-              sx={{ 
-                color: '#333', 
-                padding: isMobile ? '8px' : '10px', 
-                fontSize: '0.9rem', 
-                textAlign: 'center', 
-                borderBottom: '1px solid #E0E0E0' 
-              }}
-            >
-              {course.numOfReviews}
-            </TableCell>
-            <TableCell 
-              sx={{ 
-                color: '#333', 
-                padding: isMobile ? '8px' : '10px', 
-                fontSize: '0.9rem', 
-                textAlign: 'center', 
-                borderBottom: '1px solid #E0E0E0' 
-              }}
-            >
-              {course.layup}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </TableContainer>
-) : (
-  <Typography>No courses available</Typography>
-)}
+                      Distribs
+                    </TableCell>
+                  )}
+                  <TableCell 
+                    sx={{ 
+                      color: 'black', 
+                      textAlign: 'center', 
+                      fontWeight: 600, 
+                      fontSize: '1rem', 
+                      padding: '10px', 
+                      borderBottom: '2px solid #E0E0E0' 
+                    }}
+                  >
+                    Num of Reviews
+                  </TableCell>
+                  <TableCell 
+                    sx={{ 
+                      color: 'black', 
+                      textAlign: 'center', 
+                      fontWeight: 600, 
+                      fontSize: '1rem', 
+                      padding: '10px', 
+                      borderBottom: '2px solid #E0E0E0' 
+                    }}
+                  >
+                    Layup
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {courses.map((course, index) => (
+                  <TableRow
+                    key={course.id}
+                    component={Link}
+                    to={`/departments/${course.department}/courses/${course.id}`}
+                    sx={{
+                      backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+                      transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
+                      '&:hover': {
+                        backgroundColor: '#E9E9E9',
+                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)', 
+                      },
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      borderRadius: '6px',
+                    }}
+                  >
+                    <TableCell 
+                      sx={{ 
+                        color: '#000', 
+                        fontWeight: 600, 
+                        padding: '10px', 
+                        fontSize: '0.95rem', 
+                        borderBottom: '1px solid #E0E0E0',
+                        width: '5%', 
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {index + 1}
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        color: '#333', 
+                        padding: '10px 20px',
+                        fontSize: '0.95rem', 
+                        borderBottom: '1px solid #E0E0E0',
+                        width: '50%'
+                      }}
+                    >
+                      {course.name}
+                    </TableCell>
+                    {!isMobile && (
+                      <TableCell 
+                        sx={{ 
+                          color: '#333', 
+                          padding: '10px', 
+                          fontSize: '0.9rem', 
+                          textAlign: 'center', 
+                          borderBottom: '1px solid #E0E0E0',
+                          verticalAlign: 'middle',
+                          height: 'auto',
+                        }}
+                      >
+                        <Box 
+                          sx={{ 
+                            display: 'flex', 
+                            gap: '5px', 
+                            justifyContent: 'center', 
+                            flexWrap: 'nowrap', 
+                            maxWidth: '200px',  
+                            whiteSpace: 'nowrap', 
+                            alignItems: 'center',  
+                            height: '100%',
+                          }}
+                        >
+                          {typeof course.distribs === 'string' && course.distribs.split(',').map((distrib, idx) => (
+                            <Box
+                              key={idx}
+                              sx={{
+                                backgroundColor: '#F0F0F0',  
+                                color: '#333',             
+                                padding: '4px 10px',       
+                                borderRadius: '20px',      
+                                fontSize: '0.85rem',
+                                fontWeight: 500,
+                                whiteSpace: 'nowrap',
+                                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', 
+                                transition: 'background-color 0.2s ease',
+                                lineHeight: '1.5',
+                                display: 'flex',
+                                alignItems: 'center',
+                                '&:hover': {
+                                  backgroundColor: '#E0E0E0', 
+                                  boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
+                                },
+                              }}
+                            >
+                              {distrib.trim()}
+                            </Box>
+                          ))}
+                        </Box>
+                      </TableCell>
+                    )}
+                    <TableCell 
+                      sx={{ 
+                        color: '#333', 
+                        padding: isMobile ? '8px' : '10px', 
+                        fontSize: '0.9rem', 
+                        textAlign: 'center', 
+                        borderBottom: '1px solid #E0E0E0' 
+                      }}
+                    >
+                      {course.numOfReviews}
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        color: '#333', 
+                        padding: isMobile ? '8px' : '10px', 
+                        fontSize: '0.9rem', 
+                        textAlign: 'center', 
+                        borderBottom: '1px solid #E0E0E0' 
+                      }}
+                    >
+                      {course.layup}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <Typography>No courses available</Typography>
+        )}
       </Container>
       
       <Container maxWidth="lg">
