@@ -105,7 +105,6 @@ const LandingPage = () => {
     }
   };
 
-  // ... (other functions remain the same)
 
   const getDifficultyLevel = (score) => {
     if (score < -0.5) return "Very Challenging";
@@ -156,67 +155,12 @@ const handleLoginRedirect = () => {
   }
 };
 
-
-
-
-
-
-
-
   // Typing effect messages
   const typingMessages = [
     "Simplify Your Major, Amplify Your College Life.",
     "Find Easy Courses in Seconds.",
     "Plan Your Perfect Schedule Today."
   ];
-
-  // const handleSearch = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setError('');
-  //   setAnswer('');
-  //   setDepartment('');
-  //   setCourseNumber('');
-  //   setDocumentName('');
-  //   setShowScrollMessage(false); // Reset scroll message
-
-  //   try {
-  //     const response = await axios.post(API_URL, 
-  //       { question },
-  //       {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       }
-  //     );
-  //     console.log('API Response:', response.data);
-  //     if (typeof response.data === 'object' && response.data.answer) {
-  //       setAnswer(response.data.answer);
-  //       setDepartment(response.data.department || '');
-  //       setCourseNumber(response.data.course_number || '');
-        
-  //       if (response.data.department && response.data.course_number) {
-  //         await fetchCourseData(response.data.department, response.data.course_number);
-  //       }
-  //     } else if (typeof response.data === 'string') {
-  //       setAnswer(response.data);
-  //     } else {
-  //       throw new Error('Unexpected response format');
-  //     }
-
-  //     // Display scroll message if department and course number are available
-  //     if (response.data.department && response.data.course_number) {
-  //       setShowScrollMessage(true);
-  //     }
-
-  //   } catch (error) {
-  //     console.error('Error fetching answer:', error);
-  //     setError('An error occurred while fetching the answer. Please try again.');
-  //     setSnackbarOpen(true);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const formatAnswer = (text) => {
     const customRenderers = {
@@ -311,7 +255,16 @@ const handleLoginRedirect = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    if (documentName) {
+      window.addEventListener('scroll', handleScroll);
+      
+      // Force a small scroll offset to ensure content is scrollable
+      if (pageRef.current) {
+        const minScrollHeight = window.innerHeight * 1.2; // 120% of viewport height
+        pageRef.current.style.minHeight = `${minScrollHeight}px`;
+      }
+    }
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, [department, documentName, navigate]);
 
@@ -525,35 +478,38 @@ const handleLoginRedirect = () => {
     </Typography>
   </ButtonBase>
   {/* New Feature Box */}
-  <ButtonBase
-    sx={{
-      width: { xs: '140px', sm: '160px', md: '200px' },   
-      height: { xs: '150px', sm: '170px', md: '180px' },   
-      backgroundColor: '#f9f9f9',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: '12px',
-      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-      padding: '10px',
-      transition: 'transform 0.3s ease, background-color 0.3s ease',
-      '&:hover': {
-        backgroundColor: '#ececec',
-        transform: 'translateY(-5px)',
-      },
-    }}
-  >
-    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px', animation: 'bounce 2s infinite' }}>🚧</Typography>
-    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Notifications</Typography>
-   
-      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+  {/* Notifications Box */}
+<ButtonBase
+  onClick={() => currentUser ? navigate('/timetable') : handleLoginRedirect()} // Check if user is logged in
+  sx={{
+    width: { xs: '140px', sm: '160px', md: '200px' },   
+    height: { xs: '150px', sm: '170px', md: '180px' },   
+    backgroundColor: '#f9f9f9',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '12px',
+    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+    padding: '10px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#ececec',
+      transform: 'translateY(-5px)',
+    },
+  }}
+>
+  <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🔔</Typography>
+  <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Notifications</Typography>
+
+  <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
     Get notified when a spot opens up during the add/drop period<span style={{ color: '#F26655' }}>.</span>
   </Typography>
   <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-  Coming soon<span style={{ color: '#F26655' }}>...</span>
-    </Typography>
-  </ButtonBase>
+    Beta is ready<span style={{ color: '#F26655' }}>.</span> Try it out!
+  </Typography>
+</ButtonBase>
+
 </Box>
 
 
@@ -654,10 +610,12 @@ const handleLoginRedirect = () => {
               </Box>
               
               {/* Enhanced Scroll message effect */}
+              {/* Enhanced Scroll message effect */}
               {showScrollMessage && (
-                <Tooltip title="Scroll down to see more course details" placement="top">
+                <Tooltip title="Click or scroll down to see more course details" placement="top">
                   <Fade in={showScrollMessage}>
                     <Box 
+                      onClick={() => documentName && navigate(`/departments/${department}/courses/${documentName}`)}
                       sx={{ 
                         display: 'flex',
                         flexDirection: 'column',
@@ -668,10 +626,15 @@ const handleLoginRedirect = () => {
                         borderRadius: 2,
                         boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
                         transition: 'all 0.3s ease',
+                        cursor: 'pointer', // Add cursor pointer to indicate clickability
                         '&:hover': {
                           bgcolor: '#e6f3ff',
                           transform: 'translateY(-2px)',
                           boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                        },
+                        '&:active': {
+                          transform: 'translateY(0)',
+                          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
                         },
                       }}
                     >
