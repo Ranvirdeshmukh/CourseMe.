@@ -336,194 +336,192 @@ console.log('Filtering debug:', {
         {/* Error Alert */}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         
-        {/* Course Grid */}
+        {/* Course Grid - Improved card sizing and responsiveness */}
         <Grid container spacing={3}>
           {displayedLayups.map((layup) => {
             const yesCount = layup.yes_count || 0;
             const noCount = layup.no_count || 0;
             const yesPercentage = calculatePercentage(yesCount, noCount);
             const noPercentage = 100 - yesPercentage;
-            
+
             return (
-              <Grid item xs={12} sm={6} md={4} key={layup.id}>
+              <Grid item xs={12} sm={6} lg={4} key={layup.id}>
                 <Box 
                   sx={{ 
                     border: '1px solid #ecf0f1',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    height: '200px',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    minHeight: '280px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
                     backgroundColor: '#ffffff',
                     '&:hover': {
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                      transform: 'translateY(-2px)',
                     },
-                    transition: 'box-shadow 0.3s ease-in-out',
+                    transition: 'all 0.3s ease',
                   }}
                 >
-                  {/* Course Card Content */}
                   <Box>
                     <Tooltip title={layup.name} arrow>
                       <Typography 
-                        variant="subtitle1" 
+                        variant="h6" 
                         component={Link}
                         to={`/departments/${layup.department}/courses/${layup.id}`}
                         sx={{ 
                           fontWeight: 600, 
-                          mb: 1, 
+                          mb: 2,
+                          fontSize: '1.1rem',
                           textDecoration: 'none',
                           color: '#2c3e50',
-                          display: 'block',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
                           overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
+                          lineHeight: 1.3,
+                          height: '2.6em',
                         }}
                       >
                         {layup.name}
                       </Typography>
                     </Tooltip>
 
-                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {/* Distribs and Layup Score - Made more responsive */}
+                    <Box sx={{ 
+                      mb: 3,
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 1,
+                      alignItems: 'center'
+                    }}>
                       {layup.distribs && layup.distribs.length > 0 && (
-                        <Tooltip title="Distribution Requirements" arrow>
-                          <Box sx={{ display: 'flex', gap: 0.5 }}>
-                            {layup.distribs.map((distrib, index) => (
-                              <Typography 
-                                key={index} 
-                                variant="body2" 
-                                sx={{ 
-                                  backgroundColor: '#e8f5e9',
-                                  color: '#2e7d32',
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  fontSize: '0.75rem'
-                                }}
-                              >
-                                {distrib}
-                              </Typography>
-                            ))}
-                          </Box>
-                        </Tooltip>
+                        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                          {layup.distribs.map((distrib, index) => (
+                            <Typography 
+                              key={index} 
+                              sx={{ 
+                                backgroundColor: '#e8f5e9',
+                                color: '#2e7d32',
+                                padding: '4px 8px',
+                                borderRadius: '6px',
+                                fontSize: '0.75rem',
+                                fontWeight: 500
+                              }}
+                            >
+                              {distrib}
+                            </Typography>
+                          ))}
+                        </Box>
                       )}
                       {layup.layup !== undefined && (
-                        <Tooltip title="Course Layup Rating" arrow>
-                          <Typography 
-                            variant="body2" 
-                            sx={{ 
-                              backgroundColor: '#e3f2fd',
-                              color: '#1565c0',
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              fontSize: '0.75rem',
-                              ml: 'auto'
-                            }}
-                          >
-                            Layup score: {Math.round(layup.layup)}
-                          </Typography>
-                        </Tooltip>
+                        <Typography 
+                          sx={{ 
+                            backgroundColor: '#e3f2fd',
+                            color: '#1565c0',
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            fontSize: '0.75rem',
+                            fontWeight: 500,
+                            marginLeft: 'auto'
+                          }}
+                        >
+                          Layup: {Math.round(layup.layup)}
+                        </Typography>
                       )}
                     </Box>
 
-                    <Tooltip
-                      title={`Yes: ${yesPercentage.toFixed(1)}% | No: ${noPercentage.toFixed(1)}%`}
-                      arrow
+                    {/* Vote Progress Bar */}
+                    <Tooltip title={`Yes: ${yesPercentage.toFixed(1)}% | No: ${noPercentage.toFixed(1)}%`} arrow>
+                      <Box sx={{ width: '100%', mb: 2 }}>
+                        <Box sx={{
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#f6f6f6',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}>
+                          <Box sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            height: '100%',
+                            width: `${yesPercentage}%`,
+                            backgroundColor: '#00693E',
+                            transition: 'width 0.3s ease'
+                          }} />
+                        </Box>
+                        <Box sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          mt: 1
+                        }}>
+                          <Typography variant="caption" sx={{ color: '#00693E', fontWeight: 500 }}>
+                            Yes: {yesCount}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#e74c3c', fontWeight: 500 }}>
+                            No: {noCount}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Tooltip>
+                  </Box>
+
+                  {/* Vote Buttons - Improved styling */}
+                  <Box sx={{ 
+                    display: 'flex', 
+                    gap: 2, 
+                    mt: 'auto', 
+                    pt: 2
+                  }}>
+                    <Button 
+                      variant="contained"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleVote(layup.id, 'yes');
+                      }}
+                      sx={{ 
+                        flex: 1,
+                        py: 1.5,
+                        backgroundColor: layup.userVote === true ? '#00693E' : '#f6f6f6',
+                        color: layup.userVote === true ? '#ffffff' : '#34495e',
+                        '&:hover': {
+                          backgroundColor: '#571ce0',
+                          color: '#ffffff',
+                        },
+                        borderRadius: '8px',
+                        fontWeight: 600
+                      }}
                     >
-                      <Box sx={{ width: '100%', mb: 1, position: 'relative' }}>
-                        <Box
-                          sx={{
-                            height: 8,
-                            borderRadius: 4,
-                            backgroundColor: '#f6f6f6',
-                            position: 'relative',
-                            overflow: 'hidden',}}
-                            >
-                              <Box
-                                sx={{
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0,
-                                  height: '100%',
-                                  width: `${yesPercentage}%`,
-                                  backgroundColor: '#00693E',
-                                  transition: 'width 0.3s ease-in-out',
-                                }}
-                              />
-                            </Box>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                mt: 0.5,
-                              }}
-                            >
-                              <Typography variant="caption" sx={{ color: '#00693E' }}>
-                                {yesPercentage > 0 ? `${yesPercentage.toFixed(0)}%` : ''}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: '#e74c3c' }}>
-                                {noPercentage > 0 ? `${noPercentage.toFixed(0)}%` : ''}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </Tooltip>
-                        
-                        <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, color: '#7f8c8d' }}>
-                          <span>Yes: {yesCount}</span>
-                          <span>No: {noCount}</span>
-                        </Typography>
-                      </Box>
-    
-                      {/* Vote Buttons */}
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                        <Button 
-                          variant="contained" 
-                          size="small"
-                          color={layup.userVote === true ? "primary" : "inherit"}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleVote(layup.id, 'yes');
-                          }}
-                          sx={{ 
-                            mr: 1, 
-                            flex: 1, 
-                            boxShadow: 'none',
-                            backgroundColor: layup.userVote === true ? '#00693E' : '#ecf0f1',
-                            color: layup.userVote === true ? '#ffffff' : '#34495e',
-                            '&:hover': {
-                              backgroundColor: '#571ce0',
-                              color: '#ffffff',
-                            },
-                          }}
-                        >
-                          Yes
-                        </Button>
-                        <Button 
-                          variant="contained" 
-                          size="small"
-                          color={layup.userVote === false ? "primary" : "inherit"}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleVote(layup.id, 'no');
-                          }}
-                          sx={{ 
-                            flex: 1,
-                            boxShadow: 'none',
-                            backgroundColor: layup.userVote === false ? '#00693E' : '#ecf0f1',
-                            color: layup.userVote === false ? '#ffffff' : '#34495e',
-                            '&:hover': {
-                              backgroundColor: '#c0392b',
-                              color: '#ffffff',
-                            },
-                          }}
-                        >
-                          No
-                        </Button>
-                      </Box>
-                    </Box>
-                  </Grid>
-                );
-              })}
-            </Grid>
+                      Yes
+                    </Button>
+                    <Button 
+                      variant="contained"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleVote(layup.id, 'no');
+                      }}
+                      sx={{ 
+                        flex: 1,
+                        py: 1.5,
+                        backgroundColor: layup.userVote === false ? '#00693E' : '#f6f6f6',
+                        color: layup.userVote === false ? '#ffffff' : '#34495e',
+                        '&:hover': {
+                          backgroundColor: '#c0392b',
+                          color: '#ffffff',
+                        },
+                        borderRadius: '8px',
+                        fontWeight: 600
+                      }}
+                    >
+                      No
+                    </Button>
+                  </Box>
+                </Box>
+              </Grid>
+            );
+          })}
+        </Grid>
     
             {/* Show More Button */}
             {!filters.department && !filters.distribs.length && 
