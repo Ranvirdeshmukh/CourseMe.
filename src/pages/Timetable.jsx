@@ -388,20 +388,33 @@ useEffect(() => {
   const fetchCourseData = async (dept, course) => {
     const db = getFirestore();
     try {
+      // Query the courses collection for the matching document
       const q = query(
         collection(db, "courses"), 
         where("department", "==", dept), 
         where("course_number", "==", course)
       );
       const querySnapshot = await getDocs(q);
+      
       if (!querySnapshot.empty) {
-        courseNameLong = querySnapshot.docs[0].id;
-        console.log("updated, " + courseNameLong)
+        const docRef = querySnapshot.docs[0].ref;
+        const docId = querySnapshot.docs[0].id;
+        courseNameLong = docId;
+  
+        // Create a reference to the specific document
+        const specificDocRef = doc(db, "courses", docId);
+        
+        // Update the document with the new field
+        await updateDoc(specificDocRef, {
+          "25W": true
+        });
+        
+        console.log("Updated document with 25W field: " + courseNameLong);
       } else {
         console.log("No matching documents in Firebase.");
       }
     } catch (error) {
-      console.error("Error fetching course data from Firebase:", error);
+      console.error("Error fetching/updating course data from Firebase:", error);
     }
   };
 

@@ -463,7 +463,7 @@ const handleLoginRedirect = () => {
   {/* New Feature Box */}
   {/* Notifications Box */}
 <ButtonBase
-  onClick={() => currentUser ? navigate('/timetable') : handleLoginRedirect()} // Check if user is logged in
+  onClick={() => currentUser ? navigate('/professors') : handleLoginRedirect()} // Check if user is logged in
   sx={{
     width: { xs: '140px', sm: '160px', md: '200px' },   
     height: { xs: '150px', sm: '170px', md: '180px' },   
@@ -482,14 +482,11 @@ const handleLoginRedirect = () => {
     },
   }}
 >
-  <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🔔</Typography>
-  <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Notifications</Typography>
+  <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>👥</Typography>
+  <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Professors</Typography>
 
   <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-    Get notified when a spot opens up during the add/drop period<span style={{ color: '#F26655' }}>.</span>
-  </Typography>
-  <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-    Beta is ready<span style={{ color: '#F26655' }}>.</span> Try it out!
+    Browse through professor metrics<span style={{ color: '#F26655' }}>.</span>
   </Typography>
 </ButtonBase>
 
