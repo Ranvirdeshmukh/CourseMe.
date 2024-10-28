@@ -358,6 +358,7 @@ const ProfessorDetails = () => {
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-[#E8E8ED] p-8 transition-all duration-300">
             <div className="space-y-6">
               <h2 className="text-2xl font-semibold text-[#1D1D1F]">Overall Analytics</h2>
+              <h3 className="text-1xl font-semibold text-[#1D1D1F]">*Note metrics are AI generated and may not be entirely accurate</h3>
               <ProfessorAnalytics analysis={professor.overall_analysis} />
             </div>
           </div>

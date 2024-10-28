@@ -191,6 +191,7 @@ const ProfessorDirectory = () => {
         <div className="bg-indigo-50 p-4 rounded-lg mb-6 mt-2">
           <p className="text-indigo-800 text-sm">
             Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history.
+            *Note metrics are AI generated and may be innacurate.
           </p>
         </div>
       );
