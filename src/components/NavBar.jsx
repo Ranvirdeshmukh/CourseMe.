@@ -56,6 +56,8 @@ const NavBar = () => {
       '/departments', // Include department-related paths
       '/course-review', // Add course-review path to apply special styling
       '/timetable', // Include timetable path to apply special styling
+      '/professors', // Added professors to special pages
+
     ];
     return specialPages.some((page) => path === page || path.startsWith(`${page}/`));
   };

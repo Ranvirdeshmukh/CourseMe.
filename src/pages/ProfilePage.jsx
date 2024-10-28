@@ -381,12 +381,18 @@ const ProfilePage = () => {
         flexDirection: 'column',
         alignItems: 'center',
         backgroundColor: '#F9F9F9',
-        padding: { xs: '20px', sm: '40px' }, // Dynamic padding for mobile and larger screens
+        padding: { xs: '20px', sm: '40px' },
         fontFamily: 'SF Pro Display, sans-serif',
         letterSpacing: '0.5px',
       }}
     >
-      <Container maxWidth="lg">
+      <Container 
+        maxWidth="lg"
+        sx={{
+          maxWidth: '1100px !important',
+          width: '100%',
+        }}
+      >
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress color="primary" />
@@ -399,11 +405,10 @@ const ProfilePage = () => {
               sx={{
                 marginBottom: 4,
                 padding: 4,
-                backgroundColor: '#FFFFFF', // Clean white background
+                backgroundColor: '#FFFFFF',
                 color: '#1D1D1F',
-                boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)', // Softer shadow for depth
-                borderRadius: '16px', // Rounder corners for a more modern look
-                maxWidth: { xs: '100%', sm: 1100 }, // Responsive width
+                boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                borderRadius: '16px',
                 width: '100%',
               }}
             >
@@ -413,7 +418,7 @@ const ProfilePage = () => {
                   alignItems: 'center',
                   marginBottom: 2,
                   justifyContent: 'space-between',
-                  flexDirection: { xs: 'column', sm: 'row' }, // Stack on mobile, row on larger screens
+                  flexDirection: { xs: 'column', sm: 'row' },
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: { xs: 2, sm: 0 } }}>
@@ -430,7 +435,7 @@ const ProfilePage = () => {
                         fontWeight: 600,
                         color: '#1D1D1F',
                         marginBottom: '8px',
-                        fontSize: { xs: '1.5rem', sm: '2rem' }, // Adjust font size for mobile and desktop
+                        fontSize: { xs: '1.5rem', sm: '2rem' },
                       }}
                     >
                       {currentUser.email}
@@ -440,7 +445,7 @@ const ProfilePage = () => {
                       sx={{
                         fontFamily: 'SF Pro Display, sans-serif',
                         color: '#8E8E93',
-                        fontSize: { xs: '1rem', sm: '1.25rem' }, // Adjust font size for mobile
+                        fontSize: { xs: '1rem', sm: '1.25rem' },
                       }}
                     >
                       Welcome to your profile.
@@ -471,7 +476,7 @@ const ProfilePage = () => {
                         color: '#1D1D1F',
                         fontFamily: 'SF Pro Display, sans-serif',
                         '&:hover': {
-                          backgroundColor: '#f5f5f5', // Subtle hover effect
+                          backgroundColor: '#f5f5f5',
                         },
                       }}
                     >
@@ -485,7 +490,7 @@ const ProfilePage = () => {
                         color: '#1D1D1F',
                         fontFamily: 'SF Pro Display, sans-serif',
                         '&:hover': {
-                          backgroundColor: '#f5f5f5', // Subtle hover effect
+                          backgroundColor: '#f5f5f5',
                         },
                       }}
                     >
@@ -511,7 +516,7 @@ const ProfilePage = () => {
                     fontFamily: 'SF Pro Display, sans-serif',
                     color: '#8E8E93',
                     marginBottom: 0.5,
-                    fontSize: { xs: '0.875rem', sm: '1rem' }, // Responsive font size for mobile
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
                 >
                   First Name: {profileData.firstName}
@@ -521,7 +526,7 @@ const ProfilePage = () => {
                     fontFamily: 'SF Pro Display, sans-serif',
                     color: '#8E8E93',
                     marginBottom: 0.5,
-                    fontSize: { xs: '0.875rem', sm: '1rem' }, // Responsive font size for mobile
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
                 >
                   Last Name: {profileData.lastName}
@@ -531,7 +536,7 @@ const ProfilePage = () => {
                     fontFamily: 'SF Pro Display, sans-serif',
                     color: '#8E8E93',
                     marginBottom: 0.5,
-                    fontSize: { xs: '0.875rem', sm: '1rem' }, // Responsive font size for mobile
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
                 >
                   Major: {profileData.major}
@@ -541,7 +546,7 @@ const ProfilePage = () => {
                     fontFamily: 'SF Pro Display, sans-serif',
                     color: '#8E8E93',
                     marginBottom: 0.5,
-                    fontSize: { xs: '0.875rem', sm: '1rem' }, // Responsive font size for mobile
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
                 >
                   Class Year: {profileData.classYear}
@@ -562,7 +567,7 @@ const ProfilePage = () => {
                     textTransform: 'none',
                     paddingX: 3,
                     paddingY: 1,
-                    fontSize: { xs: '0.875rem', sm: '1rem' }, // Button font size for mobile
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
                 >
                   Edit Profile
@@ -572,378 +577,362 @@ const ProfilePage = () => {
   
             <Grid container spacing={4}>
               <Grid item xs={12} md={6}>
-                <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
-                  <Card
-                    sx={{
-                      padding: 4,
-                      backgroundColor: '#FFFFFF',
-                      color: '#333',
-                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-                      borderRadius: '12px',
-                      width: '100%',
-                      maxWidth: 500,
-                      minHeight: 200,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Box>
-                      <Typography
-                        variant="h4"
-                        gutterBottom
+                <Card
+                  sx={{
+                    padding: 4,
+                    backgroundColor: '#FFFFFF',
+                    color: '#333',
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                    borderRadius: '12px',
+                    width: '100%',
+                    minHeight: 200,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Box>
+                    <Typography
+                      variant="h4"
+                      gutterBottom
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        fontWeight: 600,
+                        color: '#1D1D1F',
+                        textAlign: 'left',
+                        marginBottom: 2,
+                      }}
+                    >
+                      Winter 2025 Course Enrollment Priority.
+                    </Typography>
+                    <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
+                      <Button
+                        variant="contained"
+                        onClick={handleNavigateToEnrollmentPriorities}
                         sx={{
                           fontFamily: 'SF Pro Display, sans-serif',
-                          fontWeight: 600,
-                          color: '#1D1D1F',
-                          textAlign: 'left',
-                          marginBottom: 2,
+                          fontWeight: 500,
+                          borderRadius: '8px',
+                          boxShadow: 'none',
+                          backgroundColor: '#571CE0',
+                          '&:hover': {
+                            backgroundColor: '#005bb5',
+                          },
+                          textTransform: 'none',
+                          paddingX: 3,
+                          paddingY: 1,
                         }}
                       >
-                        Fall 2024 Course Enrollment Priority.
-                      </Typography>
-                      <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
-                        <Button
-                          variant="contained"
-                          onClick={handleNavigateToEnrollmentPriorities}
+                        Browse It
+                      </Button>
+                    </Box>
+                  </Box>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: '#8E8E93',
+                      textAlign: 'left',
+                      marginTop: 2,
+                      display: 'block',
+                    }}
+                  >
+                    * Enrollment priorities change every term and will be updated accordingly.
+                  </Typography>
+                </Card>
+              </Grid>
+  
+              <Grid item xs={12} md={6}>
+                <Card
+                  sx={{
+                    padding: 4,
+                    backgroundColor: '#FFFFFF',
+                    color: '#1D1D1F',
+                    boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                    borderRadius: '16px',
+                    width: '100%',
+                    minHeight: 200,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Box>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        fontWeight: 600,
+                        color: '#1D1D1F',
+                        textAlign: 'left',
+                        marginBottom: 2,
+                      }}
+                    >
+                      My Saved Courses.
+                    </Typography>
+                    <Divider sx={{ marginY: 2, backgroundColor: '#EEE' }} />
+                    <List>
+                      {profileData.pinnedCourses.length === 0 ? (
+                        <Typography
                           sx={{
                             fontFamily: 'SF Pro Display, sans-serif',
-                            fontWeight: 500,
-                            borderRadius: '8px',
-                            boxShadow: 'none',
-                            backgroundColor: '#571CE0',
-                            '&:hover': {
-                              backgroundColor: '#005bb5',
-                            },
-                            textTransform: 'none',
-                            paddingX: 3,
-                            paddingY: 1,
+                            color: '#8E8E93',
+                            textAlign: 'left',
                           }}
                         >
-                          Browse It
-                        </Button>
-                      </Box>
-                    </Box>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        color: '#8E8E93',
-                        textAlign: 'left',
-                        marginTop: 2,
-                        display: 'block',
-                      }}
-                    >
-                      * Enrollment priorities change every term and will be updated accordingly.
-                    </Typography>
-                  </Card>
-                </Box>
+                          No courses pinned yet.
+                        </Typography>
+                      ) : (
+                        profileData.pinnedCourses.map((courseId, idx) => (
+                          <ListItem
+                            key={idx}
+                            sx={{
+                              backgroundColor: '#fafafa',
+                              margin: '10px 0',
+                              borderRadius: '12px',
+                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
+                              cursor: 'pointer',
+                              '&:hover': { backgroundColor: '#f0f0f0' },
+                              transition: 'background-color 0.2s ease',
+                            }}
+                            onClick={() => handleNavigateToCourseReview(courseId)}
+                          >
+                            <ListItemText
+                              primary={
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontFamily: 'SF Pro Display, sans-serif',
+                                    color: '#571CE0',
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  {getShortCourseId(courseId)}
+                                </Typography>
+                              }
+                            />
+                            <IconButton
+                              edge="end"
+                              aria-label="unpin"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUnpinCourse(courseId);
+                              }}
+                              sx={{ color: '#571CE0' }}
+                            >
+                              <PushPin />
+                            </IconButton>
+                          </ListItem>
+                        ))
+                      )}
+                    </List>
+                  </Box>
+                </Card>
               </Grid>
-
-              <Grid item xs={12} md={6}>
-  <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'flex-start' }}>
-    <Card
-      sx={{
-        padding: 4,
-        backgroundColor: '#FFFFFF', // Clean white background
-        color: '#1D1D1F',
-        boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)', // Softer shadow for Apple-like depth
-        borderRadius: '16px', // Slightly more rounded for Apple aesthetics
-        width: '100%',
-        maxWidth: 500,
-        minHeight: 200,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Box>
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 600,
-            color: '#1D1D1F',
-            textAlign: 'left',
-            marginBottom: 2,
-          }}
-        >
-          My Saved Courses.
-        </Typography>
-        <Divider sx={{ marginY: 2, backgroundColor: '#EEE' }} /> {/* Softer divider */}
-        <List>
-          {profileData.pinnedCourses.length === 0 ? (
-            <Typography
-              sx={{
-                fontFamily: 'SF Pro Display, sans-serif',
-                color: '#8E8E93',
-                textAlign: 'left',
-              }}
-            >
-              No courses pinned yet.
-            </Typography>
-          ) : (
-            profileData.pinnedCourses.map((courseId, idx) => (
-              <ListItem
-                key={idx}
-                sx={{
-                  backgroundColor: '#fafafa',
-                  margin: '10px 0',
-                  borderRadius: '12px', // Rounded for modern look
-                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)', // Softer shadow
-                  cursor: 'pointer',
-                  '&:hover': { backgroundColor: '#f0f0f0' }, // Subtle hover effect
-                  transition: 'background-color 0.2s ease', // Smooth transition for hover
-                }}
-                onClick={() => handleNavigateToCourseReview(courseId)}
-              >
-                <ListItemText
-                  primary={
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        color: '#571CE0', // Accent color
-                        fontWeight: 600,
-                      }}
-                    >
-                      {getShortCourseId(courseId)}
-                    </Typography>
-                  }
-                />
-                <IconButton
-                  edge="end"
-                  aria-label="unpin"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleUnpinCourse(courseId);
+  
+              <Grid item xs={12}>
+                <Card
+                  sx={{
+                    padding: 4,
+                    backgroundColor: '#FFFFFF',
+                    color: '#1D1D1F',
+                    boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                    borderRadius: '16px',
+                    width: '100%',
+                    minHeight: 200,
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
-                  sx={{ color: '#571CE0' }} // Keep consistent color for icons
                 >
-                  <PushPin />
-                </IconButton>
-              </ListItem>
-            ))
-          )}
-        </List>
-      </Box>
-    </Card>
-  </Box>
-</Grid>
-
-<Grid container spacing={4}>
-  <Grid item xs={12}>
-    <Box sx={{ marginBottom: 4, display: 'flex', justifyContent: 'center', ml: { xs: '0px', sm: '16px' } }}> 
-      {/* Adjust margin-left here, 'sm' breakpoint shifts it right on larger screens */}
-      <Card
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontWeight: 600,
+                      color: '#1D1D1F',
+                      marginBottom: 0.9,
+                    }}
+                  >
+                    Winter 2025 Timetable
+                  </Typography>
+                  <Divider sx={{ marginBottom: 2, backgroundColor: '#EEE' }} />
+                  {renderTimetable()}
+                </Card>
+              </Grid>
+            </Grid>
+  
+            <Grid container spacing={4} sx={{ mt: 4 }}>
+              <Grid item xs={12} md={6}>
+                <Card
+                  sx={{
+                    padding: 4,
+                    backgroundColor: '#FFFFFF',
+                    color: '#1D1D1F',
+                    boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                    borderRadius: '16px',
+                    width: '100%',
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    gutterBottom
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontWeight: 600,
+                      color: '#1D1D1F',
+                      marginBottom: 2,
+                    }}
+                  >
+                    My Reviews
+                  </Typography>
+                  <Divider sx={{ marginY: 2, backgroundColor: '#EEE' }} />
+                  <List>
+                    {profileData.reviews?.map((review, idx) => (
+                      <ListItem
+                        key={idx}
+                        sx={{
+                          backgroundColor: '#fafafa',
+                          margin: '10px 0',
+                          borderRadius: '12px',
+                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
+                          cursor: 'pointer',
+                          '&:hover': { backgroundColor: '#f0f0f0' },
+                          transition: 'background-color 0.2s ease',
+                        }}
+                      >
+                        {/* Inside the Reviews Card */}
+<ListItemText
+  primary={
+    <>
+      <Typography
+        component="span"
         sx={{
-          padding: 4,
-          backgroundColor: '#FFFFFF', // Clean white for a modern feel
-          color: '#1D1D1F',
-          boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)', // Softer shadow for a premium feel
-          borderRadius: '16px',
-          width: '100%',
-          maxWidth: 1090,
-          minHeight: 200,
-          display: 'flex',
-          flexDirection: 'column',
+          fontFamily: 'SF Pro Display, sans-serif',
+          color: '#571CE0',
+          fontWeight: 600,
         }}
       >
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 600,
-            color: '#1D1D1F',
-            marginBottom: 0.9, // Adjusted margin for clean separation
-          }}
-        >
-          Fall 2024 Timetable
-        </Typography>
-        <Divider sx={{ marginBottom: 2, backgroundColor: '#EEE' }} /> {/* Softer divider */}
-        {renderTimetable()}
-      </Card>
-    </Box>
-  </Grid>
-</Grid>
-</Grid>
-
-
-<Grid container spacing={4}>
-  {/* Reviews Section */}
-  <Grid item xs={12} md={6}>
-    <Box sx={{ padding: 3, backgroundColor: '#FFFFFF', borderRadius: '16px' }}>
-      <Card
+        {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
+      </Typography>{' '}
+      <Typography
+        component="span"
         sx={{
-          padding: 4,
-          backgroundColor: '#FFFFFF', // Clean white background
+          fontFamily: 'SF Pro Display, sans-serif',
           color: '#1D1D1F',
-          boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)', // Softer shadow for Apple-like depth
-          borderRadius: '16px', // Rounded corners for Apple-like smoothness
         }}
       >
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 600,
-            color: '#1D1D1F',
-            marginBottom: 2,
-          }}
-        >
-          My Reviews
-        </Typography>
-        <Divider sx={{ marginY: 2, backgroundColor: '#EEE' }} /> {/* Softer divider */}
-        <List>
-          {profileData.reviews?.map((review, idx) => (
-            <ListItem
-              key={idx}
-              sx={{
-                backgroundColor: '#fafafa',
-                margin: '10px 0',
-                borderRadius: '12px', // Rounded for modern look
-                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)', // Softer shadow
-                cursor: 'pointer',
-                '&:hover': { backgroundColor: '#f0f0f0' }, // Subtle hover effect
-                transition: 'background-color 0.2s ease', // Smooth transition for hover
-              }}
-            >
-              <ListItemText
-                primary={
-                  <>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        color: '#571CE0', // Accent color for course term
-                        fontWeight: 600,
-                      }}
-                    >
-                      {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
-                    </Typography>{' '}
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        color: '#1D1D1F',
-                      }}
-                    >
-                      {review.review}
-                    </Typography>
-                  </>
-                }
-              />
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => handleDeleteReview(review)}
-                sx={{ color: '#571CE0' }} // Consistent color for icons
+        {review.review}
+      </Typography>
+    </>
+  }
+/>
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleDeleteReview(review)}
+                        sx={{ color: '#571CE0' }}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Card
+                sx={{
+                  padding: 4,
+                  backgroundColor: '#FFFFFF',
+                  color: '#1D1D1F',
+                  boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                  borderRadius: '16px',
+                  width: '100%',
+                }}
               >
-                <Delete />
-              </IconButton>
-            </ListItem>
-          ))}
-        </List>
-      </Card>
-    </Box>
-  </Grid>
-
-  {/* Replies Section */}
-  <Grid item xs={12} md={6}>
-    <Box sx={{ padding: 3, backgroundColor: '#FFFFFF', borderRadius: '16px' }}>
-      <Card
-        sx={{
-          padding: 4,
-          backgroundColor: '#FFFFFF', // Clean white background
-          color: '#1D1D1F',
-          boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)', // Softer shadow for Apple-like depth
-          borderRadius: '16px', // Rounded corners for Apple-like smoothness
-        }}
-      >
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 600,
-            color: '#1D1D1F',
-            marginBottom: 2,
-          }}
-        >
-          My Replies
-        </Typography>
-        <Divider sx={{ marginY: 2, backgroundColor: '#EEE' }} /> {/* Softer divider */}
-        <List>
-          {profileData.replies?.map((reply, idx) => (
-            <ListItem
-              key={idx}
-              sx={{
-                backgroundColor: '#fafafa',
-                margin: '10px 0',
-                borderRadius: '12px', // Rounded for modern look
-                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)', // Softer shadow
-                cursor: 'pointer',
-                '&:hover': { backgroundColor: '#f0f0f0' }, // Subtle hover effect
-                transition: 'background-color 0.2s ease', // Smooth transition for hover
-              }}
-            >
-              <ListItemText
-                primary={
-                  <>
-                    <Typography
-                      component="span"
+                <Typography
+                  variant="h4"
+                  gutterBottom
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    fontWeight: 600,
+                    color: '#1D1D1F',
+                    marginBottom: 2,
+                  }}
+                >
+                  My Replies
+                </Typography>
+                <Divider sx={{ marginY: 2, backgroundColor: '#EEE' }} />
+                <List>
+                  {profileData.replies?.map((reply, idx) => (
+                    <ListItem
+                      key={idx}
                       sx={{
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        color: '#571CE0', // Accent color for instructor name
-                        fontWeight: 600,
+                        backgroundColor: '#fafafa',
+                        margin: '10px 0',
+                        borderRadius: '12px',
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
+                        cursor: 'pointer',
+                        '&:hover': { backgroundColor: '#f0f0f0' },
+                        transition: 'background-color 0.2s ease',
                       }}
                     >
-                      Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
-                    </Typography>{' '}
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        color: '#1D1D1F',
-                      }}
-                    >
-                      {reply.reply}
-                    </Typography>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        color: 'grey',
-                        fontSize: '0.8rem',
-                        display: 'block',
-                      }}
-                    >
-                      {new Date(reply.timestamp).toLocaleString()}
-                    </Typography>
-                  </>
-                }
-              />
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => handleDeleteReply(reply)}
-                sx={{ color: '#571CE0' }} // Consistent color for icons
-              >
-                <Delete />
-              </IconButton>
-            </ListItem>
-          ))}
-        </List>
-      </Card>
-    </Box>
-  </Grid>
-</Grid>
-
-          </>
-        )}
-      </Container>
+                      <ListItemText
+                        primary={
+                          <>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontFamily: 'SF Pro Display, sans-serif',
+                                color: '#571CE0',
+                                fontWeight: 600,
+                              }}
+                            >
+                              Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
+                            </Typography>{' '}
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontFamily: 'SF Pro Display, sans-serif',
+                                color: '#1D1D1F',
+                              }}
+                            >
+                              {reply.reply}
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontFamily: 'SF Pro Display, sans-serif',
+                                color: 'grey',
+                                fontSize: '0.8rem',
+                                display: 'block',
+                              }}
+                            >
+                              {new Date(reply.timestamp).toLocaleString()}
+                            </Typography>
+                          </>
+                        }
+                      />
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleDeleteReply(reply)}
+                        sx={{ color: '#571CE0' }}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Card>
+            </Grid>
+          </Grid>
+        </>
+      )}
+    </Container>
+  
 
       <Dialog open={editing} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>

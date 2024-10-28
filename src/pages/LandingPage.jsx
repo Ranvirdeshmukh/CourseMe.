@@ -232,12 +232,20 @@ const handleLoginRedirect = () => {
     const handleScroll = () => {
       if (pageRef.current && documentName) {
         const scrollPosition = window.scrollY;
-        const viewportHeight = window.innerHeight;
-        const scrollHeight = viewportHeight * 0.2;
-        const progress = Math.min(scrollPosition / scrollHeight, 1);
-        setScrollProgress(progress);
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        // Calculate the scrollable distance
+        const scrollableDistance = documentHeight - windowHeight;
+        
+        // Calculate relative scroll position as a percentage
+        const scrollPercentage = scrollPosition / scrollableDistance;
+        
+        // Set progress based on scroll percentage
+        setScrollProgress(Math.min(scrollPercentage, 1));
     
-        if (progress >= 0.9) {
+        // Trigger navigation when scroll is near bottom (90% scrolled)
+        if (scrollPercentage >= 0.9) {
           window.removeEventListener('scroll', handleScroll);
           setTimeout(() => {
             window.scrollTo(0, 0);
@@ -247,7 +255,16 @@ const handleLoginRedirect = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    if (documentName) {
+      window.addEventListener('scroll', handleScroll);
+      
+      // Force a small scroll offset to ensure content is scrollable
+      if (pageRef.current) {
+        const minScrollHeight = window.innerHeight * 1.2; // 120% of viewport height
+        pageRef.current.style.minHeight = `${minScrollHeight}px`;
+      }
+    }
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, [department, documentName, navigate]);
 
