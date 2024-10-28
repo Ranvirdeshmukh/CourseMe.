@@ -421,6 +421,34 @@ const handleLoginRedirect = () => {
       Find your easy A<span style={{ color: '#F26655' }}>.</span>
     </Typography>
   </ButtonBase>
+    {/* Notifications Box */}
+<ButtonBase
+  onClick={() => currentUser ? navigate('/professors') : handleLoginRedirect()} // Check if user is logged in
+  sx={{
+    width: { xs: '140px', sm: '160px', md: '200px' },   
+    height: { xs: '150px', sm: '170px', md: '180px' },   
+    backgroundColor: '#f9f9f9',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '12px',
+    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+    padding: '10px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#ececec',
+      transform: 'translateY(-5px)',
+    },
+  }}
+>
+<Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>👨‍🏫</Typography>
+<Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Professors</Typography>
+
+<Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+  AI-powered professor insights<span style={{ color: '#F26655' }}>.</span>
+</Typography>
+</ButtonBase>
 
   {/* Timetable Box */}
   <ButtonBase
@@ -446,7 +474,7 @@ const handleLoginRedirect = () => {
     <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🗓️</Typography>
     <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Timetable</Typography>
     <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-      Add your courses to your calendar in one Click<span style={{ color: '#F26655' }}>.</span>
+    Smart scheduling, seamless sync<span style={{ color: '#F26655' }}>.</span>
     </Typography>
   </ButtonBase>
 
@@ -478,34 +506,6 @@ const handleLoginRedirect = () => {
     </Typography>
   </ButtonBase>
   {/* New Feature Box */}
-  {/* Notifications Box */}
-<ButtonBase
-  onClick={() => currentUser ? navigate('/professors') : handleLoginRedirect()} // Check if user is logged in
-  sx={{
-    width: { xs: '140px', sm: '160px', md: '200px' },   
-    height: { xs: '150px', sm: '170px', md: '180px' },   
-    backgroundColor: '#f9f9f9',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: '12px',
-    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-    padding: '10px',
-    transition: 'transform 0.3s ease, background-color 0.3s ease',
-    '&:hover': {
-      backgroundColor: '#ececec',
-      transform: 'translateY(-5px)',
-    },
-  }}
->
-  <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>👥</Typography>
-  <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Professors</Typography>
-
-  <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-    Browse through professor metrics<span style={{ color: '#F26655' }}>.</span>
-  </Typography>
-</ButtonBase>
 
 </Box>
 
