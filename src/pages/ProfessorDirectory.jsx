@@ -124,32 +124,32 @@ const ProfessorDirectory = () => {
         return null;
       };
   
-    const fetchInitialProfessors = async (selectedSort = sortBy, reviewThreshold = minReviews) => {
+      const fetchInitialProfessors = async (selectedSort = sortBy, reviewThreshold = minReviews) => {
         try {
           setLoading(true);
-          const professorsRef = collection(db, 'professors');
+          const professorsRef = collection(db, 'professor');
           
           let baseQuery;
           if (selectedSort === SORT_OPTIONS.REVIEW_COUNT) {
             baseQuery = firestoreQuery(
               professorsRef,
-              where('overall_analysis.metrics.review_count', '>=', reviewThreshold),
-              orderBy('overall_analysis.metrics.review_count', 'desc'),
+              where('overall_metrics.review_count', '>=', reviewThreshold),
+              orderBy('overall_metrics.review_count', 'desc'),
               limit(12)
             );
           } 
           else if (selectedSort === SORT_OPTIONS.DIFFICULTY) {
             baseQuery = firestoreQuery(
               professorsRef,
-              where('overall_analysis.metrics.review_count', '>=', reviewThreshold),
-              orderBy('overall_analysis.metrics.difficulty_score', 'asc'), // Keep 'asc' to get lowest/easiest first
+              where('overall_metrics.review_count', '>=', reviewThreshold),
+              orderBy('overall_metrics.difficulty_score', 'asc'),
               limit(12)
             );
           }
           else {
             baseQuery = firestoreQuery(
               professorsRef,
-              where('overall_analysis.metrics.review_count', '>=', reviewThreshold),
+              where('overall_metrics.review_count', '>=', reviewThreshold),
               limit(50)
             );
           }
@@ -160,13 +160,12 @@ const ProfessorDirectory = () => {
             ...doc.data()
           }));
       
-          // Only apply client-side sorting for non-difficulty, non-review count sorts
           if (selectedSort.field && 
               selectedSort !== SORT_OPTIONS.REVIEW_COUNT && 
               selectedSort !== SORT_OPTIONS.DIFFICULTY) {
             professorsData.sort((a, b) => {
-              const scoreA = a.overall_analysis?.metrics?.[selectedSort.field] || 0;
-              const scoreB = b.overall_analysis?.metrics?.[selectedSort.field] || 0;
+              const scoreA = a.overall_metrics?.[selectedSort.field] || 0;
+              const scoreB = b.overall_metrics?.[selectedSort.field] || 0;
               return scoreB - scoreA;
             });
             professorsData = professorsData.slice(0, 12);
@@ -205,7 +204,7 @@ const ProfessorDirectory = () => {
     
         try {
           setIsSearching(true);
-          const professorsRef = collection(db, 'professors');
+          const professorsRef = collection(db, 'professor');
     
           // Format the search term to match the capitalization pattern
           // e.g., "charles palmer" becomes "Charles Palmer"
@@ -275,8 +274,8 @@ const ProfessorDirectory = () => {
 
   const hasReviews = (prof) => {
     return (
-      prof.overall_analysis?.metrics?.review_count > 0 &&
-      prof.overall_analysis?.quality !== "Unknown"
+      prof.overall_metrics?.review_count > 0 &&
+      prof.overall_metrics?.quality !== "Unknown"
     );
   };
 
@@ -355,86 +354,85 @@ if (error) {
       </div>
       {/* Professors Grid */}
       <div className="max-w-7xl mx-auto">
-        {(loading || isSearching) && !displayProfessors.length ? (
-          <LoadingSpinner />
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {(loading || isSearching) && !displayProfessors.length ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {displayProfessors.map((prof) => (
-                <div 
+                  <div 
                     key={prof.id}
                     onClick={() => handleProfessorClick(prof.id)}
                     className="bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
-                >
+                  >
                     <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900">{prof.name}</h3>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {Object.keys(prof.departments || {}).map((dept) => (
-                          <span key={dept} className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
-                            {dept}
-                          </span>
-                        ))}
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">{prof.name}</h3>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {Object.keys(prof.departments || {}).map((dept) => (
+                            <span key={dept} className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
+                              {dept}
+                            </span>
+                          ))}
+                        </div>
                       </div>
+                      {prof.contact_info?.email && (
+                        <button
+                          onClick={(e) => handleEmailClick(e, prof.contact_info.email)}
+                          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        >
+                          <Mail className="w-5 h-5 text-gray-500 hover:text-gray-700" />
+                        </button>
+                      )}
                     </div>
-                    {prof.contact_info?.email && (
-                      <button
-                        onClick={(e) => handleEmailClick(e, prof.contact_info.email)}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                      >
-                        <Mail className="w-5 h-5 text-gray-500 hover:text-gray-700" />
-                      </button>
+
+                    {hasReviews(prof) ? (
+                      <>
+                        <div className="grid grid-cols-3 gap-2">
+                          <MetricBadge 
+                            value={prof.overall_metrics.quality_score || 0} 
+                            label="Quality"
+                          />
+                          <MetricBadge 
+                            value={prof.overall_metrics.difficulty_score || 0} 
+                            label="Difficulty"
+                            isDifficulty={true}
+                            onClick={handleCourseClick}
+                            courseLink={prof.course_path ? `/departments/${prof.course_path}` : null}
+                          />
+                          <MetricBadge 
+                            value={prof.overall_metrics.sentiment_score || 0} 
+                            label="Sentiment"
+                          />
+                        </div>
+
+                        <div className="mt-4 flex justify-between items-center">
+                          <span className="text-sm text-gray-600">
+                            {prof.overall_metrics.review_count || 0} Reviews
+                          </span>
+                          <div className="text-xs text-gray-500">
+                            Click difficulty to view course
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <NoReviewsCard />
                     )}
                   </div>
-
-                  {hasReviews(prof) ? (
-              <>
-                <div className="grid grid-cols-3 gap-2">
-                  <MetricBadge 
-                    value={prof.overall_analysis.metrics.quality_score || 0} 
-                    label="Quality"
-                  />
-                  <MetricBadge 
-                    value={prof.overall_analysis.metrics.difficulty_score || 0} 
-                    label="Difficulty"
-                    isDifficulty={true}
-                    onClick={handleCourseClick}
-                    courseLink={prof.course_path ? `/departments/${prof.course_path}` : null}
-                  />
-                  <MetricBadge 
-                    value={prof.overall_analysis.metrics.sentiment_score || 0} 
-                    label="Sentiment"
-                  />
-                </div>
-
-                <div className="mt-4 flex justify-between items-center">
-                  <span className="text-sm text-gray-600">
-                    {prof.overall_analysis.metrics.review_count || 0} Reviews
-                  </span>
-                  <div className="text-xs text-gray-500">
-                    Click difficulty to view course
-                  </div>
-                </div>
-              </>
-            ) : (
-              <NoReviewsCard />
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {isSearching && <LoadingOverlay />}
-
-            {!loading && !isSearching && displayProfessors.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No professors found matching your search.</p>
+                ))}
               </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-};
 
+              {isSearching && <LoadingOverlay />}
+
+              {!loading && !isSearching && displayProfessors.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 text-lg">No professors found matching your search.</p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    );
+};
 export default ProfessorDirectory;

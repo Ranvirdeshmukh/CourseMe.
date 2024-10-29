@@ -118,12 +118,6 @@ const CourseAnalytics = ({ metrics }) => {
           interpretations={["Very Hard", "Hard", "Moderate", "Manageable", "Easy"]}
         />
         <ScoreIndicator 
-          score={metrics.workload_score || 0}
-          label="Workload"
-          icon={BookOpen}
-          interpretations={["Heavy", "Substantial", "Moderate", "Light", "Very Light"]}
-        />
-        <ScoreIndicator 
           score={metrics.sentiment_score || 0}
           label="Student Sentiment"
           icon={Users}
