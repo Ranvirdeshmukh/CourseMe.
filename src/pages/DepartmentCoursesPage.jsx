@@ -45,7 +45,7 @@ const DepartmentCoursesPage = () => {
   const [withReviewsOnly, setWithReviewsOnly] = useState(false); // Show only courses with reviews
   const [selectedDistribs, setSelectedDistribs] = useState([]); // For filtering by distribution categories
   const [qualityFilter, setQualityFilter] = useState([-100, 300]); // Range for Quality filter
-
+  const [selectedWCDistribs, setSelectedWCDistribs] = useState([]);
   // Popover state
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -96,32 +96,56 @@ const DepartmentCoursesPage = () => {
     const applyFilters = () => {
       let updatedCourses = [...courses];
 
-      // Filter by Layup Votes
-      updatedCourses = updatedCourses.filter(course => 
-        course.layup >= layupVotes[0] && course.layup <= layupVotes[1]
-      );
+      // Helper function to check if course has matching distribs
+      const hasMatchingDistribs = (course) => {
+        const courseDistribs = Array.isArray(course.distribs) ? 
+          course.distribs : 
+          course.distribs?.split(',').map(d => d.trim());
+        
+        // Check for regular distribs
+        const hasRegularDistrib = selectedDistribs.length === 0 || 
+          selectedDistribs.some(distrib => courseDistribs?.includes(distrib));
+        
+        // Check for World Culture distribs
+        const hasWCDistrib = selectedWCDistribs.length === 0 || 
+          selectedWCDistribs.some(distrib => courseDistribs?.includes(distrib));
+        
+        return hasRegularDistrib && hasWCDistrib;
+      };
 
-      // Filter by Reviews
-      if (withReviewsOnly) {
-        updatedCourses = updatedCourses.filter(course => course.numOfReviews > 0);
-      }
-
-      // Filter by Distribs
-      if (selectedDistribs.length > 0) {
-        updatedCourses = updatedCourses.filter(course => 
-          selectedDistribs.some(distrib => course.distribs.includes(distrib))
+      // Apply all filters
+      updatedCourses = updatedCourses.filter(course => {
+        return (
+          (course.layup >= layupVotes[0] && course.layup <= layupVotes[1]) &&
+          (!withReviewsOnly || course.numOfReviews > 0) &&
+          hasMatchingDistribs(course) &&
+          (course.quality >= qualityFilter[0] && course.quality <= qualityFilter[1])
         );
+      });
+
+      // Sort courses with priority for matching both types of distribs
+      if (selectedDistribs.length > 0 || selectedWCDistribs.length > 0) {
+        updatedCourses.sort((a, b) => {
+          const aDistribs = Array.isArray(a.distribs) ? a.distribs : a.distribs?.split(',').map(d => d.trim());
+          const bDistribs = Array.isArray(b.distribs) ? b.distribs : b.distribs?.split(',').map(d => d.trim());
+          
+          // Count matching distribs for each course
+          const aMatchCount = (
+            selectedDistribs.filter(d => aDistribs?.includes(d)).length +
+            selectedWCDistribs.filter(d => aDistribs?.includes(d)).length
+          );
+          const bMatchCount = (
+            selectedDistribs.filter(d => bDistribs?.includes(d)).length +
+            selectedWCDistribs.filter(d => bDistribs?.includes(d)).length
+          );
+          
+          return bMatchCount - aMatchCount;  // Sort by number of matches (descending)
+        });
       }
 
-      // Filter by Quality
-      updatedCourses = updatedCourses.filter(course => 
-        course.quality >= qualityFilter[0] && course.quality <= qualityFilter[1]
-      );
-
-      // Apply Sorting
+      // Apply additional sorting if specified
       switch (sortOption) {
         case 'level':
-          // Assuming 'level' is a numeric field in course data
           updatedCourses.sort((a, b) => a.level - b.level);
           break;
         case 'alphabetical':
@@ -138,7 +162,15 @@ const DepartmentCoursesPage = () => {
     };
 
     applyFilters();
-  }, [courses, sortOption, layupVotes, withReviewsOnly, selectedDistribs, qualityFilter]);
+  }, [courses, sortOption, layupVotes, withReviewsOnly, selectedDistribs, selectedWCDistribs, qualityFilter]);
+
+  // Handler for World Culture distribs change
+  const handleWCDistribsChange = (event) => {
+    const value = event.target.value;
+    setSelectedWCDistribs(prev => 
+      prev.includes(value) ? prev.filter(distrib => distrib !== value) : [...prev, value]
+    );
+  };
 
   // Handler for Layup Votes Slider
   const handleLayupVotesChange = (event, newValue) => {
@@ -180,6 +212,11 @@ const DepartmentCoursesPage = () => {
     { label: 'QDS', value: 'QDS' },
     { label: 'SCI/SLA', value: 'SCI/SLA' },
     { label: 'TAS/TLA', value: 'TAS/TLA' },
+  ];
+  const worldCultureOptions = [
+    { label: 'W', value: 'W' },
+    { label: 'NW', value: 'NW' },
+    { label: 'CI', value: 'CI' },
   ];
 
   return (
@@ -322,7 +359,36 @@ const DepartmentCoursesPage = () => {
         },
       }}
     />
+    <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
+      Culture Requirement
+    </Typography>
+    <FormGroup sx={{ marginBottom: '16px' }}>
+      {worldCultureOptions.map((distrib) => (
+        <FormControlLabel
+          key={distrib.value}
+          control={
+            <Checkbox 
+              checked={selectedWCDistribs.includes(distrib.value)} 
+              onChange={handleWCDistribsChange} 
+              value={distrib.value} 
+              sx={{
+                color: '#571CE0',
+                padding: '4px',
+              }}
+            />
+          }
+          label={distrib.label}
+          sx={{
+            marginBottom: '6px',
+            '& .MuiTypography-root': {
+              fontSize: '12px',
+            },
+          }}
+        />
+      ))}
+    </FormGroup>
 
+    {/* Regular Distribs section */}
     <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
       Distribs
     </Typography>
@@ -337,7 +403,7 @@ const DepartmentCoursesPage = () => {
               value={distrib.value} 
               sx={{
                 color: '#571CE0',
-                padding: '4px', // Reduced padding around checkbox
+                padding: '4px',
               }}
             />
           }
@@ -345,7 +411,7 @@ const DepartmentCoursesPage = () => {
           sx={{
             marginBottom: '6px',
             '& .MuiTypography-root': {
-              fontSize: '12px', // Smaller font size
+              fontSize: '12px',
             },
           }}
         />
