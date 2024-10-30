@@ -229,8 +229,8 @@ useEffect(() => {
   }, [professorMap]);
 
   const ProfessorCell = memo(({ instructor }) => {
-    const professorId = findClosestProfessorMatch(instructor);
     const navigate = useNavigate();
+    const professorId = instructor ? instructor.split(',')[0].trim().replace(/\s+/g, '_') : null;
   
     const handleClick = useCallback((e) => {
       e.preventDefault();
@@ -1316,18 +1316,18 @@ useEffect(() => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {paginatedCourses.map((course, index) => (
-            <TableRow
-              key={index}
-              sx={{
-                backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9F9F9',
-                transition: 'background-color 0.3s ease',
-                '&:hover': {
-                  backgroundColor: '#E5E5EA',
-                },
-                cursor: 'default',
-              }}
-            >
+      {paginatedCourses.map((course, index) => (
+        <TableRow
+          key={index}
+          sx={{
+            backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9F9F9',
+            transition: 'background-color 0.3s ease',
+            '&:hover': {
+              backgroundColor: '#E5E5EA',
+            },
+            cursor: 'default',
+          }}
+        >
               {/* Interactive cells (Subject, Number, Title) */}
               <TableCell
                 onClick={(e) => {
@@ -1405,7 +1405,7 @@ useEffect(() => {
                   {course[field]}
                 </TableCell>
               ))}
-              <ProfessorCell instructor={course.instructor} />
+             <ProfessorCell instructor={course.instructor} />
 
               {/* Add to Calendar Button */}
               <TableCell sx={{ padding: '10px', textAlign: 'left' }}>
