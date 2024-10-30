@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Container, 
@@ -88,6 +88,9 @@ const DepartmentCoursesPage = () => {
   const [qualityFilter, setQualityFilter] = useState([-100, 300]); // Range for Quality filter
   const [selectedWCDistribs, setSelectedWCDistribs] = useState([]);
   const [selectedTerms, setSelectedTerms] = useState([]);
+  const [showFilterTip, setShowFilterTip] = useState(false);
+  
+
   // Popover state
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -296,6 +299,19 @@ const DepartmentCoursesPage = () => {
     applyFilters();
   }, [courses, sortOption, layupVotes, withReviewsOnly, selectedDistribs, selectedWCDistribs, qualityFilter, selectedTerms]);
 
+  useEffect(() => {
+    // Check if it's the first visit
+    const hasVisited = localStorage.getItem('hasVisitedBefore');
+    if (!hasVisited) {
+      setShowFilterTip(true);
+      localStorage.setItem('hasVisitedBefore', 'true');
+      
+      // Automatically hide the tooltip after 5 seconds
+      setTimeout(() => {
+        setShowFilterTip(false);
+      }, 5000);
+    }
+  }, []);
   // Handler for World Culture distribs change
   const handleWCDistribsChange = (event) => {
     const value = event.target.value;
@@ -367,47 +383,107 @@ const DepartmentCoursesPage = () => {
         backgroundColor: '#F9F9F9',
         padding: '20px',
         fontFamily: 'SF Pro Display, sans-serif',
+        
       }}
     >
       <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap' }}>
-          <Typography 
-            variant="h3" 
-            align='left'
-            sx={{ 
-              fontWeight: 600, 
-              fontFamily: 'SF Pro Display, sans-serif', 
-              color: '#34495E',
-              marginBottom: '20px',
-              marginTop: '0px'
-            }}
-          >
-            Courses in {departmentMapping[department]?.name || department}
-          </Typography>
+    <Box sx={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'flex-start', // Changed from center to allow for the note
+      width: '100%', 
+      marginBottom: '20px' // Moved margin to container
+    }}>
+      <Typography 
+    variant="h3" 
+    align='left'
+    sx={{ 
+      fontWeight: 600, 
+      fontFamily: 'SF Pro Display, sans-serif', 
+      color: '#34495E',
+      margin: 0,
+      lineHeight: 1.2,
+    }}
+  >
+    Courses in {departmentMapping[department]?.name || department}
+  </Typography>
 
-          {/* Button to Open Filters */}
-          <Button 
-            aria-describedby={popoverId}
-            variant="contained" 
-            onClick={handleFilterOpen} 
-            sx={{
-              backgroundColor: '#ffffff',
-              color: '#571CE0',
-              borderRadius: '20px',
-              padding: '10px 20px',
-              fontWeight: 'bold',
-              fontSize: '15px',
-              boxShadow: '0 3px 6px rgba(0, 0, 0, 0.1)',
-              transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
-              '&:hover': {
-                backgroundColor: '#f5f5f5',
-                boxShadow: '0 6px 12px rgba(0, 0, 0, 0.2)',
-              },
-            }}
-          >
-            Filter ⬍
-          </Button>
-        </Box>
+  {/* Filter button and note in a flex container */}
+  <Box sx={{ 
+    display: 'flex', 
+    flexDirection: 'column', 
+    alignItems: 'flex-end',
+    gap: '4px'
+  }}>
+    <Button 
+      aria-describedby={popoverId}
+      onClick={handleFilterOpen} 
+      sx={{
+        position: 'relative',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(10px)',
+        color: '#1c1c1e',
+        borderRadius: '24px',
+        padding: '10px 20px',
+        fontWeight: '500',
+        fontSize: '15px',
+        fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+        border: '1px solid rgba(0, 0, 0, 0.05)',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
+        transition: 'all 0.2s ease',
+        textTransform: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        height: 'fit-content',
+        minHeight: '40px',
+        '&:hover': {
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          transform: 'translateY(-1px)',
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.12)',
+        },
+        '&:active': {
+          transform: 'translateY(0)',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
+        }
+      }}
+    >
+      Filter
+      <svg 
+        width="12" 
+        height="12" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ 
+          marginLeft: '2px',
+          transition: 'transform 0.2s ease',
+          transform: open ? 'rotate(180deg)' : 'rotate(0deg)'
+        }}
+      >
+        <path 
+          d="M19 9l-7 7-7-7" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        />
+      </svg>
+    </Button>
+    <Typography 
+      sx={{ 
+        fontSize: '11px',
+        color: '#666',
+        fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+        fontWeight: '400',
+        opacity: 0.8,
+        letterSpacing: '0.2px'
+      }}
+    >
+      Filter by Winter 2025
+    </Typography>
+  </Box>
+</Box>
 
         <Popover
   id={popoverId}
