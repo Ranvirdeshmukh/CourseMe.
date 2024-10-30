@@ -24,12 +24,52 @@ import {
   Popover,
   FormGroup,
 } from '@mui/material';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, getFirestore } from 'firebase/firestore';
 import { db } from '../firebase';
 import departmentMapping from '../classstructure/departmentMapping';
 
 const CACHE_PREFIX = 'courses_';
-const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+const CACHE_EXPIRATION = 5 * 24 * 60 * 60 * 1000 // 5 days 
+const CACHE_VERSION = '1.0'; // Add version control to cache
+
+// Utility functions for cache management
+const getCacheKey = (department) => `${CACHE_PREFIX}${department}_${CACHE_VERSION}`;
+
+const getFromCache = (department) => {
+  try {
+    const cacheKey = getCacheKey(department);
+    const cachedData = localStorage.getItem(cacheKey);
+    
+    if (!cachedData) return null;
+    
+    const { data, timestamp } = JSON.parse(cachedData);
+    const now = new Date().getTime();
+    
+    // Check if cache has expired
+    if (now - timestamp > CACHE_EXPIRATION) {
+      localStorage.removeItem(cacheKey);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error reading from cache:', error);
+    return null;
+  }
+};
+
+const saveToCache = (department, data) => {
+  try {
+    const cacheKey = getCacheKey(department);
+    const cacheData = {
+      data,
+      timestamp: new Date().getTime()
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+  } catch (error) {
+    console.error('Error saving to cache:', error);
+  }
+};
 
 const DepartmentCoursesPage = () => {
   const { department } = useParams();
@@ -37,6 +77,7 @@ const DepartmentCoursesPage = () => {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const isMobile = useMediaQuery('(max-width:600px)');
 
   // Filter States
@@ -45,83 +86,199 @@ const DepartmentCoursesPage = () => {
   const [withReviewsOnly, setWithReviewsOnly] = useState(false); // Show only courses with reviews
   const [selectedDistribs, setSelectedDistribs] = useState([]); // For filtering by distribution categories
   const [qualityFilter, setQualityFilter] = useState([-100, 300]); // Range for Quality filter
-
+  const [selectedWCDistribs, setSelectedWCDistribs] = useState([]);
+  const [selectedTerms, setSelectedTerms] = useState([]);
   // Popover state
   const [anchorEl, setAnchorEl] = useState(null);
 
-  // Fetch and Cache Courses
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const q = query(collection(db, 'courses'), where('department', '==', department));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setCourses(coursesData);
-          setFilteredCourses(coursesData); // Initialize filteredCourses
-
-          // Cache the data
-          localStorage.setItem(`${CACHE_PREFIX}${department}`, JSON.stringify({
-            timestamp: new Date().getTime(),
-            courses: coursesData,
-          }));
-        } else {
-          setError('No courses found for this department.');
+  const fetchCourses = async (forceFetch = false) => {
+    try {
+      setLoading(true);
+      
+      // Check cache first if not forcing a fetch
+      if (!forceFetch) {
+        const cachedData = getFromCache(department);
+        if (cachedData) {
+          console.log('Using cached data for department:', department);
+          setCourses(cachedData);
+          setFilteredCourses(cachedData);
+          setLastUpdated(new Date().getTime());
+          setLoading(false);
+          return;
         }
-      } catch (error) {
-        setError('Failed to fetch courses.');
-      } finally {
-        setLoading(false);
       }
-    };
 
-    const checkCache = () => {
-      const cachedData = JSON.parse(localStorage.getItem(`${CACHE_PREFIX}${department}`));
-      const now = new Date().getTime();
-
-      if (cachedData && (now - cachedData.timestamp < CACHE_EXPIRATION)) {
-        setCourses(cachedData.courses);
-        setFilteredCourses(cachedData.courses);
-        setLoading(false);
+      console.log('Fetching fresh data for department:', department);
+      const db = getFirestore();
+      const coursesRef = collection(db, 'courses');
+      const q = query(coursesRef, where('department', '==', department));
+      
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const coursesData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        // Save to cache
+        saveToCache(department, coursesData);
+        
+        setCourses(coursesData);
+        setFilteredCourses(coursesData);
+        setLastUpdated(new Date().getTime());
       } else {
-        fetchCourses();
+        setError('No courses found for this department.');
       }
-    };
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      setError('Failed to fetch courses: ' + error.message);
+      
+      // Try to fall back to cached data if available
+      const cachedData = getFromCache(department);
+      if (cachedData) {
+        setCourses(cachedData);
+        setFilteredCourses(cachedData);
+        setLastUpdated(new Date().getTime());
+        setError('Using cached data due to fetch error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    checkCache();
+  // Modified useEffect to handle cache
+  useEffect(() => {
+    fetchCourses();
   }, [department]);
+
+  // Add refresh functionality
+  const handleRefresh = () => {
+    fetchCourses(true); // Force fetch fresh data
+  };
+
+  // Add cache management utilities
+  const clearDepartmentCache = () => {
+    localStorage.removeItem(getCacheKey(department));
+    handleRefresh();
+  };
+
+  const clearAllCache = () => {
+    Object.keys(localStorage)
+      .filter(key => key.startsWith(CACHE_PREFIX))
+      .forEach(key => localStorage.removeItem(key));
+    handleRefresh();
+  };
+  
+  // Add a function to clear cache for testing
+  const clearCache = () => {
+    console.log('Clearing cache...');
+    localStorage.removeItem(`${CACHE_PREFIX}${department}`);
+    fetchCourses();
+  };
+  
+  // Add this temporary debug button to your UI (remove in production)
+  <Button 
+    onClick={clearCache}
+    sx={{
+      marginBottom: '10px',
+      backgroundColor: '#ff4444',
+      color: 'white',
+      '&:hover': {
+        backgroundColor: '#cc0000',
+      }
+    }}
+  >
+    Clear Cache & Reload
+  </Button>
+
 
   // Apply Filters Whenever Filter States Change
   useEffect(() => {
     const applyFilters = () => {
+      console.log('Applying filters with data source:', {
+        totalCourses: courses.length,
+        sampleCourse: courses[0],
+        dataSource: courses[0]?._source || 'unknown', // Add a _source field if needed
+        selectedTerms,
+      });
+      const hasMatchingDistribs = (course) => {
+        const courseDistribs = Array.isArray(course.distribs) ? 
+          course.distribs : 
+          course.distribs?.split(',').map(d => d.trim());
+        
+        // Check for regular distribs
+        const hasRegularDistrib = selectedDistribs.length === 0 || 
+          selectedDistribs.some(distrib => courseDistribs?.includes(distrib));
+        
+        // Check for World Culture distribs
+        const hasWCDistrib = selectedWCDistribs.length === 0 || 
+          selectedWCDistribs.some(distrib => courseDistribs?.includes(distrib));
+        
+        return hasRegularDistrib && hasWCDistrib;
+      };
       let updatedCourses = [...courses];
-
-      // Filter by Layup Votes
-      updatedCourses = updatedCourses.filter(course => 
-        course.layup >= layupVotes[0] && course.layup <= layupVotes[1]
-      );
-
-      // Filter by Reviews
-      if (withReviewsOnly) {
-        updatedCourses = updatedCourses.filter(course => course.numOfReviews > 0);
+    
+      if (selectedTerms.length > 0) {
+        console.log('Before terms filter:', updatedCourses.length);
+        updatedCourses = updatedCourses.filter(course => {
+          const courseTerms = course.terms || [];
+          const matches = selectedTerms.some(term => courseTerms.includes(term));
+          console.log('Course terms check:', {
+            courseName: course.name,
+            courseTerms,
+            selectedTerms,
+            matches
+          });
+          return matches;
+        });
+        console.log('After terms filter:', updatedCourses.length);
       }
+    
 
-      // Filter by Distribs
-      if (selectedDistribs.length > 0) {
-        updatedCourses = updatedCourses.filter(course => 
-          selectedDistribs.some(distrib => course.distribs.includes(distrib))
+      const hasMatchingTerm = (course) => {
+        console.log("terms")
+        console.log(course.terms)
+        if (selectedTerms.length === 0) return true; // If no terms selected, include all courses
+        return selectedTerms.some(term => 
+          Array.isArray(course.terms) && course.terms.includes(term)
         );
+      };
+
+      // Apply all filters
+      updatedCourses = updatedCourses.filter(course => {
+        return (
+          (course.layup >= layupVotes[0] && course.layup <= layupVotes[1]) &&
+          (!withReviewsOnly || course.numOfReviews > 0) &&
+          hasMatchingDistribs(course) &&
+          (course.quality >= qualityFilter[0] && course.quality <= qualityFilter[1]) &&
+          hasMatchingTerm(course)
+        );
+      });
+
+      // Sort courses with priority for matching both types of distribs
+      if (selectedDistribs.length > 0 || selectedWCDistribs.length > 0) {
+        updatedCourses.sort((a, b) => {
+          const aDistribs = Array.isArray(a.distribs) ? a.distribs : a.distribs?.split(',').map(d => d.trim());
+          const bDistribs = Array.isArray(b.distribs) ? b.distribs : b.distribs?.split(',').map(d => d.trim());
+          
+          // Count matching distribs for each course
+          const aMatchCount = (
+            selectedDistribs.filter(d => aDistribs?.includes(d)).length +
+            selectedWCDistribs.filter(d => aDistribs?.includes(d)).length
+          );
+          const bMatchCount = (
+            selectedDistribs.filter(d => bDistribs?.includes(d)).length +
+            selectedWCDistribs.filter(d => bDistribs?.includes(d)).length
+          );
+          
+          return bMatchCount - aMatchCount;  // Sort by number of matches (descending)
+        });
       }
 
-      // Filter by Quality
-      updatedCourses = updatedCourses.filter(course => 
-        course.quality >= qualityFilter[0] && course.quality <= qualityFilter[1]
-      );
-
-      // Apply Sorting
+      // Apply additional sorting if specified
       switch (sortOption) {
         case 'level':
-          // Assuming 'level' is a numeric field in course data
           updatedCourses.sort((a, b) => a.level - b.level);
           break;
         case 'alphabetical':
@@ -133,12 +290,25 @@ const DepartmentCoursesPage = () => {
         default:
           break;
       }
-
       setFilteredCourses(updatedCourses);
     };
 
     applyFilters();
-  }, [courses, sortOption, layupVotes, withReviewsOnly, selectedDistribs, qualityFilter]);
+  }, [courses, sortOption, layupVotes, withReviewsOnly, selectedDistribs, selectedWCDistribs, qualityFilter, selectedTerms]);
+
+  // Handler for World Culture distribs change
+  const handleWCDistribsChange = (event) => {
+    const value = event.target.value;
+    setSelectedWCDistribs(prev => 
+      prev.includes(value) ? prev.filter(distrib => distrib !== value) : [...prev, value]
+    );
+  };
+  const handleTermsChange = (event) => {
+    const value = event.target.value;
+    setSelectedTerms(prev => 
+      prev.includes(value) ? prev.filter(term => term !== value) : [...prev, value]
+    );
+  };
 
   // Handler for Layup Votes Slider
   const handleLayupVotesChange = (event, newValue) => {
@@ -180,6 +350,11 @@ const DepartmentCoursesPage = () => {
     { label: 'QDS', value: 'QDS' },
     { label: 'SCI/SLA', value: 'SCI/SLA' },
     { label: 'TAS/TLA', value: 'TAS/TLA' },
+  ];
+  const worldCultureOptions = [
+    { label: 'W', value: 'W' },
+    { label: 'NW', value: 'NW' },
+    { label: 'CI', value: 'CI' },
   ];
 
   return (
@@ -323,6 +498,61 @@ const DepartmentCoursesPage = () => {
       }}
     />
 
+<Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
+    Terms Offered
+  </Typography>
+  <FormGroup sx={{ marginBottom: '16px' }}>
+    <FormControlLabel
+      control={
+        <Checkbox 
+          checked={selectedTerms.includes('25W')} 
+          onChange={handleTermsChange} 
+          value="25W" 
+          sx={{
+            color: '#571CE0',
+            padding: '4px',
+          }}
+        />
+      }
+      label="25W"
+      sx={{
+        marginBottom: '6px',
+        '& .MuiTypography-root': {
+          fontSize: '12px',
+        },
+      }}
+    />
+  </FormGroup>
+    <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
+      Culture Requirement
+    </Typography>
+    <FormGroup sx={{ marginBottom: '16px' }}>
+      {worldCultureOptions.map((distrib) => (
+        <FormControlLabel
+          key={distrib.value}
+          control={
+            <Checkbox 
+              checked={selectedWCDistribs.includes(distrib.value)} 
+              onChange={handleWCDistribsChange} 
+              value={distrib.value} 
+              sx={{
+                color: '#571CE0',
+                padding: '4px',
+              }}
+            />
+          }
+          label={distrib.label}
+          sx={{
+            marginBottom: '6px',
+            '& .MuiTypography-root': {
+              fontSize: '12px',
+            },
+          }}
+        />
+      ))}
+    </FormGroup>
+
+    {/* Regular Distribs section */}
     <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
       Distribs
     </Typography>
@@ -337,7 +567,7 @@ const DepartmentCoursesPage = () => {
               value={distrib.value} 
               sx={{
                 color: '#571CE0',
-                padding: '4px', // Reduced padding around checkbox
+                padding: '4px',
               }}
             />
           }
@@ -345,7 +575,7 @@ const DepartmentCoursesPage = () => {
           sx={{
             marginBottom: '6px',
             '& .MuiTypography-root': {
-              fontSize: '12px', // Smaller font size
+              fontSize: '12px',
             },
           }}
         />
