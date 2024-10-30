@@ -282,7 +282,7 @@ useEffect(() => {
       }
   
       const db = getFirestore();
-      const professorsSnapshot = await getDocs(collection(db, 'professors'));
+      const professorsSnapshot = await getDocs(collection(db, 'professor'));
       const professorsData = professorsSnapshot.docs.map(doc => ({
         id: doc.id,
         displayName: doc.data().name || doc.id.replace('_', ' ')

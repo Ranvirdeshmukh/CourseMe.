@@ -146,7 +146,7 @@ const AISummary = ({ summary, courseId, professorId, professorName }) => {
 };
 
 const CourseCard = ({ course, professorId, professorName }) => {
-  const hasReviews = (course.reviews?.length || 0) > 0;
+  const hasReviews = course.metrics.review_count > 0;
   const [isExpanded, setIsExpanded] = useState(hasReviews);
 
   return (
@@ -168,7 +168,7 @@ const CourseCard = ({ course, professorId, professorName }) => {
               ? 'bg-[#0071E3]/10 text-[#0071E3]' 
               : 'bg-[#F5F5F7] text-[#86868B]'
           }`}>
-            {course.reviews?.length || 0} {course.reviews?.length === 1 ? 'Review' : 'Reviews'}
+            {course.metrics.review_count === 0} {course.metrics.review_count === 1 ? 'Review' : 'Reviews'}
           </span>
           {hasReviews && (
             <div className="text-[#86868B] hover:text-[#1D1D1F] transition-colors">
@@ -213,14 +213,14 @@ const CoursesSection = ({ courses, professorId, professorName }) => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [expandAll, setExpandAll] = useState(true);
   const sortedCourses = [...courses].sort((a, b) => {
-    const aReviews = a.reviews?.length || 0;
-    const bReviews = b.reviews?.length || 0;
+    const aReviews = a.metrics.review_count || 0;
+    const bReviews = b.metrics.review_count || 0;
     return bReviews - aReviews || a.courseId.localeCompare(b.courseId);
   });
 
   const filteredCourses = sortedCourses.filter(course => {
-    if (selectedFilter === 'reviewed') return course.reviews?.length > 0;
-    if (selectedFilter === 'unreviewed') return !course.reviews?.length;
+    if (selectedFilter === 'reviewed') return course.metrics.review_count > 0;
+    if (selectedFilter === 'unreviewed') return !course.metrics.review_count;
     return true;
   });
 

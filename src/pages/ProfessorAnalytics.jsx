@@ -217,7 +217,7 @@ const NoDataMessage = ({ type = "analytics" }) => (
     <Info className="w-8 h-8 text-gray-400 mb-3" />
     <p className="text-gray-600 text-center font-medium">
       Not enough {type} data available yet.
-      {type === "reviews" && " Check back after students submit their reviews."}
+      {type === "review_count" && " Check back after students submit their reviews."}
     </p>
   </div>
 );
