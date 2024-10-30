@@ -377,7 +377,7 @@ const DepartmentCoursesPage = () => {
             sx={{ 
               fontWeight: 600, 
               fontFamily: 'SF Pro Display, sans-serif', 
-              color: '#571CE0',
+              color: '#34495E',
               marginBottom: '20px',
               marginTop: '0px'
             }}
