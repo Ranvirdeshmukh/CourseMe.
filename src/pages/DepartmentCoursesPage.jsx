@@ -480,7 +480,7 @@ const DepartmentCoursesPage = () => {
         letterSpacing: '0.2px'
       }}
     >
-      Filter by Winter 2025
+      Filter by Winter 2025 (on special demand)
     </Typography>
   </Box>
 </Box>
