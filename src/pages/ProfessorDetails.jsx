@@ -191,12 +191,12 @@ const CourseCard = ({ course, professorId, professorName }) => {
         <div className="px-6 pb-6">
           <div className="pt-4 border-t border-[#E8E8ED]">
             <ProfessorAnalytics 
-              analysis={course.analysis}
+              analysis={course.metrics}
               courseId={course.courseId}
             />
-            {course.analysis?.summary && (
+            {course.summary && (
               <AISummary 
-                summary={course.analysis.summary}
+                summary={course.summary}
                 courseId={course.courseId}
                 professorId={professorId}
                 professorName={professorName}
@@ -212,7 +212,6 @@ const CourseCard = ({ course, professorId, professorName }) => {
 const CoursesSection = ({ courses, professorId, professorName }) => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [expandAll, setExpandAll] = useState(true);
-  
   const sortedCourses = [...courses].sort((a, b) => {
     const aReviews = a.reviews?.length || 0;
     const bReviews = b.reviews?.length || 0;
@@ -285,7 +284,7 @@ const ProfessorDetails = () => {
     const fetchProfessorData = async () => {
       try {
         const db = getFirestore();
-        const docRef = doc(db, 'professors', professorId);
+        const docRef = doc(db, 'professor', professorId);
         const docSnap = await getDoc(docRef);
         
         if (!docSnap.exists()) {
@@ -334,7 +333,7 @@ const ProfessorDetails = () => {
     );
   }
 
-  const hasAnalytics = professor?.overall_analysis?.metrics?.review_count > 0;
+  const hasAnalytics = professor?.overall_metrics?.review_count > 0;
 
   return (
     <div className="min-h-screen bg-[#F9F9F9] py-12 px-4">
@@ -359,7 +358,7 @@ const ProfessorDetails = () => {
             <div className="space-y-6">
               <h2 className="text-2xl font-semibold text-[#1D1D1F]">Overall Analytics</h2>
               <h3 className="text-1xl font-semibold text-[#1D1D1F]">*Note metrics are AI generated and may not be entirely accurate</h3>
-              <ProfessorAnalytics analysis={professor.overall_analysis} />
+              <ProfessorAnalytics analysis={professor.overall_metrics} />
             </div>
           </div>
         )}

@@ -271,12 +271,11 @@ const ProfessorAnalytics = ({ analysis, courseId }) => {
   };
 
   const {
-    metrics: {
-      quality_score,
-      difficulty_score,
-      sentiment_score,
-      review_count = 0
-    } = {}
+    avg_review_length,
+    difficulty_score,
+    quality_score,
+    review_count = 0,
+    sentiment_score
   } = analysis || {};
 
   const qualityInterpretations = [
@@ -341,7 +340,7 @@ const ProfessorAnalytics = ({ analysis, courseId }) => {
           label="Teaching Quality"
           interpretations={qualityInterpretations}
           reviewCount={review_count}
-          showCourseAvg={false}
+          showCourseAvg={true}
         />
         <ScoreIndicator 
           score={100-difficulty_score}
