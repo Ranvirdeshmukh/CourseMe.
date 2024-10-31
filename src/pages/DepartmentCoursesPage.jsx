@@ -31,10 +31,19 @@ import departmentMapping from '../classstructure/departmentMapping';
 const CACHE_PREFIX = 'courses_';
 const CACHE_EXPIRATION = 5 * 24 * 60 * 60 * 1000 // 5 days 
 const CACHE_VERSION = '1.0'; // Add version control to cache
+const DEPARTMENT_VERSIONS = {
+  'ENGS': '1.1', // Increment this version specifically for ENGS
+  'default': '1.0' // Keep default version for other departments
+};
 
 // Utility functions for cache management
-const getCacheKey = (department) => `${CACHE_PREFIX}${department}_${CACHE_VERSION}`;
+// Update the getCacheKey function to use department-specific versions
+const getCacheKey = (department) => {
+  const version = DEPARTMENT_VERSIONS[department] || DEPARTMENT_VERSIONS.default;
+  return `${CACHE_PREFIX}${department}_${version}`;
+};
 
+// Update the getFromCache function to handle department-specific versions
 const getFromCache = (department) => {
   try {
     const cacheKey = getCacheKey(department);
@@ -58,6 +67,7 @@ const getFromCache = (department) => {
   }
 };
 
+// Update the saveToCache function to use department-specific versions
 const saveToCache = (department, data) => {
   try {
     const cacheKey = getCacheKey(department);
@@ -68,6 +78,19 @@ const saveToCache = (department, data) => {
     localStorage.setItem(cacheKey, JSON.stringify(cacheData));
   } catch (error) {
     console.error('Error saving to cache:', error);
+  }
+};
+
+// Optional: Add a function to clear old ENGS cache entries
+const clearOldEngsCache = () => {
+  try {
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(`${CACHE_PREFIX}ENGS_`) && !key.endsWith(DEPARTMENT_VERSIONS.ENGS)) {
+        localStorage.removeItem(key);
+      }
+    });
+  } catch (error) {
+    console.error('Error clearing old ENGS cache:', error);
   }
 };
 
