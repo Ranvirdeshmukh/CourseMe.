@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Container, 
@@ -24,12 +24,52 @@ import {
   Popover,
   FormGroup,
 } from '@mui/material';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, getFirestore } from 'firebase/firestore';
 import { db } from '../firebase';
 import departmentMapping from '../classstructure/departmentMapping';
 
 const CACHE_PREFIX = 'courses_';
-const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+const CACHE_EXPIRATION = 5 * 24 * 60 * 60 * 1000 // 5 days 
+const CACHE_VERSION = '1.0'; // Add version control to cache
+
+// Utility functions for cache management
+const getCacheKey = (department) => `${CACHE_PREFIX}${department}_${CACHE_VERSION}`;
+
+const getFromCache = (department) => {
+  try {
+    const cacheKey = getCacheKey(department);
+    const cachedData = localStorage.getItem(cacheKey);
+    
+    if (!cachedData) return null;
+    
+    const { data, timestamp } = JSON.parse(cachedData);
+    const now = new Date().getTime();
+    
+    // Check if cache has expired
+    if (now - timestamp > CACHE_EXPIRATION) {
+      localStorage.removeItem(cacheKey);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error reading from cache:', error);
+    return null;
+  }
+};
+
+const saveToCache = (department, data) => {
+  try {
+    const cacheKey = getCacheKey(department);
+    const cacheData = {
+      data,
+      timestamp: new Date().getTime()
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+  } catch (error) {
+    console.error('Error saving to cache:', error);
+  }
+};
 
 const DepartmentCoursesPage = () => {
   const { department } = useParams();
@@ -37,6 +77,7 @@ const DepartmentCoursesPage = () => {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const isMobile = useMediaQuery('(max-width:600px)');
 
   // Filter States
@@ -46,57 +87,124 @@ const DepartmentCoursesPage = () => {
   const [selectedDistribs, setSelectedDistribs] = useState([]); // For filtering by distribution categories
   const [qualityFilter, setQualityFilter] = useState([-100, 300]); // Range for Quality filter
   const [selectedWCDistribs, setSelectedWCDistribs] = useState([]);
+  const [selectedTerms, setSelectedTerms] = useState([]);
+  const [showFilterTip, setShowFilterTip] = useState(false);
+  
+
   // Popover state
   const [anchorEl, setAnchorEl] = useState(null);
 
-  // Fetch and Cache Courses
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const q = query(collection(db, 'courses'), where('department', '==', department));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          const coursesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setCourses(coursesData);
-          setFilteredCourses(coursesData); // Initialize filteredCourses
-
-          // Cache the data
-          localStorage.setItem(`${CACHE_PREFIX}${department}`, JSON.stringify({
-            timestamp: new Date().getTime(),
-            courses: coursesData,
-          }));
-        } else {
-          setError('No courses found for this department.');
+  const fetchCourses = async (forceFetch = false) => {
+    try {
+      setLoading(true);
+      
+      // Check cache first if not forcing a fetch
+      if (!forceFetch) {
+        const cachedData = getFromCache(department);
+        if (cachedData) {
+          console.log('Using cached data for department:', department);
+          setCourses(cachedData);
+          setFilteredCourses(cachedData);
+          setLastUpdated(new Date().getTime());
+          setLoading(false);
+          return;
         }
-      } catch (error) {
-        setError('Failed to fetch courses.');
-      } finally {
-        setLoading(false);
       }
-    };
 
-    const checkCache = () => {
-      const cachedData = JSON.parse(localStorage.getItem(`${CACHE_PREFIX}${department}`));
-      const now = new Date().getTime();
-
-      if (cachedData && (now - cachedData.timestamp < CACHE_EXPIRATION)) {
-        setCourses(cachedData.courses);
-        setFilteredCourses(cachedData.courses);
-        setLoading(false);
+      console.log('Fetching fresh data for department:', department);
+      const db = getFirestore();
+      const coursesRef = collection(db, 'courses');
+      const q = query(coursesRef, where('department', '==', department));
+      
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const coursesData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        // Save to cache
+        saveToCache(department, coursesData);
+        
+        setCourses(coursesData);
+        setFilteredCourses(coursesData);
+        setLastUpdated(new Date().getTime());
       } else {
-        fetchCourses();
+        setError('No courses found for this department.');
       }
-    };
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      setError('Failed to fetch courses: ' + error.message);
+      
+      // Try to fall back to cached data if available
+      const cachedData = getFromCache(department);
+      if (cachedData) {
+        setCourses(cachedData);
+        setFilteredCourses(cachedData);
+        setLastUpdated(new Date().getTime());
+        setError('Using cached data due to fetch error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    checkCache();
+  // Modified useEffect to handle cache
+  useEffect(() => {
+    fetchCourses();
   }, [department]);
+
+  // Add refresh functionality
+  const handleRefresh = () => {
+    fetchCourses(true); // Force fetch fresh data
+  };
+
+  // Add cache management utilities
+  const clearDepartmentCache = () => {
+    localStorage.removeItem(getCacheKey(department));
+    handleRefresh();
+  };
+
+  const clearAllCache = () => {
+    Object.keys(localStorage)
+      .filter(key => key.startsWith(CACHE_PREFIX))
+      .forEach(key => localStorage.removeItem(key));
+    handleRefresh();
+  };
+  
+  // Add a function to clear cache for testing
+  const clearCache = () => {
+    console.log('Clearing cache...');
+    localStorage.removeItem(`${CACHE_PREFIX}${department}`);
+    fetchCourses();
+  };
+  
+  // Add this temporary debug button to your UI (remove in production)
+  <Button 
+    onClick={clearCache}
+    sx={{
+      marginBottom: '10px',
+      backgroundColor: '#ff4444',
+      color: 'white',
+      '&:hover': {
+        backgroundColor: '#cc0000',
+      }
+    }}
+  >
+    Clear Cache & Reload
+  </Button>
+
 
   // Apply Filters Whenever Filter States Change
   useEffect(() => {
     const applyFilters = () => {
-      let updatedCourses = [...courses];
-
-      // Helper function to check if course has matching distribs
+      console.log('Applying filters with data source:', {
+        totalCourses: courses.length,
+        sampleCourse: courses[0],
+        dataSource: courses[0]?._source || 'unknown', // Add a _source field if needed
+        selectedTerms,
+      });
       const hasMatchingDistribs = (course) => {
         const courseDistribs = Array.isArray(course.distribs) ? 
           course.distribs : 
@@ -112,6 +220,33 @@ const DepartmentCoursesPage = () => {
         
         return hasRegularDistrib && hasWCDistrib;
       };
+      let updatedCourses = [...courses];
+    
+      if (selectedTerms.length > 0) {
+        console.log('Before terms filter:', updatedCourses.length);
+        updatedCourses = updatedCourses.filter(course => {
+          const courseTerms = course.terms || [];
+          const matches = selectedTerms.some(term => courseTerms.includes(term));
+          console.log('Course terms check:', {
+            courseName: course.name,
+            courseTerms,
+            selectedTerms,
+            matches
+          });
+          return matches;
+        });
+        console.log('After terms filter:', updatedCourses.length);
+      }
+    
+
+      const hasMatchingTerm = (course) => {
+        console.log("terms")
+        console.log(course.terms)
+        if (selectedTerms.length === 0) return true; // If no terms selected, include all courses
+        return selectedTerms.some(term => 
+          Array.isArray(course.terms) && course.terms.includes(term)
+        );
+      };
 
       // Apply all filters
       updatedCourses = updatedCourses.filter(course => {
@@ -119,7 +254,8 @@ const DepartmentCoursesPage = () => {
           (course.layup >= layupVotes[0] && course.layup <= layupVotes[1]) &&
           (!withReviewsOnly || course.numOfReviews > 0) &&
           hasMatchingDistribs(course) &&
-          (course.quality >= qualityFilter[0] && course.quality <= qualityFilter[1])
+          (course.quality >= qualityFilter[0] && course.quality <= qualityFilter[1]) &&
+          hasMatchingTerm(course)
         );
       });
 
@@ -157,18 +293,36 @@ const DepartmentCoursesPage = () => {
         default:
           break;
       }
-
       setFilteredCourses(updatedCourses);
     };
 
     applyFilters();
-  }, [courses, sortOption, layupVotes, withReviewsOnly, selectedDistribs, selectedWCDistribs, qualityFilter]);
+  }, [courses, sortOption, layupVotes, withReviewsOnly, selectedDistribs, selectedWCDistribs, qualityFilter, selectedTerms]);
 
+  useEffect(() => {
+    // Check if it's the first visit
+    const hasVisited = localStorage.getItem('hasVisitedBefore');
+    if (!hasVisited) {
+      setShowFilterTip(true);
+      localStorage.setItem('hasVisitedBefore', 'true');
+      
+      // Automatically hide the tooltip after 5 seconds
+      setTimeout(() => {
+        setShowFilterTip(false);
+      }, 5000);
+    }
+  }, []);
   // Handler for World Culture distribs change
   const handleWCDistribsChange = (event) => {
     const value = event.target.value;
     setSelectedWCDistribs(prev => 
       prev.includes(value) ? prev.filter(distrib => distrib !== value) : [...prev, value]
+    );
+  };
+  const handleTermsChange = (event) => {
+    const value = event.target.value;
+    setSelectedTerms(prev => 
+      prev.includes(value) ? prev.filter(term => term !== value) : [...prev, value]
     );
   };
 
@@ -229,47 +383,107 @@ const DepartmentCoursesPage = () => {
         backgroundColor: '#F9F9F9',
         padding: '20px',
         fontFamily: 'SF Pro Display, sans-serif',
+        
       }}
     >
       <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap' }}>
-          <Typography 
-            variant="h3" 
-            align='left'
-            sx={{ 
-              fontWeight: 600, 
-              fontFamily: 'SF Pro Display, sans-serif', 
-              color: '#571CE0',
-              marginBottom: '20px',
-              marginTop: '0px'
-            }}
-          >
-            Courses in {departmentMapping[department]?.name || department}
-          </Typography>
+    <Box sx={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'flex-start', // Changed from center to allow for the note
+      width: '100%', 
+      marginBottom: '20px' // Moved margin to container
+    }}>
+      <Typography 
+    variant="h3" 
+    align='left'
+    sx={{ 
+      fontWeight: 600, 
+      fontFamily: 'SF Pro Display, sans-serif', 
+      color: '#34495E',
+      margin: 0,
+      lineHeight: 1.2,
+    }}
+  >
+    Courses in {departmentMapping[department]?.name || department}
+  </Typography>
 
-          {/* Button to Open Filters */}
-          <Button 
-            aria-describedby={popoverId}
-            variant="contained" 
-            onClick={handleFilterOpen} 
-            sx={{
-              backgroundColor: '#ffffff',
-              color: '#571CE0',
-              borderRadius: '20px',
-              padding: '10px 20px',
-              fontWeight: 'bold',
-              fontSize: '15px',
-              boxShadow: '0 3px 6px rgba(0, 0, 0, 0.1)',
-              transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
-              '&:hover': {
-                backgroundColor: '#f5f5f5',
-                boxShadow: '0 6px 12px rgba(0, 0, 0, 0.2)',
-              },
-            }}
-          >
-            Filter ⬍
-          </Button>
-        </Box>
+  {/* Filter button and note in a flex container */}
+  <Box sx={{ 
+    display: 'flex', 
+    flexDirection: 'column', 
+    alignItems: 'flex-end',
+    gap: '4px'
+  }}>
+    <Button 
+      aria-describedby={popoverId}
+      onClick={handleFilterOpen} 
+      sx={{
+        position: 'relative',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(10px)',
+        color: '#1c1c1e',
+        borderRadius: '24px',
+        padding: '10px 20px',
+        fontWeight: '500',
+        fontSize: '15px',
+        fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+        border: '1px solid rgba(0, 0, 0, 0.05)',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
+        transition: 'all 0.2s ease',
+        textTransform: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        height: 'fit-content',
+        minHeight: '40px',
+        '&:hover': {
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          transform: 'translateY(-1px)',
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.12)',
+        },
+        '&:active': {
+          transform: 'translateY(0)',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
+        }
+      }}
+    >
+      Filter
+      <svg 
+        width="12" 
+        height="12" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ 
+          marginLeft: '2px',
+          transition: 'transform 0.2s ease',
+          transform: open ? 'rotate(180deg)' : 'rotate(0deg)'
+        }}
+      >
+        <path 
+          d="M19 9l-7 7-7-7" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        />
+      </svg>
+    </Button>
+    <Typography 
+      sx={{ 
+        fontSize: '11px',
+        color: '#666',
+        fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+        fontWeight: '400',
+        opacity: 0.8,
+        letterSpacing: '0.2px'
+      }}
+    >
+      Filter by Winter 2025 (on special demand)
+    </Typography>
+  </Box>
+</Box>
 
         <Popover
   id={popoverId}
@@ -359,6 +573,32 @@ const DepartmentCoursesPage = () => {
         },
       }}
     />
+
+<Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
+    Terms Offered
+  </Typography>
+  <FormGroup sx={{ marginBottom: '16px' }}>
+    <FormControlLabel
+      control={
+        <Checkbox 
+          checked={selectedTerms.includes('25W')} 
+          onChange={handleTermsChange} 
+          value="25W" 
+          sx={{
+            color: '#571CE0',
+            padding: '4px',
+          }}
+        />
+      }
+      label="25W"
+      sx={{
+        marginBottom: '6px',
+        '& .MuiTypography-root': {
+          fontSize: '12px',
+        },
+      }}
+    />
+  </FormGroup>
     <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
       Culture Requirement
     </Typography>
