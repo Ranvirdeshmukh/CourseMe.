@@ -813,7 +813,7 @@ const handleQualityVote = async (voteType) => {
           const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
           console.log("fetching current instructors")
           try {
-            const fallTimetableRef = collection(db, 'fallTimetable');
+            const fallTimetableRef = collection(db, 'winterTimetable');
             console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
             const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
             const querySnapshot = await getDocs(q);
@@ -906,7 +906,7 @@ const handleQualityVote = async (voteType) => {
         const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
         console.log("Fetching current instructors");
 
-        const fallTimetableRef = collection(db, 'fallTimetable');
+        const fallTimetableRef = collection(db, 'winterTimetable');
         const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
         const querySnapshot = await getDocs(q);
         
@@ -1703,7 +1703,7 @@ useEffect(() => {
                     color: '#1D1D1F', // Text color
                   }}
                 >
-                  24F
+                  25W
                 </Typography>
               </Box>
             </Box>
