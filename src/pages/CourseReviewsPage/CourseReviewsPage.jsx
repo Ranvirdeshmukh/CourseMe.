@@ -207,7 +207,7 @@ const CourseReviewsPage = () => {
           marginBottom: '1rem'
         }}>
           <Typography variant="h6" sx={{ fontWeight: 600, color: '#1D1D1F' }}>
-            AI Summary
+          AI Summary of Reviews
           </Typography>
           <div className="flex-shrink-0 relative group">
             <Sparkles className="w-5 h-5 text-indigo-600 cursor-help" />
