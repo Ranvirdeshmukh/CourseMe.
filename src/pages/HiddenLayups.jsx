@@ -293,7 +293,7 @@ console.log('Filtering debug:', {
   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
     <Box>
       <Typography variant="h3" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
-        Hidden Gems 💎
+        Hidden Gems for Winter '25 💎
       </Typography>
       <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
         Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 

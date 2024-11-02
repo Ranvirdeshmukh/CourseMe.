@@ -3,14 +3,13 @@ import { AppBar, Toolbar, Typography, Box, IconButton, Drawer, List, ListItem, L
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import '../styles/custom.css'; // Import the custom CSS
+import '../styles/custom.css';
 
 const NavBar = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // State for managing Drawer visibility on mobile
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [error, setError] = useState('');
@@ -27,7 +26,6 @@ const NavBar = () => {
     setSnackbarOpen(false);
   };
 
-  // Redirect to login if the user is not logged in
   const handleLoginRedirect = () => {
     if (!currentUser) {
       navigate('/login');
@@ -36,16 +34,12 @@ const NavBar = () => {
     }
   };
 
-  // Check if the current page is one where the navbar should be hidden
   const isGetStartedPage = location.pathname === '/';
   const isLoginPage = location.pathname === '/login';
   const isSignUpPage = location.pathname === '/signup';
-  const isCompleteProfilePage = location.pathname === '/complete-profile'; // Add this line
-
-  // Check if the current page is the Landing page
+  const isCompleteProfilePage = location.pathname === '/complete-profile';
   const isLandingPage = location.pathname === '/landing';
 
-  // Helper function to determine if the current path matches any of the specific patterns
   const isSpecialPage = () => {
     const path = location.pathname;
     const specialPages = [
@@ -53,21 +47,20 @@ const NavBar = () => {
       '/profile',
       '/layups',
       '/course-enrollment-priorities',
-      '/departments', // Include department-related paths
-      '/course-review', // Add course-review path to apply special styling
-      '/timetable', // Include timetable path to apply special styling
-      '/professors', // Added professors to special pages
-
+      '/departments',
+      '/course-review',
+      '/timetable',
+      '/professors',
     ];
     return specialPages.some((page) => path === page || path.startsWith(`${page}/`));
   };
 
   const isSpecialPageStyle = isSpecialPage();
 
-  // Return null to prevent Navbar rendering on specific pages
-  if (isGetStartedPage || isLoginPage || isSignUpPage || isCompleteProfilePage) { // Add isCompleteProfilePage
+  if (isGetStartedPage || isLoginPage || isSignUpPage || isCompleteProfilePage) {
     return null;
   }
+
   return (
     <AppBar
       position="static"
@@ -82,7 +75,6 @@ const NavBar = () => {
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
-        {/* Logo display logic */}
         <Box
           component="div"
           onClick={() => navigate(currentUser ? '/landing' : '/')}
@@ -97,150 +89,198 @@ const NavBar = () => {
 
         {/* Desktop Links */}
         <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-          {currentUser ? (
-            <>
+          {isLandingPage ? (
+            // Only show Login button on landing page if user is not logged in
+            !currentUser && (
               <Typography
                 component={Link}
-                to="/classes"
+                to="/login"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
+                  color: '#571CE0',
                   textTransform: 'none',
                   textDecoration: 'none',
                   margin: '0 10px',
-                  fontWeight: 500,
+                  fontWeight: 600,
                   fontSize: '1rem',
                 }}
-                onClick={handleLoginRedirect} // Ensure login check on click
               >
-                All Classes
+                Log In
               </Typography>
-              <Typography
-                component={Link}
-                to="/layups"
-                sx={{
-                  fontFamily: 'SF Pro Display, sans-serif',
-                  color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
-                  textTransform: 'none',
-                  textDecoration: 'none',
-                  margin: '0 10px',
-                  fontWeight: 500,
-                  fontSize: '1rem',
-                }}
-                onClick={handleLoginRedirect} // Ensure login check on click
-              >
-                Layups
-              </Typography>
-              <Typography
-                component={Link}
-                to="/timetable"
-                sx={{
-                  fontFamily: 'SF Pro Display, sans-serif',
-                  color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
-                  textTransform: 'none',
-                  textDecoration: 'none',
-                  margin: '0 10px',
-                  fontWeight: 500,
-                  fontSize: '1rem',
-                }}
-                onClick={handleLoginRedirect} // Ensure login check on click
-              >
-                Timetable
-              </Typography>
-              <Typography
-                component={Link}
-                to="/profile"
-                sx={{
-                  fontFamily: 'SF Pro Display, sans-serif',
-                  color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
-                  textTransform: 'none',
-                  textDecoration: 'none',
-                  margin: '0 10px',
-                  fontWeight: 500,
-                  fontSize: '1rem',
-                }}
-                onClick={handleLoginRedirect} // Ensure login check on click
-              >
-                Profile
-              </Typography>
-              
-            </>
-            
+            )
           ) : (
-            <Typography
-              component={Link}
-              to="/login"
-              sx={{
-                fontFamily: 'SF Pro Display, sans-serif',
-                color: isSpecialPageStyle || isLandingPage ? '#571CE0' : '#FFFFFF',
-                textTransform: 'none',
-                textDecoration: 'none',
-                margin: '0 10px',
-                fontWeight: 600,
-                fontSize: '1rem',
-              }}
-            >
-              Log In
-            </Typography>
-            
+            // Show all navigation items on other pages
+            currentUser ? (
+              <>
+                <Typography
+                  component={Link}
+                  to="/classes"
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    margin: '0 10px',
+                    fontWeight: 500,
+                    fontSize: '1rem',
+                  }}
+                  onClick={handleLoginRedirect}
+                >
+                  All Classes
+                </Typography>
+                <Typography
+                  component={Link}
+                  to="/layups"
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    margin: '0 10px',
+                    fontWeight: 500,
+                    fontSize: '1rem',
+                  }}
+                  onClick={handleLoginRedirect}
+                >
+                  Layups
+                </Typography>
+                <Typography
+                  component={Link}
+                  to="/timetable"
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    margin: '0 10px',
+                    fontWeight: 500,
+                    fontSize: '1rem',
+                  }}
+                  onClick={handleLoginRedirect}
+                >
+                  Timetable
+                </Typography>
+                <Typography
+  component={Link}
+  to="/professors"
+  sx={{
+    fontFamily: 'SF Pro Display, sans-serif',
+    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+    textTransform: 'none',
+    textDecoration: 'none',
+    margin: '0 10px',
+    fontWeight: 500,
+    fontSize: '1rem',
+  }}
+  onClick={handleLoginRedirect}
+>
+  Professors
+</Typography>
+                <Typography
+                  component={Link}
+                  to="/profile"
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    margin: '0 10px',
+                    fontWeight: 500,
+                    fontSize: '1rem',
+                  }}
+                  onClick={handleLoginRedirect}
+                >
+                  
+                  Profile
+                </Typography>
+              </>
+            ) : (
+              <Typography
+                component={Link}
+                to="/login"
+                sx={{
+                  fontFamily: 'SF Pro Display, sans-serif',
+                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  textTransform: 'none',
+                  textDecoration: 'none',
+                  margin: '0 10px',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                }}
+              >
+                Log In
+              </Typography>
+            )
           )}
-          
         </Box>
 
-        {/* Mobile Hamburger Menu */}
-        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={handleDrawerOpen}
-            sx={{ color: '#571CE0' }}  // Change the color here
-          >
-            <MenuIcon />
-          </IconButton>
-        </Box>
+        {/* Mobile Hamburger Menu - Hidden on Landing Page when logged in */}
+        {(!isLandingPage || !currentUser) && (
+          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={handleDrawerOpen}
+              sx={{ color: '#571CE0' }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Box>
+        )}
 
-        {/* Mobile Drawer Menu */}
         <Drawer
           anchor="right"
           open={drawerOpen}
           onClose={handleDrawerClose}
           PaperProps={{
             sx: {
-              width: 250, // Adjust the width of the drawer
-              background: '#E4E2DC', // Give it a classy Apple-like color
-              display: 'flex', // Ensures footer sticks to the bottom
+              width: 250,
+              background: '#E4E2DC',
+              display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
             },
           }}
-          transitionDuration={500} // Smooth sliding transition
+          transitionDuration={500}
         >
           <List>
-            {currentUser ? (
-              <>
-                <ListItem button component={Link} to="/classes" onClick={handleDrawerClose}>
-                  <ListItemText primary="All Classes" />
+            {isLandingPage ? (
+              // Only show Login in drawer on landing page if user is not logged in
+              !currentUser && (
+                <ListItem button component={Link} to="/login" onClick={handleDrawerClose}>
+                  <ListItemText primary="Log In" />
                 </ListItem>
-                <ListItem button component={Link} to="/layups" onClick={handleDrawerClose}>
-                  <ListItemText primary="Layups" />
-                </ListItem>
-                <ListItem button component={Link} to="/timetable" onClick={handleDrawerClose}>
-                  <ListItemText primary="Timetable" />
-                </ListItem>
-                <ListItem button component={Link} to="/profile" onClick={handleDrawerClose}>
-                  <ListItemText primary="Profile" />
-                </ListItem>
-              </>
+              )
             ) : (
-              <ListItem button component={Link} to="/login" onClick={handleDrawerClose}>
-                <ListItemText primary="Log In" />
-              </ListItem>
+              // Show all navigation items on other pages
+              currentUser ? (
+                <>
+                  <ListItem button component={Link} to="/classes" onClick={handleDrawerClose}>
+                    <ListItemText primary="All Classes" />
+                  </ListItem>
+                  <ListItem button component={Link} to="/layups" onClick={handleDrawerClose}>
+                    <ListItemText primary="Layups" />
+                  </ListItem>
+                  <ListItem button component={Link} to="/timetable" onClick={handleDrawerClose}>
+                    <ListItemText primary="Timetable" />
+                  </ListItem>
+                  <ListItem button component={Link} to="/professors" onClick={handleDrawerClose}>
+  <ListItemText primary="Professors" />
+</ListItem>
+                  <ListItem button component={Link} to="/profile" onClick={handleDrawerClose}>
+                    <ListItemText primary="Profile" />
+                  </ListItem>
+                </>
+              ) : (
+                <ListItem button component={Link} to="/login" onClick={handleDrawerClose}>
+                  <ListItemText primary="Log In" />
+                </ListItem>
+              )
             )}
           </List>
 
-          {/* Footer Section */}
           <Box sx={{ textAlign: 'center', pb: 3 }}>
             <img src="/1.png" alt="CourseMe Logo" style={{ height: '25px', marginBottom: '10px' }} />
             <Typography variant="body2" sx={{ color: '#999' }}>
@@ -250,7 +290,6 @@ const NavBar = () => {
         </Drawer>
       </Toolbar>
 
-      {/* Snackbar for error messages */}
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
           {error}
