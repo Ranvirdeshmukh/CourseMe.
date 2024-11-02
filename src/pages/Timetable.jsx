@@ -224,7 +224,7 @@ useEffect(() => {
     for (const [, id] of professorMap) {
       if (id === formattedId) return id;
     }
-  
+
     return null;
   }, [professorMap]);
 

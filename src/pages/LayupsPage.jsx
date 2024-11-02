@@ -20,6 +20,8 @@ import {
 import { collection, query, orderBy, getDocs, where, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import HiddenLayups from './HiddenLayups';
+import LayupsByTiming from './LayupsByTiming';
+
 
 
 const LayupsPage = () => {
@@ -294,11 +296,55 @@ const LayupsPage = () => {
             padding: '15px',
             borderRadius: '8px',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-            maxWidth:1100
+            maxWidth: 1100
           }}
         >
           <strong>Note:</strong> In the context of courses, "layup" refers to the perceived ease and workload of the course. A higher layup score typically indicates a course is easier and less time-consuming for students.
         </Typography>
+  
+        {/* Side by Side Container */}
+        <Box
+  sx={{
+    display: 'flex',
+    flexDirection: { xs: 'column', md: 'row' },
+    gap: '10px',
+    marginBottom: '20px',
+    width: '100%', // Take full width
+    maxWidth: 1100, // Match your container max width
+    mx: 'auto', // Center the container
+    justifyContent: 'center', // Center the boxes
+    px: { xs: 2, md: 6 }, // Increased side padding
+
+  }}
+>
+          {/* Left Box - Top Layups */}
+          <Box sx={{ flex: 1 }}>
+            <Card
+              sx={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                padding: 4,
+              }}
+            >
+              <Typography
+                variant="h4"
+                align="left"
+                gutterBottom
+                sx={{
+                  fontWeight: 600,
+                  marginBottom: '25px',
+                  color: '#34495E',
+                  padding: '8px 16px',
+                  backgroundColor: '#F0F4FF',
+                  borderRadius: '6px',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  borderLeft: '4px solid #571CE0',
+                  fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
+                }}
+              >
+                Top 15 Layups
+              </Typography>
   
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '200px' }}>
@@ -515,8 +561,26 @@ const LayupsPage = () => {
         ) : (
           <Typography>No courses available</Typography>
         )}
-      </Container>
-      
+ </Card>
+        </Box>
+        
+
+        {/* Right Box - Layups by Timing */}
+        <Box sx={{ flex: 1 }}>
+          <Card
+            sx={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              padding: 4,
+            }}
+          >
+            <LayupsByTiming />
+          </Card>
+        </Box>
+      </Box> 
+      </Container>   
+
       <Container maxWidth="lg">
   <Card
     sx={{
@@ -534,6 +598,23 @@ const LayupsPage = () => {
     </CardContent>
   </Card>
 </Container>
+
+{/* Add the new Layups by Timing section here
+<Container maxWidth="lg">
+        <Card
+          sx={{
+            width: '100%',
+            maxWidth: 1100,
+            marginTop: '20px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            backgroundColor: '#FFFFFF',
+            borderRadius: '12px',
+            padding: 4,
+          }}
+        >
+          <LayupsByTiming />
+        </Card>
+      </Container> */}
 
       <Container maxWidth="lg">
   <Card
@@ -1108,6 +1189,7 @@ const LayupsPage = () => {
     </CardContent>
   </Card>
 </Container>
+
     </Box>
   );
 };
