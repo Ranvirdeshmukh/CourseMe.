@@ -20,14 +20,17 @@ import TranscriptParser from './pages/TranscriptParser';
 import Professors from './pages/Professors';
 import ProfessorDetails from './pages/ProfessorDetails';
 import ProfessorDirectory from './pages/ProfessorDirectory';
+import { ThemeProvider } from './theme'; // Corrected import path
 
 
 const App = () => {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <ThemeProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 };
