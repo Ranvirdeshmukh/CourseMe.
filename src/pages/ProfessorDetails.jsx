@@ -147,7 +147,7 @@ const AISummary = ({ summary, courseId, professorId, professorName }) => {
 
 const CourseCard = ({ course, professorId, professorName }) => {
   const hasReviews = course.metrics.review_count > 0;
-  const [isExpanded, setIsExpanded] = useState(hasReviews);
+  const [isExpanded, setIsExpanded] = useState(false);  // Changed to false
 
   return (
     <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-[#E8E8ED] transition-all duration-300 hover:scale-[1.01]">
@@ -168,7 +168,7 @@ const CourseCard = ({ course, professorId, professorName }) => {
               ? 'bg-[#0071E3]/10 text-[#0071E3]' 
               : 'bg-[#F5F5F7] text-[#86868B]'
           }`}>
-            {course.metrics.review_count === 0} {course.metrics.review_count === 1 ? 'Review' : 'Reviews'}
+            {course.metrics.review_count} {course.metrics.review_count === 1 ? 'Review' : 'Reviews'}
           </span>
           {hasReviews && (
             <div className="text-[#86868B] hover:text-[#1D1D1F] transition-colors">
