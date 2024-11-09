@@ -211,7 +211,7 @@ const CourseCard = ({ course, professorId, professorName }) => {
 
 const CoursesSection = ({ courses, professorId, professorName }) => {
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [expandAll, setExpandAll] = useState(true);
+  const [expandAll, setExpandAll] = useState(false);  // Changed from true to false
   const sortedCourses = [...courses].sort((a, b) => {
     const aReviews = a.metrics.review_count || 0;
     const bReviews = b.metrics.review_count || 0;
