@@ -376,15 +376,7 @@ const AllClassesPage = () => {
           />
         </Box>
 
-       {/* Switch to toggle emoji display */}
-       <Box sx={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
-          <FormControlLabel
-            control={
-              <Switch checked={showEmojis} onChange={toggleEmojiDisplay} color="primary" />
-            }
-            label="Show Emojis"
-          />
-        </Box>
+       
 
         {loading ? (
           <CircularProgress color="primary" />
