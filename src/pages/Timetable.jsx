@@ -30,24 +30,26 @@ const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   backgroundColor: '#f2f2f2',
-  borderRadius: 4,
-  height: 40,
-  width: 'auto',
+  borderRadius: 6,
+  height: '32px',
   padding: '0 12px',
   color: '#1f1f1f',
   fontFamily: 'Roboto, arial, sans-serif',
-  fontSize: 14,
+  fontSize: '0.82rem',
   letterSpacing: '0.25px',
   textTransform: 'none',
   boxShadow: '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
-  transition: 'background-color .218s, box-shadow .218s',
+  transition: 'all 0.2s ease',
   cursor: 'pointer',
+  minWidth: '140px',
   '&:hover': {
     backgroundColor: '#e2e2e2',
     boxShadow: '0 2px 4px rgba(60, 64, 67, .3), 0 3px 6px rgba(60, 64, 67, .15)',
+    transform: 'translateY(-1px)',
   },
   '&:active': {
     backgroundColor: '#d2d2d2',
+    transform: 'translateY(0)',
   },
   '&:focus': {
     boxShadow: '0 0 0 3px rgba(66, 133, 244, 0.3)',
@@ -60,13 +62,14 @@ const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({
   },
   '& .text': {
     whiteSpace: 'nowrap',
+    fontWeight: 500,
   },
 }));
 
 const GoogleIcon = () => (
   <svg
-    width="20"
-    height="20"
+    width="18"
+    height="18"
     viewBox="0 0 48 48"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -122,6 +125,31 @@ const Timetable = () => {
   const totalPages = Math.ceil(filteredCourses.length / classesPerPage); // Total number of pages
   const navigate = useNavigate();
 
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [columnWidths, setColumnWidths] = useState({});
+  const [selectedRows, setSelectedRows] = useState([]);
+
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedCourses = useCallback((courses) => {
+    if (!sortConfig.key) return courses;
+
+    return [...courses].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [sortConfig]);
 
   const periodCodeToTiming = {
     "11": "MWF 11:30-12:35, Tu 12:15-1:05",
@@ -246,11 +274,13 @@ useEffect(() => {
         onClick={handleClick}
         sx={{
           color: professorId ? '#571ce0' : '#1D1D1F',
-          padding: '10px',
+          padding: '8px 16px',
           fontWeight: 400,
-          fontSize: '0.95rem',
+          fontSize: '0.81rem',
           textAlign: 'left',
           cursor: professorId ? 'pointer' : 'default',
+          height: '48px',
+          lineHeight: '1.2',
           '&:hover': professorId ? {
             textDecoration: 'underline',
           } : {},
@@ -721,10 +751,11 @@ useEffect(() => {
   };
 
   const paginatedCourses = useMemo(() => {
+    const sortedCourses = getSortedCourses(filteredCourses);
     const startIndex = (currentPage - 1) * classesPerPage;
     const endIndex = startIndex + classesPerPage;
-    return filteredCourses.slice(startIndex, endIndex);
-  }, [filteredCourses, currentPage]);
+    return sortedCourses.slice(startIndex, endIndex);
+  }, [filteredCourses, currentPage, getSortedCourses]);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -747,18 +778,21 @@ useEffect(() => {
         fontFamily: 'SF Pro Display, sans-serif',
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth={false} sx={{ margin: '0 20px' }}>
         {/* "Your Fall 2024 Classes" Section */}
         {showSelectedCourses && (
           <Typography
             variant="h3"
             align="left"
             sx={{
-              fontWeight: 600,
-              color: '#34495E',
-              marginBottom: '20px',
-              marginTop: '30px',
+              fontWeight: 700,
+              fontSize: '2.5rem',
+              color: '#000000',
+              marginBottom: '8px', // Reduced margin
+              marginTop: '10px',
               fontFamily: 'SF Pro Display, sans-serif',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2,
             }}
           >
             Your Winter 2025 Classes
@@ -979,8 +1013,10 @@ useEffect(() => {
                     {/* Add to Calendar Button */}
                     <TableCell
                       sx={{
-                        padding: '10px',
+                        padding: '8px 12px',
                         textAlign: 'left',
+                        height: '48px',
+                        verticalAlign: 'middle',
                       }}
                     >
                       {course.period !== 'ARR' && course.period !== 'FS' && (
@@ -1205,24 +1241,33 @@ useEffect(() => {
       display: 'flex',
       alignItems: 'center',
       cursor: 'pointer',
-      marginBottom: '10px',
-      marginTop: '10px',
+      marginBottom: '16px',
+      marginTop: '24px',
+      padding: '12px 16px',
+      backgroundColor: 'rgba(0, 105, 62, 0.04)',
+      borderRadius: '8px',
+      border: '1px solid rgba(0, 105, 62, 0.1)',
+      transition: 'all 0.2s ease',
+      '&:hover': {
+        backgroundColor: 'rgba(0, 105, 62, 0.08)',
+      },
     }}
     onClick={() => setShowFeatures(!showFeatures)}
   >
     <Typography
-      variant="body2"
+      variant="h6"
       sx={{
         fontFamily: 'SF Pro Display, sans-serif',
-        color: '#1D1D1F',
+        color: '#00693E',
         fontWeight: 600,
+        fontSize: '1.1rem',
+        flex: 1,
       }}
     >
-      The most intuitive AI powered course planning experience you'll ever need
+      AI-Powered Course Planning
     </Typography>
     <KeyboardArrowDownIcon 
       sx={{ 
-        marginLeft: '8px', 
         color: '#00693E',
         transform: showFeatures ? 'rotate(180deg)' : 'none',
         transition: 'transform 0.3s ease',
@@ -1284,33 +1329,108 @@ useEffect(() => {
       sx={{ 
         backgroundColor: '#FFFFFF',
         marginTop: '10px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
         borderRadius: '12px',
-        overflowX: 'auto',
-        maxWidth: '100%'
-        
+        width: '100%',
+        border: '1px solid rgba(0, 105, 62, 0.1)',
+        '&:hover': {
+          boxShadow: '0 3px 10px rgba(0, 0, 0, 0.08)',
+        },
       }}
     >
-      <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
-        <TableHead sx={{ backgroundColor: '#F8F8F8', position: 'sticky', top: 0, zIndex: 1 }}>
+      <Table size="small">
+        <TableHead 
+          sx={{ 
+            backgroundColor: '#F8F9FA',
+            position: 'sticky', 
+            top: 0, 
+            zIndex: 1,
+          }}
+        >
           <TableRow>
-            {['Subject', 'Number', 'Title', 'Section', 'Period', 'Timing', 'Room', 'Building', 'Instructor', 'Add to Calendar', 'Notify When Available', 'Add Course'].map((header, index) => (
+            {[
+              { key: 'subj', label: 'Subject', width: '80px' },
+              { key: 'num', label: 'Number', width: '60px' },
+              { key: 'title', label: 'Title', width: '200px' },
+              { key: 'sec', label: 'Section', width: '70px' },
+              { key: 'period', label: 'Period', width: '70px' },
+              { key: 'timing', label: 'Timing', width: '140px' },
+              { key: 'room', label: 'Room', width: '60px' },
+              { key: 'building', label: 'Building', width: '80px' },
+              { key: 'instructor', label: 'Instructor', width: '120px' },
+              { key: null, label: 'Calendar', width: '120px' },
+              { key: null, label: 'Notify', width: '60px' },
+              { key: null, label: 'Add', width: '60px' }
+            ].map(({ key, label, width }, index) => (
               <TableCell
                 key={index}
+                onClick={() => key && handleSort(key)}
                 sx={{
-                  color: '#333333',
+                  width: width,
+                  minWidth: width,
+                  maxWidth: width,
+                  padding: '14px 8px',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  color: '#1D1D1F',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  backgroundColor: '#F8F9FA',
+                  whiteSpace: 'nowrap',
+                  cursor: key ? 'pointer' : 'default',
+                  transition: 'all 0.2s ease',
+                  position: 'relative',
+                  borderBottom: '1px solid #E0E0E0',
+                  borderRight: index !== 11 ? '1px solid #E0E0E0' : 'none',
                   textAlign: 'left',
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  padding: '16px 12px',
-                  borderBottom: '2px solid #E0E0E0',
-                  backgroundColor: '#F8F8F8',
-                  boxShadow: index === 0 ? '0 2px 4px rgba(0, 0, 0, 0.05)' : 'none',
-                  fontFamily: 'SF Pro Display, sans-serif',
-
+                  '&:hover': key ? {
+                    backgroundColor: 'rgba(0, 105, 62, 0.08)',
+                    color: '#00693E',
+                  } : {},
+                  '&::after': key ? {
+                    content: sortConfig.key === key ? 
+                      `"${sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}"` : '""',
+                    position: 'absolute',
+                    right: '4px',
+                    opacity: sortConfig.key === key ? 1 : 0.3,
+                    fontSize: '0.7rem',
+                    marginLeft: '4px',
+                  } : {},
+                  // Bottom border highlight for active sort
+                  borderBottom: sortConfig.key === key ? 
+                    '2px solid #00693E' : 
+                    '1px solid #E0E0E0',
+                  // Gradient background for header cells
+                  background: 'linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%)',
+                  // Box shadow for depth
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
                 }}
               >
-                {header}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '4px',
+                  }}
+                >
+                  {label}
+                  {key && (
+                    <Box 
+                      sx={{ 
+                        opacity: 0.3,
+                        transition: 'opacity 0.2s',
+                        '&:hover': {
+                          opacity: 1
+                        }
+                      }}
+                    >
+                      {sortConfig.key === key ? 
+                        (sortConfig.direction === 'ascending' ? '▲' : '▼') : 
+                        '▼'}
+                    </Box>
+                  )}
+                </Box>
               </TableCell>
             ))}
           </TableRow>
@@ -1320,12 +1440,19 @@ useEffect(() => {
         <TableRow
           key={index}
           sx={{
-            backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9F9F9',
-            transition: 'background-color 0.3s ease',
+            backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#FAFBFC',
+            transition: 'all 0.2s ease',
+            height: '48px', // Fixed height for rows
             '&:hover': {
-              backgroundColor: '#E5E5EA',
+              backgroundColor: 'rgba(0, 105, 62, 0.04)',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
             },
             cursor: 'default',
+            borderLeft: '2px solid transparent',
+            '&:hover': {
+              borderLeft: '2px solid #00693E',
+            }
           }}
         >
               {/* Interactive cells (Subject, Number, Title) */}
@@ -1336,12 +1463,14 @@ useEffect(() => {
                 }}
                 sx={{
                   color: '#571ce0',
-                  padding: '10px',
+                  padding: '8px 16px', // Reduced padding
                   fontWeight: 500,
-                  fontSize: '0.95rem',
+                  fontSize: '0.875rem', // Slightly smaller font
                   textAlign: 'left',
                   cursor: 'pointer',
                   textDecoration: 'none',
+                  height: '48px', // Fixed height
+                  lineHeight: '1.2', // Reduced line height
                   '&:hover': {
                     textDecoration: 'underline',
                   },
@@ -1356,12 +1485,14 @@ useEffect(() => {
                 }}
                 sx={{
                   color: '#571ce0',
-                  padding: '10px',
+                  padding: '8px 16px', // Reduced padding
                   fontWeight: 500,
-                  fontSize: '0.95rem',
+                  fontSize: '0.875rem', // Slightly smaller font
                   textAlign: 'left',
                   cursor: 'pointer',
                   textDecoration: 'none',
+                  height: '48px', // Fixed height
+                  lineHeight: '1.2', // Reduced line height
                   '&:hover': {
                     textDecoration: 'underline',
                   },
@@ -1376,12 +1507,14 @@ useEffect(() => {
                 }}
                 sx={{
                   color: '#571ce0',
-                  padding: '10px',
+                  padding: '8px 16px', // Reduced padding
                   fontWeight: 500,
-                  fontSize: '0.95rem',
+                  fontSize: '0.875rem', // Slightly smaller font
                   textAlign: 'left',
                   cursor: 'pointer',
                   textDecoration: 'none',
+                  height: '48px', // Fixed height
+                  lineHeight: '1.2', // Reduced line height
                   '&:hover': {
                     textDecoration: 'underline',
                   },
@@ -1396,10 +1529,17 @@ useEffect(() => {
                   key={field}
                   sx={{
                     color: '#1D1D1F',
-                    padding: '10px',
+                    padding: '8px 16px', // Reduced padding
+                    fontSize: '0.875rem', // Slightly smaller font
                     fontWeight: 400,
-                    fontSize: '0.95rem',
-                    textAlign: 'left',
+                    height: '48px', // Fixed height
+                    borderBottom: '1px solid rgba(0, 0, 0, 0.04)', // Lighter border
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    transition: 'all 0.2s ease',
+                    lineHeight: '1.2', // Reduced line height
+                    '&:hover::after': {
+                      opacity: 1,
+                    }
                   }}
                 >
                   {course[field]}
@@ -1408,7 +1548,14 @@ useEffect(() => {
              <ProfessorCell instructor={course.instructor} />
 
               {/* Add to Calendar Button */}
-              <TableCell sx={{ padding: '10px', textAlign: 'left' }}>
+              <TableCell 
+                sx={{ 
+                  padding: '8px 12px', 
+                  textAlign: 'left',
+                  height: '48px',
+                  verticalAlign: 'middle',
+                }}
+              >
                 {course.period !== 'ARR' && course.period !== 'FS' && (
                   <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
                     <div className="icon">
@@ -1420,7 +1567,12 @@ useEffect(() => {
               </TableCell>
 
               {/* Notify When Available Button */}
-              <TableCell sx={{ padding: '12px', textAlign: 'left' }}>
+              <TableCell 
+                sx={{ 
+                  padding: '12px',
+                  textAlign: 'left',
+                }}
+              >
                 {isFallAddDropClosed ? (
                   <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
                     <IconButton>
@@ -1437,7 +1589,12 @@ useEffect(() => {
               </TableCell>
 
               {/* Add Course Button */}
-              <TableCell sx={{ padding: '12px', textAlign: 'left' }}>
+              <TableCell 
+                sx={{ 
+                  padding: '12px',
+                  textAlign: 'left',
+                }}
+              >
                 <IconButton
                   onClick={() => handleAddCourse(course)}
                   disabled={selectedCourses.length >= 3}
