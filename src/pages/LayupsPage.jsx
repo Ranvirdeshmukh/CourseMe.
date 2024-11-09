@@ -25,7 +25,8 @@ import { db } from '../firebase';
 import HiddenLayups from './HiddenLayups';
 import LayupsByTiming from './LayupsByTiming';
 
-
+// Add this constant at the top of your file, outside the component
+const CACHE_VERSION = '1.0'; // Increment this when you push updates
 
 const LayupsPage = () => {
   const [courses, setCourses] = useState([]);
@@ -53,7 +54,12 @@ const LayupsPage = () => {
       const cachedData = JSON.parse(localStorage.getItem('topCoursesCache'));
       const now = new Date().getTime();
 
-      if (cachedData && now - cachedData.timestamp < 24 * 60 * 60 * 1000) { // 24 hours expiry
+      // Check both timestamp and version
+      if (
+        cachedData && 
+        cachedData.version === CACHE_VERSION && 
+        now - cachedData.timestamp < 24 * 60 * 60 * 1000
+      ) {
         setCourses(cachedData.courses);
         setLoading(false);
         return;
@@ -94,10 +100,11 @@ const LayupsPage = () => {
 
       console.log('Unique courses:', uniqueCourses);
 
-      // Cache the data in local storage with a timestamp
+      // Store version with cache
       localStorage.setItem('topCoursesCache', JSON.stringify({
         courses: uniqueCourses,
         timestamp: now,
+        version: CACHE_VERSION // Add version to cache
       }));
 
       setCourses(uniqueCourses);
