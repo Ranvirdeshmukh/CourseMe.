@@ -117,6 +117,9 @@ const DepartmentCoursesPage = () => {
   // Popover state
   const [anchorEl, setAnchorEl] = useState(null);
 
+  // First add the state for controlling filter visibility
+  const [showFilters, setShowFilters] = useState(false);
+
   const fetchCourses = async (forceFetch = false) => {
     try {
       setLoading(true);
@@ -439,8 +442,7 @@ const DepartmentCoursesPage = () => {
     gap: '4px'
   }}>
     <Button 
-      aria-describedby={popoverId}
-      onClick={handleFilterOpen} 
+      onClick={() => setShowFilters(!showFilters)}
       sx={{
         position: 'relative',
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -450,7 +452,7 @@ const DepartmentCoursesPage = () => {
         padding: '10px 20px',
         fontWeight: '500',
         fontSize: '15px',
-        fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+        fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
         border: '1px solid rgba(0, 0, 0, 0.05)',
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
         transition: 'all 0.2s ease',
@@ -465,33 +467,28 @@ const DepartmentCoursesPage = () => {
           transform: 'translateY(-1px)',
           boxShadow: '0 2px 5px rgba(0, 0, 0, 0.12)',
         },
-        '&:active': {
-          transform: 'translateY(0)',
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
-        }
       }}
     >
-      Filter
-      <svg 
-        width="12" 
-        height="12" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ 
-          marginLeft: '2px',
-          transition: 'transform 0.2s ease',
-          transform: open ? 'rotate(180deg)' : 'rotate(0deg)'
-        }}
-      >
-        <path 
-          d="M19 9l-7 7-7-7" 
-          stroke="currentColor" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        />
-      </svg>
+      <span>Filters</span>
+      {(selectedDistribs.length > 0 || selectedWCDistribs.length > 0 || selectedTerms.length > 0 || withReviewsOnly) && (
+        <Box
+          sx={{
+            backgroundColor: '#007AFF',
+            color: 'white',
+            borderRadius: '12px',
+            padding: '2px 8px',
+            fontSize: '13px',
+            fontWeight: '500',
+            minWidth: '20px',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {selectedDistribs.length + selectedWCDistribs.length + selectedTerms.length + (withReviewsOnly ? 1 : 0)}
+        </Box>
+      )}
     </Button>
     <Typography 
       sx={{ 
@@ -508,200 +505,246 @@ const DepartmentCoursesPage = () => {
   </Box>
 </Box>
 
-        <Popover
-  id={popoverId}
-  open={open}
-  anchorEl={anchorEl}
-  onClose={handleFilterClose}
-  anchorOrigin={{
-    vertical: 'bottom',
-    horizontal: 'right',
-  }}
-  sx={{
-    '.MuiPaper-root': {
-      backgroundColor: '#ffffff', // White background
-      borderRadius: '8px', // Smaller rounded corners
-      boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)', // Even lighter shadow
-      padding: '8px', // Reduced padding for compactness
-      transition: 'all 0.2s ease-in-out',
-      width: '180px', // Smaller width for a compact look
-    },
-  }}
->
-  <Box sx={{ padding: '8px' }}>
-    <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
-      Sort
-    </Typography>
-    <FormControl component="fieldset" sx={{ marginBottom: '8px' }}>
-      <RadioGroup
-        value={sortOption}
-        onChange={(e) => setSortOption(e.target.value)}
-        sx={{
-          '& .MuiFormControlLabel-root': {
-            marginBottom: '6px', // Reduced spacing
-          },
-          '& .MuiTypography-root': {
-            fontSize: '12px', // Smaller font for a more compact feel
-          },
-        }}
-      >
-        <FormControlLabel value="level" control={<Radio />} label="Level (low to high)" />
-        <FormControlLabel value="alphabetical" control={<Radio />} label="Alphabetical" />
-        <FormControlLabel value="layup" control={<Radio />} label="Layup votes (high to low)" />
-      </RadioGroup>
-    </FormControl>
-
-    <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
-      Layup Votes
-    </Typography>
-    <Slider
-      value={layupVotes}
-      onChange={handleLayupVotesChange}
-      valueLabelDisplay="auto"
-      min={-300}
-      max={300}
-      sx={{
-        marginBottom: '10px',
-        '& .MuiSlider-thumb': {
-          backgroundColor: '#571CE0',
-          width: '10px', // Smaller thumb
-          height: '10px',
-        },
-        '& .MuiSlider-track': {
-          backgroundColor: '#571CE0',
-          height: '3px',
-        },
-      }}
-    />
-
-    <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
-      Quality
-    </Typography>
-    <Slider
-      value={qualityFilter}
-      onChange={handleQualityFilterChange}
-      valueLabelDisplay="auto"
-      min={0}
-      max={50}
-      sx={{
-        marginBottom: '10px',
-        '& .MuiSlider-thumb': {
-          backgroundColor: '#571CE0',
-          width: '10px',
-          height: '10px',
-        },
-        '& .MuiSlider-track': {
-          backgroundColor: '#571CE0',
-          height: '3px',
-        },
-      }}
-    />
-
-<Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
-    Terms Offered
-  </Typography>
-  <FormGroup sx={{ marginBottom: '16px' }}>
-    <FormControlLabel
-      control={
-        <Checkbox 
-          checked={selectedTerms.includes('25W')} 
-          onChange={handleTermsChange} 
-          value="25W" 
+        {/* Wrap the existing filters section in a collapsible container */}
+        <Box
           sx={{
-            color: '#571CE0',
-            padding: '4px',
+            opacity: showFilters ? 1 : 0,
+            transform: showFilters ? 'translateY(0)' : 'translateY(-8px)',
+            visibility: showFilters ? 'visible' : 'hidden',
+            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+            height: showFilters ? 'auto' : 0,
+            overflow: 'hidden',
+            marginBottom: showFilters ? '24px' : 0,
+            transformOrigin: 'top',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            padding: showFilters ? '16px' : 0,
+            border: '1px solid rgba(0, 0, 0, 0.05)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
           }}
-        />
-      }
-      label="25W"
-      sx={{
-        marginBottom: '6px',
-        '& .MuiTypography-root': {
-          fontSize: '12px',
-        },
-      }}
-    />
-  </FormGroup>
-    <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
-      Culture Requirement
-    </Typography>
-    <FormGroup sx={{ marginBottom: '16px' }}>
-      {worldCultureOptions.map((distrib) => (
-        <FormControlLabel
-          key={distrib.value}
-          control={
-            <Checkbox 
-              checked={selectedWCDistribs.includes(distrib.value)} 
-              onChange={handleWCDistribsChange} 
-              value={distrib.value} 
-              sx={{
-                color: '#571CE0',
-                padding: '4px',
-              }}
-            />
-          }
-          label={distrib.label}
-          sx={{
-            marginBottom: '6px',
-            '& .MuiTypography-root': {
-              fontSize: '12px',
-            },
-          }}
-        />
-      ))}
-    </FormGroup>
+        >
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            gap: '8px',
+            marginBottom: '16px',
+            width: '100%'
+          }}>
+            {/* Combined Filters in Rows */}
+            <Box sx={{ 
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px',
+              '& > *': { // This targets all direct children
+                flexShrink: 0,
+              }
+            }}>
+              {/* Sort Options */}
+              {[
+                { value: 'level', label: 'Level (low to high)' },
+                { value: 'alphabetical', label: 'Alphabetical' },
+                { value: 'layup', label: 'Layup votes' }
+              ].map((option) => (
+                <Button
+                  key={option.value}
+                  onClick={() => setSortOption(option.value)}
+                  sx={{
+                    height: '32px',
+                    padding: '0 16px',
+                    borderRadius: '16px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+                    letterSpacing: '-0.01em',
+                    whiteSpace: 'nowrap',
+                    backgroundColor: sortOption === option.value 
+                      ? '#007AFF' 
+                      : 'rgba(0, 122, 255, 0.1)',
+                    color: sortOption === option.value 
+                      ? '#FFFFFF' 
+                      : '#007AFF',
+                    border: 'none',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: sortOption === option.value 
+                        ? '#0066D6' 
+                        : 'rgba(0, 122, 255, 0.15)',
+                    }
+                  }}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </Box>
 
-    {/* Regular Distribs section */}
-    <Typography variant="h6" sx={{ fontWeight: '500', marginBottom: '8px', fontSize: '13px' }}>
-      Distribs
-    </Typography>
-    <FormGroup sx={{ marginBottom: '10px' }}>
-      {distribOptions.map((distrib) => (
-        <FormControlLabel
-          key={distrib.value}
-          control={
-            <Checkbox 
-              checked={selectedDistribs.includes(distrib.value)} 
-              onChange={handleDistribsChange} 
-              value={distrib.value} 
-              sx={{
-                color: '#571CE0',
-                padding: '4px',
-              }}
-            />
-          }
-          label={distrib.label}
-          sx={{
-            marginBottom: '6px',
-            '& .MuiTypography-root': {
-              fontSize: '12px',
-            },
-          }}
-        />
-      ))}
-    </FormGroup>
+            {/* Distribs and World Culture in one row */}
+            <Box sx={{ 
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px',
+              '& > *': {
+                flexShrink: 0,
+              }
+            }}>
+              {/* Distribs */}
+              {distribOptions.map((distrib) => (
+                <Button
+                  key={distrib.value}
+                  onClick={() => {
+                    setSelectedDistribs(prev => 
+                      prev.includes(distrib.value) 
+                        ? prev.filter(d => d !== distrib.value) 
+                        : [...prev, distrib.value]
+                    );
+                  }}
+                  sx={{
+                    height: '32px',
+                    padding: '0 16px',
+                    borderRadius: '16px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+                    letterSpacing: '-0.01em',
+                    whiteSpace: 'nowrap',
+                    backgroundColor: selectedDistribs.includes(distrib.value) 
+                      ? '#5E5CE6' // iOS purple
+                      : 'rgba(94, 92, 230, 0.1)',
+                    color: selectedDistribs.includes(distrib.value) 
+                      ? '#FFFFFF' 
+                      : '#5E5CE6',
+                    border: 'none',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: selectedDistribs.includes(distrib.value) 
+                        ? '#4E4CC6' 
+                        : 'rgba(94, 92, 230, 0.15)',
+                    }
+                  }}
+                >
+                  {distrib.label}
+                </Button>
+              ))}
 
-    <FormControlLabel
-      control={
-        <Checkbox 
-          checked={withReviewsOnly} 
-          onChange={(e) => setWithReviewsOnly(e.target.checked)} 
-          sx={{
-            color: '#571CE0',
-            padding: '4px', // Reduced padding around checkbox
-          }}
-        />
-      }
-      label="With reviews only"
-      sx={{
-        '& .MuiTypography-root': {
-          fontSize: '12px', // Smaller font size
-        },
-      }}
-    />
-  </Box>
-</Popover>
+              {/* World Culture */}
+              {worldCultureOptions.map((option) => (
+                <Button
+                  key={option.value}
+                  onClick={() => {
+                    setSelectedWCDistribs(prev => 
+                      prev.includes(option.value) 
+                        ? prev.filter(d => d !== option.value) 
+                        : [...prev, option.value]
+                    );
+                  }}
+                  size="small"
+                  sx={{
+                    minHeight: '32px',
+                    px: 2,
+                    py: 0.5,
+                    borderRadius: '16px',
+                    fontSize: '0.813rem',
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                    backgroundColor: selectedWCDistribs.includes(option.value) 
+                      ? '#34C759' // iOS green
+                      : 'rgba(52, 199, 89, 0.1)',
+                    color: selectedWCDistribs.includes(option.value) 
+                      ? '#FFFFFF' 
+                      : '#34C759',
+                    border: 'none',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: selectedWCDistribs.includes(option.value) 
+                        ? '#2DB14F' 
+                        : 'rgba(52, 199, 89, 0.15)',
+                    }
+                  }}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </Box>
 
+            {/* Additional Filters Row */}
+            <Box sx={{ 
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px',
+              '& > *': {
+                flexShrink: 0,
+              }
+            }}>
+              {/* Term Filter */}
+              <Button
+                onClick={() => {
+                  setSelectedTerms(prev => 
+                    prev.includes('25W') 
+                      ? prev.filter(t => t !== '25W') 
+                      : [...prev, '25W']
+                  );
+                }}
+                size="small"
+                sx={{
+                  minHeight: '32px',
+                  px: 2,
+                  py: 0.5,
+                  borderRadius: '16px',
+                  fontSize: '0.813rem',
+                  fontWeight: 500,
+                  whiteSpace: 'nowrap',
+                  backgroundColor: selectedTerms.includes('25W') 
+                    ? 'rgba(87, 28, 224, 0.1)' 
+                    : 'white',
+                  color: selectedTerms.includes('25W') 
+                    ? '#571CE0' 
+                    : 'text.secondary',
+                  border: '1px solid',
+                  borderColor: selectedTerms.includes('25W') 
+                    ? 'rgba(87, 28, 224, 0.2)' 
+                    : 'rgba(0, 0, 0, 0.08)',
+                  '&:hover': {
+                    backgroundColor: selectedTerms.includes('25W') 
+                      ? 'rgba(87, 28, 224, 0.15)' 
+                      : 'rgba(0, 0, 0, 0.04)'
+                  }
+                }}
+              >
+                Winter 2025
+              </Button>
+
+              {/* Reviews Only Filter */}
+              <Button
+                onClick={() => setWithReviewsOnly(!withReviewsOnly)}
+                size="small"
+                sx={{
+                  minHeight: '32px',
+                  px: 2,
+                  py: 0.5,
+                  borderRadius: '16px',
+                  fontSize: '0.813rem',
+                  fontWeight: 500,
+                  whiteSpace: 'nowrap',
+                  backgroundColor: withReviewsOnly 
+                    ? '#FF9500' // iOS orange
+                    : 'rgba(255, 149, 0, 0.1)',
+                  color: withReviewsOnly 
+                    ? '#FFFFFF' 
+                    : '#FF9500',
+                  border: 'none',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: withReviewsOnly 
+                      ? '#E68600' 
+                      : 'rgba(255, 149, 0, 0.15)',
+                  }
+                }}
+              >
+                With Reviews Only
+              </Button>
+            </Box>
+          </Box>
+        </Box>
 
         {/* Courses Table */}
         {loading ? (
