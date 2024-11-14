@@ -108,7 +108,7 @@ const Timetable = () => {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const classesPerPage = 50; // Number of classes per page
-  const isFallAddDropClosed = true; // Replace with logic that checks if the fall add/drop period is over
+  const isFallAddDropClosed = false; // Replace with logic that checks if the fall add/drop period is over
   const [documentName, setDocumentName] = useState('');
   const [showFeatures, setShowFeatures] = useState(false);
   const [professorMappings, setProfessorMappings] = useState({});
