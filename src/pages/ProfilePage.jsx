@@ -59,6 +59,8 @@ const ProfilePage = () => {
   const [bugPage, setBugPage] = useState('');
   const [bugDescription, setBugDescription] = useState('');
   const [bugReportError, setBugReportError] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -87,6 +89,7 @@ const ProfilePage = () => {
 
           // Fetch user's Fall 2024 timetable
           setSelectedCourses(userData.fallCoursestaken || []);
+          setNotifications(userData.notifications || []);
         } else {
           setError('Failed to fetch profile data.');
         }
@@ -98,6 +101,42 @@ const ProfilePage = () => {
       fetchProfileData();
     }
   }, [currentUser]);
+
+  const handleRemoveNotification = async (notification) => {
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      const timetableRequestRef = doc(db, 'timetable-requests', notification.requestId);
+  
+      // Remove notification from user's notifications array
+      await updateDoc(userRef, {
+        notifications: arrayRemove(notification)
+      });
+  
+      // Remove user from the timetable-requests document
+      const timetableRequestDoc = await getDoc(timetableRequestRef);
+      if (timetableRequestDoc.exists()) {
+        const users = timetableRequestDoc.data().users || [];
+        const updatedUsers = users.filter(user => user.email !== currentUser.email);
+        
+        if (updatedUsers.length === 0) {
+          // If no users left, delete the document
+          await deleteDoc(timetableRequestRef);
+        } else {
+          // Update the users array
+          await updateDoc(timetableRequestRef, {
+            users: updatedUsers
+          });
+        }
+      }
+  
+      // Update local state
+      setNotifications(prev => prev.filter(n => n.requestId !== notification.requestId));
+    } catch (error) {
+      console.error('Error removing notification:', error);
+      alert('Failed to remove notification. Please try again.');
+    }
+  };
+  
 
   const handleLogout = async () => {
     try {
@@ -642,6 +681,98 @@ const ProfilePage = () => {
                   </Typography>
                 </Card>
               </Grid>
+<Grid item xs={12}>
+  <Card
+    sx={{
+      padding: 4,
+      backgroundColor: '#FFFFFF',
+      color: '#1D1D1F',
+      boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+      borderRadius: '16px',
+      width: '100%',
+      minHeight: 200,
+      display: 'flex',
+      flexDirection: 'column',
+    }}
+  >
+    <Typography
+      variant="h4"
+      sx={{
+        fontFamily: 'SF Pro Display, sans-serif',
+        fontWeight: 600,
+        color: '#1D1D1F',
+        marginBottom: 0.9,
+      }}
+    >
+      Course Drop Notifications
+    </Typography>
+    <Divider sx={{ marginBottom: 2, backgroundColor: '#EEE' }} />
+    {notifications.length === 0 ? (
+      <Typography
+        variant="body1"
+        sx={{
+          fontFamily: 'SF Pro Display, sans-serif',
+          color: '#8E8E93',
+          textAlign: 'left',
+          marginTop: 2,
+        }}
+      >
+        You haven't signed up for any course drop notifications yet.
+      </Typography>
+    ) : (
+      <TableContainer>
+        <Table>
+          <TableHead sx={{ backgroundColor: '#571CE0' }}>
+            <TableRow>
+              <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Department</TableCell>
+              <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Course</TableCell>
+              <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Section</TableCell>
+              {/* <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Added On</TableCell> */}
+              <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {notifications.map((notification, index) => (
+              <TableRow
+                key={index}
+                sx={{
+                  '&:hover': { backgroundColor: '#f7f7f7' },
+                  transition: 'background-color 0.2s ease',
+                }}
+              >
+                <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
+                  {notification.department}
+                </TableCell>
+                <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
+                  {notification.number}
+                </TableCell>
+                <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
+                  {notification.section}
+                </TableCell>
+                {/* <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
+                  {notification.timestamp ? new Date(notification.timestamp.toDate()).toLocaleDateString() : 'N/A'}
+                </TableCell> */}
+                <TableCell>
+                  <IconButton
+                    onClick={() => handleRemoveNotification(notification)}
+                    sx={{
+                      color: '#F26655',
+                      '&:hover': {
+                        backgroundColor: 'rgba(242, 102, 85, 0.1)',
+                      },
+                    }}
+                  >
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    )}
+  </Card>
+</Grid>
   
               <Grid item xs={12} md={6}>
                 <Card
