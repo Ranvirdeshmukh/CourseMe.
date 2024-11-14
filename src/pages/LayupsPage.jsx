@@ -26,7 +26,7 @@ import HiddenLayups from './HiddenLayups';
 import LayupsByTiming from './LayupsByTiming';
 
 // Add this constant at the top of your file, outside the component
-const CACHE_VERSION = '1.0'; // Increment this when you push updates
+const CACHE_VERSION = '2.0'; // Increment this when you push updates
 
 const LayupsPage = () => {
   const [courses, setCourses] = useState([]);
@@ -334,85 +334,79 @@ const LayupsPage = () => {
         >
           {/* Left Box - Top Layups */}
           <Box 
-            sx={{ 
-              flex: expandedBox === 'left' ? '1' : (expandedBox === 'right' ? '0' : '1'),
-              minWidth: expandedBox === 'left' ? '100%' : (expandedBox === 'right' ? '0' : { md: '48%' }),
-              maxWidth: expandedBox === 'left' ? '100%' : (expandedBox === 'right' ? '0' : { md: '48%' }),
-              display: expandedBox === 'right' ? 'none' : 'block',
-              transition: 'all 0.3s ease',
-            }}
-          >
-            <Card
-              onClick={() => setExpandedBox(expandedBox === 'left' ? null : 'left')}
-              sx={{
-                height: '100%',
-                backgroundColor: '#FFFFFF',
-                borderRadius: '16px',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-                transition: 'all 0.2s ease-in-out',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: '0 6px 24px rgba(0, 0, 0, 0.12)',
-                },
-                '&::before': {
-                  content: '"Click to expand"',
-                  position: 'absolute',
-                  top: '10px',
-                  right: '10px',
-                  backgroundColor: 'rgba(87, 28, 224, 0.9)',
-                  color: 'white',
-                  padding: '4px 12px',
-                  borderRadius: '20px',
-                  fontSize: '0.8rem',
-                  opacity: 0,
-                  transition: 'opacity 0.2s ease',
-                },
-                '&:hover::before': {
-                  opacity: 1,
-                },
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'radial-gradient(circle, transparent 1%, rgba(255,255,255,.1) 1%)',
-                  transform: 'scale(0, 0)',
-                  opacity: 0,
-                  transition: 'transform .4s, opacity .2s',
-                },
-                '&:active::after': {
-                  transform: 'scale(2, 2)',
-                  opacity: 0,
-                  transition: '0s',
-                },
-              }}
-            >
-              <CardContent sx={{ padding: '24px !important' }}>
-                <Typography
-                  variant="h4"
-                  align="left"
-                  gutterBottom
-                  sx={{
-                    fontWeight: 600,
-                    marginBottom: '25px',
-                    color: '#34495E',
-                    padding: '12px 20px',
-                    backgroundColor: '#F0F4FF',
-                    borderRadius: '12px',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-                    borderLeft: '4px solid #571CE0',
-                    fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Top 15 Layups
-                </Typography>
-  
+  sx={{ 
+    flex: expandedBox === 'left' ? '1' : (expandedBox === 'right' ? '0' : '1'),
+    minWidth: expandedBox === 'left' ? '100%' : (expandedBox === 'right' ? '0' : { md: '48%' }),
+    maxWidth: expandedBox === 'left' ? '100%' : (expandedBox === 'right' ? '0' : { md: '48%' }),
+    display: expandedBox === 'right' ? 'none' : 'block',
+    transition: 'all 0.3s ease',
+  }}
+>
+  <Card
+    sx={{
+      height: '100%',
+      backgroundColor: '#FFFFFF',
+      borderRadius: '16px',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+      overflow: 'hidden',
+    }}
+  >
+    <Box
+      onClick={() => setExpandedBox(expandedBox === 'left' ? null : 'left')}
+      sx={{
+        cursor: 'pointer',
+        padding: '24px 24px 0 24px',
+        backgroundColor: '#FFFFFF',
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+          backgroundColor: '#F8F8F8',
+        },
+        position: 'relative',
+        '&::before': {
+          content: '"Click to expand"',
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          backgroundColor: 'rgba(87, 28, 224, 0.9)',
+          color: 'white',
+          padding: '4px 12px',
+          borderRadius: '20px',
+          fontSize: '0.8rem',
+          opacity: 0,
+          transition: 'opacity 0.2s ease',
+        },
+        '&:hover::before': {
+          opacity: 1,
+        },
+      }}
+    >
+      <Typography
+        variant="h4"
+        align="left"
+        gutterBottom
+        sx={{
+          fontWeight: 600,
+          marginBottom: '25px',
+          color: '#34495E',
+          padding: '12px 20px',
+          backgroundColor: '#F0F4FF',
+          borderRadius: '12px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+          borderLeft: '4px solid #571CE0',
+          fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
+          lineHeight: 1.2,
+        }}
+      >
+        Top 15 Layups
+      </Typography>
+      </Box>
+      <CardContent 
+      sx={{ 
+        padding: '24px !important',
+        cursor: 'default' // Prevents the pointer cursor on the content area
+      }}
+      onClick={(e) => e.stopPropagation()} // Prevents expansion when clicking content
+    >
         {loading ? (
           <Box sx={{ width: '100%' }}>
             {[...Array(5)].map((_, i) => (
@@ -644,69 +638,83 @@ const LayupsPage = () => {
 </Box>
         {/* Right Box - Layups by Timing */}
         <Box 
-          sx={{ 
-            flex: expandedBox === 'right' ? '1' : (expandedBox === 'left' ? '0' : '1'),
-            minWidth: expandedBox === 'right' ? '100%' : (expandedBox === 'left' ? '0' : { md: '48%' }),
-            maxWidth: expandedBox === 'right' ? '100%' : (expandedBox === 'left' ? '0' : { md: '48%' }),
-            display: expandedBox === 'left' ? 'none' : 'block',
-            transition: 'all 0.3s ease',
-          }}
-        >
-          <Card
-            onClick={() => setExpandedBox(expandedBox === 'right' ? null : 'right')}
-            sx={{
-              height: '100%',
-              backgroundColor: '#FFFFFF',
-              borderRadius: '16px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-              transition: 'all 0.2s ease-in-out',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 6px 24px rgba(0, 0, 0, 0.12)',
-              },
-              '&::before': {
-                content: '"Click to expand"',
-                position: 'absolute',
-                top: '10px',
-                right: '10px',
-                backgroundColor: 'rgba(87, 28, 224, 0.9)',
-                color: 'white',
-                padding: '4px 12px',
-                borderRadius: '20px',
-                fontSize: '0.8rem',
-                opacity: 0,
-                transition: 'opacity 0.2s ease',
-              },
-              '&:hover::before': {
-                opacity: 1,
-              },
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'radial-gradient(circle, transparent 1%, rgba(255,255,255,.1) 1%)',
-                transform: 'scale(0, 0)',
-                opacity: 0,
-                transition: 'transform .4s, opacity .2s',
-              },
-              '&:active::after': {
-                transform: 'scale(2, 2)',
-                opacity: 0,
-                transition: '0s',
-              },
-            }}
-          >
-            <CardContent sx={{ padding: '24px !important' }}>
-              <LayupsByTiming />
-            </CardContent>
-          </Card>
-        </Box>
+  sx={{ 
+    flex: expandedBox === 'right' ? '1' : (expandedBox === 'left' ? '0' : '1'),
+    minWidth: expandedBox === 'right' ? '100%' : (expandedBox === 'left' ? '0' : { md: '48%' }),
+    maxWidth: expandedBox === 'right' ? '100%' : (expandedBox === 'left' ? '0' : { md: '48%' }),
+    display: expandedBox === 'left' ? 'none' : 'block',
+    transition: 'all 0.3s ease',
+  }}
+>
+  <Card
+    sx={{
+      height: '100%',
+      backgroundColor: '#FFFFFF',
+      borderRadius: '16px',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+      overflow: 'hidden',
+    }}
+  >
+    <Box
+      onClick={() => setExpandedBox(expandedBox === 'right' ? null : 'right')}
+      sx={{
+        cursor: 'pointer',
+        padding: '24px 24px 0 24px',
+        backgroundColor: '#FFFFFF',
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+          backgroundColor: '#F8F8F8',
+        },
+        position: 'relative',
+        '&::before': {
+          content: '"Click to expand"',
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          backgroundColor: 'rgba(87, 28, 224, 0.9)',
+          color: 'white',
+          padding: '4px 12px',
+          borderRadius: '20px',
+          fontSize: '0.8rem',
+          opacity: 0,
+          transition: 'opacity 0.2s ease',
+        },
+        '&:hover::before': {
+          opacity: 1,
+        },
+      }}
+    >
+      <Typography
+        variant="h4"
+        align="left"
+        gutterBottom
+        sx={{
+          fontWeight: 600,
+          marginBottom: '25px',
+          color: '#34495E',
+          padding: '12px 20px',
+          backgroundColor: '#F0F4FF',
+          borderRadius: '12px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+          borderLeft: '4px solid #571CE0',
+          fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
+          lineHeight: 1.2,
+        }}
+      >
+        Winter 2025 Layups
+      </Typography>
+    </Box>
+    <CardContent 
+      sx={{ 
+        padding: '24px !important',
+        cursor: 'default'
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <LayupsByTiming />
+    </CardContent>
+  </Card>
+</Box>
 
         {/* Close Button - Only shows when a box is expanded */}
         {expandedBox && (

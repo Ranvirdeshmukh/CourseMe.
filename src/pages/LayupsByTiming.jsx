@@ -195,7 +195,7 @@ const fetchCoursesByPeriod = useCallback(async (periodCode) => {
 
   return (
     <>
-      <Typography
+      {/* <Typography
         variant="h4"
         align="left"
         gutterBottom
@@ -213,7 +213,7 @@ const fetchCoursesByPeriod = useCallback(async (periodCode) => {
         }}
       >
         Winter 2025 Layups by Period
-      </Typography>
+      </Typography> */}
 
       <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
         <FormControl sx={{ minWidth: 200 }}>
