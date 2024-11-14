@@ -421,7 +421,66 @@ const handleLoginRedirect = () => {
       Find your easy A<span style={{ color: '#F26655' }}>.</span>
     </Typography>
   </ButtonBase>
-    {/* Notifications Box */}
+
+  <Box sx={{ position: 'relative', display: 'inline-block' }}>
+  <Box
+    sx={{
+      position: 'absolute',
+      top: { xs: '12px', sm: '20px' }, // Adjust ribbon's top position for smaller screens
+      left: { xs: '-5px', sm: '-10px' }, // Adjust ribbon's left position for smaller screens
+      transform: 'rotate(-45deg)', // Keep ribbon rotation
+      bgcolor: '#00693E',
+      color: '#fff',
+      px: 1,
+      py: 0.5,
+      borderRadius: '4px',
+      fontSize: { xs: '0.65rem', sm: '0.75rem' }, // Smaller font size for mobile
+      fontWeight: 'bold',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+      zIndex: 1,
+      animation: 'pulse 2s infinite',
+      '@keyframes pulse': {
+        '0%': { transform: 'rotate(-45deg) scale(1)' },
+        '50%': { transform: 'rotate(-45deg) scale(1.1)' },
+        '100%': { transform: 'rotate(-45deg) scale(1)' },
+      },
+      width: { xs: '70px', sm: '80px' }, // Adjust width for mobile
+      height: { xs: '18px', sm: '20px' }, // Adjust height for mobile
+    }}
+  >
+    Trending
+  </Box>
+  
+  <ButtonBase
+    onClick={() => currentUser ? navigate('/timetable') : handleLoginRedirect()} // Check if user is logged in
+    sx={{
+      width: { xs: '140px', sm: '160px', md: '200px' },   
+      height: { xs: '150px', sm: '170px', md: '180px' },   
+      backgroundColor: '#f9f9f9',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: '12px',
+      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+      padding: '10px',
+      transition: 'transform 0.3s ease, background-color 0.3s ease',
+      '&:hover': {
+        backgroundColor: '#ececec',
+        transform: 'translateY(-5px)',
+      },
+    }}
+  >
+    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🔔</Typography>
+    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Notifications</Typography>
+    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
+      Get notified for add/drop starting 8am 15th Nov, only for Dartmouth students<span style={{ color: '#F26655' }}>.</span>
+    </Typography>
+  </ButtonBase>
+</Box>
+
+
+   {/* Notifications Box */}
 <ButtonBase
   onClick={() => currentUser ? navigate('/professors') : handleLoginRedirect()} // Check if user is logged in
   sx={{
@@ -449,6 +508,7 @@ const handleLoginRedirect = () => {
   AI-powered professor insights<span style={{ color: '#F26655' }}>.</span>
 </Typography>
 </ButtonBase>
+
 
   {/* Timetable Box */}
   <ButtonBase
@@ -505,7 +565,8 @@ const handleLoginRedirect = () => {
       Organize everything here<span style={{ color: '#F26655' }}>.</span>
     </Typography>
   </ButtonBase>
-  {/* New Feature Box */}
+
+ 
 
 </Box>
 
