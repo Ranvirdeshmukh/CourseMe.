@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Box, Container, Paper, Table, TableBody, TableCell, TableContainer,
@@ -6,7 +7,7 @@ import {
   IconButton, ButtonBase, Tooltip,
 } from '@mui/material';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import { getFirestore, collection, getDocs, where, query, doc, updateDoc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, where, query, doc, updateDoc, getDoc, setDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -108,7 +109,7 @@ const Timetable = () => {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const classesPerPage = 50; // Number of classes per page
-  const isFallAddDropClosed = true; // Replace with logic that checks if the fall add/drop period is over
+  const isFallAddDropClosed = false; // Replace with logic that checks if the fall add/drop period is over
   const [documentName, setDocumentName] = useState('');
   const [showFeatures, setShowFeatures] = useState(false);
   const [professorMappings, setProfessorMappings] = useState({});
@@ -524,6 +525,68 @@ useEffect(() => {
   };
 
 
+  // const handleNotifyDrop = async (course) => {
+  //   try {
+  //     const db = getFirestore();
+  //     const formattedNumber = course.num.includes('.') 
+  //       ? course.num 
+  //       : course.num.padStart(3, '0');
+  //     const formattedSection = course.sec.padStart(2, '0');
+      
+  //     console.log("department", course.subj);
+  //     console.log("number", formattedNumber);
+  //     console.log("section", formattedSection);
+      
+  //     const timetableRequestsRef = collection(db, 'timetable-requests');
+  //     const q = query(
+  //       timetableRequestsRef,
+  //       where("department", "==", course.subj),
+  //       where("number", "==", formattedNumber),
+  //       where("section", "==", formattedSection)
+  //     );
+  
+  //     const querySnapshot = await getDocs(q);
+      
+  //     if (!querySnapshot.empty) {
+  //       // Document exists, check if user is already in the array
+  //       const docRef = doc(db, 'timetable-requests', querySnapshot.docs[0].id);
+  //       const docData = querySnapshot.docs[0].data();
+  //       const users = docData.users || [];
+        
+  //       const userExists = users.some(user => user.email === currentUser.email);
+        
+  //       if (!userExists) {
+  //         // User not in array, add them
+  //         await updateDoc(docRef, {
+  //           users: arrayUnion({
+  //             email: currentUser.email,
+  //             open: false
+  //           })
+  //         });
+  //         setSnackbarOpen(true);
+  //       } else {
+  //         // User already in array, notify them
+  //         alert('You are already on the notification list for this course.');
+  //       }
+  //     } else {
+  //       // Document doesn't exist, create a new one
+  //       await setDoc(doc(timetableRequestsRef), {
+  //         department: course.subj,
+  //         number: formattedNumber,
+  //         section: formattedSection,
+  //         users: [{
+  //           email: currentUser.email,
+  //           open: false
+  //         }]
+  //       });
+  //       setSnackbarOpen(true);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error setting up drop notification:', error);
+  //     alert('Failed to set up drop notification. Please try again.');
+  //   }
+  // };
+
   const handleNotifyDrop = async (course) => {
     try {
       const db = getFirestore();
@@ -545,10 +608,12 @@ useEffect(() => {
       );
   
       const querySnapshot = await getDocs(q);
+      let timetableRequestId;
       
       if (!querySnapshot.empty) {
         // Document exists, check if user is already in the array
         const docRef = doc(db, 'timetable-requests', querySnapshot.docs[0].id);
+        timetableRequestId = querySnapshot.docs[0].id;
         const docData = querySnapshot.docs[0].data();
         const users = docData.users || [];
         
@@ -562,14 +627,44 @@ useEffect(() => {
               open: false
             })
           });
+          
+          // Add to user's notifications array
+          const userRef = doc(db, 'users', currentUser.uid);
+          const userDoc = await getDoc(userRef);
+          
+          const newNotification = {
+            requestId: timetableRequestId,
+            department: course.subj,
+            number: formattedNumber,
+            section: formattedSection,
+            // timestamp: serverTimestamp()
+          };
+  
+          if (!userDoc.exists()) {
+            // Create new user document with notifications array
+            await setDoc(userRef, {
+              notifications: [newNotification]
+            });
+          } else {
+            // User document exists, use arrayUnion to add to existing array
+            // or create new array if it doesn't exist
+            await updateDoc(userRef, {
+              notifications: arrayUnion(newNotification)
+            });
+          }
+          
           setSnackbarOpen(true);
         } else {
           // User already in array, notify them
           alert('You are already on the notification list for this course.');
+          return;
         }
       } else {
         // Document doesn't exist, create a new one
-        await setDoc(doc(timetableRequestsRef), {
+        const newDocRef = doc(timetableRequestsRef);
+        timetableRequestId = newDocRef.id;
+        
+        await setDoc(newDocRef, {
           department: course.subj,
           number: formattedNumber,
           section: formattedSection,
@@ -578,6 +673,32 @@ useEffect(() => {
             open: false
           }]
         });
+  
+        // Add to user's notifications array
+        const userRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userRef);
+        
+        const newNotification = {
+          requestId: timetableRequestId,
+          department: course.subj,
+          number: formattedNumber,
+          section: formattedSection,
+          // timestamp: serverTimestamp()
+        };
+  
+        if (!userDoc.exists()) {
+          // Create new user document with notifications array
+          await setDoc(userRef, {
+            notifications: [newNotification]
+          });
+        } else {
+          // User document exists, use arrayUnion to add to existing array
+          // or create new array if it doesn't exist
+          await updateDoc(userRef, {
+            notifications: arrayUnion(newNotification)
+          });
+        }
+        
         setSnackbarOpen(true);
       }
     } catch (error) {
@@ -585,6 +706,29 @@ useEffect(() => {
       alert('Failed to set up drop notification. Please try again.');
     }
   };
+  
+  // // Helper function to remove notification (can be used when needed)
+  // const removeNotification = async (requestId) => {
+  //   try {
+  //     const userRef = doc(db, 'users', currentUser.uid);
+  //     const userDoc = await getDoc(userRef);
+      
+  //     if (userDoc.exists()) {
+  //       const notifications = userDoc.data().notifications || [];
+  //       const updatedNotifications = notifications.filter(
+  //         notification => notification.requestId !== requestId
+  //       );
+        
+  //       await updateDoc(userRef, {
+  //         notifications: updatedNotifications
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error removing notification:', error);
+  //     throw error;
+  //   }
+  // };
+
 
   const extractSubjects = (courses) => {
     const subjectsSet = new Set(courses.map((course) => course.subj));
@@ -770,17 +914,15 @@ useEffect(() => {
   };
 
   return (
-    <Box sx={{
-      minHeight: '100vh',
-      backgroundColor: '#F9F9F9',
-      padding: '40px 20px',
-      fontFamily: 'SF Pro Display, sans-serif',
-    }}>
-      <Container maxWidth={false} sx={{ 
-        padding: '0 20px',
-        margin: '0 auto',
-        maxWidth: '1600px'
-      }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: '#F9F9F9',
+        padding: '40px',
+        fontFamily: 'SF Pro Display, sans-serif',
+      }}
+    >
+      <Container maxWidth={false} sx={{ margin: '0 20px' }}>
         {/* "Your Fall 2024 Classes" Section */}
         {showSelectedCourses && (
           <Typography
@@ -1576,7 +1718,7 @@ useEffect(() => {
                 }}
               >
                 {isFallAddDropClosed ? (
-                  <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
+                  <Tooltip title="Winter add/drop notifications will open at 5pm on November 14.">
                     <IconButton>
                       <LockIcon sx={{ color: '#999999' }} />
                     </IconButton>
