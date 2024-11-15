@@ -930,12 +930,12 @@ useEffect(() => {
         {/* "Your Fall 2024 Classes" Section */}
         {showSelectedCourses && (
           <Typography
-            variant="h3"
+            variant="h2"
             align="left"
             sx={{
               fontWeight: 700,
               fontSize: '2.5rem',
-              color: '#000000',
+              color: '#34495e',
               marginBottom: '8px', // Reduced margin
               marginTop: '10px',
               fontFamily: 'SF Pro Display, sans-serif',
@@ -943,7 +943,7 @@ useEffect(() => {
               lineHeight: 1.2,
             }}
           >
-            Your Winter 2025 Classes
+            Your Winter 2025 Classes.
           </Typography>
         )}
   
