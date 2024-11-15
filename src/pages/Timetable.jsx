@@ -918,11 +918,15 @@ useEffect(() => {
       sx={{
         minHeight: '100vh',
         backgroundColor: '#F9F9F9',
-        padding: '40px',
+        padding: '40px 20px', // 40px top/bottom, 20px left/right
         fontFamily: 'SF Pro Display, sans-serif',
       }}
     >
-      <Container maxWidth={false} sx={{ margin: '0 20px' }}>
+      <Container maxWidth={false} sx={{ 
+  padding: '0 20px',
+  margin: '0 auto',  // This centers the container
+  maxWidth: '1600px' // Optional: adds a max-width to prevent too wide layouts
+}}>
         {/* "Your Fall 2024 Classes" Section */}
         {showSelectedCourses && (
           <Typography
