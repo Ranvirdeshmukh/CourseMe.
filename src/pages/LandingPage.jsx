@@ -9,6 +9,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
 import { Lock } from '@mui/icons-material'; // Import the lock icon from Material-UI
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+
 
 
 import { 
@@ -49,10 +52,13 @@ const LandingPage = () => {
   const pageRef = useRef(null);  
   const [extendPage, setExtendPage] = useState(false);
   const { currentUser } = useAuth(); // Get current user status
+const [showReviewPopup, setShowReviewPopup] = useState(false);
 
 
   const [difficulty, setDifficulty] = useState(null);
   const [sentiment, setSentiment] = useState(null);
+  const [hasShownPopupThisSession, setHasShownPopupThisSession] = useState(false);
+
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -274,6 +280,26 @@ const handleLoginRedirect = () => {
     }
     setSnackbarOpen(false);
   };
+// Function to handle closing the review popup
+// Function to handle closing the review popup
+const handleCloseReviewPopup = () => {
+  setShowReviewPopup(false);
+};
+
+// Function to handle adding a review
+const handleAddReview = () => {
+  navigate('/classes'); // Navigate to the All Classes page
+  setShowReviewPopup(false);
+};
+
+// useEffect to show the popup when the user first comes to the site in a session
+useEffect(() => {
+  const hasVisitedSite = sessionStorage.getItem('hasVisitedSite');
+  if (!hasVisitedSite) {
+    setShowReviewPopup(true);
+    sessionStorage.setItem('hasVisitedSite', 'true');
+  }
+}, []);
 
   
 
@@ -508,6 +534,91 @@ const handleLoginRedirect = () => {
   AI-powered professor insights<span style={{ color: '#F26655' }}>.</span>
 </Typography>
 </ButtonBase>
+{/* Review Popup Dialog */}
+{/* Review Popup Dialog */}
+<Dialog
+  open={showReviewPopup}
+  onClose={handleCloseReviewPopup}
+  fullWidth
+  maxWidth="xs" // Use 'xs' or 'sm' to control dialog width on mobile
+  PaperProps={{
+    style: {
+      borderRadius: 20,
+      padding: '20px',
+      margin: '0 10px', // Add horizontal margin for breathing room on mobile
+    },
+    elevation: 24,
+  }}
+  TransitionComponent={Fade}
+  TransitionProps={{ timeout: 500 }}
+>
+  <DialogTitle sx={{ textAlign: 'center', paddingBottom: 0 }}>
+    <Typography
+      variant="h6" // Use a slightly smaller variant for mobile
+      sx={{
+        fontWeight: 'bold',
+        fontFamily: 'SF Pro Display, sans-serif',
+        lineHeight: 1.2,
+      }}
+    >
+      Help Us Improve CourseMe<span style={{ color: '#F26655' }}>!</span>
+    </Typography>
+  </DialogTitle>
+  <DialogContent sx={{ textAlign: 'center', paddingTop: '10px' }}>
+    <Typography
+      variant="body2" // Smaller text for mobile readability
+      sx={{
+        fontFamily: 'SF Pro Text, sans-serif',
+        color: '#555',
+        marginBottom: '20px',
+      }}
+    >
+      Select a course you took this term and add a review to help us train and build the AI better.
+    </Typography>
+    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <Button
+        onClick={handleAddReview}
+        variant="contained"
+        fullWidth // Make the button full width on mobile
+        sx={{
+          backgroundColor: '#000',
+          color: '#fff',
+          borderRadius: '25px',
+          padding: '12px 0', // Increase padding for better tap target
+          textTransform: 'none',
+          fontWeight: 'bold',
+          fontSize: '1rem',
+          fontFamily: 'SF Pro Text, sans-serif',
+          boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
+          '&:hover': {
+            backgroundColor: '#333',
+          },
+          maxWidth: '300px', // Limit button width on larger screens
+        }}
+      >
+        Add Review
+      </Button>
+    </Box>
+  </DialogContent>
+  <DialogActions sx={{ justifyContent: 'center', paddingBottom: '10px' }}>
+    <Button
+      onClick={handleCloseReviewPopup}
+      sx={{
+        color: '#888',
+        textTransform: 'none',
+        fontFamily: 'SF Pro Text, sans-serif',
+        fontSize: '0.9rem', // Adjust font size for mobile
+        '&:hover': {
+          color: '#000',
+          backgroundColor: 'transparent',
+        },
+      }}
+    >
+      Maybe Later
+    </Button>
+  </DialogActions>
+</Dialog>
+
 
 
   {/* Timetable Box */}
