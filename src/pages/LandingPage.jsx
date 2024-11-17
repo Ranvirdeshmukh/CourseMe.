@@ -14,6 +14,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material
 
 
 
+
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
@@ -561,7 +562,7 @@ useEffect(() => {
         lineHeight: 1.2,
       }}
     >
-      Help Us Improve CourseMe<span style={{ color: '#F26655' }}>!</span>
+      Help Us <span style={{ color: '#F26655' }}>Improve</span>
     </Typography>
   </DialogTitle>
   <DialogContent sx={{ textAlign: 'center', paddingTop: '10px' }}>
@@ -573,7 +574,7 @@ useEffect(() => {
         marginBottom: '20px',
       }}
     >
-      Select a course you took this term and add a review to help us train and build the AI better.
+      Select a course you took this term and add a course review to help us train and build the AI better.
     </Typography>
     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
       <Button
@@ -614,7 +615,7 @@ useEffect(() => {
         },
       }}
     >
-      Maybe Later
+      Maybe Later Sometime.
     </Button>
   </DialogActions>
 </Dialog>
