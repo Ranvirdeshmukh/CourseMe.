@@ -501,7 +501,7 @@ useEffect(() => {
     <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🔔</Typography>
     <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Notifications</Typography>
     <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-      Get notified for add/drop starting 8am 15th Nov, only for Dartmouth students<span style={{ color: '#F26655' }}>.</span>
+      Get notified for add/drop starting 8:00 AM Mon, Jan 6, only for Dartmouth students<span style={{ color: '#F26655' }}>.</span>
     </Typography>
   </ButtonBase>
 </Box>
