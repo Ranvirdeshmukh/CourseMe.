@@ -15,9 +15,20 @@ const GetStartedPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
-  // Preload video
+  // Determine video sources based on device
+  const videoSources = isMobile 
+    ? [
+        { src: '/ss/kite-export_mobile.mp4', type: 'video/mp4' },
+        { src: '/ss/kite-export_mobile.webm', type: 'video/webm' }
+      ]
+    : [
+        { src: '/ss/kite-export.mp4', type: 'video/mp4' },
+        { src: '/ss/kite-export.webm', type: 'video/webm' }
+      ];
+
+  // Preload video based on device type
   useEffect(() => {
-    const videoUrls = ['/ss/kite-export.mp4', '/ss/kite-export.webm'];
+    const videoUrls = videoSources.map(source => source.src);
     videoUrls.forEach(url => {
       const link = document.createElement('link');
       link.rel = 'preload';
@@ -25,7 +36,7 @@ const GetStartedPage = () => {
       link.href = url;
       document.head.appendChild(link);
     });
-  }, []);
+  }, [isMobile]); // Add isMobile as dependency to re-run if device type changes
 
   // Handle video loading
   useEffect(() => {
@@ -99,7 +110,7 @@ const GetStartedPage = () => {
         width: '100%', 
         overflow: 'hidden',
         position: 'relative',
-        backgroundColor: 'black', // Prevents white flash
+        backgroundColor: '#571ce0', // Prevents white flash
       }}
     >
       <Box
@@ -131,7 +142,7 @@ const GetStartedPage = () => {
           loop
           playsInline
           preload="auto"
-          poster="/ss/video-poster.jpg" // Add a poster image
+          poster={isMobile ? "/ss/video-poster-mobile.jpg" : "/ss/video-poster.jpg"}
           style={{
             position: 'absolute',
             top: '50%',
@@ -146,14 +157,13 @@ const GetStartedPage = () => {
             transition: 'opacity 0.3s ease-in',
           }}
         >
-          <source 
-            src="/ss/kite-export.mp4" 
-            type="video/mp4"
-          />
-          <source 
-            src="/ss/kite-export.webm" 
-            type="video/webm"
-          />
+          {videoSources.map((source, index) => (
+            <source 
+              key={index}
+              src={source.src}
+              type={source.type}
+            />
+          ))}
           Your browser does not support the video tag.
         </video>
       </Box>
