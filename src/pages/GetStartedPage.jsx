@@ -4,6 +4,36 @@ import { useAuth } from '../contexts/AuthContext';
 import { Typography, Box, useTheme, useMediaQuery } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
+// Preload function that runs as soon as this file is imported
+// This ensures videos start downloading before React even mounts the component
+const preloadVideos = () => {
+  const videos = [
+    '/ss/kite-export.mp4',
+    '/ss/kite-export.webm',
+    '/ss/kite-export_mobile.mp4',
+    '/ss/kite-export_mobile.webm'
+  ];
+  
+  // Remove any existing preload links to avoid duplicates
+  const existingLinks = document.head.querySelectorAll('link[rel="preload"][as="video"]');
+  existingLinks.forEach(link => link.remove());
+  
+  // Add new preload links with high priority
+  videos.forEach(url => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'video';
+    link.href = url;
+    // Tell browsers this is a high-priority resource
+    link.setAttribute('fetchpriority', 'high');
+    document.head.appendChild(link);
+  });
+};
+
+// Execute preload immediately when this file is imported
+preloadVideos();
+
+
 const GetStartedPage = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -26,32 +56,37 @@ const GetStartedPage = () => {
         { src: '/ss/kite-export.webm', type: 'video/webm' }
       ];
 
-  // Preload video based on device type
-  useEffect(() => {
-    const videoUrls = videoSources.map(source => source.src);
-    videoUrls.forEach(url => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'video';
-      link.href = url;
-      document.head.appendChild(link);
-    });
-  }, [isMobile]); // Add isMobile as dependency to re-run if device type changes
-
-  // Handle video loading
+  // Enhanced video loading handling
   useEffect(() => {
     if (videoRef.current) {
-      const handleLoadedData = () => {
+      // Set high fetch priority on the video element itself
+      videoRef.current.setAttribute('fetchpriority', 'high');
+      
+      const handleCanPlayThrough = () => {
+        // Video has buffered enough to play through
         setIsVideoLoaded(true);
         videoRef.current.play().catch(error => {
           console.warn('Auto-play failed:', error);
         });
       };
 
-      videoRef.current.addEventListener('loadeddata', handleLoadedData);
+      const handleLoadedMetadata = () => {
+        // As soon as we have video metadata, we can start playing
+        if (videoRef.current.readyState >= 3) {
+          handleCanPlayThrough();
+        }
+      };
+
+      videoRef.current.addEventListener('canplaythrough', handleCanPlayThrough);
+      videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+      // Start loading the video immediately
+      videoRef.current.load();
+
       return () => {
         if (videoRef.current) {
-          videoRef.current.removeEventListener('loadeddata', handleLoadedData);
+          videoRef.current.removeEventListener('canplaythrough', handleCanPlayThrough);
+          videoRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
         }
       };
     }
@@ -168,7 +203,6 @@ const GetStartedPage = () => {
         </video>
       </Box>
 
-      {/* Rest of the component remains the same */}
       <Box
         sx={{
           position: 'fixed',
