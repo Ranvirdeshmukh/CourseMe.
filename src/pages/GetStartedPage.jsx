@@ -8,11 +8,43 @@ const GetStartedPage = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const pageRef = useRef(null);
   const videoRef = useRef(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+
+  // Preload video
+  useEffect(() => {
+    const videoUrls = ['/ss/kite-export.mp4', '/ss/kite-export.webm'];
+    videoUrls.forEach(url => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'video';
+      link.href = url;
+      document.head.appendChild(link);
+    });
+  }, []);
+
+  // Handle video loading
+  useEffect(() => {
+    if (videoRef.current) {
+      const handleLoadedData = () => {
+        setIsVideoLoaded(true);
+        videoRef.current.play().catch(error => {
+          console.warn('Auto-play failed:', error);
+        });
+      };
+
+      videoRef.current.addEventListener('loadeddata', handleLoadedData);
+      return () => {
+        if (videoRef.current) {
+          videoRef.current.removeEventListener('loadeddata', handleLoadedData);
+        }
+      };
+    }
+  }, []);
 
   // Handle video positioning based on aspect ratio
   useEffect(() => {
@@ -67,6 +99,7 @@ const GetStartedPage = () => {
         width: '100%', 
         overflow: 'hidden',
         position: 'relative',
+        backgroundColor: 'black', // Prevents white flash
       }}
     >
       <Box
@@ -76,8 +109,9 @@ const GetStartedPage = () => {
           position: 'fixed',
           top: 0,
           left: 0,
-          opacity: 1 - scrollProgress,
-          overflow: 'hidden', // Prevent video overflow
+          opacity: isVideoLoaded ? 1 - scrollProgress : 0,
+          overflow: 'hidden',
+          transition: 'opacity 0.3s ease-in',
           '&::after': {
             content: '""',
             position: 'absolute',
@@ -85,7 +119,7 @@ const GetStartedPage = () => {
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.2)', // Optional overlay for better text visibility
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
             zIndex: 1
           }
         }}
@@ -97,6 +131,7 @@ const GetStartedPage = () => {
           loop
           playsInline
           preload="auto"
+          poster="/ss/video-poster.jpg" // Add a poster image
           style={{
             position: 'absolute',
             top: '50%',
@@ -107,21 +142,23 @@ const GetStartedPage = () => {
             width: 'auto',
             height: 'auto',
             objectFit: 'cover',
+            opacity: isVideoLoaded ? 1 : 0,
+            transition: 'opacity 0.3s ease-in',
           }}
         >
           <source 
-  src="/ss/kite-export.mp4" 
-  type="video/mp4"
-/>
-<source 
-  src="/ss/kite-export.mp4" 
-  type="video/webm"
-/>
+            src="/ss/kite-export.mp4" 
+            type="video/mp4"
+          />
+          <source 
+            src="/ss/kite-export.webm" 
+            type="video/webm"
+          />
           Your browser does not support the video tag.
         </video>
       </Box>
 
-      {/* Centered Logo */}
+      {/* Rest of the component remains the same */}
       <Box
         sx={{
           position: 'fixed',
@@ -152,7 +189,7 @@ const GetStartedPage = () => {
           flexDirection: 'column',
           alignItems: 'center',
           animation: 'bounce 2s infinite',
-          opacity: 1 - scrollProgress,
+          opacity: isVideoLoaded ? (1 - scrollProgress) : 0,
           zIndex: 2,
           '@keyframes bounce': {
             '0%, 20%, 50%, 80%, 100%': {
