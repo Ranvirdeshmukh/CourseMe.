@@ -4,35 +4,49 @@ import { useAuth } from '../contexts/AuthContext';
 import { Typography, Box, useTheme, useMediaQuery } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
-// Preload function that runs as soon as this file is imported
-// This ensures videos start downloading before React even mounts the component
+// This flag ensures we only preload videos once, even if the component remounts
+let isPreloading = false;
+
+// This function handles the aggressive preloading of video content
 const preloadVideos = () => {
+  // Guard against multiple preload attempts
+  if (isPreloading) return;
+  isPreloading = true;
+
+  // Define all possible video sources that might be needed
   const videos = [
     '/ss/kite-export.mp4',
     '/ss/kite-export.webm',
     '/ss/kite-export_mobile.mp4',
     '/ss/kite-export_mobile.webm'
   ];
-  
-  // Remove any existing preload links to avoid duplicates
-  const existingLinks = document.head.querySelectorAll('link[rel="preload"][as="video"]');
-  existingLinks.forEach(link => link.remove());
-  
-  // Add new preload links with high priority
+
+  // For each video, we create both preload links and hidden video elements
   videos.forEach(url => {
+    // Create high-priority preload link
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'video';
     link.href = url;
-    // Tell browsers this is a high-priority resource
     link.setAttribute('fetchpriority', 'high');
     document.head.appendChild(link);
+
+    // Create hidden video element to start buffering immediately
+    const hiddenVideo = document.createElement('video');
+    hiddenVideo.style.display = 'none';
+    hiddenVideo.preload = 'auto';
+    hiddenVideo.muted = true;
+    hiddenVideo.src = url;
+    hiddenVideo.load(); // Force the browser to start loading
+    document.body.appendChild(hiddenVideo);
+
+    // Clean up the hidden video after it has initiated buffering
+    setTimeout(() => hiddenVideo.remove(), 1000);
   });
 };
 
-// Execute preload immediately when this file is imported
+// Start preloading immediately when this file is imported
 preloadVideos();
-
 
 const GetStartedPage = () => {
   const navigate = useNavigate();
@@ -45,7 +59,7 @@ const GetStartedPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
-  // Determine video sources based on device
+  // Select appropriate video sources based on device type
   const videoSources = isMobile 
     ? [
         { src: '/ss/kite-export_mobile.mp4', type: 'video/mp4' },
@@ -56,40 +70,43 @@ const GetStartedPage = () => {
         { src: '/ss/kite-export.webm', type: 'video/webm' }
       ];
 
-  // Enhanced video loading handling
+  // Enhanced video loading with multiple event listeners for fastest possible start
   useEffect(() => {
-    if (videoRef.current) {
-      // Set high fetch priority on the video element itself
-      videoRef.current.setAttribute('fetchpriority', 'high');
-      
-      const handleCanPlayThrough = () => {
-        // Video has buffered enough to play through
+    if (!videoRef.current) return;
+
+    const video = videoRef.current;
+    video.setAttribute('fetchpriority', 'high');
+
+    // Function to handle showing the video at the earliest possible moment
+    const showVideo = () => {
+      if (!isVideoLoaded) {
         setIsVideoLoaded(true);
-        videoRef.current.play().catch(error => {
+        video.play().catch(error => {
           console.warn('Auto-play failed:', error);
+          // Even if autoplay fails, we still show the first frame
+          setIsVideoLoaded(true);
         });
-      };
+      }
+    };
 
-      const handleLoadedMetadata = () => {
-        // As soon as we have video metadata, we can start playing
-        if (videoRef.current.readyState >= 3) {
-          handleCanPlayThrough();
-        }
-      };
+    // Listen for multiple events to catch the earliest possible moment to play
+    const events = ['loadstart', 'loadeddata', 'canplay', 'canplaythrough'];
+    events.forEach(event => {
+      video.addEventListener(event, showVideo);
+    });
 
-      videoRef.current.addEventListener('canplaythrough', handleCanPlayThrough);
-      videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
+    // Force immediate loading
+    video.load();
+    
+    // Try playing immediately - some browsers might be ready already
+    video.play().catch(console.warn);
 
-      // Start loading the video immediately
-      videoRef.current.load();
-
-      return () => {
-        if (videoRef.current) {
-          videoRef.current.removeEventListener('canplaythrough', handleCanPlayThrough);
-          videoRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        }
-      };
-    }
+    // Clean up event listeners
+    return () => {
+      events.forEach(event => {
+        video.removeEventListener(event, showVideo);
+      });
+    };
   }, []);
 
   // Handle video positioning based on aspect ratio
@@ -110,10 +127,14 @@ const GetStartedPage = () => {
       }
     };
 
+    // Initial positioning
+    handleResize();
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Handle scroll progress and navigation
   useEffect(() => {
     const handleScroll = () => {
       if (pageRef.current) {
@@ -145,7 +166,7 @@ const GetStartedPage = () => {
         width: '100%', 
         overflow: 'hidden',
         position: 'relative',
-        backgroundColor: '#571ce0', // Prevents white flash
+        backgroundColor: '#571ce0', // Prevents white flash before video loads
       }}
     >
       <Box
@@ -203,6 +224,7 @@ const GetStartedPage = () => {
         </video>
       </Box>
 
+      {/* Logo */}
       <Box
         sx={{
           position: 'fixed',
@@ -223,6 +245,7 @@ const GetStartedPage = () => {
         />
       </Box>
 
+      {/* Scroll indicator */}
       <Box
         sx={{
           position: 'fixed',
