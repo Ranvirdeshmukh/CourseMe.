@@ -119,7 +119,7 @@ const Timetable = () => {
 
   var courseNameLong = ""
    // Add this near your other state declarations
-   const CACHE_VERSION = 'winter_2025_v1';
+   const CACHE_VERSION = 'winter_2025_v2';
 
   const isMobile = useMediaQuery('(max-width:600px)');
 
