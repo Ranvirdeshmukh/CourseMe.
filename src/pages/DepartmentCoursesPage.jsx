@@ -108,7 +108,7 @@ const DepartmentCoursesPage = () => {
   const [layupVotes, setLayupVotes] = useState([-300, 300]); // Range for Layup votes
   const [withReviewsOnly, setWithReviewsOnly] = useState(false); // Show only courses with reviews
   const [selectedDistribs, setSelectedDistribs] = useState([]); // For filtering by distribution categories
-  const [qualityFilter, setQualityFilter] = useState([-100, 300]); // Range for Quality filter
+  const [qualityFilter, setQualityFilter] = useState([-1000, 1000]); // Range for Quality filter
   const [selectedWCDistribs, setSelectedWCDistribs] = useState([]);
   const [selectedTerms, setSelectedTerms] = useState([]);
   const [showFilterTip, setShowFilterTip] = useState(false);
