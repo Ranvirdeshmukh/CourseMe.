@@ -30,7 +30,7 @@ import departmentMapping from '../classstructure/departmentMapping';
 
 const CACHE_PREFIX = 'courses_';
 const CACHE_EXPIRATION = 5 * 24 * 60 * 60 * 1000 // 5 days 
-const CACHE_VERSION = '1.0'; // Add version control to cache
+const CACHE_VERSION = '1.1'; // Add version control to cache
 const DEPARTMENT_VERSIONS = {
   'ENGS': '1.1', // Increment this version specifically for ENGS
   'default': '1.0' // Keep default version for other departments
