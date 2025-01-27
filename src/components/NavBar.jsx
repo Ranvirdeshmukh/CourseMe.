@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Snackbar, Alert } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Snackbar, Alert,Switch } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/custom.css';
 
-const NavBar = () => {
+const NavBar = ({ darkMode, setDarkMode }) =>{
   const { currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -63,32 +63,50 @@ const NavBar = () => {
 
   return (
     <AppBar
-      position="static"
-      className="navbar"
-      sx={{
-        background: isLandingPage
-          ? '#F9F9F9'
-          : isSpecialPageStyle
-          ? '#f9f9f9'
-          : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
-        boxShadow: 'none',
-      }}
-    >
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Box
-          component="div"
-          onClick={() => navigate(currentUser ? '/landing' : '/')}
-          sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-        >
-          <img
-            src={isLandingPage || isSpecialPageStyle ? '/1.png' : '/2.png'}
-            alt="Logo"
-            style={{ height: '20px', marginRight: '10px' }}
-          />
-        </Box>
+  position="static"
+  className="navbar"
+  sx={{
+    boxShadow: 'none',
 
-        {/* Desktop Links */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+    // Only apply the inline background logic if NOT in dark mode:
+    ...(darkMode
+      ? {}
+      : {
+          background: isLandingPage
+            ? '#F9F9F9'
+            : isSpecialPageStyle
+            ? '#f9f9f9'
+            : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
+        }),
+  }}
+>
+<Toolbar sx={{ justifyContent: 'space-between' }}>
+  <Box
+    component="div"
+    onClick={() => navigate(currentUser ? '/landing' : '/')}
+    sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+  >
+    <img
+      src={
+        isLandingPage || isSpecialPageStyle
+          ? darkMode
+            ? '/2.png' // Dark mode logo
+            : '/1.png' // Light mode logo
+          : '/2.png' // Default logo for other pages
+      }
+      alt="Logo"
+      style={{ height: '20px', marginRight: '10px' }}
+    />
+  </Box>
+
+        {/* Desktop Navigation Links and Dark Mode Switch */}
+        <Box
+          sx={{
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center', // Centers items vertically
+            gap: 2, // Adds uniform spacing between items
+          }}
+        >
           {isLandingPage ? (
             // Only show Login button on landing page if user is not logged in
             !currentUser && (
@@ -97,10 +115,9 @@ const NavBar = () => {
                 to="/login"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: '#571CE0',
+                  color: darkMode ? '#FFFFFF' : '#571CE0', // White in dark mode
                   textTransform: 'none',
                   textDecoration: 'none',
-                  margin: '0 10px',
                   fontWeight: 600,
                   fontSize: '1rem',
                 }}
@@ -117,11 +134,10 @@ const NavBar = () => {
                   to="/classes"
                   sx={{
                     fontFamily: 'SF Pro Display, sans-serif',
-                    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                    color: darkMode ? '#FFFFFF' : (isSpecialPageStyle ? '#571CE0' : '#FFFFFF'),
                     textTransform: 'none',
                     textDecoration: 'none',
-                    margin: '0 10px',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     fontSize: '1rem',
                   }}
                   onClick={handleLoginRedirect}
@@ -133,11 +149,10 @@ const NavBar = () => {
                   to="/layups"
                   sx={{
                     fontFamily: 'SF Pro Display, sans-serif',
-                    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                    color: darkMode ? '#FFFFFF' : (isSpecialPageStyle ? '#571CE0' : '#FFFFFF'),
                     textTransform: 'none',
                     textDecoration: 'none',
-                    margin: '0 10px',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     fontSize: '1rem',
                   }}
                   onClick={handleLoginRedirect}
@@ -149,11 +164,10 @@ const NavBar = () => {
                   to="/timetable"
                   sx={{
                     fontFamily: 'SF Pro Display, sans-serif',
-                    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                    color: darkMode ? '#FFFFFF' : (isSpecialPageStyle ? '#571CE0' : '#FFFFFF'),
                     textTransform: 'none',
                     textDecoration: 'none',
-                    margin: '0 10px',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     fontSize: '1rem',
                   }}
                   onClick={handleLoginRedirect}
@@ -161,36 +175,33 @@ const NavBar = () => {
                   Timetable
                 </Typography>
                 <Typography
-  component={Link}
-  to="/professors"
-  sx={{
-    fontFamily: 'SF Pro Display, sans-serif',
-    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
-    textTransform: 'none',
-    textDecoration: 'none',
-    margin: '0 10px',
-    fontWeight: 500,
-    fontSize: '1rem',
-  }}
-  onClick={handleLoginRedirect}
->
-  Professors
-</Typography>
+                  component={Link}
+                  to="/professors"
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: darkMode ? '#FFFFFF' : (isSpecialPageStyle ? '#571CE0' : '#FFFFFF'),
+                    textTransform: 'none',
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                  }}
+                  onClick={handleLoginRedirect}
+                >
+                  Professors
+                </Typography>
                 <Typography
                   component={Link}
                   to="/profile"
                   sx={{
                     fontFamily: 'SF Pro Display, sans-serif',
-                    color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                    color: darkMode ? '#FFFFFF' : (isSpecialPageStyle ? '#571CE0' : '#FFFFFF'),
                     textTransform: 'none',
                     textDecoration: 'none',
-                    margin: '0 10px',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     fontSize: '1rem',
                   }}
                   onClick={handleLoginRedirect}
                 >
-                  
                   Profile
                 </Typography>
               </>
@@ -200,10 +211,9 @@ const NavBar = () => {
                 to="/login"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: isSpecialPageStyle ? '#571CE0' : '#FFFFFF',
+                  color: darkMode ? '#FFFFFF' : '#571CE0',
                   textTransform: 'none',
                   textDecoration: 'none',
-                  margin: '0 10px',
                   fontWeight: 600,
                   fontSize: '1rem',
                 }}
@@ -212,6 +222,13 @@ const NavBar = () => {
               </Typography>
             )
           )}
+
+          {/* Dark Mode Switch */}
+          <Switch
+            checked={darkMode}
+            onChange={() => setDarkMode(!darkMode)}
+            color="secondary"
+          />
         </Box>
 
         {/* Mobile Hamburger Menu - Hidden on Landing Page when logged in */}
@@ -230,6 +247,7 @@ const NavBar = () => {
           </Box>
         )}
 
+        {/* Mobile Drawer */}
         <Drawer
           anchor="right"
           open={drawerOpen}
@@ -237,7 +255,7 @@ const NavBar = () => {
           PaperProps={{
             sx: {
               width: 250,
-              background: '#E4E2DC',
+              background: darkMode ? '#333' : '#E4E2DC', // Dark background in dark mode
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -250,7 +268,7 @@ const NavBar = () => {
               // Only show Login in drawer on landing page if user is not logged in
               !currentUser && (
                 <ListItem button component={Link} to="/login" onClick={handleDrawerClose}>
-                  <ListItemText primary="Log In" />
+                  <ListItemText primary="Log In" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
                 </ListItem>
               )
             ) : (
@@ -258,38 +276,49 @@ const NavBar = () => {
               currentUser ? (
                 <>
                   <ListItem button component={Link} to="/classes" onClick={handleDrawerClose}>
-                    <ListItemText primary="All Classes" />
+                    <ListItemText primary="All Classes" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
                   </ListItem>
                   <ListItem button component={Link} to="/layups" onClick={handleDrawerClose}>
-                    <ListItemText primary="Layups" />
+                    <ListItemText primary="Layups" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
                   </ListItem>
                   <ListItem button component={Link} to="/timetable" onClick={handleDrawerClose}>
-                    <ListItemText primary="Timetable" />
+                    <ListItemText primary="Timetable" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
                   </ListItem>
                   <ListItem button component={Link} to="/professors" onClick={handleDrawerClose}>
-  <ListItemText primary="Professors" />
-</ListItem>
+                    <ListItemText primary="Professors" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
+                  </ListItem>
                   <ListItem button component={Link} to="/profile" onClick={handleDrawerClose}>
-                    <ListItemText primary="Profile" />
+                    <ListItemText primary="Profile" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
                   </ListItem>
                 </>
               ) : (
                 <ListItem button component={Link} to="/login" onClick={handleDrawerClose}>
-                  <ListItemText primary="Log In" />
+                  <ListItemText primary="Log In" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
                 </ListItem>
               )
             )}
+            {/* Dark Mode Switch in Drawer */}
+            <ListItem>
+              <ListItemText primary="Dark Mode" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
+              <Switch
+                checked={darkMode}
+                onChange={() => setDarkMode(!darkMode)}
+                color="secondary"
+              />
+            </ListItem>
           </List>
 
+          {/* Drawer Footer */}
           <Box sx={{ textAlign: 'center', pb: 3 }}>
-            <img src="/1.png" alt="CourseMe Logo" style={{ height: '25px', marginBottom: '10px' }} />
-            <Typography variant="body2" sx={{ color: '#999' }}>
+            <img src={darkMode ? '/2.png' : '/1.png'} alt="CourseMe Logo" style={{ height: '25px', marginBottom: '10px' }} />
+            <Typography variant="body2" sx={{ color: darkMode ? '#CCCCCC' : '#999' }}>
               © 2024 CourseMe. All Rights Reserved.
             </Typography>
           </Box>
         </Drawer>
       </Toolbar>
 
+      {/* Snackbar for Error Messages */}
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
           {error}

@@ -15,6 +15,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material
 
 
 
+
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
@@ -22,6 +23,7 @@ import {
 } from '@mui/material';
 
 const API_URL = 'https://coursemebot.pythonanywhere.com/api/chat';
+
 
 // Firebase configuration
 const firebaseConfig = {
@@ -38,7 +40,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const LandingPage = () => {
+const LandingPage = ({ darkMode }) => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [department, setDepartment] = useState('');
@@ -61,6 +63,15 @@ const [showReviewPopup, setShowReviewPopup] = useState(false);
   const [hasShownPopupThisSession, setHasShownPopupThisSession] = useState(false);
 
 
+  // Define color variables based on darkMode
+  const navBoxBgColor = darkMode ? '#333333' : '#f9f9f9';
+  const navBoxHoverBgColor = darkMode ? '#444444' : '#ececec';
+  const navBoxTextColor = darkMode ? '#FFFFFF' : '#000000';
+  const navBoxDescriptionColor = darkMode ? '#CCCCCC' : '#666666';
+  const drawerBgColor = darkMode ? '#333333' : '#E4E2DC';
+  const footerTextColor = darkMode ? '#CCCCCC' : '#333333';
+
+  
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -304,34 +315,41 @@ useEffect(() => {
 
   
 
-  return (
-    <Box
-      ref={pageRef}
+return (
+  <Box
+    ref={pageRef}
+    sx={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+
+      // Keep your normal (light) colors if darkMode is false.
+      // Use new colors or gradient if darkMode is true.
+      background: darkMode
+        ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
+        : '#f9f9f9',
+
+      color: darkMode ? '#FFF' : '#000', // or whichever dark text color you prefer
+
+      textAlign: 'center',
+      fontFamily: 'SF Pro Display, sans-serif',
+      padding: '0 20px',
+      paddingBottom: extendPage ? '200px' : '0',
+      transition: 'padding-bottom 0.3s ease',
+    }}
+  >
+    <Container
       sx={{
-        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        background: '#f9f9f9', 
-        color: '#000',
+        flexGrow: 1,
         textAlign: 'center',
-        fontFamily: 'SF Pro Display, sans-serif',
-        padding: '0 20px',
-        paddingBottom: extendPage ? '200px' : '0',
-        transition: 'padding-bottom 0.3s ease',
       }}
     >
-      <Container
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexGrow: 1,
-          textAlign: 'center',
-        }}
-      >
 
          {/* Typing effect for the main heading */}
          <Typography
@@ -932,9 +950,11 @@ const styles = `
   }
 `;
 
-export default () => (
-  <>
-    <style>{styles}</style>
-    <LandingPage />
-  </>
-);
+// export default () => (
+//   <>
+//     <style>{styles}</style>
+//     <LandingPage />
+//   </>
+// );
+
+export default LandingPage;
