@@ -371,15 +371,25 @@ return (
   eraseDelay={3000}
   displayTextRenderer={(text, i) => {
     const isSecondSentence = i === 1;
-    const sentenceColor = isSecondSentence ? '#571ce0' : '#000'; // Choose sentence color
+    const sentenceColor = darkMode
+      ? '#FFFFFF' // White in dark mode
+      : isSecondSentence
+      ? '#571ce0' // Purple for the second sentence in light mode
+      : '#000000'; // Black for other sentences in light mode
     const hasFullStop = text.endsWith('.'); // Check if the sentence has a full stop
     const textWithoutStop = hasFullStop ? text.slice(0, -1) : text; // Remove the full stop if present
     const fullStop = hasFullStop ? '.' : ''; // Keep only the full stop for separate rendering
-
+  
     return (
       <span>
         {/* Render the typed sentence */}
-        <span style={{ color: sentenceColor, fontFamily: 'SF Pro Display, sans-serif', fontWeight: '600' }}>
+        <span
+          style={{
+            color: sentenceColor,
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: '600',
+          }}
+        >
           {textWithoutStop}
         </span>
         {/* Render the full stop only after the text has finished typing */}
@@ -391,6 +401,7 @@ return (
       </span>
     );
   }}
+  
 />
 
         </Typography>
@@ -411,70 +422,114 @@ return (
 >
   {/* Classes Box */}
   <ButtonBase
-  onClick={() => currentUser ? navigate('/classes') : handleLoginRedirect()} // Check if user is logged in
+  onClick={() => currentUser ? navigate('/classes') : handleLoginRedirect()}
   sx={{
-      width: { xs: '140px', sm: '160px', md: '200px' },   // Increased width slightly
-      height: { xs: '150px', sm: '170px', md: '180px' },   // Increased height for spacing
-      margin: '20px 0', // Add some margin to the top and bottom
-
-      backgroundColor: '#f9f9f9',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: '12px',
-      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-      transition: 'transform 0.3s ease, background-color 0.3s ease',
-      padding: '10px',  // Added padding for breathing room
-      '&:hover': {
-        backgroundColor: '#ececec',
-        transform: 'translateY(-5px)',
-      },
+    width: { xs: '140px', sm: '160px', md: '200px' },
+    height: { xs: '150px', sm: '170px', md: '180px' },
+    backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+    backgroundImage: darkMode
+      ? 'linear-gradient(135deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+      : 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '12px',
+    boxShadow: darkMode
+      ? '0 8px 16px rgba(87, 28, 224, 0.2)'
+      : '0 8px 16px rgba(0, 0, 0, 0.1)',
+    padding: '10px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      backgroundColor: darkMode ? 'transparent' : '#ececec',
+      backgroundImage: darkMode
+        ? 'linear-gradient(135deg, #2C194F 0%, #571CE0 50%, #1C1F43 100%)'
+        : 'none',
+      boxShadow: darkMode
+        ? '0 12px 24px rgba(87, 28, 224, 0.3)'
+        : '0 12px 24px rgba(0, 0, 0, 0.2)',
+      transform: 'translateY(-5px)',
+    },
+  }}
+>
+  <Typography
+    variant="h3"
+    sx={{ fontSize: '1.5rem', mb: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}
+  >
+    📚
+  </Typography>
+  <Typography
+    variant="h6"
+    sx={{
+      fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
+      fontWeight: '600',
+      textAlign: 'center',
+      color: darkMode ? '#FFFFFF' : '#000000',
     }}
   >
-    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>📚</Typography>
-    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Classes</Typography>
-    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-      Explore the courses and their reviews at <span style={{ color: '#00693e' }}>Dartmouth</span><span style={{ color: '#F26655' }}>.</span>
-    </Typography>
-  </ButtonBase>
-
-  {/* Layups Box */}
-  <ButtonBase
-  onClick={() => currentUser ? navigate('/layups') : handleLoginRedirect()} // Check if user is logged in
-  sx={{
-      width: { xs: '140px', sm: '160px', md: '200px' },   
-      height: { xs: '150px', sm: '170px', md: '180px' },   
-      backgroundColor: '#f9f9f9',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: '12px',
-      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-      padding: '10px',
-      transition: 'transform 0.3s ease, background-color 0.3s ease',
-      '&:hover': {
-        backgroundColor: '#ececec',
-        transform: 'translateY(-5px)',
-      },
+    Classes
+  </Typography>
+  <Typography
+    variant="body2"
+    sx={{
+      fontSize: { xs: '0.75rem', sm: '0.85rem' },
+      color: darkMode ? '#CCCCCC' : '#666666',
+      mt: '4px',
+      textAlign: 'center',
     }}
   >
-    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🎯</Typography>
-    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Layups</Typography>
-    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-      Find your easy A<span style={{ color: '#F26655' }}>.</span>
-    </Typography>
-  </ButtonBase>
+    Explore the courses and their reviews at{' '}
+    <span style={{ color: '#00693e' }}>Dartmouth</span>
+    <span style={{ color: '#F26655' }}>.</span>
+  </Typography>
+</ButtonBase>
 
-  <Box sx={{ position: 'relative', display: 'inline-block' }}>
+
+<ButtonBase
+  onClick={() => currentUser ? navigate('/layups') : handleLoginRedirect()}
+  sx={{
+    width: { xs: '140px', sm: '160px', md: '200px' },
+    height: { xs: '150px', sm: '170px', md: '180px' },
+    backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+    backgroundImage: darkMode
+      ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+      : 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '12px',
+    boxShadow: darkMode ? '0 8px 16px rgba(87, 28, 224, 0.2)' : '0 8px 16px rgba(0, 0, 0, 0.1)',
+    padding: '10px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      backgroundColor: darkMode ? 'transparent' : '#ececec',
+      backgroundImage: darkMode
+        ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
+        : 'none',
+      boxShadow: darkMode ? '0 12px 24px rgba(87, 28, 224, 0.3)' : '0 12px 24px rgba(0, 0, 0, 0.2)',
+      transform: 'translateY(-5px)',
+    },
+  }}
+>
+  <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}>🎯</Typography>
+  <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center', color: darkMode ? '#FFFFFF' : '#000000' }}>
+    Layups
+  </Typography>
+  <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: darkMode ? '#CCCCCC' : '#666666', mt: '4px', textAlign: 'center' }}>
+    Find your easy A<span style={{ color: '#F26655' }}>.</span>
+  </Typography>
+</ButtonBase>
+
+<Box sx={{ position: 'relative', display: 'inline-block' }}>
+  {/* Trending Ribbon */}
   <Box
     sx={{
       position: 'absolute',
       top: { xs: '12px', sm: '20px' }, // Adjust ribbon's top position for smaller screens
       left: { xs: '-5px', sm: '-10px' }, // Adjust ribbon's left position for smaller screens
       transform: 'rotate(-45deg)', // Keep ribbon rotation
-      bgcolor: '#00693E',
+      bgcolor: darkMode ? '#FF5722' : '#00693E', // Change color based on dark mode
       color: '#fff',
       px: 1,
       py: 0.5,
@@ -491,68 +546,158 @@ return (
       },
       width: { xs: '70px', sm: '80px' }, // Adjust width for mobile
       height: { xs: '18px', sm: '20px' }, // Adjust height for mobile
+      textAlign: 'center',
     }}
   >
     Trending
   </Box>
-  
+
+  {/* Notifications Button */}
   <ButtonBase
-    onClick={() => currentUser ? navigate('/timetable') : handleLoginRedirect()} // Check if user is logged in
+    onClick={() => (currentUser ? navigate('/timetable') : handleLoginRedirect())}
     sx={{
-      width: { xs: '140px', sm: '160px', md: '200px' },   
-      height: { xs: '150px', sm: '170px', md: '180px' },   
-      backgroundColor: '#f9f9f9',
+      width: { xs: '140px', sm: '160px', md: '200px' },
+      height: { xs: '150px', sm: '170px', md: '180px' },
+      backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+      backgroundImage: darkMode
+        ? 'linear-gradient(135deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+        : 'none',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: '12px',
-      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+      boxShadow: darkMode
+        ? '0 8px 16px rgba(87, 28, 224, 0.2)'
+        : '0 8px 16px rgba(0, 0, 0, 0.1)',
       padding: '10px',
-      transition: 'transform 0.3s ease, background-color 0.3s ease',
+      transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
       '&:hover': {
-        backgroundColor: '#ececec',
+        backgroundColor: darkMode ? 'transparent' : '#ececec',
+        backgroundImage: darkMode
+          ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
+          : 'none',
+        boxShadow: darkMode
+          ? '0 12px 24px rgba(87, 28, 224, 0.3)'
+          : '0 12px 24px rgba(0, 0, 0, 0.2)',
         transform: 'translateY(-5px)',
       },
     }}
   >
-    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🔔</Typography>
-    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Notifications</Typography>
-    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-      Get notified for add/drop starting 8:00 AM Mon, Jan 6th 2025<span style={{ color: '#F26655' }}>.</span>
+    {/* Icon */}
+    <Typography
+      variant="h3"
+      sx={{
+        fontSize: '1.5rem',
+        mb: '8px',
+        color: darkMode ? '#FFFFFF' : '#000000',
+      }}
+    >
+      🔔
+    </Typography>
+
+    {/* Title */}
+    <Typography
+      variant="h6"
+      sx={{
+        fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
+        fontWeight: '600',
+        textAlign: 'center',
+        color: darkMode ? '#FFFFFF' : '#000000',
+      }}
+    >
+      Notifications
+    </Typography>
+
+    {/* Description */}
+    <Typography
+      variant="body2"
+      sx={{
+        fontSize: { xs: '0.75rem', sm: '0.85rem' },
+        color: darkMode ? '#CCCCCC' : '#666666',
+        mt: '4px',
+        textAlign: 'center',
+      }}
+    >
+      Get notified for add/drop starting 8:00 AM Mon, Jan 6th 2025
+      <span style={{ color: '#F26655' }}>.</span>
     </Typography>
   </ButtonBase>
 </Box>
 
 
-   {/* Notifications Box */}
+{/* Professors Button */}
 <ButtonBase
-  onClick={() => currentUser ? navigate('/professors') : handleLoginRedirect()} // Check if user is logged in
+  onClick={() => (currentUser ? navigate('/professors') : handleLoginRedirect())}
   sx={{
-    width: { xs: '140px', sm: '160px', md: '200px' },   
-    height: { xs: '150px', sm: '170px', md: '180px' },   
-    backgroundColor: '#f9f9f9',
+    width: { xs: '140px', sm: '160px', md: '200px' },
+    height: { xs: '150px', sm: '170px', md: '180px' },
+    backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+    backgroundImage: darkMode
+      ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+      : 'none',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: '12px',
-    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+    boxShadow: darkMode
+      ? '0 8px 16px rgba(87, 28, 224, 0.2)'
+      : '0 8px 16px rgba(0, 0, 0, 0.1)',
     padding: '10px',
-    transition: 'transform 0.3s ease, background-color 0.3s ease',
+    transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
     '&:hover': {
-      backgroundColor: '#ececec',
+      backgroundColor: darkMode ? 'transparent' : '#ececec',
+      backgroundImage: darkMode
+        ? 'linear-gradient(45deg, #2C194F 0%, #571CE0 50%, #1C1F43 100%)'
+        : 'none',
+      boxShadow: darkMode
+        ? '0 12px 24px rgba(87, 28, 224, 0.3)'
+        : '0 12px 24px rgba(0, 0, 0, 0.2)',
       transform: 'translateY(-5px)',
     },
   }}
 >
-<Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>👨‍🏫</Typography>
-<Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Professors</Typography>
+  {/* Icon */}
+  <Typography
+    variant="h3"
+    sx={{
+      fontSize: '1.5rem',
+      mb: '8px',
+      color: darkMode ? '#FFFFFF' : '#000000',
+    }}
+  >
+    👨‍🏫
+  </Typography>
 
-<Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-  AI-powered professor insights<span style={{ color: '#F26655' }}>.</span>
-</Typography>
+  {/* Title */}
+  <Typography
+    variant="h6"
+    sx={{
+      fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
+      fontWeight: '600',
+      textAlign: 'center',
+      color: darkMode ? '#FFFFFF' : '#000000',
+    }}
+  >
+    Professors
+  </Typography>
+
+  {/* Description */}
+  <Typography
+    variant="body2"
+    sx={{
+      fontSize: { xs: '0.75rem', sm: '0.85rem' },
+      color: darkMode ? '#CCCCCC' : '#666666',
+      mt: '4px',
+      textAlign: 'center',
+    }}
+  >
+    AI-powered professor insights
+    <span style={{ color: '#F26655' }}>.</span>
+  </Typography>
 </ButtonBase>
+
 {/* Review Popup Dialog */}
 {/* Review Popup Dialog */}
 <Dialog
@@ -640,61 +785,131 @@ return (
 
 
 
-  {/* Timetable Box */}
-  <ButtonBase
-  onClick={() => currentUser ? navigate('/timetable') : handleLoginRedirect()} // Check if user is logged in
+ {/* Timetable Button */}
+<ButtonBase
+  onClick={() => (currentUser ? navigate('/timetable') : handleLoginRedirect())}
   sx={{
-      width: { xs: '140px', sm: '160px', md: '200px' },   
-      height: { xs: '150px', sm: '170px', md: '180px' },   
-      backgroundColor: '#f9f9f9',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: '12px',
-      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-      padding: '10px',
-      transition: 'transform 0.3s ease, background-color 0.3s ease',
-      '&:hover': {
-        backgroundColor: '#ececec',
-        transform: 'translateY(-5px)',
-      },
+    width: { xs: '140px', sm: '160px', md: '200px' },
+    height: { xs: '150px', sm: '170px', md: '180px' },
+    backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+    backgroundImage: darkMode
+      ? 'linear-gradient(135deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+      : 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '12px',
+    boxShadow: darkMode
+      ? '0 8px 16px rgba(87, 28, 224, 0.2)'
+      : '0 8px 16px rgba(0, 0, 0, 0.1)',
+    padding: '10px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      backgroundColor: darkMode ? 'transparent' : '#ececec',
+      backgroundImage: darkMode
+        ? 'linear-gradient(135deg, #2C194F 0%, #571CE0 50%, #1C1F43 100%)'
+        : 'none',
+      boxShadow: darkMode
+        ? '0 12px 24px rgba(87, 28, 224, 0.3)'
+        : '0 12px 24px rgba(0, 0, 0, 0.2)',
+      transform: 'translateY(-5px)',
+    },
+  }}
+>
+  <Typography
+    variant="h3"
+    sx={{ fontSize: '1.5rem', mb: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}
+  >
+    🗓️
+  </Typography>
+  <Typography
+    variant="h6"
+    sx={{
+      fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
+      fontWeight: '600',
+      textAlign: 'center',
+      color: darkMode ? '#FFFFFF' : '#000000',
     }}
   >
-    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>🗓️</Typography>
-    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Timetable</Typography>
-    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-    Smart scheduling, seamless sync<span style={{ color: '#F26655' }}>.</span>
-    </Typography>
-  </ButtonBase>
+    Timetable
+  </Typography>
+  <Typography
+    variant="body2"
+    sx={{
+      fontSize: { xs: '0.75rem', sm: '0.85rem' },
+      color: darkMode ? '#CCCCCC' : '#666666',
+      mt: '4px',
+      textAlign: 'center',
+    }}
+  >
+    Smart scheduling, seamless sync
+    <span style={{ color: '#F26655' }}>.</span>
+  </Typography>
+</ButtonBase>
 
-  {/* Profile Box */}
-  <ButtonBase
-  onClick={() => currentUser ? navigate('/profile') : handleLoginRedirect()} // Check if user is logged in
+{/* Profile Button */}
+<ButtonBase
+  onClick={() => (currentUser ? navigate('/profile') : handleLoginRedirect())}
   sx={{
-      width: { xs: '140px', sm: '160px', md: '200px' },   
-      height: { xs: '150px', sm: '170px', md: '180px' },   
-      backgroundColor: '#f9f9f9',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: '12px',
-      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-      padding: '10px',
-      transition: 'transform 0.3s ease, background-color 0.3s ease',
-      '&:hover': {
-        backgroundColor: '#ececec',
-        transform: 'translateY(-5px)',
-      },
+    width: { xs: '140px', sm: '160px', md: '200px' },
+    height: { xs: '150px', sm: '170px', md: '180px' },
+    backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+    backgroundImage: darkMode
+      ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+      : 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '12px',
+    boxShadow: darkMode
+      ? '0 8px 16px rgba(87, 28, 224, 0.2)'
+      : '0 8px 16px rgba(0, 0, 0, 0.1)',
+    padding: '10px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      backgroundColor: darkMode ? 'transparent' : '#ececec',
+      backgroundImage: darkMode
+        ? 'linear-gradient(135deg, #2C194F 0%, #571CE0 50%, #1C1F43 100%)'
+        : 'none',
+      boxShadow: darkMode
+        ? '0 12px 24px rgba(87, 28, 224, 0.3)'
+        : '0 12px 24px rgba(0, 0, 0, 0.2)',
+      transform: 'translateY(-5px)',
+    },
+  }}
+>
+  <Typography
+    variant="h3"
+    sx={{ fontSize: '1.5rem', mb: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}
+  >
+    👤
+  </Typography>
+  <Typography
+    variant="h6"
+    sx={{
+      fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
+      fontWeight: '600',
+      textAlign: 'center',
+      color: darkMode ? '#FFFFFF' : '#000000',
     }}
   >
-    <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px' }}>👤</Typography>
-    <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center' }}>Profile</Typography>
-    <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: '#666', mt: '4px', textAlign: 'center' }}>
-      Organize everything here<span style={{ color: '#F26655' }}>.</span>
-    </Typography>
-  </ButtonBase>
+    Profile
+  </Typography>
+  <Typography
+    variant="body2"
+    sx={{
+      fontSize: { xs: '0.75rem', sm: '0.85rem' },
+      color: darkMode ? '#CCCCCC' : '#666666',
+      mt: '4px',
+      textAlign: 'center',
+    }}
+  >
+    Organize everything here
+    <span style={{ color: '#F26655' }}>.</span>
+  </Typography>
+</ButtonBase>
 
  
 
@@ -703,166 +918,242 @@ return (
 
        
         {/* Search bar */}
-        <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', gap: 2 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Ask anything about courses..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+<Box
+  component="form"
+  onSubmit={handleSearch}
+  sx={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    gap: 2,
+    mt: 4, // Added margin-top for spacing
+  }}
+>
+  <TextField
+    fullWidth
+    variant="outlined"
+    placeholder="Ask anything about courses..."
+    value={question}
+    onChange={(e) => setQuestion(e.target.value)}
+    sx={{
+      bgcolor: darkMode ? '#0C0F33' : '#f9f9f9', // Dark mode background
+      borderRadius: '25px',
+      width: { xs: '90%', md: '60%' },
+      boxShadow: darkMode
+        ? '0px 2px 8px rgba(255, 255, 255, 0.1)' // Light shadow for dark mode
+        : '0px 2px 8px rgba(0, 0, 0, 0.1)', // Dark shadow for light mode
+      '& .MuiOutlinedInput-root': {
+        borderRadius: '25px',
+        padding: '0 20px',
+        height: '50px',
+        transition: 'all 0.3s ease-in-out',
+        '& fieldset': {
+          borderColor: darkMode ? '#555555' : 'transparent', // Border color based on mode
+        },
+        '&:hover fieldset': {
+          borderColor: darkMode ? '#777777' : '#bbb', // Hover border color
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: darkMode ? '#bb86fc' : '#000000', // Focused border color
+          boxShadow: darkMode
+            ? '0px 4px 15px rgba(187, 134, 252, 0.3)' // Focused shadow for dark mode
+            : '0px 4px 15px rgba(0, 0, 0, 0.1)', // Focused shadow for light mode
+        },
+      },
+    }}
+    InputProps={{
+      startAdornment: (
+        <InputAdornment position="start">
+          <SearchIcon
             sx={{
-              bgcolor: '#f9f9f9',
-              borderRadius: '25px',
-              width: { xs: '90%', md: '60%' },
-              boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '25px',
-                padding: '0 20px',
-                height: '50px',
-                transition: 'all 0.3s ease-in-out',
-                '& fieldset': {
-                  borderColor: 'transparent',
-                },
-                '&:hover fieldset': {
-                  borderColor: '#bbb',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#000',
-                  boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
-                },
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#888', fontSize: '24px' }} />
-                </InputAdornment>
-              ),
+              color: darkMode ? '#bbbbbb' : '#888888', // Icon color based on mode
+              fontSize: '24px',
             }}
           />
-          <Button
-            variant="contained"
-            type="submit"
-            disabled={loading}
-            disableElevation
+        </InputAdornment>
+      ),
+    }}
+  />
+  <Button
+    variant="contained"
+    type="submit"
+    disabled={loading}
+    disableElevation
+    sx={{
+      backgroundColor: darkMode ? '#bb86fc' : '#000000', // Button background based on mode
+      borderRadius: '25px',
+      color: 'white',
+      fontWeight: 'bold',
+      padding: '10px 30px',
+      transition: 'background-color 0.3s ease-in-out',
+      '&:hover': {
+        backgroundColor: darkMode ? '#9b6efc' : '#571CE0', // Hover color
+      },
+      '&:active': {
+        backgroundColor: darkMode ? '#9b6efc' : '#571CE0', // Active color
+      },
+      fontSize: { xs: '0.875rem', md: '1rem' },
+    }}
+  >
+    {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
+  </Button>
+</Box>
+
+       {/* Answer section */}
+{answer && (
+  <Paper
+    elevation={3}
+    sx={{
+      mt: 4,
+      p: 3,
+      bgcolor: darkMode ? '#0C0F33' : '#f9f9f9', // Background based on mode
+      borderRadius: 2,
+      width: '100%',
+      maxWidth: '800px',
+      boxShadow: darkMode
+        ? '0px 4px 20px rgba(255, 255, 255, 0.1)' // Light shadow for dark mode
+        : '0px 4px 20px rgba(0, 0, 0, 0.05)', // Dark shadow for light mode
+      color: darkMode ? '#ffffff' : '#bbbbbb', // Text color based on mode
+    }}
+  >
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        mb: 2,
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 1,
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
+        {department && (
+          <Chip
+            label={`Department: ${department}`}
+            color={darkMode ? 'default' : 'primary'}
             sx={{
-              backgroundColor: '#000',
-              borderRadius: '25px',
-              color: 'white',
-              fontWeight: 'bold',
-              padding: '10px 30px',
-              transition: 'background-color 0.3s ease-in-out',
-              '&:hover': {
-                backgroundColor: '#571CEO',
-              },
-              '&:active': {
-                backgroundColor: '#571CEO',
-              },
-              fontSize: { xs: '0.875rem', md: '1rem' },
+              bgcolor: darkMode ? '#0C0F33' : 'primary.main', // Chip background
+              color: '#ffffff', // Chip text color
             }}
-          >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
-          </Button>
-        </Box>
-
-        {/* Answer section */}
-        {answer && (
-          <Paper 
-            elevation={3} 
-            sx={{ 
-              mt: 4, 
-              p: 3, 
-              bgcolor: '#f9f9f9', 
-              borderRadius: 2,
-              width: '100%',
-              maxWidth: '800px',
-              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
-            }}
-          >
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              mb: 2
-            }}>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-                {department && <Chip label={`Department: ${department}`} color="primary" />}
-                {courseNumber && <Chip label={`Course: ${courseNumber}`} color="secondary" />}
-                {difficulty !== null && (
-                  <ScaleMeter value={difficulty} title="Layup Meter" getLevelFunc={getDifficultyLevel} />
-                )}
-                {sentiment !== null && (
-                  <ScaleMeter value={sentiment} title="Quality Meter" getLevelFunc={getSentimentLevel} />
-                )}
-              </Box>
-              
-              {/* Enhanced Scroll message effect */}
-              {/* Enhanced Scroll message effect */}
-              {showScrollMessage && (
-                <Tooltip title="Click or scroll down to see more course details" placement="top">
-                  <Fade in={showScrollMessage}>
-                    <Box 
-                      onClick={() => documentName && navigate(`/departments/${department}/courses/${documentName}`)}
-                      sx={{ 
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        ml: 2,
-                        bgcolor: '#f0f8ff',
-                        p: 1,
-                        borderRadius: 2,
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                        transition: 'all 0.3s ease',
-                        cursor: 'pointer', // Add cursor pointer to indicate clickability
-                        '&:hover': {
-                          bgcolor: '#e6f3ff',
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-                        },
-                        '&:active': {
-                          transform: 'translateY(0)',
-                          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                        },
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ mb: 1, color: '#1976d2', fontWeight: 'bold', fontSize: '0.85rem' }}>
-                        Scroll for Details
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <LinearProgress 
-                          variant="determinate" 
-                          value={scrollProgress * 100} 
-                          sx={{ 
-                            height: 8,
-                            borderRadius: 4,
-                            width: '100px',
-                            bgcolor: '#bbdefb',
-                            '& .MuiLinearProgress-bar': {
-                              bgcolor: '#1976d2',
-                            },
-                          }} 
-                        />
-                      </Box>
-                    </Box>
-                  </Fade>
-                </Tooltip>
-              )}
-            </Box>
-
-            <Box sx={{ color: '#333', textAlign: 'left', mb: 2 }}>
-              {formatAnswer((department && courseNumber) 
-                ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
-                : answer
-              )}
-            </Box>
-
-            {/* New note below the AI response */}
-            <Typography variant="body2" sx={{ color: '#888', mt: 2 }}>
-              Note: This AI chatbot is in its very early stage of development, and we are actively working on improving it.
-            </Typography>
-          </Paper>
+          />
         )}
+        {courseNumber && (
+          <Chip
+            label={`Course: ${courseNumber}`}
+            color={darkMode ? 'default' : 'secondary'}
+            sx={{
+              bgcolor: darkMode ? '#00693e' : 'secondary.main', // Chip background
+              color: '#ffffff', // Chip text color
+            }}
+          />
+        )}
+        {difficulty !== null && (
+          <ScaleMeter
+            value={difficulty}
+            title="Layup Meter"
+            getLevelFunc={getDifficultyLevel}
+            darkMode={darkMode} // Pass darkMode to ScaleMeter
+          />
+        )}
+        {sentiment !== null && (
+          <ScaleMeter
+            value={sentiment}
+            title="Quality Meter"
+            getLevelFunc={getSentimentLevel}
+            darkMode={darkMode} // Pass darkMode to ScaleMeter
+          />
+        )}
+      </Box>
+
+      {/* Enhanced Scroll Message Effect */}
+      {showScrollMessage && (
+        <Tooltip title="Click or scroll down to see more course details" placement="top">
+          <Fade in={showScrollMessage}>
+            <Box
+              onClick={() => documentName && navigate(`/departments/${department}/courses/${documentName}`)}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                ml: 2,
+                bgcolor: darkMode ? '#424242' : '#f0f8ff', // Background based on mode
+                p: 1,
+                borderRadius: 2,
+                boxShadow: darkMode
+                  ? '0 2px 5px rgba(255, 255, 255, 0.1)' // Light shadow for dark mode
+                  : '0 2px 5px rgba(0, 0, 0, 0.1)', // Dark shadow for light mode
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                '&:hover': {
+                  bgcolor: darkMode ? '#555555' : '#e6f3ff', // Hover background
+                  transform: 'translateY(-2px)',
+                  boxShadow: darkMode
+                    ? '0 4px 8px rgba(255, 255, 255, 0.15)' // Hover shadow for dark mode
+                    : '0 4px 8px rgba(0, 0, 0, 0.15)', // Hover shadow for light mode
+                },
+                '&:active': {
+                  transform: 'translateY(0)',
+                  boxShadow: darkMode
+                    ? '0 2px 5px rgba(255, 255, 255, 0.1)' // Active shadow for dark mode
+                    : '0 2px 5px rgba(0, 0, 0, 0.1)', // Active shadow for light mode
+                },
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{
+                  mb: 1,
+                  color: darkMode ? '#bb86fc' : '#1976d2', // Text color based on mode
+                  fontWeight: 'bold',
+                  fontSize: '0.85rem',
+                }}
+              >
+                Scroll for Details
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <LinearProgress
+                  variant="determinate"
+                  value={scrollProgress * 100}
+                  sx={{
+                    height: 8,
+                    borderRadius: 4,
+                    width: '100px',
+                    bgcolor: darkMode ? '#bbbbbb' : '#bbdefb', // Progress background
+                    '& .MuiLinearProgress-bar': {
+                      bgcolor: darkMode ? '#bb86fc' : '#1976d2', // Progress bar color
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+          </Fade>
+        </Tooltip>
+      )}
+    </Box>
+
+    <Box sx={{ color: darkMode ? '#ffffff' : '#333333', textAlign: 'left', mb: 2 }}>
+      {formatAnswer(
+        department && courseNumber
+          ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
+          : answer
+      )}
+    </Box>
+
+    {/* New note below the AI response */}
+    <Typography variant="body2" sx={{ color: darkMode ? '#bbbbbb' : '#888888', mt: 2 }}>
+      Note: This AI chatbot is in its very early stage of development, and we are actively working on improving it.
+    </Typography>
+  </Paper>
+)}
+
+
       </Container>
 
       
@@ -901,21 +1192,22 @@ return (
 <Box 
 
 >
-  <Typography 
-    variant="body2" 
-    sx={{ 
-      color: '#333', 
-      fontSize: '0.875rem',  // Slightly smaller text
-      fontFamily: 'SF Pro Display, sans-serif',  // Keeping it consistent with Apple-like font
-      mb: 1 
-    }}
-  >
-    © 2024 CourseMe. All Rights Reserved.
-  </Typography>
-  <Typography 
+<Typography 
   variant="body2" 
   sx={{ 
-    color: '#666', 
+    color: darkMode ? '#ffffff' : '#333333', // White in dark mode, dark grey in light mode
+    fontSize: '0.875rem',  // Slightly smaller text
+    fontFamily: 'SF Pro Display, sans-serif',  // Consistent Apple-like font
+    mb: 1 
+  }}
+>
+  © 2024 CourseMe. All Rights Reserved.
+</Typography>
+
+<Typography 
+  variant="body2" 
+  sx={{ 
+    color: darkMode ? '#cccccc' : '#666666', // Light grey in dark mode, medium grey in light mode
     fontSize: '0.85rem', 
     fontFamily: 'SF Pro Display, sans-serif',
     fontWeight: 400, 
@@ -923,6 +1215,7 @@ return (
 >
   Built with <span>💚</span> in Dartmouth Dorms, just for you.
 </Typography>
+
 
 
 </Box>
