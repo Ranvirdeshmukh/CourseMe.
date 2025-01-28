@@ -917,7 +917,7 @@ useEffect(() => {
     <Box
       sx={{
         minHeight: '100vh',
-        backgroundColor: '#F9F9F9',
+        backgroundColor: 'background.default', // Uses theme's default background
         padding: '40px 20px', // 40px top/bottom, 20px left/right
         fontFamily: 'SF Pro Display, sans-serif',
       }}

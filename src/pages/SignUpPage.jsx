@@ -1,6 +1,18 @@
 // src/pages/SignUpPage.jsx
+
 import React, { useRef, useState } from 'react';
-import { Typography, Box, TextField, InputAdornment, IconButton, Link, Button } from '@mui/material';
+import {
+  Typography,
+  Box,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Link,
+  Button,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, db, googleProvider } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -12,9 +24,9 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import ReactTypingEffect from 'react-typing-effect';
 
-
 const SignUpPage = () => {
   const navigate = useNavigate();
+  const theme = useTheme(); // Access the current theme
   const firstNameRef = useRef();
   const lastNameRef = useRef();
   const emailRef = useRef();
@@ -24,6 +36,8 @@ const SignUpPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false); // If needed
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleClickShowConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword);
@@ -33,10 +47,12 @@ const SignUpPage = () => {
     const email = emailRef.current.value;
     if (!email.endsWith('@dartmouth.edu')) {
       setError('Please use your Dartmouth email address');
+      setSnackbarOpen(true);
       return;
     }
     if (passwordRef.current.value !== confirmPasswordRef.current.value) {
       setError('Passwords do not match');
+      setSnackbarOpen(true);
       return;
     }
     try {
@@ -57,6 +73,7 @@ const SignUpPage = () => {
       } else {
         setError('Failed to create an account');
       }
+      setSnackbarOpen(true);
     } finally {
       setLoading(false);
     }
@@ -85,7 +102,12 @@ const SignUpPage = () => {
       }
     } catch (error) {
       setError('Failed to sign in with Google');
+      setSnackbarOpen(true);
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -95,33 +117,38 @@ const SignUpPage = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #f0f4f8 0%, #fff 100%)',
+        background: theme.palette.background.default, // Use theme's background
         padding: '0 10%',
-        color: '#1D1D1F',
-        flexDirection: { xs: 'column', md: 'row' },
-        textAlign: { xs: 'center', md: 'left' },
+        color: theme.palette.text.primary, // Use theme's text color
+        flexDirection: { xs: 'column', md: 'row' }, // Stack vertically on mobile
+        textAlign: { xs: 'center', md: 'left' }, // Center text on mobile, align left on desktop
       }}
     >
+      {/* Logo and tagline section */}
       <Box
         sx={{
-          maxWidth: { xs: '100%', md: '50%' },
+          maxWidth: { xs: '100%', md: '50%' }, // Adjust width for mobile and desktop
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'flex-start',
-          alignItems: { xs: 'center', md: 'flex-start' },
-          mb: { xs: 0, md: 0 },
-          pt: { xs: 5, md: 0 },
+          justifyContent: 'flex-start', // Align content to the top
+          alignItems: { xs: 'center', md: 'flex-start' }, // Center the logo on mobile, left-align on desktop
+          mb: { xs: 0, md: 0 }, // Add margin for mobile spacing
+          pt: { xs: 5, md: 0 }, // Add padding-top on mobile to push content down
         }}
       >
         <RouterLink to="/landing">
-          <img src="/1.png" alt="CourseMe Logo" style={{ maxWidth: '60%', height: 'auto', marginBottom: '10px' }} />
+          <img
+            src={theme.palette.mode === 'dark' ? '/2.png' : '/1.png'} // Conditional image based on theme
+            alt="CourseMe Logo"
+            style={{ maxWidth: '60%', height: 'auto', marginBottom: '10px' }}
+          />
         </RouterLink>
         <Typography
           variant="h5"
           sx={{
             fontFamily: 'SF Pro Display, sans-serif',
             fontWeight: 400,
-            color: '#1D1D1F',
+            color: theme.palette.text.primary,
             mb: 4,
           }}
         >
@@ -136,25 +163,29 @@ const SignUpPage = () => {
               <span style={{ color: '#00693E' }}>{text}</span>
             )}
             onComplete={() => {
-              document.getElementById('typing-fullstop').style.visibility = 'visible';
+              const fullStop = document.getElementById('typing-fullstop');
+              if (fullStop) {
+                fullStop.style.visibility = 'visible';
+              }
             }}
           />
           <span id="typing-fullstop" style={{ color: '#F26655', visibility: 'hidden' }}>.</span>
         </Typography>
       </Box>
+
+      {/* Sign Up form section */}
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           width: '100%',
-          maxWidth: { xs: '85%', md: '400px' },
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(10px)',
+          maxWidth: { xs: '85%', md: '400px' }, // Adjust width for mobile
+          backgroundColor: theme.palette.background.paper, // Use theme's paper background
           borderRadius: '12px',
-          boxShadow: '0px 8px 30px rgba(0, 0, 0, 0.15)',
-          padding: { xs: '20px', md: '30px' },
-          color: '#1D1D1F',
+          boxShadow: theme.shadows[5],
+          padding: { xs: '20px', md: '30px' }, // Adjust padding for mobile
+          color: theme.palette.text.primary, // Use theme's text color
           marginBottom: { xs: 4, md: 0 },
         }}
       >
@@ -171,28 +202,34 @@ const SignUpPage = () => {
             required
             sx={{
               mb: 2,
-              bgcolor: '#FFFFFF',
+              bgcolor: theme.palette.background.default,
               borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
                 height: '48px',
                 '& fieldset': {
-                  borderColor: '#E0E0E0',
+                  borderColor: theme.palette.divider,
                   transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#B0B0B0',
+                  borderColor: theme.palette.primary.main,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#571CE0',
+                  borderColor: theme.palette.primary.main,
                 },
+              },
+              '& .MuiInputBase-input': {
+                color: theme.palette.text.primary,
+              },
+              '& .MuiOutlinedInput-input::placeholder': {
+                color: theme.palette.text.secondary,
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <PersonIcon sx={{ color: '#571CE0' }} />
+                  <PersonIcon sx={{ color: '#571ce0' }} />
                 </InputAdornment>
               ),
             }}
@@ -204,28 +241,34 @@ const SignUpPage = () => {
             required
             sx={{
               mb: 2,
-              bgcolor: '#FFFFFF',
+              bgcolor: theme.palette.background.default,
               borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
                 height: '48px',
                 '& fieldset': {
-                  borderColor: '#E0E0E0',
+                  borderColor: theme.palette.divider,
                   transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#B0B0B0',
+                  borderColor: theme.palette.primary.main,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#571CE0',
+                  borderColor: theme.palette.primary.main,
                 },
+              },
+              '& .MuiInputBase-input': {
+                color: theme.palette.text.primary,
+              },
+              '& .MuiOutlinedInput-input::placeholder': {
+                color: theme.palette.text.secondary,
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <PersonIcon sx={{ color: '#571CE0' }} />
+                  <PersonIcon sx={{ color: '#571ce0' }} />
                 </InputAdornment>
               ),
             }}
@@ -237,28 +280,34 @@ const SignUpPage = () => {
             required
             sx={{
               mb: 2,
-              bgcolor: '#FFFFFF',
+              bgcolor: theme.palette.background.default,
               borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
                 height: '48px',
                 '& fieldset': {
-                  borderColor: '#E0E0E0',
+                  borderColor: theme.palette.divider,
                   transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#B0B0B0',
+                  borderColor: theme.palette.primary.main,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#571CE0',
+                  borderColor: theme.palette.primary.main,
                 },
+              },
+              '& .MuiInputBase-input': {
+                color: theme.palette.text.primary,
+              },
+              '& .MuiOutlinedInput-input::placeholder': {
+                color: theme.palette.text.secondary,
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <EmailIcon sx={{ color: '#571CE0' }} />
+                  <EmailIcon sx={{ color: '#571ce0' }} />
                 </InputAdornment>
               ),
             }}
@@ -271,28 +320,34 @@ const SignUpPage = () => {
             required
             sx={{
               mb: 2,
-              bgcolor: '#FFFFFF',
+              bgcolor: theme.palette.background.default,
               borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
                 height: '48px',
                 '& fieldset': {
-                  borderColor: '#E0E0E0',
+                  borderColor: theme.palette.divider,
                   transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#B0B0B0',
+                  borderColor: theme.palette.primary.main,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#571CE0',
+                  borderColor: theme.palette.primary.main,
                 },
+              },
+              '& .MuiInputBase-input': {
+                color: theme.palette.text.primary,
+              },
+              '& .MuiOutlinedInput-input::placeholder': {
+                color: theme.palette.text.secondary,
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockIcon sx={{ color: '#571CE0' }} />
+                  <LockIcon sx={{ color: '#571ce0' }} />
                 </InputAdornment>
               ),
               endAdornment: (
@@ -316,28 +371,34 @@ const SignUpPage = () => {
             required
             sx={{
               mb: 3,
-              bgcolor: '#FFFFFF',
+              bgcolor: theme.palette.background.default,
               borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
                 height: '48px',
                 '& fieldset': {
-                  borderColor: '#E0E0E0',
+                  borderColor: theme.palette.divider,
                   transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#B0B0B0',
+                  borderColor: theme.palette.primary.main,
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#571CE0',
+                  borderColor: theme.palette.primary.main,
                 },
+              },
+              '& .MuiInputBase-input': {
+                color: theme.palette.text.primary,
+              },
+              '& .MuiOutlinedInput-input::placeholder': {
+                color: theme.palette.text.secondary,
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockIcon sx={{ color: '#571CE0' }} />
+                  <LockIcon sx={{ color: '#571ce0' }} />
                 </InputAdornment>
               ),
               endAdornment: (
@@ -355,11 +416,10 @@ const SignUpPage = () => {
           />
           <Typography
             variant="body2"
-            color="textSecondary"
             sx={{
               marginBottom: '20px',
               fontFamily: 'SF Pro Display, sans-serif',
-              color: '#1D1D1F',
+              color: theme.palette.text.primary,
             }}
           >
             <strong>Please Note:</strong> Sign up using your Dartmouth email ID.
@@ -368,22 +428,24 @@ const SignUpPage = () => {
             type="submit"
             variant="contained"
             fullWidth
+            disabled={loading}
             sx={{
-              backgroundColor: '#4285F4',
-              color: '#fff',
+              backgroundColor: '#000080', // Navy Royal Blue
+              color: '#FFFFFF',
               fontWeight: 'bold',
               mb: 2,
               height: '48px',
               borderRadius: '20px',
               transition: 'transform 0.2s',
               '&:hover': {
-                backgroundColor: '#357AE8',
+                backgroundColor: '#0000CD', // Medium Blue
                 transform: 'scale(1.05)',
               },
             }}
           >
-            Sign Up
+            {loading ? 'Signing Up...' : 'Sign Up'}
           </Button>
+
           <Box
             onClick={handleGoogleSignIn}
             sx={{
@@ -392,15 +454,15 @@ const SignUpPage = () => {
               justifyContent: 'center',
               width: '100%',
               height: '48px',
-              backgroundColor: '#f2f2f2',
+              backgroundColor: theme.palette.background.default, // Adjusted for theme
               borderRadius: '20px',
-              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
+              boxShadow: theme.shadows[2],
               cursor: 'pointer',
               mb: 2,
-              transition: 'background-color 0.218s, box-shadow 0.218s',
+              transition: 'background-color 0.2s, box-shadow 0.2s',
               '&:hover': {
-                backgroundColor: '#e2e2e2',
-                boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.3)',
+                backgroundColor: theme.palette.action.hover,
+                boxShadow: theme.shadows[4],
               },
             }}
           >
@@ -461,6 +523,18 @@ const SignUpPage = () => {
           </Typography>
         </Box>
       </Box>
+
+      {/* Error Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

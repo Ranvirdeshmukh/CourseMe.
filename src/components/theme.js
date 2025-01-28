@@ -9,17 +9,17 @@ const darkTheme = createTheme({
     mode: 'dark',
     background: {
       default: 'transparent', // So our CSSBaseline override takes effect
-      paper: '#222',          // Cards, Paper, etc. get a dark background
+      paper: '#222',        // Changed from '#222' to navy royal blue
     },
     text: {
       primary: '#FFFFFF',     // Set primary text to white
-      secondary: '#CCCCCC',   // Secondary text remains light gray
+      secondary: '#CCCCCC',   // Changed from '#CCCCCC' (grey) to navy royal blue
     },
     primary: {
-      main: '#571CE0',        // Purple
+      main: '#571ce0',        // Navy Royal Blue instead of Purple
     },
     secondary: {
-      main: '#F26655',        // Orange
+      main: '#F26655',        // Orange remains the same
     },
   },
   components: {
@@ -56,6 +56,42 @@ const darkTheme = createTheme({
       },
     },
     // Optionally override other components if you wish (e.g. MuiCard, MuiButton, etc.)
+    MuiButton: {
+      styleOverrides: {
+        contained: {
+          backgroundColor: '#000080', // Navy Royal Blue
+          color: '#FFFFFF',            // White text
+          '&:hover': {
+            backgroundColor: '#0000CD', // Medium Blue on hover
+          },
+        },
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          color: '#000080', // Navy Royal Blue
+          '&:hover': {
+            color: '#0000CD', // Medium Blue on hover
+          },
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '& fieldset': {
+            borderColor: '#000080', // Navy Royal Blue border
+          },
+          '&:hover fieldset': {
+            borderColor: '#0000CD', // Medium Blue border on hover
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: '#0000CD', // Medium Blue border on focus
+          },
+        },
+      },
+    },
   },
 });
 

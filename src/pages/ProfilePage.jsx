@@ -1,3 +1,5 @@
+// src/pages/ProfilePage.jsx
+
 import React, { useEffect, useState } from 'react';
 import {
   Container,
@@ -28,18 +30,36 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Snackbar,
 } from '@mui/material';
-import { Delete, ArrowDropDown, BugReport, Logout, PushPin } from '@mui/icons-material';
+import {
+  Delete,
+  ArrowDropDown,
+  BugReport,
+  Logout,
+  PushPin,
+} from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { doc, getDoc, updateDoc, arrayRemove, deleteDoc, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayRemove,
+  deleteDoc,
+  addDoc,
+  collection,
+} from 'firebase/firestore';
 import Footer from '../components/Footer';
+import { useTheme } from '@mui/material/styles'; // Import useTheme
+import ReactTypingEffect from 'react-typing-effect'; // Import typing effect
 
 const ProfilePage = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme(); // Access the current theme
   const [profileData, setProfileData] = useState({
     major: '',
     classYear: '',
@@ -51,7 +71,8 @@ const ProfilePage = () => {
   });
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(''); // Initialize as empty string
+  const [successMessage, setSuccessMessage] = useState(''); // New state for success messages
   const [editing, setEditing] = useState(false);
   const [newProfileData, setNewProfileData] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
@@ -60,7 +81,7 @@ const ProfilePage = () => {
   const [bugDescription, setBugDescription] = useState('');
   const [bugReportError, setBugReportError] = useState(null);
   const [notifications, setNotifications] = useState([]);
-  
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar state
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -73,25 +94,30 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       if (currentUser) {
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
-          setProfileData({
-            major: userData.major || '',
-            classYear: userData.classYear || '',
-            reviews: userData.reviews || [],
-            replies: userData.replies || [],
-            firstName: userData.firstName || '',
-            lastName: userData.lastName || '',
-            pinnedCourses: userData.pinnedCourses || [],
-          });
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            setProfileData({
+              major: userData.major || '',
+              classYear: userData.classYear || '',
+              reviews: userData.reviews || [],
+              replies: userData.replies || [],
+              firstName: userData.firstName || '',
+              lastName: userData.lastName || '',
+              pinnedCourses: userData.pinnedCourses || [],
+            });
 
-          // Fetch user's Fall 2024 timetable
-          setSelectedCourses(userData.fallCoursestaken || []);
-          setNotifications(userData.notifications || []);
-        } else {
-          setError('Failed to fetch profile data.');
+            // Fetch user's Fall 2025 timetable
+            setSelectedCourses(userData.fallCoursestaken || []);
+            setNotifications(userData.notifications || []);
+          } else {
+            setError('Failed to fetch profile data.');
+          }
+        } catch (err) {
+          console.error('Error fetching profile data:', err);
+          setError('An unexpected error occurred while fetching your profile.');
         }
         setLoading(false);
       }
@@ -106,37 +132,37 @@ const ProfilePage = () => {
     try {
       const userRef = doc(db, 'users', currentUser.uid);
       const timetableRequestRef = doc(db, 'timetable-requests', notification.requestId);
-  
+
       // Remove notification from user's notifications array
       await updateDoc(userRef, {
-        notifications: arrayRemove(notification)
+        notifications: arrayRemove(notification),
       });
-  
+
       // Remove user from the timetable-requests document
       const timetableRequestDoc = await getDoc(timetableRequestRef);
       if (timetableRequestDoc.exists()) {
         const users = timetableRequestDoc.data().users || [];
-        const updatedUsers = users.filter(user => user.email !== currentUser.email);
-        
+        const updatedUsers = users.filter((user) => user.email !== currentUser.email);
+
         if (updatedUsers.length === 0) {
           // If no users left, delete the document
           await deleteDoc(timetableRequestRef);
         } else {
           // Update the users array
           await updateDoc(timetableRequestRef, {
-            users: updatedUsers
+            users: updatedUsers,
           });
         }
       }
-  
+
       // Update local state
-      setNotifications(prev => prev.filter(n => n.requestId !== notification.requestId));
+      setNotifications((prev) => prev.filter((n) => n.requestId !== notification.requestId));
     } catch (error) {
       console.error('Error removing notification:', error);
-      alert('Failed to remove notification. Please try again.');
+      setError('Failed to remove notification.');
+      setSnackbarOpen(true);
     }
   };
-  
 
   const handleLogout = async () => {
     try {
@@ -144,6 +170,8 @@ const ProfilePage = () => {
       navigate('/login');
     } catch (error) {
       console.error('Failed to log out:', error);
+      setError('Failed to log out.');
+      setSnackbarOpen(true);
     }
   };
 
@@ -155,8 +183,7 @@ const ProfilePage = () => {
   const handleDeleteReview = async (review) => {
     try {
       const userDocRef = doc(db, 'users', currentUser.uid);
-      const sanitizedCourseId = review.courseId;
-      const courseDocRef = doc(db, 'reviews', sanitizedCourseId);
+      const courseDocRef = doc(db, 'reviews', review.courseId);
 
       await updateDoc(userDocRef, {
         reviews: arrayRemove(review),
@@ -182,21 +209,20 @@ const ProfilePage = () => {
       }));
     } catch (error) {
       console.error('Failed to delete review:', error);
+      setError('Failed to delete review.');
+      setSnackbarOpen(true);
     }
   };
 
   const handleDeleteReply = async (reply) => {
     try {
       const userDocRef = doc(db, 'users', currentUser.uid);
-      const { courseId, reviewData, timestamp } = reply;
-      const sanitizedCourseId = courseId.split('_')[1];
-      const sanitizedInstructor = reviewData.instructor.replace(/\./g, '_');
       const replyDocRef = doc(
         db,
         'reviews',
-        sanitizedCourseId,
-        `${sanitizedInstructor}_${reviewData.reviewIndex}_replies`,
-        timestamp
+        reply.courseId,
+        `${reply.reviewData.instructor.replace(/\./g, '_')}_replies`,
+        reply.timestamp
       );
 
       await updateDoc(userDocRef, {
@@ -211,6 +237,8 @@ const ProfilePage = () => {
       }));
     } catch (error) {
       console.error('Failed to delete reply:', error);
+      setError('Failed to delete reply.');
+      setSnackbarOpen(true);
     }
   };
 
@@ -234,8 +262,12 @@ const ProfilePage = () => {
         ...newProfileData,
       }));
       setEditing(false);
+      setSuccessMessage('Profile updated successfully!');
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Failed to save profile:', error);
+      setError('Failed to save profile.');
+      setSnackbarOpen(true);
     }
   };
 
@@ -269,6 +301,8 @@ const ProfilePage = () => {
         timestamp: new Date().toISOString(),
       });
       handleReportBugClose();
+      setSuccessMessage('Bug reported successfully!');
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Failed to report bug:', error);
       setBugReportError('Failed to report bug. Please try again.');
@@ -293,9 +327,19 @@ const ProfilePage = () => {
         ...prevState,
         pinnedCourses: prevState.pinnedCourses.filter((id) => id !== courseId),
       }));
+      setSuccessMessage('Course unpinned successfully!');
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Failed to unpin course:', error);
+      setError('Failed to unpin course.');
+      setSnackbarOpen(true);
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+    setError('');
+    setSuccessMessage('');
   };
 
   if (!currentUser) {
@@ -314,22 +358,21 @@ const ProfilePage = () => {
           variant="body1"
           sx={{
             fontFamily: 'SF Pro Display, sans-serif',
-            color: '#8E8E93',
+            color: theme.palette.text.secondary,
             textAlign: 'left',
             marginTop: 2,
             display: 'block',
-            lineHeight: 1.5, 
+            lineHeight: 1.5,
             fontSize: { xs: '14px', sm: '16px' }, // Responsive font size
-            
           }}
         >
           Make your term more organized by adding your Winter 2025 classes to CourseMe
           <span style={{ color: '#F26655' }}>.</span> and your personal Google Calendar.{' '}
-          <span 
-            style={{ 
-              color: '#571CE0', 
-              textDecoration: 'underline', 
-              cursor: 'pointer' 
+          <span
+            style={{
+              color: '#571CE0',
+              textDecoration: 'underline',
+              cursor: 'pointer',
             }}
             onClick={() => navigate('/timetable')}
           >
@@ -338,32 +381,107 @@ const ProfilePage = () => {
         </Typography>
       );
     }
-  
+
     return (
       <Box sx={{ margin: '0 auto', maxWidth: { xs: '100%', sm: 1100 }, width: '100%' }}>
-        <TableContainer 
-          component={Paper} 
-          sx={{ 
-            backgroundColor: '#FFFFFF', 
-            boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)', 
-            borderRadius: '16px', 
+        <TableContainer
+          component={Paper}
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            boxShadow: theme.shadows[2], // Reduced shadow
+            borderRadius: '16px',
             width: '100%',
-             
           }}
         >
           <Table>
-            <TableHead sx={{ backgroundColor: '#571CE0', color: '#FFFFFF' }}>
+            <TableHead
+              sx={{
+                backgroundColor: '#571CE0', // Keeping brand color for header
+              }}
+            >
               <TableRow>
                 {/* Adjust padding for smaller screens */}
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold', padding: { xs: '8px', sm: '16px' } }}>Subject</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold', padding: { xs: '8px', sm: '16px' } }}>Number</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold', padding: { xs: '8px', sm: '16px' } }}>Section</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold', padding: { xs: '8px', sm: '16px' } }}>Title</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold', padding: { xs: '8px', sm: '16px' } }}>Period</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold', padding: { xs: '8px', sm: '16px' } }}>Timing</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold', padding: { xs: '8px', sm: '16px' } }}>Room</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold', padding: { xs: '8px', sm: '16px' } }}>Building</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold', padding: { xs: '8px', sm: '16px' } }}>Instructor</TableCell>
+                <TableCell
+                  sx={{
+                    color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                    fontWeight: 'bold',
+                    padding: { xs: '8px', sm: '16px' },
+                  }}
+                >
+                  Subject
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                    fontWeight: 'bold',
+                    padding: { xs: '8px', sm: '16px' },
+                  }}
+                >
+                  Number
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                    fontWeight: 'bold',
+                    padding: { xs: '8px', sm: '16px' },
+                  }}
+                >
+                  Section
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                    fontWeight: 'bold',
+                    padding: { xs: '8px', sm: '16px' },
+                  }}
+                >
+                  Title
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                    fontWeight: 'bold',
+                    padding: { xs: '8px', sm: '16px' },
+                  }}
+                >
+                  Period
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                    fontWeight: 'bold',
+                    padding: { xs: '8px', sm: '16px' },
+                  }}
+                >
+                  Timing
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                    fontWeight: 'bold',
+                    padding: { xs: '8px', sm: '16px' },
+                  }}
+                >
+                  Room
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                    fontWeight: 'bold',
+                    padding: { xs: '8px', sm: '16px' },
+                  }}
+                >
+                  Building
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                    fontWeight: 'bold',
+                    padding: { xs: '8px', sm: '16px' },
+                  }}
+                >
+                  Instructor
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -371,35 +489,89 @@ const ProfilePage = () => {
                 <TableRow
                   key={index}
                   sx={{
-                    '&:hover': { backgroundColor: '#f7f7f7' }, 
+                    '&:hover': { backgroundColor: theme.palette.action.hover },
                     transition: 'background-color 0.2s ease',
                   }}
                 >
-                  <TableCell sx={{ padding: { xs: '8px', sm: '16px' }, fontFamily: 'SF Pro Display, sans-serif', color: '#1D1D1F' }}>
+                  <TableCell
+                    sx={{
+                      padding: { xs: '8px', sm: '16px' },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {course.subj}
                   </TableCell>
-                  <TableCell sx={{ padding: { xs: '8px', sm: '16px' }, fontFamily: 'SF Pro Display, sans-serif', color: '#1D1D1F' }}>
+                  <TableCell
+                    sx={{
+                      padding: { xs: '8px', sm: '16px' },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {course.num}
                   </TableCell>
-                  <TableCell sx={{ padding: { xs: '8px', sm: '16px' }, fontFamily: 'SF Pro Display, sans-serif', color: '#1D1D1F' }}>
+                  <TableCell
+                    sx={{
+                      padding: { xs: '8px', sm: '16px' },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {course.sec}
                   </TableCell>
-                  <TableCell sx={{ padding: { xs: '8px', sm: '16px' }, fontFamily: 'SF Pro Display, sans-serif', color: '#1D1D1F' }}>
+                  <TableCell
+                    sx={{
+                      padding: { xs: '8px', sm: '16px' },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {course.title}
                   </TableCell>
-                  <TableCell sx={{ padding: { xs: '8px', sm: '16px' }, fontFamily: 'SF Pro Display, sans-serif', color: '#1D1D1F' }}>
+                  <TableCell
+                    sx={{
+                      padding: { xs: '8px', sm: '16px' },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {course.period}
                   </TableCell>
-                  <TableCell sx={{ padding: { xs: '8px', sm: '16px' }, fontFamily: 'SF Pro Display, sans-serif', color: '#1D1D1F' }}>
+                  <TableCell
+                    sx={{
+                      padding: { xs: '8px', sm: '16px' },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {course.timing}
                   </TableCell>
-                  <TableCell sx={{ padding: { xs: '8px', sm: '16px' }, fontFamily: 'SF Pro Display, sans-serif', color: '#1D1D1F' }}>
+                  <TableCell
+                    sx={{
+                      padding: { xs: '8px', sm: '16px' },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {course.room}
                   </TableCell>
-                  <TableCell sx={{ padding: { xs: '8px', sm: '16px' }, fontFamily: 'SF Pro Display, sans-serif', color: '#1D1D1F' }}>
+                  <TableCell
+                    sx={{
+                      padding: { xs: '8px', sm: '16px' },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {course.building}
                   </TableCell>
-                  <TableCell sx={{ padding: { xs: '8px', sm: '16px' }, fontFamily: 'SF Pro Display, sans-serif', color: '#1D1D1F' }}>
+                  <TableCell
+                    sx={{
+                      padding: { xs: '8px', sm: '16px' },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {course.instructor}
                   </TableCell>
                 </TableRow>
@@ -410,7 +582,6 @@ const ProfilePage = () => {
       </Box>
     );
   };
-  
 
   return (
     <Box
@@ -419,13 +590,19 @@ const ProfilePage = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#F9F9F9',
+        background: theme.palette.mode === 'dark'
+          ? `linear-gradient(
+              90deg,
+              #1C093F 0%,
+              #0C0F33 100%
+            )`
+          : '#f9f9f9', // Set background based on theme mode
         padding: { xs: '20px', sm: '40px' },
         fontFamily: 'SF Pro Display, sans-serif',
         letterSpacing: '0.5px',
       }}
     >
-      <Container 
+      <Container
         maxWidth="lg"
         sx={{
           maxWidth: '1100px !important',
@@ -433,20 +610,28 @@ const ProfilePage = () => {
         }}
       >
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '50vh',
+            }}
+          >
             <CircularProgress color="primary" />
           </Box>
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : (
           <>
+            {/* Profile Information Card */}
             <Card
               sx={{
                 marginBottom: 4,
                 padding: 4,
-                backgroundColor: '#FFFFFF',
-                color: '#1D1D1F',
-                boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                backgroundColor: theme.palette.background.paper, // Use theme's paper background
+                color: theme.palette.text.primary, // Use theme's text color
+                boxShadow: theme.shadows[2], // Reduced shadow
                 borderRadius: '16px',
                 width: '100%',
               }}
@@ -460,9 +645,20 @@ const ProfilePage = () => {
                   flexDirection: { xs: 'column', sm: 'row' },
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: { xs: 2, sm: 0 } }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: { xs: 2, sm: 0 },
+                  }}
+                >
                   <Avatar
-                    sx={{ bgcolor: '#571CE0', width: 64, height: 64, marginRight: 2 }}
+                    sx={{
+                      bgcolor: '#571CE0', // Brand color
+                      width: 64,
+                      height: 64,
+                      marginRight: 2,
+                    }}
                   >
                     {currentUser.email.charAt(0).toUpperCase()}
                   </Avatar>
@@ -472,7 +668,7 @@ const ProfilePage = () => {
                       sx={{
                         fontFamily: 'SF Pro Display, sans-serif',
                         fontWeight: 600,
-                        color: '#1D1D1F',
+                        color: theme.palette.text.primary,
                         marginBottom: '8px',
                         fontSize: { xs: '1.5rem', sm: '2rem' },
                       }}
@@ -483,7 +679,7 @@ const ProfilePage = () => {
                       variant="h6"
                       sx={{
                         fontFamily: 'SF Pro Display, sans-serif',
-                        color: '#8E8E93',
+                        color: theme.palette.text.secondary,
                         fontSize: { xs: '1rem', sm: '1.25rem' },
                       }}
                     >
@@ -512,10 +708,10 @@ const ProfilePage = () => {
                       sx={{
                         borderRadius: '4px',
                         padding: '10px',
-                        color: '#1D1D1F',
+                        color: theme.palette.text.primary,
                         fontFamily: 'SF Pro Display, sans-serif',
                         '&:hover': {
-                          backgroundColor: '#f5f5f5',
+                          backgroundColor: theme.palette.action.hover,
                         },
                       }}
                     >
@@ -526,10 +722,10 @@ const ProfilePage = () => {
                       sx={{
                         borderRadius: '4px',
                         padding: '10px',
-                        color: '#1D1D1F',
+                        color: theme.palette.text.primary,
                         fontFamily: 'SF Pro Display, sans-serif',
                         '&:hover': {
-                          backgroundColor: '#f5f5f5',
+                          backgroundColor: theme.palette.action.hover,
                         },
                       }}
                     >
@@ -538,14 +734,14 @@ const ProfilePage = () => {
                   </Menu>
                 </Box>
               </Box>
-              <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
+              <Divider sx={{ marginY: 2, backgroundColor: theme.palette.divider }} />
               <Box sx={{ textAlign: 'left', marginTop: 2 }}>
                 <Typography
                   variant="h6"
                   gutterBottom
                   sx={{
                     fontFamily: 'SF Pro Display, sans-serif',
-                    color: '#1D1D1F',
+                    color: theme.palette.text.primary,
                   }}
                 >
                   Profile Information
@@ -553,7 +749,7 @@ const ProfilePage = () => {
                 <Typography
                   sx={{
                     fontFamily: 'SF Pro Display, sans-serif',
-                    color: '#8E8E93',
+                    color: theme.palette.text.secondary,
                     marginBottom: 0.5,
                     fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
@@ -563,7 +759,7 @@ const ProfilePage = () => {
                 <Typography
                   sx={{
                     fontFamily: 'SF Pro Display, sans-serif',
-                    color: '#8E8E93',
+                    color: theme.palette.text.secondary,
                     marginBottom: 0.5,
                     fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
@@ -573,7 +769,7 @@ const ProfilePage = () => {
                 <Typography
                   sx={{
                     fontFamily: 'SF Pro Display, sans-serif',
-                    color: '#8E8E93',
+                    color: theme.palette.text.secondary,
                     marginBottom: 0.5,
                     fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
@@ -583,7 +779,7 @@ const ProfilePage = () => {
                 <Typography
                   sx={{
                     fontFamily: 'SF Pro Display, sans-serif',
-                    color: '#8E8E93',
+                    color: theme.palette.text.secondary,
                     marginBottom: 0.5,
                     fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
@@ -599,7 +795,7 @@ const ProfilePage = () => {
                     fontWeight: 500,
                     borderRadius: '8px',
                     boxShadow: 'none',
-                    backgroundColor: '#571CE0',
+                    backgroundColor: '#571CE0', // Brand color
                     '&:hover': {
                       backgroundColor: '#005bb5',
                     },
@@ -613,16 +809,17 @@ const ProfilePage = () => {
                 </Button>
               </Box>
             </Card>
-  
+
+            {/* Enrollment Priority Card */}
             <Grid container spacing={4}>
               <Grid item xs={12} md={6}>
                 <Card
                   sx={{
                     padding: 4,
-                    backgroundColor: '#FFFFFF',
-                    color: '#333',
-                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-                    borderRadius: '12px',
+                    backgroundColor: theme.palette.background.paper, // Use theme's paper background
+                    color: theme.palette.text.primary, // Use theme's text color
+                    boxShadow: theme.shadows[2], // Reduced shadow
+                    borderRadius: '16px',
                     width: '100%',
                     minHeight: 200,
                     display: 'flex',
@@ -637,14 +834,14 @@ const ProfilePage = () => {
                       sx={{
                         fontFamily: 'SF Pro Display, sans-serif',
                         fontWeight: 600,
-                        color: '#1D1D1F',
+                        color: theme.palette.text.primary,
                         textAlign: 'left',
                         marginBottom: 2,
                       }}
                     >
                       Winter 2025 Course Enrollment Priority.
                     </Typography>
-                    <Divider sx={{ marginY: 2, backgroundColor: '#DDD' }} />
+                    <Divider sx={{ marginY: 2, backgroundColor: theme.palette.divider }} />
                     <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
                       <Button
                         variant="contained"
@@ -654,7 +851,7 @@ const ProfilePage = () => {
                           fontWeight: 500,
                           borderRadius: '8px',
                           boxShadow: 'none',
-                          backgroundColor: '#571CE0',
+                          backgroundColor: '#571CE0', // Brand color
                           '&:hover': {
                             backgroundColor: '#005bb5',
                           },
@@ -671,7 +868,7 @@ const ProfilePage = () => {
                     variant="caption"
                     sx={{
                       fontFamily: 'SF Pro Display, sans-serif',
-                      color: '#8E8E93',
+                      color: theme.palette.text.secondary,
                       textAlign: 'left',
                       marginTop: 2,
                       display: 'block',
@@ -681,106 +878,152 @@ const ProfilePage = () => {
                   </Typography>
                 </Card>
               </Grid>
-<Grid item xs={12}>
-  <Card
-    sx={{
-      padding: 4,
-      backgroundColor: '#FFFFFF',
-      color: '#1D1D1F',
-      boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
-      borderRadius: '16px',
-      width: '100%',
-      minHeight: 200,
-      display: 'flex',
-      flexDirection: 'column',
-    }}
-  >
-    <Typography
-      variant="h4"
-      sx={{
-        fontFamily: 'SF Pro Display, sans-serif',
-        fontWeight: 600,
-        color: '#1D1D1F',
-        marginBottom: 0.9,
-      }}
-    >
-      Course Drop Notifications
-    </Typography>
-    <Divider sx={{ marginBottom: 2, backgroundColor: '#EEE' }} />
-    {notifications.length === 0 ? (
-      <Typography
-        variant="body1"
-        sx={{
-          fontFamily: 'SF Pro Display, sans-serif',
-          color: '#8E8E93',
-          textAlign: 'left',
-          marginTop: 2,
-        }}
-      >
-        You haven't signed up for any course drop notifications yet.
-      </Typography>
-    ) : (
-      <TableContainer>
-        <Table>
-          <TableHead sx={{ backgroundColor: '#571CE0' }}>
-            <TableRow>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Department</TableCell>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Course</TableCell>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Section</TableCell>
-              {/* <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Added On</TableCell> */}
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {notifications.map((notification, index) => (
-              <TableRow
-                key={index}
-                sx={{
-                  '&:hover': { backgroundColor: '#f7f7f7' },
-                  transition: 'background-color 0.2s ease',
-                }}
-              >
-                <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
-                  {notification.department}
-                </TableCell>
-                <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
-                  {notification.number}
-                </TableCell>
-                <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
-                  {notification.section}
-                </TableCell>
-                {/* <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
-                  {notification.timestamp ? new Date(notification.timestamp.toDate()).toLocaleDateString() : 'N/A'}
-                </TableCell> */}
-                <TableCell>
-                  <IconButton
-                    onClick={() => handleRemoveNotification(notification)}
+
+              {/* Course Drop Notifications Card */}
+              <Grid item xs={12}>
+                <Card
+                  sx={{
+                    padding: 4,
+                    backgroundColor: theme.palette.background.paper, // Use theme's paper background
+                    color: theme.palette.text.primary, // Use theme's text color
+                    boxShadow: theme.shadows[2], // Reduced shadow
+                    borderRadius: '16px',
+                    width: '100%',
+                    minHeight: 200,
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <Typography
+                    variant="h4"
                     sx={{
-                      color: '#F26655',
-                      '&:hover': {
-                        backgroundColor: 'rgba(242, 102, 85, 0.1)',
-                      },
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontWeight: 600,
+                      color: theme.palette.text.primary,
+                      marginBottom: 0.9,
                     }}
                   >
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    )}
-  </Card>
-</Grid>
-  
+                    Course Drop Notifications
+                  </Typography>
+                  <Divider sx={{ marginBottom: 2, backgroundColor: theme.palette.divider }} />
+                  {notifications.length === 0 ? (
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        color: theme.palette.text.secondary,
+                        textAlign: 'left',
+                        marginTop: 2,
+                      }}
+                    >
+                      You haven't signed up for any course drop notifications yet.
+                    </Typography>
+                  ) : (
+                    <TableContainer>
+                      <Table>
+                        <TableHead
+                          sx={{
+                            backgroundColor: '#571CE0', // Brand color for header
+                          }}
+                        >
+                          <TableRow>
+                            <TableCell
+                              sx={{
+                                color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              Department
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              Course
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              Section
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                color: '#f9f9f9', // Changed from '#FFFFFF' to '#f9f9f9'
+                                fontWeight: 'bold',
+                              }}
+                            >
+                              Actions
+                            </TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {notifications.map((notification, index) => (
+                            <TableRow
+                              key={index}
+                              sx={{
+                                '&:hover': { backgroundColor: theme.palette.action.hover },
+                                transition: 'background-color 0.2s ease',
+                              }}
+                            >
+                              <TableCell
+                                sx={{
+                                  fontFamily: 'SF Pro Display, sans-serif',
+                                  color: theme.palette.text.primary,
+                                }}
+                              >
+                                {notification.department}
+                              </TableCell>
+                              <TableCell
+                                sx={{
+                                  fontFamily: 'SF Pro Display, sans-serif',
+                                  color: theme.palette.text.primary,
+                                }}
+                              >
+                                {notification.number}
+                              </TableCell>
+                              <TableCell
+                                sx={{
+                                  fontFamily: 'SF Pro Display, sans-serif',
+                                  color: theme.palette.text.primary,
+                                }}
+                              >
+                                {notification.section}
+                              </TableCell>
+                              <TableCell>
+                                <IconButton
+                                  onClick={() => handleRemoveNotification(notification)}
+                                  sx={{
+                                    color: '#F26655', // Brand color for delete action
+                                    '&:hover': {
+                                      backgroundColor: 'rgba(242, 102, 85, 0.1)',
+                                    },
+                                  }}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                </Card>
+              </Grid>
+
+              {/* My Saved Courses Card */}
               <Grid item xs={12} md={6}>
                 <Card
                   sx={{
                     padding: 4,
-                    backgroundColor: '#FFFFFF',
-                    color: '#1D1D1F',
-                    boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                    backgroundColor: theme.palette.background.paper, // Use theme's paper background
+                    color: theme.palette.text.primary, // Use theme's text color
+                    boxShadow: theme.shadows[2], // Reduced shadow
                     borderRadius: '16px',
                     width: '100%',
                     minHeight: 200,
@@ -795,20 +1038,20 @@ const ProfilePage = () => {
                       sx={{
                         fontFamily: 'SF Pro Display, sans-serif',
                         fontWeight: 600,
-                        color: '#1D1D1F',
+                        color: theme.palette.text.primary,
                         textAlign: 'left',
                         marginBottom: 2,
                       }}
                     >
                       My Saved Courses.
                     </Typography>
-                    <Divider sx={{ marginY: 2, backgroundColor: '#EEE' }} />
+                    <Divider sx={{ marginY: 2, backgroundColor: theme.palette.divider }} />
                     <List>
                       {profileData.pinnedCourses.length === 0 ? (
                         <Typography
                           sx={{
                             fontFamily: 'SF Pro Display, sans-serif',
-                            color: '#8E8E93',
+                            color: theme.palette.text.secondary,
                             textAlign: 'left',
                           }}
                         >
@@ -819,12 +1062,12 @@ const ProfilePage = () => {
                           <ListItem
                             key={idx}
                             sx={{
-                              backgroundColor: '#fafafa',
+                              backgroundColor: theme.palette.action.hover,
                               margin: '10px 0',
                               borderRadius: '12px',
-                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
+                              boxShadow: theme.shadows[2],
                               cursor: 'pointer',
-                              '&:hover': { backgroundColor: '#f0f0f0' },
+                              '&:hover': { backgroundColor: theme.palette.action.selected },
                               transition: 'background-color 0.2s ease',
                             }}
                             onClick={() => handleNavigateToCourseReview(courseId)}
@@ -835,7 +1078,7 @@ const ProfilePage = () => {
                                   component="span"
                                   sx={{
                                     fontFamily: 'SF Pro Display, sans-serif',
-                                    color: '#571CE0',
+                                    color: '#571CE0', // Brand color for course ID
                                     fontWeight: 600,
                                   }}
                                 >
@@ -861,14 +1104,15 @@ const ProfilePage = () => {
                   </Box>
                 </Card>
               </Grid>
-  
+
+              {/* Winter 2025 Timetable Card */}
               <Grid item xs={12}>
                 <Card
                   sx={{
                     padding: 4,
-                    backgroundColor: '#FFFFFF',
-                    color: '#1D1D1F',
-                    boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                    backgroundColor: theme.palette.background.paper, // Use theme's paper background
+                    color: theme.palette.text.primary, // Use theme's text color
+                    boxShadow: theme.shadows[2], // Reduced shadow
                     borderRadius: '16px',
                     width: '100%',
                     minHeight: 200,
@@ -881,26 +1125,28 @@ const ProfilePage = () => {
                     sx={{
                       fontFamily: 'SF Pro Display, sans-serif',
                       fontWeight: 600,
-                      color: '#1D1D1F',
+                      color: theme.palette.text.primary,
                       marginBottom: 0.9,
                     }}
                   >
                     Winter 2025 Timetable
                   </Typography>
-                  <Divider sx={{ marginBottom: 2, backgroundColor: '#EEE' }} />
+                  <Divider sx={{ marginBottom: 2, backgroundColor: theme.palette.divider }} />
                   {renderTimetable()}
                 </Card>
               </Grid>
             </Grid>
-  
+
+            {/* Reviews and Replies Grid */}
             <Grid container spacing={4} sx={{ mt: 4 }}>
+              {/* My Reviews Card */}
               <Grid item xs={12} md={6}>
                 <Card
                   sx={{
                     padding: 4,
-                    backgroundColor: '#FFFFFF',
-                    color: '#1D1D1F',
-                    boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                    backgroundColor: theme.palette.background.paper, // Use theme's paper background
+                    color: theme.palette.text.primary, // Use theme's text color
+                    boxShadow: theme.shadows[2], // Reduced shadow
                     borderRadius: '16px',
                     width: '100%',
                   }}
@@ -911,171 +1157,178 @@ const ProfilePage = () => {
                     sx={{
                       fontFamily: 'SF Pro Display, sans-serif',
                       fontWeight: 600,
-                      color: '#1D1D1F',
+                      color: theme.palette.text.primary,
                       marginBottom: 2,
                     }}
                   >
                     My Reviews
                   </Typography>
-                  <Divider sx={{ marginY: 2, backgroundColor: '#EEE' }} />
+                  <Divider sx={{ marginY: 2, backgroundColor: theme.palette.divider }} />
                   <List>
                     {profileData.reviews?.map((review, idx) => (
                       <ListItem
                         key={idx}
                         sx={{
-                          backgroundColor: '#fafafa',
+                          backgroundColor: theme.palette.action.hover,
                           margin: '10px 0',
                           borderRadius: '12px',
-                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
+                          boxShadow: theme.shadows[2],
                           cursor: 'pointer',
-                          '&:hover': { backgroundColor: '#f0f0f0' },
+                          '&:hover': { backgroundColor: theme.palette.action.selected },
                           transition: 'background-color 0.2s ease',
                         }}
                       >
-                        {/* Inside the Reviews Card */}
-<ListItemText
-  primary={
-    <>
-      <Typography
-        component="span"
-        sx={{
-          fontFamily: 'SF Pro Display, sans-serif',
-          color: '#571CE0',
-          fontWeight: 600,
-        }}
-      >
-        {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
-      </Typography>{' '}
-      <Typography
-        component="span"
-        sx={{
-          fontFamily: 'SF Pro Display, sans-serif',
-          color: '#1D1D1F',
-        }}
-      >
-        {review.review}
-      </Typography>
-    </>
-  }
-/>
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleDeleteReview(review)}
-                        sx={{ color: '#571CE0' }}
-                      >
-                        <Delete />
-                      </IconButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Card>
-            </Grid>
+                        <ListItemText
+                          primary={
+                            <>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontFamily: 'SF Pro Display, sans-serif',
+                                  color: '#571CE0', // Brand color for term and professor
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
+                              </Typography>{' '}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontFamily: 'SF Pro Display, sans-serif',
+                                  color: theme.palette.text.primary,
+                                }}
+                              >
+                                {review.review}
+                              </Typography>
+                            </>
+                          }
+                        />
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDeleteReview(review)}
+                          sx={{ color: '#F26655' }} // Brand color for delete action
+                        >
+                          <Delete />
+                        </IconButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Card>
+              </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Card
-                sx={{
-                  padding: 4,
-                  backgroundColor: '#FFFFFF',
-                  color: '#1D1D1F',
-                  boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
-                  borderRadius: '16px',
-                  width: '100%',
-                }}
-              >
-                <Typography
-                  variant="h4"
-                  gutterBottom
+              {/* My Replies Card */}
+              <Grid item xs={12} md={6}>
+                <Card
                   sx={{
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    fontWeight: 600,
-                    color: '#1D1D1F',
-                    marginBottom: 2,
+                    padding: 4,
+                    backgroundColor: theme.palette.background.paper, // Use theme's paper background
+                    color: theme.palette.text.primary, // Use theme's text color
+                    boxShadow: theme.shadows[2], // Reduced shadow
+                    borderRadius: '16px',
+                    width: '100%',
                   }}
                 >
-                  My Replies
-                </Typography>
-                <Divider sx={{ marginY: 2, backgroundColor: '#EEE' }} />
-                <List>
-                  {profileData.replies?.map((reply, idx) => (
-                    <ListItem
-                      key={idx}
-                      sx={{
-                        backgroundColor: '#fafafa',
-                        margin: '10px 0',
-                        borderRadius: '12px',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
-                        cursor: 'pointer',
-                        '&:hover': { backgroundColor: '#f0f0f0' },
-                        transition: 'background-color 0.2s ease',
-                      }}
-                    >
-                      <ListItemText
-                        primary={
-                          <>
-                            <Typography
-                              component="span"
-                              sx={{
-                                fontFamily: 'SF Pro Display, sans-serif',
-                                color: '#571CE0',
-                                fontWeight: 600,
-                              }}
-                            >
-                              Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
-                            </Typography>{' '}
-                            <Typography
-                              component="span"
-                              sx={{
-                                fontFamily: 'SF Pro Display, sans-serif',
-                                color: '#1D1D1F',
-                              }}
-                            >
-                              {reply.reply}
-                            </Typography>
-                            <Typography
-                              component="span"
-                              sx={{
-                                fontFamily: 'SF Pro Display, sans-serif',
-                                color: 'grey',
-                                fontSize: '0.8rem',
-                                display: 'block',
-                              }}
-                            >
-                              {new Date(reply.timestamp).toLocaleString()}
-                            </Typography>
-                          </>
-                        }
-                      />
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleDeleteReply(reply)}
-                        sx={{ color: '#571CE0' }}
+                  <Typography
+                    variant="h4"
+                    gutterBottom
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontWeight: 600,
+                      color: theme.palette.text.primary,
+                      marginBottom: 2,
+                    }}
+                  >
+                    My Replies
+                  </Typography>
+                  <Divider sx={{ marginY: 2, backgroundColor: theme.palette.divider }} />
+                  <List>
+                    {profileData.replies?.map((reply, idx) => (
+                      <ListItem
+                        key={idx}
+                        sx={{
+                          backgroundColor: theme.palette.action.hover,
+                          margin: '10px 0',
+                          borderRadius: '12px',
+                          boxShadow: theme.shadows[2],
+                          cursor: 'pointer',
+                          '&:hover': { backgroundColor: theme.palette.action.selected },
+                          transition: 'background-color 0.2s ease',
+                        }}
                       >
-                        <Delete />
-                      </IconButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Card>
+                        <ListItemText
+                          primary={
+                            <>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontFamily: 'SF Pro Display, sans-serif',
+                                  color: '#571CE0', // Brand color for reply info
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
+                              </Typography>{' '}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontFamily: 'SF Pro Display, sans-serif',
+                                  color: theme.palette.text.primary,
+                                }}
+                              >
+                                {reply.reply}
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontFamily: 'SF Pro Display, sans-serif',
+                                  color: theme.palette.text.secondary,
+                                  fontSize: '0.8rem',
+                                  display: 'block',
+                                }}
+                              >
+                                {new Date(reply.timestamp).toLocaleString()}
+                              </Typography>
+                            </>
+                          }
+                        />
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDeleteReply(reply)}
+                          sx={{ color: '#F26655' }} // Brand color for delete action
+                        >
+                          <Delete />
+                        </IconButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Card>
+              </Grid>
             </Grid>
-          </Grid>
-        </>
-      )}
-    </Container>
-  
+          </>
+        )}
+      </Container>
 
+      {/* Edit Profile Dialog */}
       <Dialog open={editing} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6" sx={{ textAlign: 'left' }}>Edit Profile</Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="h6" sx={{ textAlign: 'left' }}>
+              Edit Profile
+            </Typography>
             <Typography
               variant="body"
               sx={{
                 fontFamily: 'SF Pro Display, sans-serif',
-                fontWeight: '',
                 textDecoration: 'none',
-                color: '#571CE0',
+                color: '#571CE0', // Brand color
                 textAlign: 'right',
               }}
             >
@@ -1091,7 +1344,9 @@ const ProfilePage = () => {
             fullWidth
             variant="standard"
             value={newProfileData.firstName}
-            onChange={(e) => setNewProfileData({ ...newProfileData, firstName: e.target.value })}
+            onChange={(e) =>
+              setNewProfileData({ ...newProfileData, firstName: e.target.value })
+            }
             sx={{ marginBottom: 2 }}
           />
           <TextField
@@ -1101,7 +1356,9 @@ const ProfilePage = () => {
             fullWidth
             variant="standard"
             value={newProfileData.lastName}
-            onChange={(e) => setNewProfileData({ ...newProfileData, lastName: e.target.value })}
+            onChange={(e) =>
+              setNewProfileData({ ...newProfileData, lastName: e.target.value })
+            }
             sx={{ marginBottom: 2 }}
           />
           <TextField
@@ -1111,7 +1368,9 @@ const ProfilePage = () => {
             fullWidth
             variant="standard"
             value={newProfileData.major}
-            onChange={(e) => setNewProfileData({ ...newProfileData, major: e.target.value })}
+            onChange={(e) =>
+              setNewProfileData({ ...newProfileData, major: e.target.value })
+            }
             sx={{ marginBottom: 2 }}
           />
           <TextField
@@ -1121,33 +1380,60 @@ const ProfilePage = () => {
             fullWidth
             variant="standard"
             value={newProfileData.classYear}
-            onChange={(e) => setNewProfileData({ ...newProfileData, classYear: e.target.value })}
+            onChange={(e) =>
+              setNewProfileData({ ...newProfileData, classYear: e.target.value })
+            }
             sx={{ marginBottom: 2 }}
           />
-          <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            sx={{ marginBottom: 2 }}
+          >
             Please ensure all your details are correct.
           </Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
-            *Rest assured, your personal information is securely stored and will only be used to enhance your experience.
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            sx={{ marginBottom: 2 }}
+          >
+            *Rest assured, your personal information is securely stored and will
+            only be used to enhance your experience.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary">Cancel</Button>
-          <Button onClick={handleSaveProfile} variant="contained" color="primary">Save</Button>
+          <Button onClick={handleClose} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSaveProfile}
+            variant="contained"
+            color="primary"
+          >
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
+      {/* Report Bug Dialog */}
       <Dialog open={bugReportOpen} onClose={handleReportBugClose} maxWidth="sm" fullWidth>
         <DialogTitle>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6" sx={{ textAlign: 'left' }}>Report a Bug</Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="h6" sx={{ textAlign: 'left' }}>
+              Report a Bug
+            </Typography>
             <Typography
               variant="body"
               sx={{
                 fontFamily: 'SF Pro Display, sans-serif',
-                fontWeight: '',
                 textDecoration: 'none',
-                color: '#571CE0',
+                color: '#571CE0', // Brand color
                 textAlign: 'right',
               }}
             >
@@ -1179,16 +1465,55 @@ const ProfilePage = () => {
             rows={4}
             sx={{ marginBottom: 2 }}
           />
-          <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            sx={{ marginBottom: 2 }}
+          >
             Enhance your experience by reporting a bug. We will fix it ASAP.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleReportBugClose} color="secondary">Cancel</Button>
-          <Button onClick={handleReportBugSubmit} variant="contained" color="primary">Submit</Button>
+          <Button onClick={handleReportBugClose} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleReportBugSubmit}
+            variant="contained"
+            color="primary"
+          >
+            Submit
+          </Button>
         </DialogActions>
       </Dialog>
 
+      {/* Snackbar for Error and Success Messages */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        {error ? (
+          <Alert
+            onClose={handleSnackbarClose}
+            severity="error"
+            sx={{ width: '100%' }}
+          >
+            {error}
+          </Alert>
+        ) : successMessage ? (
+          <Alert
+            onClose={handleSnackbarClose}
+            severity="success"
+            sx={{ width: '100%' }}
+          >
+            {successMessage}
+          </Alert>
+        ) : null}
+      </Snackbar>
+
+      {/* Footer */}
       <Footer />
     </Box>
   );
