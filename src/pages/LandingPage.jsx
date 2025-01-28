@@ -322,7 +322,7 @@ return (
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
+      justifyContent: 'center', // Changed from 'center' to 'flex-start'
       alignItems: 'center',
 
       // Keep your normal (light) colors if darkMode is false.
@@ -340,16 +340,18 @@ return (
       transition: 'padding-bottom 0.3s ease',
     }}
   >
-    <Container
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexGrow: 1,
-        textAlign: 'center',
-      }}
-    >
+     <Container
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexGrow: 1,
+          textAlign: 'center',
+        }}
+      >
+
+
 
          {/* Typing effect for the main heading */}
          <Typography
@@ -426,6 +428,8 @@ return (
   sx={{
     width: { xs: '140px', sm: '160px', md: '200px' },
     height: { xs: '150px', sm: '170px', md: '180px' },
+    margin: '18px 0', // Add some margin to the top and bottom
+
     backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
     backgroundImage: darkMode
       ? 'linear-gradient(135deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
@@ -490,6 +494,7 @@ return (
   sx={{
     width: { xs: '140px', sm: '160px', md: '200px' },
     height: { xs: '150px', sm: '170px', md: '180px' },
+    
     backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
     backgroundImage: darkMode
       ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
@@ -927,7 +932,7 @@ return (
     alignItems: 'center',
     width: '100%',
     gap: 2,
-    mt: 4, // Added margin-top for spacing
+    mt: 2, // Added margin-top for spacing
   }}
 >
   <TextField
