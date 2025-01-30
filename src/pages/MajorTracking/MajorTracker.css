@@ -1,0 +1,124 @@
+MajorTracker.css
+.major-tracker {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .tracker-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tracker-card h2 {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .input-group {
+    margin-bottom: 20px;
+  }
+  
+  .input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+  }
+  
+  .select-major {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .course-input {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .course-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .course-input button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .course-input button:hover {
+    background-color: #0056b3;
+  }
+  
+  .courses-list h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .course-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .course-tag {
+    background-color: #e9ecef;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .course-tag:hover {
+    background-color: #dee2e6;
+  }
+  
+  .requirements {
+    margin-top: 20px;
+  }
+  
+  .requirements h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .requirement-group {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  
+  .requirement-group h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .requirement-group ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  
+  .requirement-group li {
+    margin-bottom: 4px;
+    font-size: 14px;
+    color: #666;
+  }

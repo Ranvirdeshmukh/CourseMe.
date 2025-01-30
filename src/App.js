@@ -30,6 +30,7 @@ import Timetable from './pages/Timetable';
 import TranscriptParser from './pages/TranscriptParser';
 import ProfessorDetails from './pages/ProfessorDetails';
 import ProfessorDirectory from './pages/ProfessorDirectory';
+import MajorTracker from './pages/MajorTracking/MajorTracking';
 
 import  darkTheme  from './components/theme'; // Your dark theme file
 
@@ -100,6 +101,7 @@ const AppContent = () => {
         <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage />} />
         <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage />} />
         <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage />} />
+        <Route path="/major-tracker" element={<MajorTracker />} />
         <Route
           path="/departments/:department/courses/:courseId/professors/:professor"
           element={<ProfessorReviewsPage />}

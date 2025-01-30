@@ -1,0 +1,44 @@
+{
+  "programs": {
+    "CS": {
+      "name": "Computer Science",
+      "types": {
+        "major": {
+          "code": "MAJ.CS",
+          "requirements": "(@[{COSC001|ENGS020},COSC010] & #2[030-049] & #2[050-069] & #2[070-089] & #2[030-089] & #{COSC094|MATH≥020!MATH_PREREQS} & ^)",
+          "prereqs": "@[COSC001,COSC010]"
+        }
+      }
+    },
+    "MATH": {
+      "name": "Mathematics",
+      "types": {
+        "major": {
+          "code": "MAJ.MATH",
+          "requirements": "(@[MATH022,MATH024] & #2[030-049])",
+          "prereqs": "@[MATH003,MATH008,MATH013,MATH022,MATH024]"
+        }
+      }
+    },
+    "ECON": {
+      "name": "Economics",
+      "types": {
+        "major": {
+          "code": "MAJ.ECON",
+          "requirements": "(@[ECON001,ECON010,MATH003] & #{ECON020} & #{ECON021} & #{ECON022} & #{ECON062|ECON064|ECON065|ECON066|ECON067|ECON068|ECON069} & #3[023-069] & #2[≥023])",
+          "prereqs": "@[ECON001,ECON010,MATH003]"
+        }
+      }
+    },
+    "GOV": {
+      "name": "Government",
+      "types": {
+        "major": {
+          "code": "MAJ.GOV",
+          "requirements": "(@[{GOVT010|ECON010|MATH010|QSS015|LING010|PBPL010|PSYC010|SOCY010}] & #2[003-006] & #6[≥010] & #2[081-086])",
+          "prereqs": "@[{GOVT010|ECON010|MATH010|QSS015|LING010|PBPL010|PSYC010|SOCY010}]"
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@
     "@mui/material": "^5.15.20",
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-progress": "^1.1.0",
+    "@radix-ui/react-select": "^2.1.5",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
