@@ -94,7 +94,7 @@ const clearOldEngsCache = () => {
   }
 };
 
-const DepartmentCoursesPage = () => {
+const DepartmentCoursesPage = ({ darkMode }) => {
   const { department } = useParams();
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
@@ -401,6 +401,22 @@ const DepartmentCoursesPage = () => {
 
   
 
+  // Define color variables based on darkMode
+  const mainBgColor = darkMode 
+  ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)' 
+  : '#F9F9F9';
+  const paperBgColor = darkMode ? '#1C1F43' : '#FFFFFF';
+  const textColor = darkMode ? '#FFFFFF' : '#333333';
+  const headerTextColor = darkMode ? '#FFFFFF' : '#34495E';
+  const buttonBgColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)';
+  const buttonHoverBgColor = darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.9)';
+  const borderColor = darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.05)';
+  const tableHeaderBgColor = darkMode ? '#333333' : '#E0E0E0';
+  const tableRowEvenBgColor = darkMode ? '#1C1F43' : '#F8F8F8';
+  const tableRowOddBgColor = darkMode ? '#24273c' : '#FFFFFF';
+  const tooltipBgColor = darkMode ? '#333333' : '#f5f5f9';
+  const tooltipTextColor = darkMode ? '#FFFFFF' : '#000000';
+
   return (
     <Box
       sx={{
@@ -408,106 +424,111 @@ const DepartmentCoursesPage = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#F9F9F9',
+        backgroundColor: mainBgColor,
         padding: '20px',
         fontFamily: 'SF Pro Display, sans-serif',
-        
+        color: textColor,
+        transition: 'background-color 0.3s ease, color 0.3s ease',
       }}
     >
       <Container maxWidth="lg">
-    <Box sx={{ 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'flex-start', // Changed from center to allow for the note
-      width: '100%', 
-      marginBottom: '20px' // Moved margin to container
-    }}>
-      <Typography 
-    variant="h3" 
-    align='left'
-    sx={{ 
-      fontWeight: 600, 
-      fontFamily: 'SF Pro Display, sans-serif', 
-      color: '#34495E',
-      margin: 0,
-      lineHeight: 1.2,
-    }}
-  >
-    Courses in {departmentMapping[department]?.name || department}
-  </Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'flex-start', // Changed from center to allow for the note
+          width: '100%', 
+          marginBottom: '20px' // Moved margin to container
+        }}>
+          <Typography 
+            variant="h3" 
+            align='left'
+            sx={{ 
+              fontWeight: 600, 
+              fontFamily: 'SF Pro Display, sans-serif', 
+              color: headerTextColor,
+              margin: 0,
+              lineHeight: 1.2,
+            }}
+          >
+            Courses in {departmentMapping[department]?.name || department}
+          </Typography>
 
-  {/* Filter button and note in a flex container */}
-  <Box sx={{ 
-    display: 'flex', 
-    flexDirection: 'column', 
-    alignItems: 'flex-end',
-    gap: '4px'
-  }}>
-    <Button 
-      onClick={() => setShowFilters(!showFilters)}
-      sx={{
-        position: 'relative',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(10px)',
-        color: '#1c1c1e',
-        borderRadius: '24px',
-        padding: '10px 20px',
-        fontWeight: '500',
-        fontSize: '15px',
-        fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
-        border: '1px solid rgba(0, 0, 0, 0.05)',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
-        transition: 'all 0.2s ease',
-        textTransform: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        height: 'fit-content',
-        minHeight: '40px',
-        '&:hover': {
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          transform: 'translateY(-1px)',
-          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.12)',
-        },
-      }}
-    >
-      <span>Filters</span>
-      {(selectedDistribs.length > 0 || selectedWCDistribs.length > 0 || selectedTerms.length > 0 || withReviewsOnly) && (
-        <Box
-          sx={{
-            backgroundColor: '#007AFF',
-            color: 'white',
-            borderRadius: '12px',
-            padding: '2px 8px',
-            fontSize: '13px',
-            fontWeight: '500',
-            minWidth: '20px',
-            height: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {selectedDistribs.length + selectedWCDistribs.length + selectedTerms.length + (withReviewsOnly ? 1 : 0)}
+          {/* Filter button and note in a flex container */}
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'flex-end',
+            gap: '4px'
+          }}>
+            <Button 
+  onClick={() => setShowFilters(!showFilters)}
+  sx={{
+    position: 'relative',
+    backgroundColor: buttonBgColor,
+    backdropFilter: 'blur(10px)',
+    color: darkMode ? '#FFFFFF' : '#1c1c1e', // Conditional text color
+    borderRadius: '25px', // Increased border radius for a smoother look
+    padding: '10px 20px',
+    fontWeight: '500',
+    fontSize: '15px',
+    fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+    border: `2px solid #571CE0`, // Increased border width and specific color
+    boxShadow: darkMode
+      ? '0px 4px 12px rgba(255, 255, 255, 0.1)' // Light shadow in dark mode
+      : '0px 4px 12px rgba(0, 0, 0, 0.1)', // Dark shadow in light mode
+    transition: 'all 0.2s ease',
+    textTransform: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    height: 'fit-content',
+    minHeight: '40px',
+    '&:hover': {
+      backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)', // Subtle background change on hover
+      borderColor: '#571CE0', // Maintain border color on hover
+      boxShadow: darkMode
+        ? '0px 6px 16px rgba(255, 255, 255, 0.15)' // Enhanced shadow on hover in dark mode
+        : '0px 6px 16px rgba(0, 0, 0, 0.15)', // Enhanced shadow on hover in light mode
+    },
+  }}
+>
+              <span>Filters</span>
+              {(selectedDistribs.length > 0 || selectedWCDistribs.length > 0 || selectedTerms.length > 0 || withReviewsOnly) && (
+                <Box
+                  sx={{
+                    backgroundColor: '#007AFF',
+                    color: 'white',
+                    borderRadius: '12px',
+                    padding: '2px 8px',
+                    fontSize: '13px',
+                    fontWeight: '500',
+                    minWidth: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {selectedDistribs.length + selectedWCDistribs.length + selectedTerms.length + (withReviewsOnly ? 1 : 0)}
+                </Box>
+              )}
+            </Button>
+            <Typography 
+              sx={{ 
+                fontSize: '11px',
+                color: '#666',
+                fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+                fontWeight: '400',
+                opacity: 0.8,
+                letterSpacing: '0.2px'
+              }}
+            >
+              Filter by Winter 2025 (on special demand)
+            </Typography>
+          </Box>
         </Box>
-      )}
-    </Button>
-    <Typography 
-      sx={{ 
-        fontSize: '11px',
-        color: '#666',
-        fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
-        fontWeight: '400',
-        opacity: 0.8,
-        letterSpacing: '0.2px'
-      }}
-    >
-      Filter by Winter 2025 (on special demand)
-    </Typography>
-  </Box>
-</Box>
 
-        {/* Wrap the existing filters section in a collapsible container */}
+        {/* Filters Section */}
         <Box
           sx={{
             opacity: showFilters ? 1 : 0,
@@ -518,12 +539,14 @@ const DepartmentCoursesPage = () => {
             overflow: 'hidden',
             marginBottom: showFilters ? '24px' : 0,
             transformOrigin: 'top',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)',
             backdropFilter: 'blur(10px)',
             borderRadius: '16px',
             padding: showFilters ? '16px' : 0,
-            border: '1px solid rgba(0, 0, 0, 0.05)',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+            border: `1px solid ${borderColor}`,
+            boxShadow: darkMode
+              ? '0 2px 8px rgba(255, 255, 255, 0.05)'
+              : '0 2px 8px rgba(0, 0, 0, 0.06)',
           }}
         >
           <Box sx={{ 
@@ -562,7 +585,7 @@ const DepartmentCoursesPage = () => {
                     whiteSpace: 'nowrap',
                     backgroundColor: sortOption === option.value 
                       ? '#007AFF' 
-                      : 'rgba(0, 122, 255, 0.1)',
+                      : darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 122, 255, 0.1)',
                     color: sortOption === option.value 
                       ? '#FFFFFF' 
                       : '#007AFF',
@@ -571,7 +594,7 @@ const DepartmentCoursesPage = () => {
                     '&:hover': {
                       backgroundColor: sortOption === option.value 
                         ? '#0066D6' 
-                        : 'rgba(0, 122, 255, 0.15)',
+                        : darkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 122, 255, 0.15)',
                     }
                   }}
                 >
@@ -611,7 +634,7 @@ const DepartmentCoursesPage = () => {
                     whiteSpace: 'nowrap',
                     backgroundColor: selectedDistribs.includes(distrib.value) 
                       ? '#5E5CE6' // iOS purple
-                      : 'rgba(94, 92, 230, 0.1)',
+                      : darkMode ? 'rgba(94, 92, 230, 0.1)' : 'rgba(94, 92, 230, 0.1)',
                     color: selectedDistribs.includes(distrib.value) 
                       ? '#FFFFFF' 
                       : '#5E5CE6',
@@ -620,7 +643,7 @@ const DepartmentCoursesPage = () => {
                     '&:hover': {
                       backgroundColor: selectedDistribs.includes(distrib.value) 
                         ? '#4E4CC6' 
-                        : 'rgba(94, 92, 230, 0.15)',
+                        : darkMode ? 'rgba(94, 92, 230, 0.15)' : 'rgba(94, 92, 230, 0.15)',
                     }
                   }}
                 >
@@ -650,7 +673,7 @@ const DepartmentCoursesPage = () => {
                     whiteSpace: 'nowrap',
                     backgroundColor: selectedWCDistribs.includes(option.value) 
                       ? '#34C759' // iOS green
-                      : 'rgba(52, 199, 89, 0.1)',
+                      : darkMode ? 'rgba(52, 199, 89, 0.1)' : 'rgba(52, 199, 89, 0.1)',
                     color: selectedWCDistribs.includes(option.value) 
                       ? '#FFFFFF' 
                       : '#34C759',
@@ -659,7 +682,7 @@ const DepartmentCoursesPage = () => {
                     '&:hover': {
                       backgroundColor: selectedWCDistribs.includes(option.value) 
                         ? '#2DB14F' 
-                        : 'rgba(52, 199, 89, 0.15)',
+                        : darkMode ? 'rgba(52, 199, 89, 0.15)' : 'rgba(52, 199, 89, 0.15)',
                     }
                   }}
                 >
@@ -696,19 +719,18 @@ const DepartmentCoursesPage = () => {
                   fontWeight: 500,
                   whiteSpace: 'nowrap',
                   backgroundColor: selectedTerms.includes('25W') 
-                    ? 'rgba(87, 28, 224, 0.1)' 
-                    : 'white',
+                    ? 'rgba(87, 28, 224, 0.2)' 
+                    : darkMode ? 'white' : 'white',
                   color: selectedTerms.includes('25W') 
                     ? '#571CE0' 
-                    : 'text.secondary',
-                  border: '1px solid',
-                  borderColor: selectedTerms.includes('25W') 
-                    ? 'rgba(87, 28, 224, 0.2)' 
-                    : 'rgba(0, 0, 0, 0.08)',
+                    : darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666',
+                  border: selectedTerms.includes('25W') 
+                    ? '1px solid rgba(87, 28, 224, 0.2)' 
+                    : `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.08)'}`,
                   '&:hover': {
                     backgroundColor: selectedTerms.includes('25W') 
                       ? 'rgba(87, 28, 224, 0.15)' 
-                      : 'rgba(0, 0, 0, 0.04)'
+                      : darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
                   }
                 }}
               >
@@ -729,7 +751,7 @@ const DepartmentCoursesPage = () => {
                   whiteSpace: 'nowrap',
                   backgroundColor: withReviewsOnly 
                     ? '#FF9500' // iOS orange
-                    : 'rgba(255, 149, 0, 0.1)',
+                    : darkMode ? 'rgba(255, 149, 0, 0.1)' : 'rgba(255, 149, 0, 0.1)',
                   color: withReviewsOnly 
                     ? '#FFFFFF' 
                     : '#FF9500',
@@ -738,7 +760,7 @@ const DepartmentCoursesPage = () => {
                   '&:hover': {
                     backgroundColor: withReviewsOnly 
                       ? '#E68600' 
-                      : 'rgba(255, 149, 0, 0.15)',
+                      : darkMode ? 'rgba(255, 149, 0, 0.15)' : 'rgba(255, 149, 0, 0.15)',
                   }
                 }}
               >
@@ -759,9 +781,11 @@ const DepartmentCoursesPage = () => {
           <TableContainer 
             component={Paper} 
             sx={{ 
-              backgroundColor: '#FFFFFF', 
+              backgroundColor: paperBgColor, 
               borderRadius: '10px', 
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', 
+              boxShadow: darkMode 
+                ? '0 2px 8px rgba(255, 255, 255, 0.05)' 
+                : '0 2px 8px rgba(0, 0, 0, 0.1)', 
               padding: '10px',
               overflowX: 'auto',
               flex: '3',
@@ -772,12 +796,13 @@ const DepartmentCoursesPage = () => {
                 <TableRow>
                   <TableCell 
                     sx={{ 
-                      color: 'black', 
+                      color: headerTextColor, 
                       textAlign: 'left', 
                       fontWeight: 600, 
                       fontSize: '1rem', 
                       padding: '12px 10px',
-                      borderBottom: '2px solid #E0E0E0',
+                      borderBottom: '2px solid',
+                      borderColor: tableHeaderBgColor,
                       width: '15%', 
                       whiteSpace: 'nowrap'
                     }}
@@ -787,12 +812,13 @@ const DepartmentCoursesPage = () => {
                   
                   <TableCell 
                     sx={{ 
-                      color: 'black', 
+                      color: headerTextColor, 
                       textAlign: 'left', 
                       fontWeight: 600, 
                       fontSize: '1rem', 
                       padding: '12px 20px',
-                      borderBottom: '2px solid #E0E0E0',
+                      borderBottom: '2px solid',
+                      borderColor: tableHeaderBgColor,
                       width: '50%' 
                     }}
                   >
@@ -802,12 +828,13 @@ const DepartmentCoursesPage = () => {
                   {!isMobile && (
                     <TableCell 
                       sx={{ 
-                        color: 'black', 
+                        color: headerTextColor, 
                         textAlign: 'center', 
                         fontWeight: 600, 
                         fontSize: '1rem', 
                         padding: '10px', 
-                        borderBottom: '2px solid #E0E0E0' 
+                        borderBottom: '2px solid',
+                        borderColor: tableHeaderBgColor,
                       }}
                     >
                       Distribs
@@ -815,36 +842,39 @@ const DepartmentCoursesPage = () => {
                   )}
                   <TableCell 
                     sx={{ 
-                      color: 'black', 
+                      color: headerTextColor, 
                       textAlign: 'center', 
                       fontWeight: 600, 
                       fontSize: '1rem', 
                       padding: '10px', 
-                      borderBottom: '2px solid #E0E0E0' 
+                      borderBottom: '2px solid',
+                      borderColor: tableHeaderBgColor,
                     }}
                   >
                     Num of Reviews
                   </TableCell>
                   <TableCell 
                     sx={{ 
-                      color: 'black', 
+                      color: headerTextColor, 
                       textAlign: 'center', 
                       fontWeight: 600, 
                       fontSize: '1rem', 
                       padding: '10px', 
-                      borderBottom: '2px solid #E0E0E0' 
+                      borderBottom: '2px solid',
+                      borderColor: tableHeaderBgColor,
                     }}
                   >
                     Quality
                   </TableCell>
                   <TableCell 
                     sx={{ 
-                      color: 'black', 
+                      color: headerTextColor, 
                       textAlign: 'center', 
                       fontWeight: 600, 
                       fontSize: '1rem', 
                       padding: '10px', 
-                      borderBottom: '2px solid #E0E0E0' 
+                      borderBottom: '2px solid',
+                      borderColor: tableHeaderBgColor,
                     }}
                   >
                     Layup
@@ -858,11 +888,13 @@ const DepartmentCoursesPage = () => {
                     component={Link}
                     to={`/departments/${department}/courses/${course.id}`}
                     sx={{
-                      backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+                      backgroundColor: index % 2 === 0 ? tableRowEvenBgColor : tableRowOddBgColor,
                       transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
                       '&:hover': {
-                        backgroundColor: '#E9E9E9',
-                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)', 
+                        backgroundColor: darkMode ? '#2a2a2a' : '#E9E9E9',
+                        boxShadow: darkMode
+                          ? '0 2px 6px rgba(255, 255, 255, 0.1)'
+                          : '0 2px 6px rgba(0, 0, 0, 0.1)', 
                       },
                       cursor: 'pointer',
                       textDecoration: 'none',
@@ -873,11 +905,12 @@ const DepartmentCoursesPage = () => {
                     {/* Displaying Course Code */}
                     <TableCell 
                       sx={{ 
-                        color: '#000', 
+                        color: textColor, 
                         fontWeight: 600, 
                         padding: '10px', 
                         fontSize: '0.95rem', 
-                        borderBottom: '1px solid #E0E0E0',
+                        borderBottom: '1px solid',
+                        borderColor: darkMode ? '#555555' : '#E0E0E0',
                         width: '15%', 
                         whiteSpace: 'nowrap'
                       }}
@@ -887,85 +920,92 @@ const DepartmentCoursesPage = () => {
         
                     {/* Displaying Course Name */}
                     <TableCell 
-  sx={{ 
-    color: '#333', 
-    padding: '10px 20px',
-    fontSize: '0.95rem', 
-    borderBottom: '1px solid #E0E0E0',
-    width: '50%'
-  }}
->
-  {course.name ? 
-    (course.name.includes(':') ? 
-      course.name.split(':')[1].trim() : 
-      course.name
-    ) : 
-    'Untitled Course'
-  }
-</TableCell>
-
-{/* Also add a safety check for the distribs array mapping */}
-{!isMobile && (
-  <TableCell 
-    sx={{ 
-      color: '#333', 
-      padding: '10px', 
-      fontSize: '0.9rem', 
-      textAlign: 'center', 
-      borderBottom: '1px solid #E0E0E0',
-      verticalAlign: 'middle',
-      height: 'auto',
-    }}
-  >
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        gap: '5px', 
-        justifyContent: 'center', 
-        flexWrap: 'nowrap', 
-        maxWidth: '200px',  
-        whiteSpace: 'nowrap', 
-        alignItems: 'center',  
-        height: '100%',
-      }}
-    >
-      {(course.distribs ? course.distribs.split(',') : []).map((distrib, idx) => (
-        <Box
-          key={idx}
-          sx={{
-            backgroundColor: '#F0F0F0',  
-            color: '#333',             
-            padding: '4px 10px',       
-            borderRadius: '20px',      
-            fontSize: '0.85rem',
-            fontWeight: 500,
-            whiteSpace: 'nowrap',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', 
-            transition: 'background-color 0.2s ease',
-            lineHeight: '1.5',
-            display: 'flex',
-            alignItems: 'center',
-            '&:hover': {
-              backgroundColor: '#E0E0E0', 
-              boxShadow: '0 3px 8px rgba(0, 0, 0, 0.15)',
-            },
-          }}
-        >
-          {distrib.trim()}
-        </Box>
-      ))}
-    </Box>
-  </TableCell>
-)}
-        
+                      sx={{ 
+                        color: textColor, 
+                        padding: '10px 20px',
+                        fontSize: '0.95rem', 
+                        borderBottom: '1px solid',
+                        borderColor: darkMode ? '#555555' : '#E0E0E0',
+                        width: '50%'
+                      }}
+                    >
+                      {course.name ? 
+                        (course.name.includes(':') ? 
+                          course.name.split(':')[1].trim() : 
+                          course.name
+                        ) : 
+                        'Untitled Course'
+                      }
+                    </TableCell>
+    
+                    {/* Distribs */}
+                    {!isMobile && (
+                      <TableCell 
+                        sx={{ 
+                          color: textColor, 
+                          padding: '10px', 
+                          fontSize: '0.9rem', 
+                          textAlign: 'center', 
+                          borderBottom: '1px solid',
+                          borderColor: darkMode ? '#555555' : '#E0E0E0',
+                          verticalAlign: 'middle',
+                          height: 'auto',
+                        }}
+                      >
+                        <Box 
+                          sx={{ 
+                            display: 'flex', 
+                            gap: '5px', 
+                            justifyContent: 'center', 
+                            flexWrap: 'nowrap', 
+                            maxWidth: '200px',  
+                            whiteSpace: 'nowrap', 
+                            alignItems: 'center',  
+                            height: '100%',
+                          }}
+                        >
+                          {(course.distribs ? course.distribs.split(',') : []).map((distrib, idx) => (
+                            <Box
+                              key={idx}
+                              sx={{
+                                backgroundColor: darkMode ? '#444444' : '#F0F0F0',  
+                                color: darkMode ? '#FFFFFF' : '#333333',             
+                                padding: '4px 10px',       
+                                borderRadius: '20px',      
+                                fontSize: '0.85rem',
+                                fontWeight: 500,
+                                whiteSpace: 'nowrap',
+                                boxShadow: darkMode 
+                                  ? '0 1px 3px rgba(255, 255, 255, 0.1)' 
+                                  : '0 2px 5px rgba(0, 0, 0, 0.1)', 
+                                transition: 'background-color 0.2s ease',
+                                lineHeight: '1.5',
+                                display: 'flex',
+                                alignItems: 'center',
+                                '&:hover': {
+                                  backgroundColor: darkMode ? '#555555' : '#E0E0E0', 
+                                  boxShadow: darkMode 
+                                    ? '0 2px 6px rgba(255, 255, 255, 0.15)' 
+                                    : '0 3px 8px rgba(0, 0, 0, 0.15)',
+                                },
+                              }}
+                            >
+                              {distrib.trim()}
+                            </Box>
+                          ))}
+                        </Box>
+                      </TableCell>
+                    )}
+                    
                     {/* Num of Reviews */}
                     <TableCell 
                       sx={{ 
-                        color: '#333', 
+                        color: textColor, 
                         padding: isMobile ? '8px' : '10px', 
                         fontSize: '0.9rem', 
                         textAlign: 'center', 
-                        borderBottom: '1px solid #E0E0E0' 
+                        borderBottom: '1px solid',
+                        borderColor: darkMode ? '#555555' : '#E0E0E0',
                       }}
                     >
                       {course.numOfReviews}
@@ -973,11 +1013,12 @@ const DepartmentCoursesPage = () => {
                     {/* Quality */}
                     <TableCell 
                       sx={{ 
-                        color: '#333', 
+                        color: textColor, 
                         padding: isMobile ? '8px' : '10px', 
                         fontSize: '0.9rem', 
                         textAlign: 'center', 
-                        borderBottom: '1px solid #E0E0E0' 
+                        borderBottom: '1px solid',
+                        borderColor: darkMode ? '#555555' : '#E0E0E0',
                       }}
                     >
                       {course.quality}
@@ -985,11 +1026,12 @@ const DepartmentCoursesPage = () => {
                     {/* Layup */}
                     <TableCell 
                       sx={{ 
-                        color: '#333', 
+                        color: textColor, 
                         padding: isMobile ? '8px' : '10px', 
                         fontSize: '0.9rem', 
                         textAlign: 'center', 
-                        borderBottom: '1px solid #E0E0E0' 
+                        borderBottom: '1px solid',
+                        borderColor: darkMode ? '#555555' : '#E0E0E0',
                       }}
                     >
                       {course.layup}
