@@ -104,7 +104,7 @@ const AppContent = () => {
         <Route path="/major-tracker" element={<MajorTracker />} />
         <Route
           path="/departments/:department/courses/:courseId/professors/:professor"
-          element={<ProfessorReviewsPage />}
+          element={<ProfessorReviewsPage darkMode={darkMode} />}
         />
         <Route path="/complete-profile" element={<CompleteProfilePage />} />
         <Route path="/layups" element={<LayupsPage />} />

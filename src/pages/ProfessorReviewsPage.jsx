@@ -6,7 +6,7 @@ import { db } from '../firebase';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
 
-const ProfessorReviewsPage = () => {
+const ProfessorReviewsPage = ({darkMode}) => {
   const { courseId, professor } = useParams();
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null);
@@ -52,9 +52,17 @@ const ProfessorReviewsPage = () => {
   }, [courseId, professor]);
 
   const splitReviewText = (review) => {
-    const [prefix, rest] = review.match(/(.*?: .*?: )([\s\S]*)/).slice(1, 3);
-    return { prefix, rest };
+    const match = review.match(/(.*?: .*?: )([\s\S]*)/);
+    if (match && match.length >= 3) {
+      const [prefix, rest] = match.slice(1, 3);
+      return { prefix, rest };
+    } else {
+      // Handle the case where the pattern does not match
+      // You can decide how to structure the prefix and rest in such cases
+      return { prefix: 'Review:', rest: review };
+    }
   };
+  
 
   const ReviewItem = ({ prefix, rest }) => {
     const { ref, inView } = useInView({
@@ -72,15 +80,23 @@ const ProfessorReviewsPage = () => {
         <Box
           sx={{
             my: 3,
-            background: 'linear-gradient(to right, rgba(238, 242, 255, 0.8), rgba(245, 243, 255, 0.8))',
+            background: darkMode 
+              ? 'linear-gradient(to right, rgba(30, 30, 30, 0.8), rgba(50, 50, 50, 0.8))' // Dark mode background
+              : 'linear-gradient(to right, rgba(238, 242, 255, 0.8), rgba(245, 243, 255, 0.8))', // Light mode background
             borderRadius: '12px',
             overflow: 'hidden',
-            border: '1px solid rgba(99, 102, 241, 0.1)',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+            border: darkMode 
+              ? '1px solid rgba(255, 255, 255, 0.1)' 
+              : '1px solid rgba(99, 102, 241, 0.1)',
+            boxShadow: darkMode 
+              ? '0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -1px rgba(255, 255, 255, 0.03)' 
+              : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
             transition: 'all 0.3s ease',
             '&:hover': {
-              transform: 'translateY(-2px)',
-              boxShadow: '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
+              transform: darkMode ? 'translateY(-2px)' : 'translateY(-2px)',
+              boxShadow: darkMode 
+                ? '0 6px 12px -2px rgba(255, 255, 255, 0.08), 0 3px 6px -2px rgba(255, 255, 255, 0.05)'
+                : '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
             }
           }}
         >
@@ -91,14 +107,14 @@ const ProfessorReviewsPage = () => {
                   sx={{
                     width: '4px',
                     height: '24px',
-                    bgcolor: 'primary.main',
+                    bgcolor: darkMode ? '#571CE0' : 'primary.main', // Adjust color based on dark mode
                     borderRadius: '4px'
                   }}
                 />
                 <Typography
                   component="span"
                   sx={{
-                    color: 'text.primary',
+                    color: darkMode ? '#FFFFFF' : 'text.primary', // Text color based on dark mode
                     fontWeight: 600,
                     letterSpacing: '0.3px',
                     fontSize: '1rem'
@@ -110,7 +126,7 @@ const ProfessorReviewsPage = () => {
               <Typography
                 component="p"
                 sx={{
-                  color: 'text.secondary',
+                  color: darkMode ? '#E0E0E0' : 'text.secondary', // Text color based on dark mode
                   pl: '28px',
                   lineHeight: 1.7,
                   fontSize: '0.95rem'
@@ -136,12 +152,33 @@ const ProfessorReviewsPage = () => {
 
   const courseName = courseId.split('__')[1]?.replace(/_/g, ' ') || courseId;
 
+  // Step 2: Define color variables based on darkMode
+  const mainBgColor = darkMode 
+    ? 'linear-gradient(135deg, #1C093F 0%, #0C0F33 100%)' 
+    : 'linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%)';
+  const textPrimaryColor = darkMode ? '#FFFFFF' : '#333333';
+  const textSecondaryColor = darkMode ? '#E0E0E0' : '#666666';
+  const headerTextColor = darkMode ? '#FFFFFF' : '#34495E';
+  const alertBgColor = darkMode ? '#333333' : '#F9F9F9';
+  const alertTextColor = darkMode ? '#FFFFFF' : '#333333';
+  const listItemBgColor = darkMode ? '#1C1F43' : '#FFFFFF';
+  const listItemBorderColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(99, 102, 241, 0.1)';
+  const listItemShadow = darkMode 
+    ? '0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -1px rgba(255, 255, 255, 0.03)'
+    : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
+
   return (
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%)',
-        py: 4
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        background: mainBgColor, // Apply main background color
+        padding: '20px',
+        fontFamily: 'SF Pro Display, sans-serif',
+        color: textPrimaryColor, // Apply primary text color
+        transition: 'background 0.3s ease, color 0.3s ease',
       }}
     >
       <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
@@ -149,7 +186,7 @@ const ProfessorReviewsPage = () => {
           <Typography
             variant="h3"
             sx={{
-              color: 'text.primary',
+              color: headerTextColor, // Header text color based on dark mode
               fontWeight: 700,
               letterSpacing: '-0.5px',
               mb: 1
@@ -160,7 +197,7 @@ const ProfessorReviewsPage = () => {
           <Typography
             variant="h5"
             sx={{
-              color: 'primary.main',
+              color: darkMode ? '#34C759' : 'primary.main', // Adjust color based on dark mode
               fontWeight: 500,
               opacity: 0.9
             }}
@@ -171,7 +208,7 @@ const ProfessorReviewsPage = () => {
 
         {loading ? (
           <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Typography sx={{ color: 'text.secondary' }}>
+            <Typography sx={{ color: textSecondaryColor }}>
               Loading...
             </Typography>
           </Box>
@@ -180,6 +217,8 @@ const ProfessorReviewsPage = () => {
             severity="error"
             sx={{
               borderRadius: 2,
+              backgroundColor: alertBgColor, // Alert background based on dark mode
+              color: alertTextColor, // Alert text color based on dark mode
               '& .MuiAlert-message': {
                 fontSize: '0.95rem'
               }
@@ -191,7 +230,7 @@ const ProfessorReviewsPage = () => {
           renderReviews()
         ) : (
           <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Typography sx={{ color: 'text.secondary' }}>
+            <Typography sx={{ color: textSecondaryColor }}>
               No reviews available
             </Typography>
           </Box>
