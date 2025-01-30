@@ -4,7 +4,19 @@ import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc, addDoc, collection, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../../firebase';
 
-const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
+const AddReplyForm = ({
+  reviewData,
+  courseId,
+  onReplyAdded,
+  darkMode,
+  textColor,
+  backgroundColor,
+  buttonColor,
+  buttonHoverColor,
+  inputBgColor,
+  inputBorderColor,
+  inputTextColor,
+}) => {
   const [reply, setReply] = useState('');
   const { currentUser } = useAuth();
 
@@ -62,9 +74,41 @@ const AddReplyForm = ({ reviewData, courseId, onReplyAdded }) => {
         multiline
         rows={2}
         variant="outlined"
-        sx={{ margin: '10px 0' }}
+        sx={{ 
+          margin: '10px 0',
+          backgroundColor: inputBgColor, // Dynamic background
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: inputBorderColor, // Dynamic border color
+            },
+            '&:hover fieldset': {
+              borderColor: darkMode ? '#555555' : '#BDBDBD', // Dynamic hover border
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#007AFF', // Primary color on focus
+            },
+          },
+          '& .MuiInputLabel-root': {
+            color: inputTextColor, // Dynamic label color
+          },
+          '& .MuiInputBase-input': {
+            color: inputTextColor, // Dynamic input text color
+          },
+        }}
       />
-      <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '10px' }}>
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        sx={{ 
+          marginTop: '10px',
+          backgroundColor: buttonColor, // Dynamic button background
+          color: '#FFFFFF',             // Assuming button text remains white
+          '&:hover': {
+            backgroundColor: buttonHoverColor, // Dynamic hover background
+          },
+        }}
+      >
         Submit Reply
       </Button>
     </form>

@@ -98,9 +98,9 @@ const AppContent = () => {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/departments/:department" element={<DepartmentCoursesPage darkMode={darkMode} />} />
-        <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage />} />
-        <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage />} />
-        <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage />} />
+        <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage darkMode={darkMode} />} />
+        <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage darkMode={darkMode} />} />
+        <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage darkMode={darkMode} />} />
         <Route path="/major-tracker" element={<MajorTracker />} />
         <Route
           path="/departments/:department/courses/:courseId/professors/:professor"

@@ -33,7 +33,7 @@ import CourseAnalytics from './CourseAnalytics.jsx';
 import CourseVoting from './CourseVoting.jsx';
 
 
-const CourseReviewsPage = () => {
+const CourseReviewsPage = ({ darkMode }) => {
   const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
   const { department, courseId } = useParams();
   const { currentUser } = useAuth();
@@ -61,6 +61,21 @@ const CourseReviewsPage = () => {
     'F': 0
   };
   const numToGrade = Object.fromEntries(Object.entries(gradeToNum).map(([k, v]) => [v, k]));
+
+
+  // Define color variables based on darkMode
+  const mainBgColor = darkMode 
+    ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)' 
+    : '#F9F9F9';
+  const paperBgColor = darkMode ? '#1C1F43' : '#FFFFFF';
+  const tableHeaderBgColor = darkMode ? '#333333' : '#f0f0f0';
+  const tableRowEvenBgColor = darkMode ? '#1C1F43' : '#F8F8F8';
+  const tableRowOddBgColor = darkMode ? '#24273c' : '#FFFFFF';
+  const textColor = darkMode ? '#FFFFFF' : '#333333';
+  const headerTextColor = darkMode ? '#FFFFFF' : '#571CE0';
+  const searchBgColor = darkMode ? '#0C0F33' : '#FFFFFF';
+  const tooltipBgColor = darkMode ? '#333333' : '#f5f5f9';
+  const tooltipTextColor = darkMode ? '#FFFFFF' : '#000000';
 
 
   const [deptAndNumber, ...rest] = courseId.split('__');
@@ -185,14 +200,24 @@ const CourseReviewsPage = () => {
   
     return (
       <Box sx={{ padding: '20px' }}>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1D1D1F' }}>
+        {/* 1. Update Typography color for header */}
+        <Typography 
+          variant="h6" 
+          gutterBottom 
+          sx={{ 
+            fontWeight: 600, 
+            color: headerTextColor, // Changed from '#1D1D1F' to dynamic variable
+          }}
+        >
           College Description
         </Typography>
+  
+        {/* 2. Update Typography color for description */}
         <Typography
           variant="body1"
           sx={{ 
             fontSize: '0.95rem', 
-            color: 'text.primary', 
+            color: textColor,         // Changed from 'text.primary' to dynamic variable
             textAlign: 'left', 
             lineHeight: '1.6',
             marginBottom: '2rem'
@@ -206,32 +231,72 @@ const CourseReviewsPage = () => {
           gap: 2, 
           marginBottom: '1rem'
         }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: '#1D1D1F' }}>
-          AI Summary of Reviews
+          {/* 3. Update Typography color for AI Summary header */}
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 600, 
+              color: headerTextColor, // Changed from '#1D1D1F' to dynamic variable
+            }}
+          >
+            AI Summary of Reviews
           </Typography>
-          <div className="flex-shrink-0 relative group">
+  
+          {/* 4. Update Tooltip Background and Text Colors */}
+          <Box className="flex-shrink-0 relative group">
             <Sparkles className="w-5 h-5 text-indigo-600 cursor-help" />
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-white rounded-lg shadow-lg text-xs text-gray-600 border">
-              <div className="text-center">
-                AI-generated summary based on student reviews
-              </div>
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rotate-45 border-r border-b" />
-            </div>
-          </div>
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                mb: 2,
+                display: 'none',
+                width: '200px',
+                p: 2,
+                bgcolor: tooltipBgColor,          // Changed from 'bg-white' to dynamic variable
+                color: tooltipTextColor,          // Changed from 'text-gray-600' to dynamic variable
+                borderRadius: '8px',
+                boxShadow: 3,
+                textAlign: 'center',
+                fontSize: '0.875rem',
+                border: darkMode ? '1px solid #444444' : '1px solid #e9ecef', // Optional: Add border based on darkMode
+                '& .MuiBox-root': {
+                  position: 'absolute',
+                  top: '100%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '0',
+                  height: '0',
+                  borderLeft: '6px solid transparent',
+                  borderRight: '6px solid transparent',
+                  borderTop: `6px solid ${tooltipBgColor}`, // Triangle arrow matching tooltip background
+                },
+                '.group:hover &': {
+                  display: 'block',
+                },
+              }}
+            >
+              AI-generated summary based on student reviews
+              <Box />
+            </Box>
+          </Box>
         </Box>
   
+        {/* 5. Update Summary Typography and Box */}
         {course?.summary ? (
           <Typography
             variant="body1"
             sx={{
               fontSize: '0.95rem',
-              color: 'text.primary',
+              color: textColor,                   // Changed from 'text.primary' to dynamic variable
               textAlign: 'left',
               lineHeight: '1.6',
               padding: '1rem',
-              backgroundColor: '#f8f9fa',
+              backgroundColor: paperBgColor,      // Changed from '#f8f9fa' to dynamic variable
               borderRadius: '8px',
-              border: '1px solid #e9ecef'
+              border: darkMode ? '1px solid #444444' : '1px solid #e9ecef', // Changed from '#e9ecef' to dynamic border
             }}
           >
             {course.summary}
@@ -240,16 +305,16 @@ const CourseReviewsPage = () => {
           <Box
             sx={{
               padding: '1rem',
-              backgroundColor: '#f8f9fa',
+              backgroundColor: paperBgColor,      // Changed from '#f8f9fa' to dynamic variable
               borderRadius: '8px',
-              border: '1px solid #e9ecef'
+              border: darkMode ? '1px solid #444444' : '1px solid #e9ecef', // Changed from '#e9ecef' to dynamic border
             }}
           >
             <Typography
               variant="body1"
               sx={{
                 fontSize: '0.95rem',
-                color: 'text.secondary',
+                color: darkMode ? '#FFFFFF' : '#8E8E93', // Changed from 'text.secondary' to dynamic color
                 fontStyle: 'italic'
               }}
             >
@@ -260,6 +325,7 @@ const CourseReviewsPage = () => {
       </Box>
     );
   };
+  
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -1181,6 +1247,8 @@ const handleQualityVote = async (voteType) => {
       }
     };
 
+
+
     return (
       
       <motion.div
@@ -1193,18 +1261,20 @@ const handleQualityVote = async (voteType) => {
         <Box
           sx={{
             my: 2,
-            background: 'linear-gradient(135deg, #FAFAFA 0%, #F4F4F4 100%)',
-            borderRadius: '12px',
+            background: darkMode 
+            ? 'linear-gradient(135deg, #1C1F43 0%, #0C0F33 100%)' // Dark mode gradient
+            : 'linear-gradient(135deg, #FAFAFA 0%, #F4F4F4 100%)', // Light mode gradient            borderRadius: '12px',
             overflow: 'hidden',
-            border: '1px solid #E0E0E0',
-            boxShadow:
-              '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              transform: 'translateY(-2px)',
-              boxShadow:
-                '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
-            },
+            border: darkMode ? '1px solid #444444' : '1px solid #E0E0E0', // Dynamic border color
+                          boxShadow: darkMode
+                ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.1)'
+                : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: darkMode
+                  ? '0 6px 12px -2px rgba(0, 0, 0, 0.15), 0 3px 6px -2px rgba(0, 0, 0, 0.1)'
+                  : '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
+              }, 
           }}
         >
           <ListItem sx={{ p: 3, alignItems: 'flex-start' }}>
@@ -1214,14 +1284,14 @@ const handleQualityVote = async (voteType) => {
                   sx={{
                     width: '4px',
                     height: '24px',
-                    bgcolor: '#00693E', // Dartmouth green
+                    bgcolor: darkMode ? '#4CAF50' : '#00693E', // Example: Lighter green in dark mode
                     borderRadius: '4px',
                   }}
                 />
                 <Typography
                   component="span"
                   sx={{
-                    color: '#1D1D1F',
+                    color: textColor, // Use dynamic text color
                     fontWeight: 600,
                     letterSpacing: '0.3px',
                     fontSize: '1rem',
@@ -1233,7 +1303,7 @@ const handleQualityVote = async (voteType) => {
               <Typography
                 component="p"
                 sx={{
-                  color: '#1D1D1F',
+                  color: textColor, // Use dynamic text color
                   pl: '28px',
                   lineHeight: 1.6,
                   fontSize: '0.95rem',
@@ -1257,9 +1327,16 @@ const handleQualityVote = async (voteType) => {
                     padding: '6px',
                   }}
                 >
-                  <Typography variant="body2" sx={{ fontSize: '1.2rem' }}>
-                    🔥
-                  </Typography>
+                  <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontSize: '1.2rem',
+                        color: hasLiked ? '#007AFF' : (darkMode ? '#FFFFFF' : '#8E8E93'), // Dynamic color based on state and theme
+                      }}
+                    >
+                      🔥
+                    </Typography>
+
                 </IconButton>
                 <Typography variant="body2" sx={{ color: '#8E8E93' }}>
                   {likeCount}
@@ -1283,7 +1360,7 @@ const handleQualityVote = async (voteType) => {
                   <ListItem
                     key={index}
                     sx={{
-                      backgroundColor: '#F9F9F9',
+                      backgroundColor: darkMode ? '#2a2a2a' : '#F9F9F9', // Darker background in dark mode
                       borderRadius: '8px',
                       marginTop: '8px',
                       alignItems: 'flex-start',
@@ -1292,22 +1369,22 @@ const handleQualityVote = async (voteType) => {
                     <ListItemText
                       primary={
                         <>
-                          <Typography
-                            component="span"
-                            sx={{ color: '#1D1D1F', fontWeight: 600, fontSize: '0.9rem' }}
-                          >
-                            Reply:
-                          </Typography>{' '}
-                          <Typography
-                            component="span"
-                            sx={{ color: '#1D1D1F', fontSize: '0.85rem' }}
-                          >
-                            {reply.reply}
-                          </Typography>
-                          <Typography
-                            component="span"
-                            sx={{ color: '#8E8E93', fontSize: '0.75rem', marginLeft: '10px' }}
-                          >
+                                                  <Typography
+                          component="span"
+                          sx={{ color: textColor, fontWeight: 600, fontSize: '0.9rem' }} // Dynamic text color
+                        >
+                          Reply:
+                        </Typography>{' '}
+                        <Typography
+                          component="span"
+                          sx={{ color: textColor, fontSize: '0.85rem' }} // Dynamic text color
+                        >
+                          {reply.reply}
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ color: darkMode ? '#B0B0B0' : '#8E8E93', fontSize: '0.75rem', marginLeft: '10px' }} // Lighter gray in dark mode
+                        >
                             {new Date(reply.timestamp).toLocaleString()}
                           </Typography>
                         </>
@@ -1317,6 +1394,7 @@ const handleQualityVote = async (voteType) => {
                 ))}
               </List>
               <AddReplyForm
+                
                 reviewData={{ instructor, reviewIndex }}
                 courseId={courseId}
                 onReplyAdded={(newReply) => {
@@ -1365,7 +1443,7 @@ const handleQualityVote = async (voteType) => {
                   variant="h6"
                   sx={{
                     marginTop: '20px',
-                    color: '#1D1D1F',
+                    color: textColor, // Use dynamic text color
                     textAlign: 'left',
                     fontWeight: 600,
                   }}
@@ -1626,34 +1704,33 @@ useEffect(() => {
 
   return (
     <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        background: '#f9f9f9',
-        color: '#1D1D1F',
-        textAlign: 'left',
-        fontFamily: 'SF Pro Display, sans-serif',
-        padding: '40px',
-      }}
-    >
+  sx={{
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    background: mainBgColor, // Use dynamic background color
+    color: textColor,         // Use dynamic text color
+    textAlign: 'left',
+    fontFamily: 'SF Pro Display, sans-serif',
+    padding: '40px',
+  }}
+>
       <Container maxWidth="lg">
-  <Card
-    sx={{
-      marginBottom: 4,
-      padding: 4,
-      backgroundColor: '#FFFFFF',
-      color: '#1D1D1F',
-      boxShadow: 'none', // Remove heavy shadow for a cleaner look
-      borderRadius: '16px',
-      border: '1px solid #D1D1D6', // Add a subtle border
-      width: '100%',
-      maxWidth: '100%', // Change this from 1100 to '100%' to make the card fill the container
-
-    }}
-  >
+      <Card
+  sx={{
+    marginBottom: 4,
+    padding: 4,
+    backgroundColor: paperBgColor, // Use dynamic paper background color
+    color: textColor,               // Use dynamic text color
+    boxShadow: 'none',
+    borderRadius: '16px',
+    border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border color
+    width: '100%',
+    maxWidth: '100%',
+  }}
+>
     <Box
       sx={{
         display: 'flex',
@@ -1664,50 +1741,49 @@ useEffect(() => {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Typography
-          variant="h4"
-          gutterBottom
-          textAlign="left"
-          sx={{
-            fontWeight: 600, // Use semi-bold font weight
-            fontSize: '2rem',
-            marginBottom: 0, // Remove bottom margin to ensure proper centering
-            color: '#1D1D1F', // Primary text color
-          }}
-        >
+      <Typography
+        variant="h4"
+        gutterBottom
+        textAlign="left"
+        sx={{
+          fontWeight: 600,
+          fontSize: '2rem',
+          marginBottom: 0,
+          color: headerTextColor, // Use dynamic header text color
+        }}
+>
           {courseName}
         </Typography>
         {isTaughtCurrentTerm && (
-          <Tooltip title="Taught this term" placement="right">
-            <Box
+          <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            height: '2rem',
+            marginLeft: 2,
+          }}
+        >
+          <Box
+            sx={{
+              backgroundColor: darkMode ? '#333333' : '#E5F0FF', // Dark mode background or light blue
+              padding: '2px 8px',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              variant="body2"
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                height: '2rem', // Match the line height of the Typography
-                marginLeft: 2,
+                fontSize: '0.9rem',
+                color: darkMode ? '#FFFFFF' : '#1D1D1F', // Dynamic text color
               }}
             >
-              <Box
-                sx={{
-                  backgroundColor: '#E5F0FF', // Light blue background
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: '0.9rem',
-                    color: '#1D1D1F', // Text color
-                  }}
-                >
-                  25W
-                </Typography>
-              </Box>
-            </Box>
-          </Tooltip>
+              25W
+            </Typography>
+          </Box>
+        </Box>
+        
         )}
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1725,8 +1801,13 @@ useEffect(() => {
           <IconButton
   onClick={handlePinCourse}
   sx={{
-    color: pinned ? '#007AFF' : '#8E8E93', // Blue if pinned, gray if not
+    color: pinned ? '#007AFF' : (darkMode ? '#FFFFFF' : '#8E8E93'), // Blue if pinned, white or gray otherwise
+    backgroundColor: darkMode ? (pinned ? '#007AFF' : '#1C1F43') : 'transparent', // Optional: Add background for better visibility
+    '&:hover': {
+      backgroundColor: darkMode ? (pinned ? '#0066D6' : '#24273c') : '#E0E0E0', // Darker shade on hover
+    },
     marginLeft: 1,
+    padding: '6px', // Consistent padding
   }}
 >
   {pinned ? (
@@ -1748,12 +1829,21 @@ useEffect(() => {
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-            <CircularProgress sx={{ color: '#571CE0' }} />
+             <CircularProgress sx={{ color: darkMode ? '#571CE0' : '#571CE0' }} /> {/* Assuming the color remains the same */}
           </Box>
+
         ) : error ? (
-          <Alert severity="error" sx={{ textAlign: 'left' }}>
-            {error}
-          </Alert>
+          <Alert 
+  severity="error" 
+  sx={{ 
+    textAlign: 'left',
+    backgroundColor: darkMode ? '#333333' : '#fdecea', // Dark mode background or light red for error
+    color: darkMode ? '#FFFFFF' : '#611a15',           // Dark mode text color or dark red
+  }}
+>
+  {error}
+</Alert>
+
         ) : reviews.length > 0 ? (
           <>
           {/* {course && (
@@ -1851,45 +1941,49 @@ useEffect(() => {
         <Typography
   variant="h5"
   gutterBottom
-  sx={{ fontWeight: 600, color: '#1D1D1F', marginTop: 4 }}
+  sx={{ fontWeight: 600, color: headerTextColor, marginTop: 4 }}
 >
   Professors
 </Typography>
+
 <TableContainer
   component={Paper}
   sx={{
-    backgroundColor: '#FFFFFF',
+    backgroundColor: paperBgColor,              // Dynamic background color
     marginTop: '20px',
     borderRadius: '12px',
     boxShadow: 'none',
-    border: '1px solid #D1D1D6',
+    border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border color
   }}
 >
   <Table>
     <TableHead>
       <TableRow>
-        <TableCell
+              <TableCell
           sx={{
-            color: '#1D1D1F',
+            color: textColor,              // Use dynamic text color
             textAlign: 'left',
             fontWeight: 600,
             fontSize: '1rem',
             padding: '12px 16px',
+            backgroundColor: tableHeaderBgColor, // Optional: Add background for headers
           }}
         >
           Name
         </TableCell>
         <TableCell
           sx={{
-            color: '#1D1D1F',
+            color: textColor,              // Use dynamic text color
             textAlign: 'left',
             fontWeight: 600,
             fontSize: '1rem',
             padding: '12px 16px',
+            backgroundColor: tableHeaderBgColor, // Optional: Add background for headers
           }}
         >
           Reviews
         </TableCell>
+
       </TableRow>
     </TableHead>
     <TableBody>
@@ -1914,11 +2008,9 @@ useEffect(() => {
               to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
               sx={{
                 backgroundColor: isCurrent
-                  ? '#E5F0FF' // Light blue background for current instructors
-                  : index % 2 === 0
-                  ? '#FFFFFF'
-                  : '#F2F2F7',
-                '&:hover': { backgroundColor: '#E5E5EA' },
+                  ? (darkMode ? '#1C1F43' : '#E5F0FF') // Dark mode or light blue
+                  : (index % 2 === 0 ? tableRowEvenBgColor : tableRowOddBgColor),
+                '&:hover': { backgroundColor: darkMode ? '#2a2a2a' : '#E5E5EA' }, // Darker on hover for dark mode
                 cursor: 'pointer',
                 textDecoration: 'none',
                 color: 'inherit',
@@ -1926,7 +2018,7 @@ useEffect(() => {
             >
               <TableCell
                 sx={{
-                  color: '#1C1C1E',
+                  color: textColor,              // Use dynamic text color
                   padding: '12px 16px',
                   textAlign: 'left',
                   fontWeight: isCurrent ? 600 : 400,
@@ -1936,7 +2028,7 @@ useEffect(() => {
               </TableCell>
               <TableCell
                 sx={{
-                  color: '#1C1C1E',
+                  color: textColor,              // Use dynamic text color
                   padding: '12px 16px',
                   textAlign: 'left',
                   fontWeight: 400,
@@ -1950,20 +2042,22 @@ useEffect(() => {
       {allProfessors.length > 12 && (
         <TableRow>
           <TableCell colSpan={2} sx={{ textAlign: 'center', padding: '16px' }}>
-            <Button
-              onClick={() => setShowAllProfessors((prev) => !prev)}
-              sx={{
-                color: '#007AFF',
-                fontWeight: 500,
-                textTransform: 'none',
-                padding: '8px 16px',
-                '&:hover': {
-                  backgroundColor: '#E5E5EA',
-                },
-              }}
-            >
-              {showAllProfessors ? 'Show Less' : 'More Professors'}
-            </Button>
+                  <Button
+          onClick={() => setShowAllProfessors((prev) => !prev)}
+          sx={{
+            color: darkMode ? '#FFFFFF' : '#007AFF',                // Dynamic text color
+            backgroundColor: darkMode ? '#007AFF' : 'transparent',   // Optional: Add background for better visibility
+            fontWeight: 500,
+            textTransform: 'none',
+            padding: '8px 16px',
+            '&:hover': {
+              backgroundColor: darkMode ? '#0066D6' : '#E5E5EA',     // Darker shade on hover for dark mode
+            },
+          }}
+        >
+          {showAllProfessors ? 'Show Less' : 'More Professors'}
+        </Button>
+
           </TableCell>
         </TableRow>
       )}
@@ -1971,18 +2065,20 @@ useEffect(() => {
   </Table>
 </TableContainer>
 {/* Legend component */}
-<Typography variant="caption" sx={{ color: '#black', marginTop: 2 }}>
-  <span
-    style={{
-      backgroundColor: '#E5F0FF',
-      padding: '2px 4px',
-      borderRadius: '4px',
-    }}
-  >
-    Highlighted professors
-  </span>{' '}
-  are teaching the current term.
-</Typography>
+  <Typography variant="caption" sx={{ color: textColor, marginTop: 2 }}>
+    <span
+      style={{
+        backgroundColor: darkMode ? '#1C1F43' : '#E5F0FF', // Use darkMode instead of isCurrent
+        padding: '2px 4px',
+        borderRadius: '4px',
+        color: darkMode ? '#FFFFFF' : '#000000',
+      }}
+    >
+      Highlighted professors
+    </span>{' '}
+    are teaching the current term.
+  </Typography>
+
 
 <Box
   sx={{
@@ -1993,51 +2089,63 @@ useEffect(() => {
     marginTop: '60px',
   }}
 >
-  <Typography
-    variant="h5"
-    gutterBottom
-    sx={{ fontWeight: 600, color: '#1D1D1F' }}
-  >
-    Reviews
-  </Typography>
-  <FormControl
-    size="small"
-    sx={{
-      minWidth: 150,
-      backgroundColor: '#FFFFFF',
-      borderRadius: '8px',
-      border: '1px solid #D1D1D6',
-    }}
-  >
-    <InputLabel
-      id="select-professor-label"
-      sx={{ fontWeight: 400, color: '#00693E' }}
-    >
-      Professor
-    </InputLabel>
-    <Select
-  labelId="select-professor-label"
-  value={selectedProfessor}
-  onChange={handleProfessorFilterChange}
-  label="Professor"
+<Typography
+  variant="h5"
+  gutterBottom
+  sx={{ fontWeight: 600, color: headerTextColor }}
+>
+  Reviews
+</Typography>
+
+<FormControl
+  size="small"
   sx={{
-    fontWeight: 400,
-    '& .MuiSelect-select': {
-      padding: '8px 12px',
-    },
+    minWidth: 150,
+    backgroundColor: searchBgColor,                  // Dynamic background color
+    borderRadius: '8px',
+    border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border color
   }}
 >
-
-      <MenuItem value="">
-        <em>All</em>
+  <InputLabel
+    id="select-professor-label"
+    sx={{ fontWeight: 400, color: darkMode ? '#FFFFFF' : '#00693E' }} // Dynamic text color
+  >
+    Professor
+  </InputLabel>
+  <Select
+    labelId="select-professor-label"
+    value={selectedProfessor}
+    onChange={handleProfessorFilterChange}
+    label="Professor"
+    sx={{
+      fontWeight: 400,
+      color: textColor, // Ensure selected text color is dynamic
+      backgroundColor: searchBgColor, // Match background
+      '& .MuiSelect-select': {
+        padding: '8px 12px',
+      },
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderColor: darkMode ? '#444444' : '#D1D1D6',
+      },
+      '&:hover .MuiOutlinedInput-notchedOutline': {
+        borderColor: darkMode ? '#555555' : '#A1A1A6',
+      },
+      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+        borderColor: '#571CE0', // Primary color on focus
+      },
+    }}
+  >
+    <MenuItem value="">
+      <em>All</em>
+    </MenuItem>
+    {uniqueProfessors.map((professor, index) => (
+      <MenuItem key={index} value={professor} sx={{ fontWeight: 400 }}>
+        {professor}
       </MenuItem>
-      {uniqueProfessors.map((professor, index) => (
-        <MenuItem key={index} value={professor} sx={{ fontWeight: 400 }}>
-          {professor}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
+    ))}
+  </Select>
+</FormControl>
+
 </Box>
 
             {renderReviews()}
@@ -2058,13 +2166,17 @@ useEffect(() => {
         onClick={() => handleChangePage(currentPage - 1)}
         disabled={currentPage === 1}
         sx={{
-          color: '#000', // Apple-style black text
-          backgroundColor: currentPage === 1 ? '#F5F5F7' : '#F5F5F7',
-          borderRadius: '12px', // Subtle rounding for a more modern look
+          color: darkMode ? '#FFFFFF' : '#000000', // Dynamic text color
+          backgroundColor: darkMode 
+            ? (currentPage === 1 ? '#1C1F43' : '#1C1F43') 
+            : (currentPage === 1 ? '#F5F5F7' : '#F5F5F7'), // Dark mode backgrounds
+          borderRadius: '12px',
           padding: '12px',
-          border: '1px solid #D1D1D6', // Subtle border
+          border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border
           '&:hover': {
-            backgroundColor: currentPage === 1 ? '#F5F5F7' : '#E0E0E0',
+            backgroundColor: darkMode 
+              ? (currentPage === 1 ? '#24273c' : '#24273c') 
+              : (currentPage === 1 ? '#F5F5F7' : '#E0E0E0'), // Darker shade on hover
           },
           transition: 'background-color 0.3s ease',
         }}
@@ -2075,52 +2187,58 @@ useEffect(() => {
   </Tooltip>
 
   <ButtonGroup
-    variant="text"
-    sx={{
-      '& .MuiButtonGroup-grouped': {
-        minWidth: '40px', // Consistent button size
-        height: '40px',
-        borderRadius: '12px', // Subtle rounding
-        backgroundColor: '#F5F5F7',
-        color: '#000',
-        border: '1px solid #D1D1D6', // Subtle border
-        margin: '0 2px',
-        fontSize: '16px',
+  variant="text"
+  sx={{
+    '& .MuiButtonGroup-grouped': {
+      minWidth: '40px',
+      height: '40px',
+      borderRadius: '12px',
+      backgroundColor: darkMode ? '#1C1F43' : '#F5F5F7', // Dynamic background color
+      color: darkMode ? '#FFFFFF' : '#000000',          // Dynamic text color
+      border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border
+      margin: '0 2px',
+      fontSize: '16px',
+      '&:hover': {
+        backgroundColor: darkMode ? '#24273c' : '#E0E0E0', // Darker shade on hover
+      },
+      '&.Mui-selected': {
+        backgroundColor: '#007AFF', // Assuming selected color remains the same
+        color: '#fff',
         '&:hover': {
-          backgroundColor: '#E0E0E0',
-        },
-        '&.Mui-selected': {
-          backgroundColor: '#007AFF', // Apple blue for selected page
-          color: '#fff',
-          '&:hover': {
-            backgroundColor: '#0066CC',
-          },
+          backgroundColor: '#0066CC',
         },
       },
-    }}
-  >
-    {renderPageButtons()}
-  </ButtonGroup>
+    },
+  }}
+>
+  {renderPageButtons()}
+</ButtonGroup>
+
 
   <Tooltip title="Next Page" placement="top">
     <span>
-      <IconButton
-        onClick={() => handleChangePage(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        sx={{
-          color: '#000',
-          backgroundColor: currentPage === totalPages ? '#F5F5F7' : '#F5F5F7',
-          borderRadius: '12px',
-          padding: '12px',
-          border: '1px solid #D1D1D6',
-          '&:hover': {
-            backgroundColor: currentPage === totalPages ? '#F5F5F7' : '#E0E0E0',
-          },
-          transition: 'background-color 0.3s ease',
-        }}
-      >
-        <ArrowForward sx={{ fontSize: '20px' }} />
-      </IconButton>
+            <IconButton
+          onClick={() => handleChangePage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          sx={{
+            color: darkMode ? '#FFFFFF' : '#000000', // Dynamic text color
+            backgroundColor: darkMode 
+              ? (currentPage === totalPages ? '#1C1F43' : '#1C1F43') 
+              : (currentPage === totalPages ? '#F5F5F7' : '#F5F5F7'), // Dark mode backgrounds
+            borderRadius: '12px',
+            padding: '12px',
+            border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border
+            '&:hover': {
+              backgroundColor: darkMode 
+                ? (currentPage === totalPages ? '#24273c' : '#24273c') 
+                : (currentPage === totalPages ? '#F5F5F7' : '#E0E0E0'), // Darker shade on hover
+            },
+            transition: 'background-color 0.3s ease',
+          }}
+        >
+          <ArrowForward sx={{ fontSize: '20px' }} />
+        </IconButton>
+
     </span>
   </Tooltip>
 </Box>
