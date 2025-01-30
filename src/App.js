@@ -93,7 +93,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<GetStartedPage />} />
         <Route path="/landing" element={<LandingPage darkMode={darkMode} />} />
-        <Route path="/classes" element={<AllClassesPage />} />
+        <Route path="/classes" element={<AllClassesPage darkMode={darkMode} />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />

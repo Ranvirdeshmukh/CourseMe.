@@ -399,6 +399,8 @@ const DepartmentCoursesPage = () => {
     { label: 'CI', value: 'CI' },
   ];
 
+  
+
   return (
     <Box
       sx={{

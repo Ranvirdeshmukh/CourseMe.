@@ -144,7 +144,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
 //   );
 // };
 
-const AllClassesPage = () => {
+const AllClassesPage = ({ darkMode }) => {
   const [departments, setDepartments] = useState([]);
   const [filteredDepartments, setFilteredDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -295,6 +295,8 @@ const AllClassesPage = () => {
       );
     }
 
+    
+
     const courseName = popularCourses[department] || 'No data available';
     return (
       <React.Fragment>
@@ -308,6 +310,18 @@ const AllClassesPage = () => {
     );
   };
 
+  // Define color variables based on darkMode
+  const mainBgColor = darkMode ? '#0C0F33' : '#F9F9F9';
+  const paperBgColor = darkMode ? '#1C1F43' : '#FFFFFF';
+  const tableHeaderBgColor = darkMode ? '#333333' : '#f0f0f0';
+  const tableRowEvenBgColor = darkMode ? '#1C1F43' : '#F8F8F8';
+  const tableRowOddBgColor = darkMode ? '#24273c' : '#FFFFFF';
+  const textColor = darkMode ? '#FFFFFF' : '#333333';
+  const headerTextColor = darkMode ? '#FFFFFF' : '#571CE0';
+  const searchBgColor = darkMode ? '#0C0F33' : '#FFFFFF';
+  const tooltipBgColor = darkMode ? '#333333' : '#f5f5f9';
+  const tooltipTextColor = darkMode ? '#FFFFFF' : '#000000';
+
   return (
     <Box
       sx={{
@@ -315,22 +329,32 @@ const AllClassesPage = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#F9F9F9',
+        backgroundColor: mainBgColor,
         padding: '30px',
         fontFamily: 'SF Pro Display, sans-serif',
+        color: textColor,
+        transition: 'background-color 0.3s ease, color 0.3s ease',
       }}
     >
       <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+            mb: 3,
+          }}
+        >
           <Typography
             variant="h3"
             align="left"
             sx={{
               fontWeight: 600,
               fontFamily: 'SF Pro Display, sans-serif',
-              color: '#571CE0',
-              marginBottom: '0px',
-              marginTop: '0px',  // Adjust margin to align with the search bar
+              color: headerTextColor,
+              marginBottom: isMobile ? '16px' : '0px',
             }}
           >
             All Departments at <span style={{ color: '#349966' }}>Dartmouth</span>
@@ -345,9 +369,10 @@ const AllClassesPage = () => {
               width: isMobile ? '100%' : '350px',
               height: '45px', // Consistent height
               borderRadius: '25px',
-              backgroundColor: '#FFFFFF',
-              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-              marginTop: '0px',  // Align with Typography
+              backgroundColor: searchBgColor,
+              boxShadow: darkMode
+                ? '0px 4px 12px rgba(255, 255, 255, 0.1)'
+                : '0px 4px 12px rgba(0, 0, 0, 0.1)',
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
                   borderColor: '#571CE0',
@@ -376,22 +401,25 @@ const AllClassesPage = () => {
           />
         </Box>
 
-       
-
         {loading ? (
-          <CircularProgress color="primary" />
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+            <CircularProgress color="primary" />
+          </Box>
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : filteredDepartments.length > 0 ? (
           <TableContainer
             component={Paper}
             sx={{
-              backgroundColor: '#FFFFFF',
+              backgroundColor: paperBgColor,
               marginTop: '20px',
               borderRadius: '15px',
-              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
+              boxShadow: darkMode
+                ? '0 6px 16px rgba(255, 255, 255, 0.1)'
+                : '0 6px 16px rgba(0, 0, 0, 0.08)',
               padding: '20px',
               overflow: 'hidden',
+              transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
             }}
           >
             <Table>
@@ -399,24 +427,26 @@ const AllClassesPage = () => {
                 <TableRow>
                   <TableCell
                     sx={{
-                      color: 'black',
+                      color: headerTextColor,
                       textAlign: 'left',
                       fontWeight: 'bold',
                       fontSize: '1rem',
                       paddingBottom: '15px',
                       borderBottom: 'none',
+                      backgroundColor: tableHeaderBgColor,
                     }}
                   >
                     Code
                   </TableCell>
                   <TableCell
                     sx={{
-                      color: 'black',
+                      color: headerTextColor,
                       textAlign: 'left',
                       fontWeight: 'bold',
                       fontSize: '1rem',
                       paddingBottom: '15px',
                       borderBottom: 'none',
+                      backgroundColor: tableHeaderBgColor,
                     }}
                   >
                     Department Name
@@ -424,12 +454,13 @@ const AllClassesPage = () => {
                   {!isMobile && (
                     <TableCell
                       sx={{
-                        color: 'black',
+                        color: headerTextColor,
                         textAlign: 'left',
                         fontWeight: 'bold',
                         fontSize: '1rem',
                         paddingBottom: '15px',
                         borderBottom: 'none',
+                        backgroundColor: tableHeaderBgColor,
                       }}
                     >
                       Total Courses
@@ -439,23 +470,26 @@ const AllClassesPage = () => {
               </TableHead>
               <TableBody>
                 {filteredDepartments.map((department, index) => (
-                  <CustomTooltip 
-                    key={index} 
+                  <CustomTooltip
+                    key={index}
                     title={getMostPopularCourseTooltip(department)}
-                    placement="top" 
+                    placement="top"
                     arrow
                   >
                     <TableRow
                       component={Link}
                       to={`/departments/${department}`}
                       sx={{
-                        backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+                        backgroundColor:
+                          index % 2 === 0 ? tableRowEvenBgColor : tableRowOddBgColor,
                         transition: 'transform 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease',
                         '&:hover': {
-                          backgroundColor: '#E9E9E9',
+                          backgroundColor: darkMode ? '#2a2a2a' : '#E9E9E9',
                           transform: 'scale(1.03)',
-                          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)',
-                          border: '1px solid rgba(87, 28, 224, 0.1)',
+                          boxShadow: darkMode
+                            ? '0 10px 30px rgba(255, 255, 255, 0.1)'
+                            : '0 10px 30px rgba(0, 0, 0, 0.12)',
+                          border: darkMode ? '1px solid rgba(187, 134, 252, 0.2)' : '1px solid rgba(87, 28, 224, 0.1)',
                         },
                         cursor: 'pointer',
                         textDecoration: 'none',
@@ -465,7 +499,7 @@ const AllClassesPage = () => {
                     >
                       <TableCell
                         sx={{
-                          color: '#333',
+                          color: textColor,
                           padding: '15px',
                           fontSize: '1rem',
                           borderBottom: 'none',
@@ -475,7 +509,7 @@ const AllClassesPage = () => {
                       </TableCell>
                       <TableCell
                         sx={{
-                          color: '#333',
+                          color: textColor,
                           padding: '15px',
                           fontSize: '1rem',
                           borderBottom: 'none',
@@ -486,7 +520,7 @@ const AllClassesPage = () => {
                       {!isMobile && (
                         <TableCell
                           sx={{
-                            color: '#333',
+                            color: textColor,
                             padding: '15px',
                             fontSize: '1rem',
                             borderBottom: 'none',
