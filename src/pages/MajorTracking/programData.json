@@ -4,7 +4,7 @@
       "name": "Computer Science",
       "types": {
         "major": {
-          "code": "MAJ.CS",
+          "code": "MAJ.COSC",
           "requirements": "(@[{COSC001|ENGS020},COSC010] & #2[030-049] & #2[050-069] & #2[070-089] & #2[030-089] & #{COSC094|MATH≥020!MATH_PREREQS} & ^)",
           "prereqs": "@[COSC001,COSC010]"
         }

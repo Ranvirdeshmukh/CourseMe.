@@ -31,6 +31,7 @@ import TranscriptParser from './pages/TranscriptParser';
 import ProfessorDetails from './pages/ProfessorDetails';
 import ProfessorDirectory from './pages/ProfessorDirectory';
 import MajorTracker from './pages/MajorTracking/MajorTracking';
+import CourseTiles from './pages/MajorTracking/CourseTiles';
 
 import  darkTheme  from './components/theme'; // Your dark theme file
 
@@ -102,6 +103,7 @@ const AppContent = () => {
         <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage darkMode={darkMode} />} />
         <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage darkMode={darkMode} />} />
         <Route path="/major-tracker" element={<MajorTracker />} />
+        <Route path="/major-tracker/courses" element={<CourseTiles />} />
         <Route
           path="/departments/:department/courses/:courseId/professors/:professor"
           element={<ProfessorReviewsPage darkMode={darkMode} />}
