@@ -1259,24 +1259,28 @@ const handleQualityVote = async (voteType) => {
         style={{ width: '100%' }}
       >
         <Box
-          sx={{
-            my: 2,
-            background: darkMode 
-            ? 'linear-gradient(135deg, #1C1F43 0%, #0C0F33 100%)' // Dark mode gradient
-            : 'linear-gradient(135deg, #FAFAFA 0%, #F4F4F4 100%)', // Light mode gradient            borderRadius: '12px',
-            overflow: 'hidden',
-            border: darkMode ? '1px solid #444444' : '1px solid #E0E0E0', // Dynamic border color
-                          boxShadow: darkMode
-                ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.1)'
-                : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: darkMode
-                  ? '0 6px 12px -2px rgba(0, 0, 0, 0.15), 0 3px 6px -2px rgba(0, 0, 0, 0.1)'
-                  : '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
-              }, 
-          }}
-        >
+        sx={{
+          my: 3,
+          background: darkMode
+            ? 'linear-gradient(to right, rgba(30, 30, 30, 0.8), rgba(50, 50, 50, 0.8))' // Dark mode background
+            : 'linear-gradient(to right, rgba(238, 242, 255, 0.8), rgba(245, 243, 255, 0.8))', // Light mode background
+          borderRadius: '12px',
+          overflow: 'hidden',
+          border: darkMode
+            ? '1px solid rgba(255, 255, 255, 0.1)'
+            : '1px solid rgba(99, 102, 241, 0.1)',
+          boxShadow: darkMode
+            ? '0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -1px rgba(255, 255, 255, 0.03)'
+            : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: darkMode
+              ? '0 6px 12px -2px rgba(255, 255, 255, 0.08), 0 3px 6px -2px rgba(255, 255, 255, 0.05)'
+              : '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
+          },
+        }}
+      >
           <ListItem sx={{ p: 3, alignItems: 'flex-start' }}>
             <Box sx={{ width: '100%' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
