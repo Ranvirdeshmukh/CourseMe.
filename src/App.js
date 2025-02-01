@@ -93,8 +93,12 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<GetStartedPage />} />
         
+        
         <Route path="/landing" element={<LandingPage darkMode={darkMode} />} />
         <Route path="/classes" element={<AllClassesPage darkMode={darkMode} />} />
+        <Route path="/profile" element={<ProfilePage darkMode={darkMode} />} />
+        <Route path="/signup" element={<SignUpPage darkMode={darkMode} />} />
+        <Route path="/login" element={<LoginPage darkMode={darkMode} />} />
         <Route path="/profile" element={<ProfilePage darkMode={darkMode} />} />
         <Route path="/signup" element={<SignUpPage darkMode={darkMode} />} />
         <Route path="/login" element={<LoginPage darkMode={darkMode} />} />
@@ -103,10 +107,14 @@ const AppContent = () => {
         <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage darkMode={darkMode} />} />
         <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage darkMode={darkMode} />} />
         <Route path="/major-tracker" element={<MajorTracker darkMode={darkMode} />} />
+        <Route path="/major-tracker" element={<MajorTracker darkMode={darkMode} />} />
         <Route
           path="/departments/:department/courses/:courseId/professors/:professor"
           element={<ProfessorReviewsPage darkMode={darkMode}  />}
         />
+        <Route path="/complete-profile" element={<CompleteProfilePage darkMode={darkMode} />} />
+        <Route path="/layups" element={<LayupsPage darkMode={darkMode} />} />
+        <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage darkMode={darkMode} />} />
         <Route path="/complete-profile" element={<CompleteProfilePage darkMode={darkMode} />} />
         <Route path="/layups" element={<LayupsPage darkMode={darkMode} />} />
         <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage darkMode={darkMode} />} />

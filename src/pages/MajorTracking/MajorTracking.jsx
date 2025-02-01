@@ -1,279 +1,174 @@
 import React, { useState, useEffect } from 'react';
 import programData from './programData.json';
-
-// Function to normalize course numbers to padded format
-const normalizeCourseNumber = (course) => {
-  const match = course.match(/^([A-Z]+)(\d+)(\.?\d*)?$/);
-  if (!match) return null;
-  
-  const [, dept, num, decimal] = match;
-  const paddedNum = num.padStart(3, '0');
-  return `${dept}${paddedNum}${decimal || ''}`;
-};
-
-// Function to parse course into components
-const parseCourse = (course) => {
-  const match = course.match(/^([A-Z]+)(\d+)(\.?\d*)?$/);
-  return match ? {
-    dept: match[1],
-    num: parseInt(match[2]),
-    decimal: match[3] || ''
-  } : null;
-};
-
-const parsePrereqString = (prereqStr) => {
-  // Remove @ and brackets
-  const inner = prereqStr.slice(2, -1);
-  
-  // Split by comma unless inside curly braces
-  const prereqs = [];
-  let currentItem = "";
-  let braceDepth = 0;
-  
-  for (let char of inner) {
-    if (char === '{') braceDepth++;
-    if (char === '}') braceDepth--;
-    
-    if (char === ',' && braceDepth === 0) {
-      prereqs.push(currentItem.trim());
-      currentItem = "";
-    } else {
-      currentItem += char;
-    }
-  }
-  if (currentItem) prereqs.push(currentItem.trim());
-
-  return prereqs.map(req => {
-    if (req.startsWith('{')) {
-      // Handle alternatives
-      const options = req.slice(1, -1).split('|').map(opt => opt.trim());
-      return `One from: ${options.join(', ')}`;
-    }
-    return req;
-  });
-};
-
-const isMathPrereq = (course) => {
-  const mathPrereqs = parsePrereqString(programData.programs.MATH.types.major.prereqs);
-  const courseParsed = parseCourse(course);
-  return mathPrereqs.some(prereq => {
-    if (prereq.startsWith('One from:')) {
-      const options = prereq.slice(10).split(',').map(opt => opt.trim());
-      return options.some(opt => {
-        const prereqParsed = parseCourse(opt);
-        return prereqParsed && courseParsed &&
-               prereqParsed.dept === courseParsed.dept &&
-               prereqParsed.num === courseParsed.num;
-      });
-    }
-    const prereqParsed = parseCourse(prereq);
-    return prereqParsed && courseParsed &&
-           prereqParsed.dept === courseParsed.dept &&
-           prereqParsed.num === courseParsed.num;
-  });
-};
-
-const checkSpecificCourseRequirement = (requirement, course) => {
-  const courseParsed = parseCourse(course);
-  if (!courseParsed) return false;
-
-  // Handle range within specific department (e.g., COSC[30-89])
-  const deptRangeMatch = requirement.match(/([A-Z]+)\[(\d+)-(\d+)\]/);
-  if (deptRangeMatch) {
-    const [, dept, start, end] = deptRangeMatch;
-    return courseParsed.dept === dept && 
-           courseParsed.num >= parseInt(start) && 
-           courseParsed.num <= parseInt(end);
-  }
-
-  // Handle greater than or equal requirement with exclusions (e.g., MATH≥20!MATH_PREREQS)
-  const greaterEqualMatch = requirement.match(/([A-Z]+)≥(\d+)(!MATH_PREREQS)?/);
-  if (greaterEqualMatch) {
-    const [, dept, minNum, excludePrereqs] = greaterEqualMatch;
-    const meetsBasicRequirement = courseParsed.dept === dept && 
-                                 courseParsed.num >= parseInt(minNum);
-    
-    if (!meetsBasicRequirement) return false;
-    if (excludePrereqs && isMathPrereq(course)) return false;
-    return true;
-  }
-
-  // Handle exact course match (e.g., COSC094)
-  const reqParsed = parseCourse(requirement);
-  return reqParsed && 
-         courseParsed.dept === reqParsed.dept && 
-         courseParsed.num === reqParsed.num;
-};
+import CourseDisplayPillar from './CourseDisplayPillar';
 
 const MajorTracker = () => {
   const [courseInput, setCourseInput] = useState("");
   const [courses, setCourses] = useState([]);
-  const [matchingMajors, setMatchingMajors] = useState({});
+  const [majorRequirements, setMajorRequirements] = useState({});
 
-  const evaluateRequirements = (major, courseList) => {
-    if (!major || !programData.programs[major]) return {};
-    
-    const majorData = programData.programs[major].types.major;
-    const reqs = {
-      hasMatchingCourses: false,
-      prerequisites: {
-        needed: [],
-        completed: [],
-        remaining: []
-      },
-      courseRanges: [],
-      specificRequirements: []
-    };
-
-    // Check prerequisites
-    const prereqs = parsePrereqString(majorData.prereqs);
-    reqs.prerequisites.needed = prereqs;
-    reqs.prerequisites.completed = courseList.filter(course => 
-      prereqs.some(prereq => {
-        if (prereq.includes('One from:')) {
-          const options = prereq.slice(10).split(',').map(opt => opt.trim());
-          return options.some(opt => {
-            const reqParsed = parseCourse(opt);
-            const courseParsed = parseCourse(course);
-            return reqParsed && courseParsed &&
-                   reqParsed.dept === courseParsed.dept &&
-                   reqParsed.num === courseParsed.num;
-          });
-        }
-        const reqParsed = parseCourse(prereq);
-        const courseParsed = parseCourse(course);
-        return reqParsed && courseParsed &&
-               reqParsed.dept === courseParsed.dept &&
-               reqParsed.num === courseParsed.num;
-      })
-    );
-
-    reqs.prerequisites.remaining = prereqs.filter(prereq => {
-      if (prereq.includes('One from:')) {
-        const options = prereq.slice(10).split(',').map(opt => opt.trim());
-        return !options.some(opt => 
-          courseList.some(course => {
-            const reqParsed = parseCourse(opt);
-            const courseParsed = parseCourse(course);
-            return reqParsed && courseParsed &&
-                   reqParsed.dept === courseParsed.dept &&
-                   reqParsed.num === courseParsed.num;
-          })
-        );
-      }
-      return !courseList.some(course => {
-        const reqParsed = parseCourse(prereq);
-        const courseParsed = parseCourse(course);
-        return reqParsed && courseParsed &&
-               reqParsed.dept === courseParsed.dept &&
-               reqParsed.num === courseParsed.num;
-      });
-    });
-
-    // Parse and check course ranges
-    const reqString = majorData.requirements;
-    
-    // Handle specific course requirements (e.g., #{COSC94|MATH≥20|COSC[30-89]})
-    const specificReqMatches = reqString.match(/#{([^}]+)}/g) || [];
-    specificReqMatches.forEach(match => {
-      const options = match.slice(2, -1).split('|');
-      const matchingCourses = courseList.filter(course =>
-        options.some(option => checkSpecificCourseRequirement(option, course))
-      );
-
-      if (matchingCourses.length > 0) {
-        reqs.specificRequirements.push({
-          requirement: match.slice(2, -1),
-          completed: matchingCourses,
-          satisfied: true
-        });
-      } else {
-        reqs.specificRequirements.push({
-          requirement: match.slice(2, -1),
-          completed: [],
-          satisfied: false
-        });
-      }
-    });
-
-    const parseRangeRequirement = (range) => {
-      if (range.includes('-')) {
-        const [start, end] = range.split('-').map(num => parseInt(num.padStart(3, '0')));
-        return { start, end };
-      }
-      if (range.includes('≥')) {
-        const num = parseInt(range.replace('≥', '').padStart(3, '0'));
-        return { start: num, end: 999 };
-      }
-      return { 
-        start: parseInt(range.padStart(3, '0')), 
-        end: parseInt(range.padStart(3, '0')) 
-      };
-    };
-
-    const checkCourseInRange = (course, range) => {
-      const baseNum = getCourseBaseNumber(course);
-      if (baseNum === null) return false;
-      
-      const { start, end } = parseRangeRequirement(range);
-      return baseNum >= start && baseNum <= end;
-    };
-
-    const getCourseBaseNumber = (course) => {
-      const match = course.match(/^[A-Z]+(\d+)/);
-      return match ? parseInt(match[1]) : null;
-    };
-
-    // Handle standard range requirements
-    const rangeMatches = reqString.match(/#\d+\[\d+-\d+\]/g) || [];
-    rangeMatches.forEach(match => {
-      const count = parseInt(match.match(/#(\d+)/)[1]);
-      const range = match.match(/\[(.+?)\]/)[1];
-      const matchingCourses = courseList.filter(course => 
-        checkCourseInRange(course, range)
-      );
-
-      reqs.courseRanges.push({
-        range,
-        required: count,
-        completed: matchingCourses,
-        remaining: Math.max(0, count - matchingCourses.length)
-      });
-    });
-
-    // Set hasMatchingCourses if any requirements are met
-    reqs.hasMatchingCourses = reqs.prerequisites.completed.length > 0 || 
-      reqs.courseRanges.some(range => range.completed.length > 0) ||
-      reqs.specificRequirements.some(req => req.satisfied);
-
-    return reqs;
+  const parseCourse = (course) => {
+    if (!course || typeof course !== 'string') return null;
+    const match = course.match(/^([A-Z]+)(\d+)(\.?\d*)?$/);
+    return match ? {
+      dept: match[1],
+      num: parseInt(match[2]),
+      decimal: match[3] || ''
+    } : null;
   };
 
-  const findMatchingMajors = (courseList) => {
-    const matches = {};
+  const normalizeCourseNumber = (course) => {
+    if (!course || typeof course !== 'string') return null;
+    const match = course.match(/^([A-Z]+)(\d+)(\.?\d*)?$/);
+    if (!match) return null;
+    const [, dept, num, decimal] = match;
+    const paddedNum = num.padStart(3, '0');
+    return `${dept}${paddedNum}${decimal || ''}`;
+  };
+
+  const parseCourseList = (courseStr) => {
+    if (!courseStr || typeof courseStr !== 'string') return [];
     
-    Object.entries(programData.programs).forEach(([majorCode, majorData]) => {
-      const requirements = evaluateRequirements(majorCode, courseList);
-      if (requirements.hasMatchingCourses) {
-        matches[majorCode] = {
-          name: majorData.name,
-          requirements
+    const courses = [];
+    let current = '';
+    let braceDepth = 0;
+
+    for (let char of courseStr) {
+      if (char === '{') braceDepth++;
+      if (char === '}') braceDepth--;
+      
+      if (char === ',' && braceDepth === 0) {
+        const trimmed = current.trim();
+        if (trimmed) courses.push(trimmed);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    const trimmed = current.trim();
+    if (trimmed) courses.push(trimmed);
+
+    return courses.map(course => {
+      if (course.startsWith('{') && course.endsWith('}')) {
+        return {
+          type: 'alternative',
+          options: course.slice(1, -1).split('|').map(opt => opt.trim())
         };
       }
+      return course;
     });
-    
-    return matches;
+  };
+
+  const parseRequirementString = (reqStr, majorDept) => {
+    if (!reqStr || typeof reqStr !== 'string') return [];
+
+    try {
+      // Remove outer parentheses and trim
+      const cleanStr = reqStr.replace(/^\(|\)$/g, '').trim();
+      if (!cleanStr) return [];
+
+      // Split by & and filter out empty strings
+      const groups = cleanStr.split('&')
+        .map(r => r.trim())
+        .filter(Boolean);
+
+      // Parse each requirement group
+      return groups.map(group => {
+        // Prerequisites/Required courses
+        if (group.startsWith('@[')) {
+          const inner = group.slice(2, -1).trim();
+          return {
+            type: 'prerequisites',
+            courses: parseCourseList(inner),
+            description: 'Required foundation courses'
+          };
+        }
+
+        // Course count requirements with range
+        const rangeMatch = group.match(/#(\d+)\[(.+?)\]/);
+        if (rangeMatch) {
+          const [, count, range] = rangeMatch;
+          const deptMatch = range.match(/^([A-Z]+)/);
+          const targetDept = deptMatch ? deptMatch[1] : majorDept;
+          const [start, end] = range.match(/\d+/g)?.map(num => parseInt(num)) || [0, 0];
+          
+          return {
+            type: 'range',
+            count: parseInt(count),
+            department: targetDept,
+            start,
+            end,
+            description: `${count} courses from ${targetDept} ${start}-${end}`
+          };
+        }
+
+        // Specific course requirements
+        if (group.startsWith('#{')) {
+          const options = group.slice(2, -1).split('|').map(o => o.trim());
+          return {
+            type: 'specific',
+            options,
+            description: 'One of the following courses'
+          };
+        }
+
+        return null;
+      }).filter(Boolean);
+    } catch (error) {
+      console.error('Error parsing requirements:', error);
+      return [];
+    }
   };
 
   useEffect(() => {
-    const matches = findMatchingMajors(courses);
-    setMatchingMajors(matches);
-  }, [courses]);
+    try {
+      const processedRequirements = {};
+
+      if (!programData?.programs) {
+        console.error('No program data available');
+        return;
+      }
+
+      Object.entries(programData.programs).forEach(([majorCode, majorData]) => {
+        try {
+          if (!majorData?.types?.major?.code) {
+            console.error(`Invalid major data for ${majorCode}`);
+            return;
+          }
+
+          const majorDept = majorData.types.major.code.split('.')[1];
+          if (!majorDept) {
+            console.error(`Could not determine department for ${majorCode}`);
+            return;
+          }
+
+          const requirements = parseRequirementString(
+            majorData.types.major.requirements,
+            majorDept
+          );
+
+          if (requirements.length > 0) {
+            processedRequirements[majorCode] = {
+              name: majorData.name || majorCode,
+              department: majorDept,
+              pillars: requirements
+            };
+          }
+        } catch (error) {
+          console.error(`Error processing major ${majorCode}:`, error);
+        }
+      });
+
+      setMajorRequirements(processedRequirements);
+    } catch (error) {
+      console.error('Error processing program data:', error);
+    }
+  }, []);
 
   const handleCourseSubmit = (e) => {
     e.preventDefault();
     
-    // Validate course format (including decimal courses)
     const courseRegex = /^[A-Z]{4}\d{1,3}(?:\.\d{2})?$/;
     if (!courseRegex.test(courseInput)) {
       alert("Please enter a valid course code (e.g., COSC001 or COSC001.01)");
@@ -295,7 +190,7 @@ const MajorTracker = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-bold mb-6">Major Progress Tracker</h2>
 
@@ -320,7 +215,7 @@ const MajorTracker = () => {
             </form>
           </div>
 
-          {/* Courses List */}
+          {/* Added Courses */}
           <div className="space-y-2">
             <h3 className="font-medium">Added Courses</h3>
             <div className="flex flex-wrap gap-2">
@@ -337,95 +232,20 @@ const MajorTracker = () => {
             </div>
           </div>
 
-          {/* Matching Majors */}
-          {Object.keys(matchingMajors).length > 0 ? (
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold">Matching Majors</h3>
-              {Object.entries(matchingMajors).map(([majorCode, data]) => (
-                <div key={majorCode} className="border rounded-lg p-4 space-y-4">
-                  <h4 className="text-lg font-bold">{data.name}</h4>
-                  
-                  {/* Prerequisites */}
-                  <div className="space-y-2">
-                    <h5 className="font-medium">Prerequisites</h5>
-                    <div className="space-y-1">
-                      {data.requirements.prerequisites.completed.length > 0 && (
-                        <div>
-                          <p className="text-green-600">Completed:</p>
-                          <ul className="list-disc ml-6">
-                            {data.requirements.prerequisites.completed.map((course, idx) => (
-                              <li key={idx}>{course}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {data.requirements.prerequisites.remaining.length > 0 && (
-                        <div>
-                          <p className="text-red-600">Still Needed:</p>
-                          <ul className="list-disc ml-6">
-                            {data.requirements.prerequisites.remaining.map((req, idx) => (
-                              <li key={idx}>{req}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Specific Course Requirements */}
-                  {data.requirements.specificRequirements.length > 0 && (
-                    <div className="space-y-2">
-                      <h5 className="font-medium">Specific Requirements</h5>
-                      {data.requirements.specificRequirements.map((req, idx) => (
-                        <div key={idx} className="border-l-4 border-blue-500 pl-4 py-2">
-                          <p className="font-medium">
-                            Requirement: {req.requirement}
-                          </p>
-                          {req.satisfied ? (
-                            <p className="text-sm text-green-600">
-                              Satisfied with: {req.completed.join(', ')}
-                            </p>
-                          ) : (
-                            <p className="text-sm text-red-600">
-                              Need one of these options
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Course Range Requirements */}
-                  {data.requirements.courseRanges.length > 0 && (
-                    <div className="space-y-2">
-                      <h5 className="font-medium">Course Requirements</h5>
-                      {data.requirements.courseRanges.map((range, idx) => (
-                        <div key={idx} className="border-l-4 border-blue-500 pl-4 py-2">
-                          <p className="font-medium">
-                            Courses {range.range}: {range.completed.length}/{range.required} completed
-                          </p>
-                          {range.completed.length > 0 && (
-                            <div className="mt-1">
-                              <p className="text-sm text-green-600">
-                                Completed: {range.completed.join(', ')}
-                              </p>
-                            </div>
-                          )}
-                          {range.remaining > 0 && (
-                            <p className="text-sm text-red-600">
-                              Still need {range.remaining} more course(s) in this range
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+          {/* Major Requirements */}
+          {Object.entries(majorRequirements).map(([majorCode, major]) => (
+            <div key={majorCode} className="mt-8">
+              <h3 className="text-xl font-bold mb-4">{major.name}</h3>
+              {major.pillars.map((pillar, index) => (
+                <CourseDisplayPillar
+                  key={`${majorCode}-${index}`}
+                  pillar={pillar}
+                  majorDept={major.department}
+                  selectedCourses={courses}
+                />
               ))}
             </div>
-          ) : courses.length > 0 ? (
-            <p className="text-gray-600">No matching majors found for your courses.</p>
-          ) : null}
+          ))}
         </div>
       </div>
     </div>

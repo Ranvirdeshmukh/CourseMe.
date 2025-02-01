@@ -1,0 +1,28 @@
+# Requirement Language Specification
+## Basic Syntax
+PROGRAM.TYPE -> (REQUIREMENTS)
+# Program Types
+MAJ     # Standard Major
+MIN     # Standard Minor
+MOD     # Modified Major
+SPEC    # Specialized Track/Program
+# Operators
+&   # AND operator
+|   # OR operator
+!   # NOT operator
+->  # IMPLIES operator (for prerequisite chains)
+^   # Culminating experience marker
+# Course Requirement Syntax
+@[...]     # Prerequisites/Required courses
+#N[...]    # N courses required from range
+#{...}     # Specific course requirement
+?[...]     # Optional courses/requirements
+# Advanced Syntax Elements
+[N-M]      # Course number range (e.g., [30-49])
+{A|B}      # Alternates (e.g., {MATH3|COSC1})
+≥N         # Greater than or equal to N
+≤N         # Less than or equal to N
+*          # Wildcard for course numbers
+$NAME      # Variable reference for reusable blocks
+%GPA       # GPA requirement
++TAG       # Requirement tag/category
