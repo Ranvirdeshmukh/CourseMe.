@@ -7,6 +7,16 @@ const CanvasGradeTable = ({ gradeData }) => {
   const canvasRef = useRef(null);
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
+  const isDarkMode = theme.palette.mode === 'dark';
+
+  // Define color variables based on dark mode
+  const headerBgColor = isDarkMode ? '#2C2C2C' : '#f5f5f5';
+  const headerTextColor = isDarkMode ? '#FFFFFF' : '#000000';
+  const evenRowBgColor = isDarkMode ? '#2A2A2A' : '#ffffff';
+  const oddRowBgColor = isDarkMode ? '#1E1E1E' : '#f9f9f9';
+  const rowTextColor = isDarkMode ? '#FFFFFF' : '#000000';
+  const borderColor = isDarkMode ? '#555555' : '#e0e0e0';
+  const noteTextColor = isDarkMode ? '#aaa' : '#666';
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -27,14 +37,13 @@ const CanvasGradeTable = ({ gradeData }) => {
 
     ctx.scale(dpr, dpr);
 
-    // Set styles
+    // Set default styles for text
     ctx.font = '14px Arial';
-    ctx.fillStyle = '#000';
 
     // Draw table header
-    ctx.fillStyle = '#f5f5f5';
+    ctx.fillStyle = headerBgColor;
     ctx.fillRect(0, 0, tableWidth, headerHeight);
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = headerTextColor;
     ctx.font = 'bold 14px Arial';
     ctx.fillText('Term', 20, 30);
     ctx.fillText('Median Grade', 200, 30);
@@ -63,18 +72,23 @@ const CanvasGradeTable = ({ gradeData }) => {
           const y = index * rowHeight + headerHeight;
 
           // Alternating row colors
-          ctx.fillStyle = index % 2 === 0 ? '#ffffff' : '#f9f9f9';
+          ctx.fillStyle = index % 2 === 0 ? evenRowBgColor : oddRowBgColor;
           ctx.fillRect(0, y, tableWidth, rowHeight);
 
-          ctx.fillStyle = '#000';
+          ctx.fillStyle = rowTextColor;
           ctx.font = '14px Arial';
           ctx.fillText(item.Term || 'N/A', 20, y + 25);
-          ctx.fillText(item.verified ? item.Grade : calculateMedianGrade(item.submissions), 200, y + 25);
+          ctx.fillText(
+            item.verified ? item.Grade : calculateMedianGrade(item.submissions),
+            200,
+            y + 25
+          );
 
           // Handling Professors
-          const professors = item.Professors && item.Professors.length > 0
-            ? item.Professors.join(', ')
-            : 'N/A';
+          const professors =
+            item.Professors && item.Professors.length > 0
+              ? item.Professors.join(', ')
+              : 'N/A';
           ctx.fillText(professors, 400, y + 25);
 
           // Verified icon
@@ -82,13 +96,13 @@ const CanvasGradeTable = ({ gradeData }) => {
             try {
               ctx.drawImage(verifiedImage, 715, y + 10, 20, 20);
             } catch (error) {
-              console.error("Failed to draw verified icon", error);
+              console.error('Failed to draw verified icon', error);
             }
           }
         });
 
       // Draw table borders
-      ctx.strokeStyle = '#e0e0e0';
+      ctx.strokeStyle = borderColor;
       ctx.beginPath();
       for (let i = 0; i <= gradeData.length; i++) {
         const y = i * rowHeight + headerHeight;
@@ -110,32 +124,49 @@ const CanvasGradeTable = ({ gradeData }) => {
 
     verifiedImage.onload = drawTableRows;
     verifiedImage.onerror = (error) => {
-      console.error("Failed to load verified icon image", error);
+      console.error('Failed to load verified icon image', error);
       drawTableRows();
     };
-
-  }, [gradeData, primaryColor]);
+  }, [gradeData, primaryColor, headerBgColor, headerTextColor, evenRowBgColor, oddRowBgColor, rowTextColor, borderColor]);
 
   // Helper function to calculate median grade
   const gradeToNum = {
-    'A': 11, 'A-': 10, 'A/A-': 10.5,
-    'B+': 9, 'A-/B+': 9.5, 'B': 8, 'B+/B': 8.5, 'B-': 7, 'B/B-': 7.5,
-    'C+': 6, 'B-/C+': 6.5, 'C': 5, 'C/C+': 5.5, 'C-': 4, 'C/C-': 4.5,
-    'D+': 3, 'C-/D+': 3.5, 'D': 2, 'D+/D': 2.5, 'D-': 1, 'D/D-': 1.5,
-    'F': 0
+    A: 11,
+    'A-': 10,
+    'A/A-': 10.5,
+    'B+': 9,
+    'A-/B+': 9.5,
+    B: 8,
+    'B+/B': 8.5,
+    'B-': 7,
+    'B/B-': 7.5,
+    'C+': 6,
+    'B-/C+': 6.5,
+    C: 5,
+    'C/C+': 5.5,
+    'C-': 4,
+    'C/C-': 4.5,
+    'D+': 3,
+    'C-/D+': 3.5,
+    D: 2,
+    'D+/D': 2.5,
+    'D-': 1,
+    'D/D-': 1.5,
+    F: 0,
   };
 
-  const numToGrade = Object.entries(gradeToNum)
-    .reduce((acc, [grade, num]) => {
-      acc[num] = grade;
-      return acc;
-    }, {});
+  const numToGrade = Object.entries(gradeToNum).reduce((acc, [grade, num]) => {
+    acc[num] = grade;
+    return acc;
+  }, {});
 
   const calculateMedianGrade = (submissions) => {
     if (!submissions || submissions.length === 0) return 'N/A';
 
     // Convert grades to points using gradeToNum mapping
-    const numericGrades = submissions.map(s => gradeToNum[s.Grade]).filter(g => g !== undefined);
+    const numericGrades = submissions
+      .map((s) => gradeToNum[s.Grade])
+      .filter((g) => g !== undefined);
 
     if (numericGrades.length === 0) return 'N/A'; // No valid grades
 
@@ -158,12 +189,8 @@ const CanvasGradeTable = ({ gradeData }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <canvas 
-        ref={canvasRef} 
-        style={{ maxWidth: '100%' }}
-        aria-label="Grade distribution table"
-      />
-      <p style={{ fontSize: '0.7rem', fontStyle: 'italic', color: '#666', marginTop: '10px' }}>
+      <canvas ref={canvasRef} style={{ maxWidth: '100%' }} aria-label="Grade distribution table" />
+      <p style={{ fontSize: '0.7rem', fontStyle: 'italic', color: noteTextColor, marginTop: '10px' }}>
         *Note: Verified data is shown with a checkmark icon.
       </p>
     </div>

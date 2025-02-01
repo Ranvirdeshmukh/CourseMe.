@@ -1,10 +1,17 @@
 import React from 'react';
 import {
-  ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, ReferenceLine
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  BarChart,
+  Bar,
+  ReferenceLine
 } from 'recharts';
 import { Box, Typography } from '@mui/material';
 
-// Existing grade conversion and color functions remain unchanged
+// Grade conversion and color functions remain unchanged
 const gradeToNum = {
   'A': 11, 'A-': 10, 'A/A-': 10.5,
   'B+': 9, 'A-/B+': 9.5, 'B': 8, 'B+/B': 8.5, 'B-': 7, 'B/B-': 7.5,
@@ -24,9 +31,9 @@ const gradeToColor = (grade) => {
   return colors[grade] || '#ccc';
 };
 
-// Custom box shape remains unchanged
+// Custom box shape for bars (unchanged)
 const CustomBox = (props) => {
-  const { x, y, width, height, fill, grade } = props;
+  const { x, y, width, height, fill } = props;
   const boxWidth = 90;
   const boxHeight = 35;
   const yOffset = boxHeight / 2;
@@ -43,41 +50,58 @@ const CustomBox = (props) => {
   );
 };
 
-// Helper function remains unchanged
+// Helper function to convert term string to number for sorting
 const termToNumber = (term) => {
   const year = parseInt(term.slice(0, 2));
   const season = term.slice(2);
-  const seasonValue = {'W': 0, 'S': 1, 'X': 2, 'F': 3}[season] || 0;
+  const seasonValue = { 'W': 0, 'S': 1, 'X': 2, 'F': 3 }[season] || 0;
   return year * 10 + seasonValue;
 };
 
-// Custom Tooltip component
-const CustomTooltip = ({ active, payload, label }) => {
+// Custom Tooltip component now accepts darkMode prop
+const CustomTooltip = ({ active, payload, label, darkMode }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <Box sx={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
-        <Typography variant="body2"><strong>Term:</strong> {data.term}</Typography>
-        <Typography variant="body2"><strong>Median Grade:</strong> {data.grade}</Typography>
-        <Typography variant="body2"><strong>Professor(s):</strong> {data.professors.join(', ') || 'N/A'}</Typography>
-        <Typography variant="body2"><strong>Verified:</strong> {data.verified ? 'Yes' : 'No'}</Typography>
+      <Box
+        sx={{
+          backgroundColor: darkMode ? '#333' : '#fff',
+          padding: '10px',
+          border: `1px solid ${darkMode ? '#666' : '#ccc'}`,
+          borderRadius: '4px'
+        }}
+      >
+        <Typography variant="body2" sx={{ color: darkMode ? '#fff' : '#000' }}>
+          <strong>Term:</strong> {data.term}
+        </Typography>
+        <Typography variant="body2" sx={{ color: darkMode ? '#fff' : '#000' }}>
+          <strong>Median Grade:</strong> {data.grade}
+        </Typography>
+        <Typography variant="body2" sx={{ color: darkMode ? '#fff' : '#000' }}>
+          <strong>Professor(s):</strong> {data.professors.join(', ') || 'N/A'}
+        </Typography>
+        <Typography variant="body2" sx={{ color: darkMode ? '#fff' : '#000' }}>
+          <strong>Verified:</strong> {data.verified ? 'Yes' : 'No'}
+        </Typography>
       </Box>
     );
   }
   return null;
 };
 
-const FloatingGradeChart = ({ gradeData }) => {
+const FloatingGradeChart = ({ gradeData, darkMode }) => {
+  // Format and sort grade data
   const formattedGradeData = gradeData
     .map((entry) => ({
       term: entry.Term,
       grade: entry.Grade,
       verified: entry.verified,
       gradeValue: gradeToNum[entry.Grade],
-      percent: 100 / gradeData.length,
       fill: gradeToColor(entry.Grade),
       sortValue: termToNumber(entry.Term),
-      professors: Array.isArray(entry.Professors) ? entry.Professors : [entry.Professors].filter(Boolean)
+      professors: Array.isArray(entry.Professors)
+        ? entry.Professors
+        : [entry.Professors].filter(Boolean)
     }))
     .sort((a, b) => a.sortValue - b.sortValue);
 
@@ -86,6 +110,9 @@ const FloatingGradeChart = ({ gradeData }) => {
   const maxYAxisValue = gradeToNum['A'] + 0.5;
   const referenceGrades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
 
+  // Define color variables based on darkMode
+  const axisTickColor = darkMode ? '#E0E0E0' : '#8e8e8e';
+  const gridStroke = darkMode ? '#444' : '#ccc';
 
   return (
     <Box sx={{ width: '100%', mt: 4, position: 'relative' }}>
@@ -97,14 +124,14 @@ const FloatingGradeChart = ({ gradeData }) => {
             barSize={20}
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              vertical={false} 
-              horizontal={props => props.index !== 0}
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={gridStroke}
+              vertical={false}
             />
             <XAxis
               dataKey="term"
-              tick={{ fill: '#8e8e8e' }}
+              tick={{ fill: axisTickColor }}
               fontSize={14}
               axisLine={false}
               tickLine={false}
@@ -113,29 +140,35 @@ const FloatingGradeChart = ({ gradeData }) => {
             <YAxis
               type="number"
               domain={[minYAxisValue, maxYAxisValue]}
-              ticks={[gradeToNum['B-'], gradeToNum['B'], gradeToNum['B+'], gradeToNum['A-'], gradeToNum['A']]}
+              ticks={[
+                gradeToNum['B-'],
+                gradeToNum['B'],
+                gradeToNum['B+'],
+                gradeToNum['A-'],
+                gradeToNum['A']
+              ]}
               tickFormatter={(tick) => {
                 const gradeLabels = {
                   [gradeToNum['B-']]: 'B-',
                   [gradeToNum['B']]: 'B',
                   [gradeToNum['B+']]: 'B+',
                   [gradeToNum['A-']]: 'A-',
-                  [gradeToNum['A']]: 'A',
+                  [gradeToNum['A']]: 'A'
                 };
                 return gradeLabels[tick];
               }}
-              tick={{ fill: '#8e8e8e' }}
+              tick={{ fill: axisTickColor }}
               fontSize={14}
               axisLine={false}
               tickLine={false}
               tickMargin={10}
             />
-            <Tooltip content={<CustomTooltip />} />
-            {referenceGrades.map(grade => (
+            <Tooltip content={<CustomTooltip darkMode={darkMode} />} />
+            {referenceGrades.map((grade) => (
               <ReferenceLine
                 key={grade}
                 y={gradeToNum[grade]}
-                stroke="#ccc"
+                stroke={gridStroke}
                 strokeDasharray="3 3"
                 strokeWidth={1}
               />
