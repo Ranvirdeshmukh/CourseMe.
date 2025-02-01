@@ -122,6 +122,9 @@ const AppContent = () => {
           path="/course-enrollment-priorities/:department"
           element={<DepartmentCoursesWithPriorities darkMode={darkMode} />}
         />
+
+<Route path="/departments/:department" element={<DepartmentCoursesWithPriorities darkMode={darkMode} />} />
+
         <Route path="/timetable" element={<Timetable />} />
         <Route path="/upload-unique-transcript" element={<TranscriptParser />} />
         <Route path="/professors/:professorId" element={<ProfessorDetails />} />
