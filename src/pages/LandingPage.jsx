@@ -15,7 +15,6 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material
 
 
 
-
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
@@ -56,6 +55,16 @@ const LandingPage = ({ darkMode }) => {
   const [extendPage, setExtendPage] = useState(false);
   const { currentUser } = useAuth(); // Get current user status
 const [showReviewPopup, setShowReviewPopup] = useState(false);
+const [showBetaPopup, setShowBetaPopup] = useState(() => {
+  // Check if user has previously dismissed the popup
+  const hasDeclined = localStorage.getItem('betaDeclined');
+  return !hasDeclined;
+});
+const handleCloseBetaPopup = () => {
+  // Store user's preference in localStorage
+  localStorage.setItem('betaDeclined', 'true');
+  setShowBetaPopup(false);
+};
 
 
   const [difficulty, setDifficulty] = useState(null);
@@ -788,7 +797,95 @@ return (
   </DialogActions>
 </Dialog>
 
-
+<Dialog
+  open={showBetaPopup}
+  onClose={handleCloseBetaPopup}
+  fullWidth
+  maxWidth="xs"
+  PaperProps={{
+    style: {
+      borderRadius: 20,
+      padding: '20px',
+      margin: '0 10px',
+      background: darkMode ? '#1C093F' : '#ffffff',
+    },
+    elevation: 24,
+  }}
+  TransitionComponent={Fade}
+  TransitionProps={{ timeout: 500 }}
+>
+  <DialogTitle sx={{ 
+    textAlign: 'center', 
+    paddingBottom: 0,
+    color: darkMode ? '#FFFFFF' : '#000000'
+  }}>
+    <Typography
+      variant="h6"
+      sx={{
+        fontWeight: 'bold',
+        fontFamily: 'SF Pro Display, sans-serif',
+        lineHeight: 1.2,
+      }}
+    >
+      Join the <span style={{ color: '#571CE0' }}>Beta</span> Program
+    </Typography>
+  </DialogTitle>
+  <DialogContent sx={{ textAlign: 'center', paddingTop: '10px' }}>
+    <Typography
+      variant="body2"
+      sx={{
+        fontFamily: 'SF Pro Text, sans-serif',
+        color: darkMode ? '#CCCCCC' : '#555',
+        marginBottom: '20px',
+      }}
+    >
+      Get early access to our CORA 1.0 major planning tool and other new features!
+    </Typography>
+    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexDirection: 'column' }}>
+      <Button
+        onClick={() => {
+          navigate('/beta');
+          handleCloseBetaPopup();
+        }}
+        variant="contained"
+        fullWidth
+        sx={{
+          backgroundColor: darkMode ? '#571CE0' : '#000',
+          color: '#fff',
+          borderRadius: '25px',
+          padding: '12px 0',
+          textTransform: 'none',
+          fontWeight: 'bold',
+          fontSize: '1rem',
+          fontFamily: 'SF Pro Text, sans-serif',
+          boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.1)',
+          '&:hover': {
+            backgroundColor: darkMode ? '#6A1DE0' : '#333',
+          },
+          maxWidth: '300px',
+          margin: '0 auto',
+        }}
+      >
+        Learn More
+      </Button>
+      <Button
+        onClick={handleCloseBetaPopup}
+        sx={{
+          color: darkMode ? '#CCCCCC' : '#888',
+          textTransform: 'none',
+          fontFamily: 'SF Pro Text, sans-serif',
+          fontSize: '0.9rem',
+          '&:hover': {
+            color: darkMode ? '#FFFFFF' : '#000',
+            backgroundColor: 'transparent',
+          },
+        }}
+      >
+        Maybe Later
+      </Button>
+    </Box>
+  </DialogContent>
+</Dialog>
 
  {/* Timetable Button */}
 <ButtonBase
@@ -1247,12 +1344,4 @@ const styles = `
     }
   }
 `;
-
-// export default () => (
-//   <>
-//     <style>{styles}</style>
-//     <LandingPage />
-//   </>
-// );
-
 export default LandingPage;
