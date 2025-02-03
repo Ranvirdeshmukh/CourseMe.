@@ -34,7 +34,7 @@
       "name": "Government",
       "types": {
         "major": {
-          "code": "MAJ.GOV",
+          "code": "MAJ.GOVT",
           "requirements": "(@[{GOVT010|ECON010|MATH010|QSS015|LING010|PBPL010|PSYC010|SOCY010}] & #2[003-006] & #6[≥010] & #2[081-086])",
           "prereqs": "@[{GOVT010|ECON010|MATH010|QSS015|LING010|PBPL010|PSYC010|SOCY010}]"
         }

@@ -122,3 +122,12 @@ MajorTracker.css
     font-size: 14px;
     color: #666;
   }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
