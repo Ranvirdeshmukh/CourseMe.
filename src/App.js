@@ -128,7 +128,7 @@ const AppContent = () => {
         <Route path="/timetable" element={<Timetable darkMode={darkMode} />} />
         <Route path="/upload-unique-transcript" element={<TranscriptParser />} />
         <Route path="/professors/:professorId" element={<ProfessorDetails />} />
-        <Route path="/professors" element={<ProfessorDirectory />} />
+        <Route path="/professors" element={<ProfessorDirectory darkMode={darkMode} />} />
       </Routes>
     </ThemeProvider>
   );
