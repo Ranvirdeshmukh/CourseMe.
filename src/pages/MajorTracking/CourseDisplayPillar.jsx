@@ -1,118 +1,317 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import CourseTiles from './CourseTiles';
-import { evaluateRequirements } from './CourseAllocation';
+// CourseDisplayPillar.jsx
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { Loader2 } from 'lucide-react';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
+import CourseCard from './CourseCard';
 
-const CourseDisplayPillar = ({ 
-  pillar, 
-  majorDept, 
-  selectedCourses = [], 
-  onCourseComplete,
+const CourseDisplayPillar = ({
+  pillar,
+  majorDept,
+  completedCourses = [],
+  onCourseStatusChange,
   allPillars = [],
-  pillarIndex = 0
+  pillarIndex,
+  duplicateCourses = new Map() // Map of courseId -> array of pillarIndices where it appears
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [requirementStatus, setRequirementStatus] = useState({
-    isComplete: false,
-    matchingCourses: [],
-    neededCount: 0
-  });
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [localCompletedCourses, setLocalCompletedCourses] = useState(completedCourses);
+  const [localCourseStatuses, setLocalCourseStatuses] = useState(new Map());
+  
+  const db = getFirestore();
 
-  // Evaluate requirements whenever selected courses change
+  // Update local state when props change
   useEffect(() => {
-    const { pillarCompletions, allocatedCourses } = evaluateRequirements(selectedCourses, allPillars);
-    const status = pillarCompletions[pillarIndex] || {
-      isComplete: false,
-      matchingCourses: [],
-      neededCount: 0
+    setLocalCompletedCourses(completedCourses);
+  }, [completedCourses]);
+
+  // Calculate course color based on completion and pillar allocation
+  const calculateCourseColor = useCallback((courseId, isCompleted) => {
+    if (!isCompleted) return 'none';
+    
+    // Get all pillars that could include this course
+    const pillarsWithCourse = duplicateCourses.get(courseId);
+    if (!pillarsWithCourse) return 'primary';
+  
+    // Get completed courses that could satisfy this pillar
+    const coursesInPillar = courses.map(course => 
+      `${course.department}${course.course_number}`
+    ).filter(id => localCompletedCourses.includes(id));
+  
+    // For range pillars, we need special handling
+    if (pillar.type === 'range') {
+      // For COSC 30-49 pillar (which comes first)
+      if (pillar.end === 49) {
+        const pillarRequiredCount = pillar.count;
+        const courseIndex = coursesInPillar.indexOf(courseId);
+        return courseIndex < pillarRequiredCount ? 'primary' : 'secondary';
+      }
+      
+      // For COSC 30-89 pillar
+      if (pillar.end === 89) {
+        // Check if this course is already allocated to the 30-49 pillar
+        const isAllocatedToEarlierPillar = coursesInPillar.indexOf(courseId) < 2;
+        if (!isAllocatedToEarlierPillar) {
+          // If not allocated to 30-49, show as primary for this pillar
+          return 'primary';
+        }
+        return 'secondary';
+      }
+    }
+  
+    // Default to secondary color for other cases
+    return 'secondary';
+  }, [duplicateCourses, pillarIndex, courses, localCompletedCourses, pillar]);
+
+  const getCachedCourses = useCallback(async () => {
+    if (!pillar) return [];
+    
+    if (!window.courseCache) {
+      window.courseCache = new Map();
+    }
+    
+    const cacheKey = `${pillar.type}-${JSON.stringify({
+      department: pillar.department,
+      start: pillar.start,
+      end: pillar.end,
+      options: pillar.options,
+      courses: pillar.courses
+    })}`;
+    
+    if (window.courseCache.has(cacheKey)) {
+      return window.courseCache.get(cacheKey);
+    }
+    
+    const coursesRef = collection(db, 'courses');
+    let q;
+
+    try {
+      switch (pillar.type) {
+        case 'prerequisites':
+          const courseIds = pillar.courses.flatMap(course => {
+            if (typeof course === 'string') return [course];
+            if (course.type === 'alternative') return course.options;
+            return [];
+          });
+          q = query(coursesRef, where('course_id', 'in', courseIds));
+          break;
+
+        case 'range':
+          q = query(
+            coursesRef,
+            where('department', '==', pillar.department),
+            where('course_number', '>=', pillar.start.toString().padStart(3, '0')),
+            where('course_number', '<=', pillar.end.toString().padStart(3, '0'))
+          );
+          break;
+
+        case 'specific':
+          q = query(coursesRef, where('course_id', 'in', pillar.options));
+          break;
+
+        default:
+          return [];
+      }
+
+      const snapshot = await getDocs(q);
+      const fetchedCourses = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      window.courseCache.set(cacheKey, fetchedCourses);
+      return fetchedCourses;
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      return [];
+    }
+  }, [pillar, db]);
+
+  // Load initial courses and set up statuses
+  useEffect(() => {
+    const loadCourses = async () => {
+      if (!pillar) return;
+      
+      setLoading(true);
+      
+      try {
+        const fetchedCourses = await getCachedCourses();
+        setCourses(fetchedCourses);
+        
+        // Pre-compute initial course statuses
+        const newStatuses = new Map();
+        fetchedCourses.forEach(course => {
+          const courseId = `${course.department}${course.course_number}`;
+          const isCompleted = localCompletedCourses.includes(courseId);
+          newStatuses.set(courseId, {
+            isCompleted,
+            isUsedInOtherPillar: false,
+            isLocked: false,
+            colorStatus: calculateCourseColor(courseId, isCompleted)
+          });
+        });
+        setLocalCourseStatuses(newStatuses);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
-    setRequirementStatus(status);
-  }, [selectedCourses, allPillars, pillarIndex]);
+    
+    loadCourses();
+  }, [getCachedCourses, pillar, calculateCourseColor, localCompletedCourses]);
 
-  const renderRequirementStatus = () => {
-    const { isComplete, matchingCourses, neededCount } = requirementStatus;
+  // Update course statuses when completion status changes
+  useEffect(() => {
+    setLocalCourseStatuses(prev => {
+      const newStatuses = new Map(prev);
+      courses.forEach(course => {
+        const courseId = `${course.department}${course.course_number}`;
+        const isCompleted = localCompletedCourses.includes(courseId);
+        const currentStatus = newStatuses.get(courseId) || {};
+        newStatuses.set(courseId, {
+          ...currentStatus,
+          isCompleted,
+          colorStatus: calculateCourseColor(courseId, isCompleted)
+        });
+      });
+      return newStatuses;
+    });
+  }, [localCompletedCourses, courses, calculateCourseColor]);
 
-    if (isComplete) {
+  const handleCourseClick = async (course) => {
+    const courseId = `${course.department}${course.course_number}`;
+    
+    // Update local state immediately for instant feedback
+    const isCompleted = localCompletedCourses.includes(courseId);
+    const newCompletedCourses = isCompleted
+      ? localCompletedCourses.filter(id => id !== courseId)
+      : [...localCompletedCourses, courseId];
+    
+    setLocalCompletedCourses(newCompletedCourses);
+    
+    // Update this course's status
+    setLocalCourseStatuses(prev => {
+      const newStatuses = new Map(prev);
+      newStatuses.set(courseId, {
+        isCompleted: !isCompleted,
+        isUsedInOtherPillar: false,
+        isLocked: false,
+        colorStatus: calculateCourseColor(courseId, !isCompleted)
+      });
+      return newStatuses;
+    });
+
+    // Get the list of pillars where this course appears
+    const affectedPillars = duplicateCourses.get(courseId) || [pillarIndex];
+    
+    // Trigger parent update with affected pillars
+    await onCourseStatusChange(course, affectedPillars);
+  };
+
+  // Calculate pillar completion for subtitle
+  const getPillarCompletion = useCallback(() => {
+    let required = 0;
+    let completed = 0;
+
+    switch (pillar.type) {
+      case 'prerequisites':
+        required = pillar.courses.length;
+        completed = pillar.courses.filter(course => {
+          if (typeof course === 'string') {
+            return localCompletedCourses.includes(course);
+          }
+          if (course.type === 'alternative') {
+            return course.options.some(opt => localCompletedCourses.includes(opt));
+          }
+          return false;
+        }).length;
+        break;
+
+      case 'specific':
+        required = 1;
+        completed = pillar.options.some(course => 
+          localCompletedCourses.includes(course)
+        ) ? 1 : 0;
+        break;
+
+      case 'range':
+        required = pillar.count;
+        completed = localCompletedCourses.filter(courseId => {
+          const match = courseId.match(/([A-Z]+)(\d+)/);
+          if (!match) return false;
+          const [, dept, numStr] = match;
+          const num = parseInt(numStr);
+          return dept === pillar.department && 
+                 num >= pillar.start && 
+                 num <= pillar.end;
+        }).length;
+        completed = Math.min(completed, required);
+        break;
+    }
+
+    return { completed, required };
+  }, [pillar, localCompletedCourses]);
+
+  
+
+  // Memoized content rendering
+  const content = useMemo(() => {
+    if (loading) {
       return (
-        <div className="flex items-center text-green-600 ml-2">
-          <span>Completed using: {matchingCourses.join(', ')}</span>
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
         </div>
       );
     }
 
-    switch (pillar.type) {
-      case 'prerequisites':
-        return (
-          <div className="text-red-600 ml-2">
-            Need: {pillar.courses.map(course => 
-              typeof course === 'string' ? course : course.options.join(' or ')
-            ).filter(course => !matchingCourses.includes(course)).join(', ')}
-          </div>
-        );
-
-      case 'range':
-        const remaining = neededCount - matchingCourses.length;
-        return remaining > 0 ? (
-          <div className="text-red-600 ml-2">
-            Need {remaining} more {pillar.department} {pillar.start}-{pillar.end}
-          </div>
-        ) : null;
-
-      case 'specific':
-        return !isComplete ? (
-          <div className="text-red-600 ml-2">
-            Need one of: {pillar.options.join(', ')}
-          </div>
-        ) : null;
-
-      default:
-        return null;
+    if (error) {
+      return (
+        <div className="text-red-600 py-4">
+          Error loading courses: {error}
+        </div>
+      );
     }
-  };
+
+    if (!courses.length) {
+      return (
+        <div className="text-gray-500 py-4">
+          No courses available for this requirement
+        </div>
+      );
+    }
+
+    return courses.map(course => {
+      const courseId = `${course.department}${course.course_number}`;
+      const status = localCourseStatuses.get(courseId) || {
+        isCompleted: localCompletedCourses.includes(courseId),
+        isUsedInOtherPillar: false,
+        isLocked: false,
+        colorStatus: calculateCourseColor(courseId, localCompletedCourses.includes(courseId))
+      };
+
+      return (
+        <CourseCard
+          key={`${courseId}-${status.isCompleted}`}
+          course={course}
+          status={status}
+          onClick={handleCourseClick}
+        />
+      );
+    });
+  }, [courses, loading, error, localCourseStatuses, localCompletedCourses, calculateCourseColor]);
+
+  const completion = getPillarCompletion();
 
   return (
-    <div className={`mb-4 border rounded-lg overflow-hidden transition-all duration-300 
-      ${requirementStatus.isComplete ? 'bg-green-50 border-green-200' : ''}`}
+    <CourseDisplayCarousel
+      title={pillar.description}
+      subtitle={`${completion.completed}/${completion.required} completed`}
     >
-      <div 
-        className="p-4 bg-gray-50 flex justify-between items-center cursor-pointer hover:bg-gray-100"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <div className="flex items-center">
-          {isExpanded ? 
-            <ChevronDown className="w-5 h-5 mr-2" /> : 
-            <ChevronRight className="w-5 h-5 mr-2" />
-          }
-          <div>
-            <h4 className="font-medium">{pillar.description}</h4>
-            {renderRequirementStatus()}
-          </div>
-        </div>
-      </div>
-
-      {isExpanded && (
-        <div className="p-4">
-<CourseDisplayCarousel
-  pillar={pillar}
-  title={pillar.description}
-  isComplete={requirementStatus.isComplete}
-  matchingCourses={requirementStatus.matchingCourses}
->
-  <CourseTiles
-    pillar={pillar}
-    majorDept={majorDept}
-    selectedCourses={selectedCourses}
-    onCourseComplete={onCourseComplete}
-    isPillarComplete={requirementStatus.isComplete}
-    pillarIndex={pillarIndex}
-    allPillars={allPillars}
-    matchingCourses={requirementStatus.matchingCourses}
-  />
-</CourseDisplayCarousel>
-        </div>
-      )}
-    </div>
+      {content}
+    </CourseDisplayCarousel>
   );
 };
 

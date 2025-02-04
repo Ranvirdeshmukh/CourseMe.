@@ -1,19 +1,101 @@
-import React from 'react';
-import { Check, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Check, AlertTriangle, Lock } from 'lucide-react';
 
 const CourseCard = ({ 
-  course, 
-  isCompleted,
-  isPillarComplete,
-  isUsedInOtherPillar,
-  onCourseClick,
-  pillarName,
-  usedInPillar,
-  isUsedInMoreSpecificRange
+  course,
+  status,
+  onClick,
+  viewMode = 'grid',
+  displayOptions = {
+    showDistributives: true,
+    showTerms: true,
+    showAllocation: true
+  }
 }) => {
+  const [isPressed, setIsPressed] = useState(false);
+  
+  const {
+    isCompleted,
+    isUsedInOtherPillar,
+    usedInPillar,
+    isLocked,
+    allocationInfo,
+    colorStatus
+  } = status;
+
   const courseId = `${course.department}${course.course_number}`;
+  useEffect(() => {
+    console.log(`[${courseId}] Card Status:`, {
+      isCompleted,
+      isUsedInOtherPillar,
+      usedInPillar,
+      isLocked,
+      colorStatus,
+      allocationInfo
+    });
+  }, [status, courseId]);
+
+  const getCardStyles = () => {
+    let styles = 'relative rounded-xl shadow p-4 transition-all duration-200 cursor-pointer h-40 ';
+    
+    // Add width classes based on viewMode
+    styles += viewMode === 'carousel' ? 'w-80 flex-none ' : 'w-full ';
+    
+    // Log the color determination
+    console.log(`[${courseId}] Determining color:`, { isLocked, isCompleted, colorStatus });
+    
+    // Determine the card's color based on its status
+    if (isLocked) {
+      styles += 'ring-2 ring-gray-400 bg-gray-100 ';
+      styles += isPressed ? 'bg-gray-200 scale-95 ' : 'hover:bg-gray-200 hover:scale-[0.98] ';
+    } else if (isCompleted) {
+      switch (colorStatus) {
+        case 'primary':
+          console.log(`[${courseId}] Setting PRIMARY (green) color`);
+          styles += 'ring-2 ring-green-500 bg-green-50 ';
+          styles += isPressed ? 'bg-green-200 scale-95 ' : 'hover:bg-green-100 hover:scale-[0.98] ';
+          break;
+        case 'secondary':
+          console.log(`[${courseId}] Setting SECONDARY (yellow) color`);
+          styles += 'ring-2 ring-yellow-500 bg-yellow-50 ';
+          styles += isPressed ? 'bg-yellow-200 scale-95 ' : 'hover:bg-yellow-100 hover:scale-[0.98] ';
+          break;
+        default:
+          console.log(`[${courseId}] Setting DEFAULT (blue) color`);
+          styles += 'ring-2 ring-blue-500 bg-blue-50 ';
+          styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
+      }
+    } else {
+      styles += 'bg-white ';
+      styles += isPressed ? 'bg-gray-100 scale-95 ' : 'hover:bg-gray-50 hover:scale-[0.98] hover:shadow-md ';
+    }
+    
+    return styles.trim();
+  };
+
+  const handleCardClick = async (e) => {
+    console.log(`[${courseId}] Card clicked`);
+    if (onClick) {
+      await onClick(course);
+      console.log(`[${courseId}] onClick handler completed`);
+    }
+  };
+  const handleCardInteraction = (e) => {
+    if (isLocked) return;
+    
+    if (e.type === 'mousedown' || e.type === 'touchstart') {
+      setIsPressed(true);
+    } else if (e.type === 'mouseup' || e.type === 'mouseleave' || e.type === 'touchend') {
+      setIsPressed(false);
+    }
+    
+    if (e.type === 'mouseup' || e.type === 'touchend') {
+      onClick?.(course);
+    }
+  };
 
   const renderTerms = () => {
+    if (!displayOptions.showTerms) return null;
     if (!course.terms || !Array.isArray(course.terms) || course.terms.length === 0) {
       return "No recent terms available";
     }
@@ -29,49 +111,59 @@ const CourseCard = ({
     return `Recent terms: ${sortedTerms.slice(0, 3).join(', ')}`;
   };
 
-  const getCardStyles = () => {
-    let styles = 'relative rounded-xl shadow p-4 transition-all duration-200 cursor-pointer hover:shadow-lg h-40 w-full ';
-    
-    if (isCompleted && !isUsedInOtherPillar) {
-      styles += 'ring-2 ring-green-500 bg-green-50 hover:bg-green-100 ';
-    } else if (isUsedInMoreSpecificRange) {
-      styles += 'ring-2 ring-gray-400 bg-gray-100 hover:bg-gray-200 text-gray-500 ';
-    } else if (!isPillarComplete) {
-      styles += 'bg-white hover:bg-gray-50 ';
-    } else {
-      styles += 'bg-gray-100 hover:bg-gray-200 ';
+  const getStatusIcon = () => {
+    if (isLocked) return <Lock className="w-5 h-5 text-gray-400" />;
+    if (isCompleted && !isUsedInOtherPillar && allocationInfo?.isCurrentPillar) {
+      return <Check className="w-5 h-5 text-green-500" />;
     }
-    
-    return styles.trim();
+    if (isUsedInOtherPillar) return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+    return null;
   };
-  
+
+  const getAllocationBadge = () => {
+    if (!displayOptions.showAllocation || !allocationInfo) return null;
+    
+    let badgeStyles = "text-xs px-2 py-1 rounded-full ";
+    if (isLocked) {
+      badgeStyles += "bg-gray-200 text-gray-700";
+    } else if (isUsedInOtherPillar) {
+      badgeStyles += "bg-yellow-100 text-yellow-800";
+    } else if (allocationInfo.isCurrentPillar) {
+      badgeStyles += "bg-green-100 text-green-800";
+    } else {
+      badgeStyles += "bg-gray-100 text-gray-800";
+    }
+    
+    return (
+      <span className={badgeStyles}>
+        {allocationInfo.pillarName}
+      </span>
+    );
+  };
+
   const getActionText = () => {
-    if (isUsedInMoreSpecificRange) {
-      return "This course is being used in a more specific requirement";
-    }
-    if (isUsedInOtherPillar) {
-      return "Click to move to this requirement";
-    }
+    if (isLocked) return `Used in ${usedInPillar}`;
+    if (isUsedInOtherPillar) return `Allocated to ${usedInPillar}`;
     if (isCompleted) {
-      return "Click to remove";
+      if (allocationInfo?.isCurrentPillar) return "Click to remove";
+      return allocationInfo ? `Allocated to ${allocationInfo.pillarName}` : "Click to allocate";
     }
-    return "";
+    return "Click to add";
   };
 
   return (
     <div 
       className={getCardStyles()}
-      onClick={() => onCourseClick(course)}
+      onMouseDown={handleCardInteraction}
+      onMouseUp={handleCardInteraction}
+      onMouseLeave={handleCardInteraction}
+      onTouchStart={handleCardInteraction}
+      onTouchEnd={handleCardInteraction}
       role="button"
       tabIndex={0}
     >
-      <div className="absolute top-2 right-2 flex items-center space-x-2">
-        {isCompleted && !isUsedInMoreSpecificRange && 
-          <Check className="w-5 h-5 text-green-500" />
-        }
-        {isUsedInMoreSpecificRange && 
-          <AlertTriangle className="w-5 h-5 text-gray-400" />
-        }
+      <div className="absolute top-2 right-2">
+        {getStatusIcon()}
       </div>
       
       <div className="flex flex-col h-full">
@@ -79,19 +171,17 @@ const CourseCard = ({
           <div className="overflow-hidden">
             <h4 className="font-semibold text-lg flex items-center gap-2">
               {courseId}
-              <span className="text-xs font-normal truncate">
-                {isUsedInMoreSpecificRange && usedInPillar && 
-                  <span className="text-gray-600">Used in {usedInPillar}</span>
-                }
-              </span>
+              {getAllocationBadge()}
             </h4>
             <p className="text-sm text-gray-600 mt-1 line-clamp-2">
               {course.name?.split(':')[1]?.trim() || 'No title available'}
             </p>
           </div>
-          <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded flex-shrink-0">
-            {course.distribs || 'No distrib'}
-          </span>
+          {displayOptions.showDistributives && (
+            <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded flex-shrink-0">
+              {course.distribs || 'No distrib'}
+            </span>
+          )}
         </div>
         
         <div className="mt-auto">
@@ -99,15 +189,14 @@ const CourseCard = ({
             {renderTerms()}
           </div>
           
-          {getActionText() && (
-            <div className={`mt-2 text-xs ${
-              isUsedInMoreSpecificRange ? 'text-gray-600' :
-              isUsedInOtherPillar ? 'text-red-600' :
-              'text-green-600'
-            }`}>
-              {getActionText()}
-            </div>
-          )}
+          <div className={`mt-2 text-xs ${
+            isLocked ? 'text-gray-600' :
+            isUsedInOtherPillar ? 'text-yellow-600' :
+            allocationInfo?.isCurrentPillar ? 'text-green-600' :
+            'text-blue-600'
+          }`}>
+            {getActionText()}
+          </div>
         </div>
       </div>
     </div>

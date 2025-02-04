@@ -184,6 +184,7 @@ const MajorTracker = () => {
       fetchCourseData();
     }, [fetchCourseData]);
 
+  // parses the list and structures into alternatives and such
   const parseCourseList = (courseStr) => {
     if (!courseStr || typeof courseStr !== 'string') return [];
     
@@ -215,9 +216,11 @@ const MajorTracker = () => {
         };
       }
       return course;
+    
     });
   };
 
+  // Separates into pillars
   const parseRequirementString = (reqStr, majorDept) => {
     if (!reqStr || typeof reqStr !== 'string') return [];
 
@@ -226,14 +229,14 @@ const MajorTracker = () => {
       const cleanStr = reqStr.replace(/^\(|\)$/g, '').trim();
       if (!cleanStr) return [];
 
-      // Split by & and filter out empty strings
+      // split & to extra pillar
       const groups = cleanStr.split('&')
         .map(r => r.trim())
         .filter(Boolean);
 
-      // Parse each requirement group
+      // oarse each requirement group
       return groups.map(group => {
-        // Prerequisites/Required courses
+        // prereq
         if (group.startsWith('@[')) {
           const inner = group.slice(2, -1).trim();
           return {
@@ -305,6 +308,7 @@ const MajorTracker = () => {
             majorData.types.major.requirements,
             majorDept
           );
+          console.log(requirements);
 
           if (requirements.length > 0) {
             processedRequirements[majorCode] = {
@@ -350,19 +354,14 @@ const MajorTracker = () => {
     />
   ) : (
     selectedMajor && majorRequirements[selectedMajor] ? (
-      <div>
-        {majorRequirements[selectedMajor].pillars.map((pillar, index) => (
-          <CourseDisplayPillar
-            key={`${selectedMajor}-${index}`}
-            pillar={pillar}
-            majorDept={majorRequirements[selectedMajor].department}
-            selectedCourses={completedCourses}
-            onCourseComplete={handleCourseComplete}
-            allPillars={majorRequirements[selectedMajor].pillars}
-            pillarIndex={index}
-          />
-        ))}
-      </div>
+      <MajorRequirements
+        selectedMajor={selectedMajor}
+        majorRequirements={majorRequirements}
+        completedCourses={completedCourses}
+        onCoursesUpdate={(updatedCourses) => {
+          setCompletedCourses(updatedCourses);
+        }}
+      />
     ) : (
       <div className="text-center py-8 text-gray-500">
         Please select a major to view requirements
