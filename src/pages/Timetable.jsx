@@ -94,7 +94,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const Timetable = () => {
+const Timetable = ({darkMode}) => {
   const [courses, setCourses] = useState([]); 
   const [filteredCourses, setFilteredCourses] = useState([]); 
   const [loading, setLoading] = useState(true);
@@ -129,6 +129,24 @@ const Timetable = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
   const [columnWidths, setColumnWidths] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
+
+  
+  const mainBgColor = darkMode
+  ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
+  : '#F9F9F9';
+
+const paperBgColor = darkMode ? '#1C1F43' : '#FFFFFF';
+const tableHeaderBgColor = darkMode ? '#333333' : '#f8f8f8';
+const tableRowEvenBgColor = darkMode ? '#1C1F43' : '#FFFFFF';
+const tableRowOddBgColor = darkMode ? '#24273c' : '#FAFBFC'; 
+const textColor = darkMode ? '#FFFFFF' : '#1D1D1F';
+const headerTextColor = darkMode ? '#FFFFFF' : '#000000';
+const searchBgColor = darkMode ? '#0C0F33' : '#FFFFFF';
+const borderColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+const accentHoverBg = darkMode
+  ? 'rgba(255, 255, 255, 0.08)'
+  : 'rgba(0, 105, 62, 0.08)';
+
 
   const handleSort = (key) => {
     let direction = 'ascending';
@@ -271,25 +289,34 @@ useEffect(() => {
     }, [professorId, navigate]);
   
     return (
-      <TableCell
-        onClick={handleClick}
-        sx={{
-          color: professorId ? '#571ce0' : '#1D1D1F',
-          padding: '8px 16px',
-          fontWeight: 400,
-          fontSize: '0.81rem',
-          textAlign: 'left',
-          cursor: professorId ? 'pointer' : 'default',
-          height: '48px',
-          lineHeight: '1.2',
-          '&:hover': professorId ? {
-            textDecoration: 'underline',
-          } : {},
-        }}
+        <TableCell
+          onClick={handleClick}
+          sx={{
+            // Always remove underline by default
+            textDecoration: 'none',
+            // If clickable, use brand color; otherwise normal text
+            color: professorId
+              ? (darkMode ? '#007AFF' : '#571ce0')
+              : (darkMode ? '#FFFFFF' : '#1D1D1F'),
+            padding: '8px 16px',
+            fontWeight: 400,
+            fontSize: '0.81rem',
+            textAlign: 'left',
+            cursor: professorId ? 'pointer' : 'default',
+            height: '48px',
+            lineHeight: '1.2',
+            transition: 'color 0.3s ease, text-decoration 0.3s ease',
+            // Only underline on hover if there's a valid professorId
+            '&:hover': professorId
+              ? { textDecoration: 'underline' }
+              : {},
+          }}
+        
       >
         {instructor}
       </TableCell>
     );
+    
   });
 
   const fetchProfessorData = async () => {
@@ -917,17 +944,25 @@ useEffect(() => {
     <Box
       sx={{
         minHeight: '100vh',
-        backgroundColor: 'background.default', // Uses theme's default background
-        padding: '40px 20px', // 40px top/bottom, 20px left/right
+        // Use the same gradient or background color logic as AllClassesPage
+        backgroundColor: darkMode
+          ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
+          : '#F9F9F9',
+        color: darkMode ? '#FFFFFF' : '#333333', // A global text color
+        transition: 'background-color 0.3s ease, color 0.3s ease',
+        padding: '40px 20px',
         fontFamily: 'SF Pro Display, sans-serif',
       }}
     >
-      <Container maxWidth={false} sx={{ 
-  padding: '0 20px',
-  margin: '0 auto',  // This centers the container
-  maxWidth: '1600px' // Optional: adds a max-width to prevent too wide layouts
-}}>
-        {/* "Your Fall 2024 Classes" Section */}
+      <Container
+        maxWidth={false}
+        sx={{
+          padding: '0 20px',
+          margin: '0 auto',
+          maxWidth: '1600px',
+        }}
+      >
+        {/* "Your Winter 2025 Classes" Section */}
         {showSelectedCourses && (
           <Typography
             variant="h2"
@@ -935,12 +970,14 @@ useEffect(() => {
             sx={{
               fontWeight: 700,
               fontSize: '2.5rem',
-              color: '#34495e',
-              marginBottom: '8px', // Reduced margin
+              // Header text can conditionally be your "headerTextColor"
+              color: darkMode ? '#FFFFFF' : '#34495e',
+              marginBottom: '8px',
               marginTop: '10px',
               fontFamily: 'SF Pro Display, sans-serif',
               letterSpacing: '-0.02em',
               lineHeight: 1.2,
+              transition: 'color 0.3s ease',
             }}
           >
             Your Winter 2025 Classes.
@@ -951,279 +988,308 @@ useEffect(() => {
           <TableContainer
             component={Paper}
             sx={{
-              backgroundColor: '#FFFFFF',
+              // Paper background
+              backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
               marginTop: '10px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              boxShadow: darkMode
+                ? '0 6px 16px rgba(255, 255, 255, 0.1)'
+                : '0 4px 12px rgba(0, 0, 0, 0.1)',
               borderRadius: '12px',
               overflowX: 'auto',
               maxWidth: '100%',
+              transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
             }}
           >
             <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
-            <TableHead sx={{ backgroundColor: '#F8F8F8', position: 'sticky', top: 0, zIndex: 1 }}>
-  <TableRow>
-    {[
-      'Subject',
-      'Number',
-      'Title',
-      'Section',
-      'Timing',
-      'Room',
-      'Building',
-      'Instructor',
-      'Add to Calendar',
-      'Notify When Available',
-      'Remove',
-    ].map((header, index) => (
-      <TableCell
-        key={index}
-        sx={{
-          color: '#333333',
-          textAlign: 'left',
-          fontWeight: 700, // Increased font weight for emphasis
-          fontSize: '1rem', // Slightly larger font size for clarity
-          padding: '16px 12px', // Increased padding for better spacing
-          borderBottom: '2px solid #E0E0E0', // Thicker bottom border for distinction
-          backgroundColor: '#F8F8F8', // Consistent background color for the header
-          // Optional: Add a subtle box-shadow for depth
-          boxShadow: index === 0 ? '0 2px 4px rgba(0, 0, 0, 0.05)' : 'none',
-          fontFamily: 'SF Pro Display, sans-serif',
-
-        }}
-      >
-        {header}
-      </TableCell>
-    ))}
-  </TableRow>
-</TableHead>
-
+              <TableHead
+                sx={{
+                  backgroundColor: darkMode ? '#333333' : '#F8F8F8',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 1,
+                  transition: 'background-color 0.3s ease',
+                }}
+              >
+                <TableRow>
+                  {[
+                    'Subject',
+                    'Number',
+                    'Title',
+                    'Section',
+                    'Timing',
+                    'Room',
+                    'Building',
+                    'Instructor',
+                    'Add to Calendar',
+                    'Notify When Available',
+                    'Remove',
+                  ].map((header, index) => (
+                    <TableCell
+                      key={index}
+                      sx={{
+                        color: darkMode ? '#FFFFFF' : '#333333',
+                        textAlign: 'left',
+                        fontWeight: 700,
+                        fontSize: '1rem',
+                        padding: '16px 12px',
+                        borderBottom: '2px solid #E0E0E0',
+                        // If you want a different border color in dark mode:
+                        borderColor: darkMode ? '#444444' : '#E0E0E0',
+                        backgroundColor: darkMode ? '#333333' : '#F8F8F8',
+                        boxShadow:
+                          index === 0
+                            ? darkMode
+                              ? '0 2px 4px rgba(255, 255, 255, 0.05)'
+                              : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                            : 'none',
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        transition: 'background-color 0.3s ease, color 0.3s ease',
+                      }}
+                    >
+                      {header}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+  
               <TableBody>
-                {selectedCourses.map((course, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9F9F9',
-                      transition: 'background-color 0.3s ease',
-                      '&:hover': {
-                        backgroundColor: '#E5E5EA',
-                      },
-                      cursor: 'default',
-                    }}
-                  >
-                    {/* Subject */}
-                    <TableCell
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCourseClick(course);
-                      }}
+                {selectedCourses.map((course, index) => {
+                  const rowBackground =
+                    index % 2 === 0
+                      ? darkMode
+                        ? '#1C1F43'
+                        : '#FFFFFF'
+                      : darkMode
+                      ? '#24273c'
+                      : '#F9F9F9';
+  
+                  return (
+                    <TableRow
+                      key={index}
                       sx={{
-                        color: '#571ce0',
-                        padding: '10px',
-                        fontWeight: 500,
-                        fontSize: '0.95rem',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        textDecoration: 'none',
+                        backgroundColor: rowBackground,
+                        transition: 'background-color 0.3s ease',
                         '&:hover': {
-                          textDecoration: 'underline',
+                          backgroundColor: darkMode ? '#2a2a2a' : '#E5E5EA',
                         },
-                        fontFamily: 'SF Pro Display, sans-serif',
-
+                        cursor: 'default',
                       }}
                     >
-                      {course.subj}
-                    </TableCell>
+                      {/* Subject */}
+                      <TableCell
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCourseClick(course);
+                        }}
+                        sx={{
+                          color: darkMode ? '#BB86FC' : '#571ce0', // or keep your custom highlight
+                          padding: '10px',
+                          fontWeight: 500,
+                          fontSize: '0.95rem',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          transition: 'color 0.3s ease',
+                          '&:hover': {
+                            textDecoration: 'underline',
+                          },
+                          fontFamily: 'SF Pro Display, sans-serif',
+                        }}
+                      >
+                        {course.subj}
+                      </TableCell>
   
-                    {/* Number */}
-                    <TableCell
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCourseClick(course);
-                      }}
-                      sx={{
-                        color: '#571ce0',
-                        padding: '10px',
-                        fontWeight: 500,
-                        fontSize: '0.95rem',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        '&:hover': {
-                          textDecoration: 'underline',
-                        },
-                        fontFamily: 'SF Pro Display, sans-serif',
-
-                      }}
-                    >
-                      {course.num}
-                    </TableCell>
+                      {/* Number */}
+                      <TableCell
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCourseClick(course);
+                        }}
+                        sx={{
+                          color: darkMode ? '#BB86FC' : '#571ce0',
+                          padding: '10px',
+                          fontWeight: 500,
+                          fontSize: '0.95rem',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          transition: 'color 0.3s ease',
+                          '&:hover': {
+                            textDecoration: 'underline',
+                          },
+                          fontFamily: 'SF Pro Display, sans-serif',
+                        }}
+                      >
+                        {course.num}
+                      </TableCell>
   
-                    {/* Title */}
-                    <TableCell
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCourseClick(course);
-                      }}
-                      sx={{
-                        color: '#571ce0',
-                        padding: '10px',
-                        fontWeight: 500,
-                        fontSize: '0.95rem',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        '&:hover': {
-                          textDecoration: 'underline',
-                        },
-                        fontFamily: 'SF Pro Display, sans-serif',
-
-                      }}
-                    >
-                      {course.title}
-                    </TableCell>
+                      {/* Title */}
+                      <TableCell
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCourseClick(course);
+                        }}
+                        sx={{
+                          color: darkMode ? '#BB86FC' : '#571ce0',
+                          padding: '10px',
+                          fontWeight: 500,
+                          fontSize: '0.95rem',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          transition: 'color 0.3s ease',
+                          '&:hover': {
+                            textDecoration: 'underline',
+                          },
+                          fontFamily: 'SF Pro Display, sans-serif',
+                        }}
+                      >
+                        {course.title}
+                      </TableCell>
   
-                    {/* Section */}
-                    <TableCell
-                      sx={{
-                        color: '#1D1D1F',
-                        padding: '10px',
-                        fontWeight: 400,
-                        fontSize: '0.95rem',
-                        textAlign: 'left',
-                        fontFamily: 'SF Pro Display, sans-serif',
-
-                      }}
-                      
-                    >
-                      {course.sec}
-                    </TableCell>
+                      {/* Section */}
+                      <TableCell
+                        sx={{
+                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                          padding: '10px',
+                          fontWeight: 400,
+                          fontSize: '0.95rem',
+                          textAlign: 'left',
+                          transition: 'color 0.3s ease',
+                          fontFamily: 'SF Pro Display, sans-serif',
+                        }}
+                      >
+                        {course.sec}
+                      </TableCell>
   
-                    {/* Timing */}
-                    <TableCell
-                      sx={{
-                        color: '#1D1D1F',
-                        padding: '10px',
-                        fontWeight: 400,
-                        fontSize: '0.95rem',
-                        textAlign: 'left',
-                        fontFamily: 'SF Pro Display, sans-serif',
-
-                      }}
-                    >
-                      {course.timing}
-                    </TableCell>
+                      {/* Timing */}
+                      <TableCell
+                        sx={{
+                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                          padding: '10px',
+                          fontWeight: 400,
+                          fontSize: '0.95rem',
+                          textAlign: 'left',
+                          transition: 'color 0.3s ease',
+                          fontFamily: 'SF Pro Display, sans-serif',
+                        }}
+                      >
+                        {course.timing}
+                      </TableCell>
   
-                    {/* Room */}
-                    <TableCell
-                      sx={{
-                        color: '#1D1D1F',
-                        padding: '10px',
-                        fontWeight: 400,
-                        fontSize: '0.95rem',
-                        textAlign: 'left',
-                        fontFamily: 'SF Pro Display, sans-serif',
-
-                      }}
-                    >
-                      {course.room}
-                    </TableCell>
+                      {/* Room */}
+                      <TableCell
+                        sx={{
+                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                          padding: '10px',
+                          fontWeight: 400,
+                          fontSize: '0.95rem',
+                          textAlign: 'left',
+                          transition: 'color 0.3s ease',
+                          fontFamily: 'SF Pro Display, sans-serif',
+                        }}
+                      >
+                        {course.room}
+                      </TableCell>
   
-                    {/* Building */}
-                    <TableCell
-                      sx={{
-                        color: '#1D1D1F',
-                        padding: '10px',
-                        fontWeight: 400,
-                        fontSize: '0.95rem',
-                        textAlign: 'left',
-                        fontFamily: 'SF Pro Display, sans-serif',
-
-                      }}
-                    >
-                      {course.building}
-                    </TableCell>
+                      {/* Building */}
+                      <TableCell
+                        sx={{
+                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                          padding: '10px',
+                          fontWeight: 400,
+                          fontSize: '0.95rem',
+                          textAlign: 'left',
+                          transition: 'color 0.3s ease',
+                          fontFamily: 'SF Pro Display, sans-serif',
+                        }}
+                      >
+                        {course.building}
+                      </TableCell>
   
-                    {/* Instructor */}
-                    <TableCell
-                      sx={{
-                        color: '#1D1D1F',
-                        padding: '10px',
-                        fontWeight: 400,
-                        fontSize: '0.95rem',
-                        textAlign: 'left',
-                              fontFamily: 'SF Pro Display, sans-serif',
-
-                      }}
-                    >
-                      {course.instructor}
-                    </TableCell>
+                      {/* Instructor */}
+                      <TableCell
+                        sx={{
+                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                          padding: '10px',
+                          fontWeight: 400,
+                          fontSize: '0.95rem',
+                          textAlign: 'left',
+                          transition: 'color 0.3s ease',
+                          fontFamily: 'SF Pro Display, sans-serif',
+                        }}
+                      >
+                        {course.instructor}
+                      </TableCell>
   
-                    {/* Add to Calendar Button */}
-                    <TableCell
-                      sx={{
-                        padding: '8px 12px',
-                        textAlign: 'left',
-                        height: '48px',
-                        verticalAlign: 'middle',
-                      }}
-                    >
-                      {course.period !== 'ARR' && course.period !== 'FS' && (
-                        <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
-                          <div className="icon">
-                            <GoogleIcon />
-                          </div>
-                          <span className="text">Add to Calendar</span>
-                        </GoogleCalendarButton>
-                      )}
-                    </TableCell>
+                      {/* Add to Calendar Button */}
+                      <TableCell
+                        sx={{
+                          padding: '8px 12px',
+                          textAlign: 'left',
+                          height: '48px',
+                          verticalAlign: 'middle',
+                        }}
+                      >
+                        {course.period !== 'ARR' && course.period !== 'FS' && (
+                          <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
+                            <div className="icon">
+                              <GoogleIcon />
+                            </div>
+                            <span className="text">Add to Calendar</span>
+                          </GoogleCalendarButton>
+                        )}
+                      </TableCell>
   
-                    {/* Notify when Available Button */}
-                    <TableCell
-                      sx={{
-                        padding: '12px',
-                        textAlign: 'left',
-                      }}
-                    >
-                      {isFallAddDropClosed ? (
-                        <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
-                          <IconButton>
-                            <LockIcon color="disabled" />
-                          </IconButton>
-                        </Tooltip>
-                      ) : (
-                        <Tooltip title="Notify me if someone drops this class">
-                          <IconButton onClick={() => handleNotifyDrop(course)}>
-                            <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </TableCell>
+                      {/* Notify when Available Button */}
+                      <TableCell
+                        sx={{
+                          padding: '12px',
+                          textAlign: 'left',
+                        }}
+                      >
+                        {isFallAddDropClosed ? (
+                          <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
+                            <IconButton>
+                              <LockIcon color="disabled" />
+                            </IconButton>
+                          </Tooltip>
+                        ) : (
+                          <Tooltip title="Notify me if someone drops this class">
+                            <IconButton onClick={() => handleNotifyDrop(course)}>
+                              <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </TableCell>
   
-                    {/* Remove Button */}
-                    <TableCell
-                      sx={{
-                        padding: '12px',
-                        textAlign: 'left',
-                      }}
-                    >
-                      <IconButton onClick={() => handleRemoveCourse(course)}>
-                        <DeleteIcon sx={{ color: '#FF3B30' }} />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      {/* Remove Button */}
+                      <TableCell
+                        sx={{
+                          padding: '12px',
+                          textAlign: 'left',
+                        }}
+                      >
+                        <IconButton onClick={() => handleRemoveCourse(course)}>
+                          <DeleteIcon sx={{ color: '#FF3B30' }} />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
         )}
   
         {showSelectedCourses && selectedCourses.length === 0 && (
-          <Typography sx={{ marginBottom: '20px', color: '#1D1D1F' }}>
-            Haven't added your Winter 2024 timetable on CourseMe? Add now!
+          <Typography sx={{ marginBottom: '20px', color: darkMode ? '#FFFFFF' : '#1D1D1F' }}>
+            Haven&apos;t added your Winter 2024 timetable on CourseMe? Add now!
           </Typography>
         )}
-
-        {/* Filters and Controls */}
+     
+  
+       {/* Filters and Controls */}
 <Box
   sx={{
     display: 'flex',
@@ -1239,148 +1305,186 @@ useEffect(() => {
     align="left"
     sx={{
       fontWeight: 600,
-      color: '#000000',
+      // Conditionally set text color
+      color: darkMode ? '#FFFFFF' : '#000000',
       marginBottom: '20px',
       marginTop: '30px',
       fontFamily: 'SF Pro Display, sans-serif',
+      transition: 'color 0.3s ease',
     }}
   >
     Winter 2025 Timetable.
   </Typography>
+
   <TextField
-  variant="outlined"
-  placeholder="Search Courses"
-  value={searchTerm}
-  onChange={handleSearch}
-  sx={{
-    width: isMobile ? '100%' : '300px',
-    height: '40px',
-    borderRadius: '20px',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    marginTop: '25px',
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: '#00693E',
-      },
-      '&:hover fieldset': {
-        borderColor: '#00693E',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: '#00693E',
-      },
-      borderRadius: '20px',
-      height: '40px',
-    },
-  }}
-  InputProps={{
-    startAdornment: (
-      <InputAdornment position="start">
-        <SearchIcon sx={{ color: '#00693E' }} />
-      </InputAdornment>
-    ),
-  }}
-/>
-<FormControl variant="outlined" sx={{ minWidth: isMobile ? '100%' : 200, marginTop: '25px' }}>
-  <InputLabel
+    variant="outlined"
+    placeholder="Search Courses"
+    value={searchTerm}
+    onChange={handleSearch}
     sx={{
-      color: '#000000',
-      '&.Mui-focused': {
-        color: '#00693E',
-      },
-      // Add these properties to center the label
-      transform: 'translate(14px, 8px) scale(1)',
-      '&[data-shrink="true"]': {
-        transform: 'translate(14px, -9px) scale(0.75)',
+      width: isMobile ? '100%' : '300px',
+      height: '40px',
+      borderRadius: '20px',
+      // Adjust shadow for dark/light if desired
+      boxShadow: darkMode
+        ? '0px 4px 12px rgba(255, 255, 255, 0.1)'
+        : '0px 4px 10px rgba(0, 0, 0, 0.1)',
+      marginTop: '25px',
+      transition: 'box-shadow 0.3s ease, background-color 0.3s ease',
+      '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+          // Keep brand color for focus ring or adjust if desired
+          borderColor: '#00693E',
+        },
+        '&:hover fieldset': {
+          borderColor: '#00693E',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: '#00693E',
+        },
+        borderRadius: '20px',
+        height: '40px',
+        backgroundColor: darkMode ? '#0C0F33' : '#FFFFFF',
+        transition: 'background-color 0.3s ease',
       },
     }}
-  >
-    Subject
-  </InputLabel>
-  <Select
-    value={selectedSubject}
-    onChange={handleSubjectChange}
-    label="Subject"
+    InputProps={{
+      startAdornment: (
+        <InputAdornment position="start">
+          <SearchIcon sx={{ color: '#00693E' }} />
+        </InputAdornment>
+      ),
+      style: {
+        color: darkMode ? '#FFFFFF' : '#000000', // Text color inside the input
+      },
+    }}
+  />
+
+  <FormControl
+    variant="outlined"
     sx={{
+      minWidth: isMobile ? '100%' : 200,
+      marginTop: '25px',
+    }}
+  >
+    <InputLabel
+      sx={{
+        // Label color (dark/light)
+        color: darkMode ? '#FFFFFF' : '#000000',
+        '&.Mui-focused': {
+          color: '#00693E', 
+        },
+        transform: 'translate(14px, 8px) scale(1)',
+        '&[data-shrink="true"]': {
+          transform: 'translate(14px, -9px) scale(0.75)',
+        },
+        transition: 'color 0.3s ease',
+      }}
+    >
+      Subject
+    </InputLabel>
+    <Select
+      value={selectedSubject}
+      onChange={handleSubjectChange}
+      label="Subject"
+      sx={{
+        borderRadius: '20px',
+        height: '40px',
+        backgroundColor: darkMode ? '#0C0F33' : 'transparent',
+        // Keep brand or adjust for dark mode
+        color: darkMode ? '#FFFFFF' : '#000000',
+        fontWeight: '600',
+        fontSize: '16px',
+        fontFamily: 'SF Pro Display, sans-serif',
+        textTransform: 'none',
+        border: '1px solid #00693E',
+        boxShadow: darkMode
+          ? '0px 4px 12px rgba(255, 255, 255, 0.1)'
+          : '0px 4px 10px rgba(0, 0, 0, 0.1)',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
+        '& .MuiOutlinedInput-root': {
+          '& fieldset': {
+            // If you want the border color to remain brand or adapt to dark mode, adjust here
+            borderColor: darkMode ? '#FFFFFF' : '#000000',
+          },
+          '&:hover fieldset': {
+            borderColor: darkMode ? '#FFFFFF' : '#000000',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: darkMode ? '#FFFFFF' : '#000000',
+          },
+          backgroundColor: 'transparent',
+          height: '40px',
+        },
+        '& .MuiSelect-select': {
+          paddingTop: '8px',
+          paddingBottom: '8px',
+          display: 'flex',
+          alignItems: 'center',
+        },
+        '& .MuiSelect-icon': {
+          color: '#00693E', // Keep brand color for dropdown icon
+        },
+        '&:hover': {
+          backgroundColor: darkMode
+            ? 'rgba(255, 255, 255, 0.1)'
+            : 'rgba(0, 105, 62, 0.1)',
+        },
+        '&:focus': {
+          outline: 'none',
+          boxShadow: darkMode
+            ? '0 0 0 4px rgba(255, 255, 255, 0.2)'
+            : '0 0 0 4px rgba(0, 105, 62, 0.5)',
+        },
+      }}
+    >
+      <MenuItem value="">
+        <em>All Subjects</em>
+      </MenuItem>
+      {subjects.map((subject, index) => (
+        <MenuItem key={index} value={subject}>
+          {subject}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+
+  <Button
+    variant="contained"
+    sx={{
+      marginTop: isMobile ? '20px' : '25px',
+      padding: '10px 20px',
       borderRadius: '20px',
       height: '40px',
-      backgroundColor: 'transparent',
-      color: '#000000',
+      // Keep brand color usage or adapt if needed
+      backgroundColor: darkMode ? 'transparent' : 'transparent',
+      color: '#00693E',
       fontWeight: '600',
       fontSize: '16px',
       fontFamily: 'SF Pro Display, sans-serif',
       textTransform: 'none',
       border: '1px solid #00693E',
-      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-      '& .MuiOutlinedInput-root': {
-        '& fieldset': {
-          borderColor: '#000000',
-        },
-        '&:hover fieldset': {
-          borderColor: '#000000',
-        },
-        '&.Mui-focused fieldset': {
-          borderColor: '#000000',
-        },
-        backgroundColor: 'transparent',
-        height: '40px',
-      },
-      '& .MuiSelect-select': {  // Add this to center the selected text
-        paddingTop: '8px',
-        paddingBottom: '8px',
-        display: 'flex',
-        alignItems: 'center',
-      },
-      '& .MuiSelect-icon': {
-        color: '#00693E',
-      },
+      boxShadow: darkMode
+        ? '0px 4px 12px rgba(255, 255, 255, 0.1)'
+        : '0px 4px 10px rgba(0, 0, 0, 0.1)',
+      transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
       '&:hover': {
-        backgroundColor: 'rgba(0, 105, 62, 0.1)',
+        backgroundColor: darkMode
+          ? 'rgba(255, 255, 255, 0.1)'
+          : 'rgba(0, 105, 62, 0.1)',
+        borderColor: '#00693E',
       },
       '&:focus': {
         outline: 'none',
-        boxShadow: '0 0 0 4px rgba(0, 105, 62, 0.5)',
+        boxShadow: darkMode
+          ? '0 0 0 4px rgba(255, 255, 255, 0.2)'
+          : '0 0 0 4px rgba(0, 105, 62, 0.5)',
       },
     }}
+    onClick={() => setShowSelectedCourses(!showSelectedCourses)}
   >
-    <MenuItem value="">
-      <em>All Subjects</em>
-    </MenuItem>
-    {subjects.map((subject, index) => (
-      <MenuItem key={index} value={subject}>
-        {subject}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-
-<Button
-  variant="contained"
-  sx={{
-    marginTop: isMobile ? '20px' : '25px',
-    padding: '10px 20px',
-    borderRadius: '20px',
-    height: '40px',
-    backgroundColor: 'transparent',
-    color: '#00693E',
-    fontWeight: '600',
-    fontSize: '16px',
-    fontFamily: 'SF Pro Display, sans-serif',
-    textTransform: 'none',
-    border: '1px solid #00693E',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    '&:hover': {
-      backgroundColor: 'rgba(0, 105, 62, 0.1)', // Adjusted for Dartmouth Green
-      borderColor: '#00693E',
-    },
-    '&:focus': {
-      outline: 'none',
-      boxShadow: '0 0 0 4px rgba(0, 105, 62, 0.5)', // Adjusted for Dartmouth Green
-    },
-  }}
-  onClick={() => setShowSelectedCourses(!showSelectedCourses)}
->
-  {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
-</Button>
+    {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
+  </Button>
 </Box>
 
 <Box sx={{ position: 'relative' }}>
@@ -1392,12 +1496,20 @@ useEffect(() => {
       marginBottom: '16px',
       marginTop: '24px',
       padding: '12px 16px',
-      backgroundColor: 'rgba(0, 105, 62, 0.04)',
+      // Background for dark/light
+      backgroundColor: darkMode
+        ? 'rgba(255, 255, 255, 0.06)'
+        : 'rgba(0, 105, 62, 0.04)',
       borderRadius: '8px',
-      border: '1px solid rgba(0, 105, 62, 0.1)',
+      // Border can remain brand or adapt
+      border: darkMode
+        ? '1px solid rgba(255, 255, 255, 0.2)'
+        : '1px solid rgba(0, 105, 62, 0.1)',
       transition: 'all 0.2s ease',
       '&:hover': {
-        backgroundColor: 'rgba(0, 105, 62, 0.08)',
+        backgroundColor: darkMode
+          ? 'rgba(255, 255, 255, 0.1)'
+          : 'rgba(0, 105, 62, 0.08)',
       },
     }}
     onClick={() => setShowFeatures(!showFeatures)}
@@ -1406,6 +1518,7 @@ useEffect(() => {
       variant="h6"
       sx={{
         fontFamily: 'SF Pro Display, sans-serif',
+        // Keep brand color #00693E or adapt if you prefer a different color in dark mode
         color: '#00693E',
         fontWeight: 600,
         fontSize: '1.1rem',
@@ -1414,35 +1527,36 @@ useEffect(() => {
     >
       AI-Powered Course Planning
     </Typography>
-    <KeyboardArrowDownIcon 
-      sx={{ 
+    <KeyboardArrowDownIcon
+      sx={{
         color: '#00693E',
         transform: showFeatures ? 'rotate(180deg)' : 'none',
         transition: 'transform 0.3s ease',
-      }} 
+      }}
     />
   </Box>
 
   <Collapse in={showFeatures}>
-    <Box 
-      component="ul" 
-      sx={{ 
+    <Box
+      component="ul"
+      sx={{
         margin: '0',
         paddingLeft: '20px',
         marginBottom: '20px',
-        color: '#1D1D1F',
+        // Ternary text color
+        color: darkMode ? '#FFFFFF' : '#1D1D1F',
         fontFamily: 'SF Pro Display, sans-serif',
+        transition: 'color 0.3s ease',
       }}
     >
       <li>Sync your timetable to Google Calendar in one click</li>
       <li>Get instant notifications when a course spot opens up</li>
       <li>Send templated emails to professors in one click.</li>
-      <li> Navigate to the course reviews in one click.</li>
-
-      
+      <li>Navigate to the course reviews in one click.</li>
     </Box>
   </Collapse>
 </Box>
+
 {/* Main "Fall '24 Timetable" Table */}
 {loading ? (
   <Box
@@ -1460,9 +1574,10 @@ useEffect(() => {
       sx={{
         marginTop: '20px',
         fontFamily: 'SF Pro Display, sans-serif',
-        color: 'black',
+        color: darkMode ? '#FFFFFF' : 'black',
         textAlign: 'center',
         padding: '0 20px',
+        transition: 'color 0.3s ease',
       }}
     >
       Great things take time—please hold on while we fetch the latest data for you!
@@ -1472,323 +1587,367 @@ useEffect(() => {
   <Alert severity="error">Error loading courses: {error.message}</Alert>
 ) : filteredCourses.length > 0 ? (
   <>
-    <TableContainer 
-      component={Paper} 
-      sx={{ 
-        backgroundColor: '#FFFFFF',
+    <TableContainer
+      component={Paper}
+      sx={{
+        // Match the design you liked
+        backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
         marginTop: '10px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+        boxShadow: darkMode
+          ? '0 6px 16px rgba(255, 255, 255, 0.1)'
+          : '0 2px 8px rgba(0, 0, 0, 0.06)',
         borderRadius: '12px',
-        width: '100%',
-        border: '1px solid rgba(0, 105, 62, 0.1)',
+        overflowX: 'auto',
+        maxWidth: '100%',
+        transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
+        border: darkMode
+          ? '1px solid rgba(187, 134, 252, 0.2)'
+          : '1px solid rgba(0, 105, 62, 0.1)',
         '&:hover': {
-          boxShadow: '0 3px 10px rgba(0, 0, 0, 0.08)',
+          boxShadow: darkMode
+            ? '0 3px 10px rgba(255, 255, 255, 0.2)'
+            : '0 3px 10px rgba(0, 0, 0, 0.08)',
         },
       }}
     >
-      <Table size="small">
-        <TableHead 
-          sx={{ 
-            backgroundColor: '#F8F9FA',
-            position: 'sticky', 
-            top: 0, 
+      <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
+        <TableHead
+          sx={{
+            backgroundColor: darkMode ? '#333333' : '#F8F8F8',
+            position: 'sticky',
+            top: 0,
             zIndex: 1,
+            transition: 'background-color 0.3s ease',
           }}
         >
           <TableRow>
             {[
-              { key: 'subj', label: 'Subject', width: '80px' },
-              { key: 'num', label: 'Number', width: '60px' },
-              { key: 'title', label: 'Title', width: '200px' },
-              { key: 'sec', label: 'Section', width: '70px' },
-              { key: 'period', label: 'Period', width: '70px' },
-              { key: 'timing', label: 'Timing', width: '140px' },
-              { key: 'room', label: 'Room', width: '60px' },
-              { key: 'building', label: 'Building', width: '80px' },
-              { key: 'instructor', label: 'Instructor', width: '120px' },
-              { key: null, label: 'Calendar', width: '120px' },
-              { key: null, label: 'Notify', width: '60px' },
-              { key: null, label: 'Add', width: '60px' }
-            ].map(({ key, label, width }, index) => (
+              'Subject',
+              'Number',
+              'Title',
+              'Section',
+              // Removed "Period"
+              'Timing',
+              'Room',
+              'Building',
+              'Instructor',
+              'Add to Calendar',
+              'Notify When Available',
+              'Add',
+            ].map((header, index) => (
               <TableCell
                 key={index}
-                onClick={() => key && handleSort(key)}
                 sx={{
-                  width: width,
-                  minWidth: width,
-                  maxWidth: width,
-                  padding: '14px 8px',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#1D1D1F',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  backgroundColor: '#F8F9FA',
-                  whiteSpace: 'nowrap',
-                  cursor: key ? 'pointer' : 'default',
-                  transition: 'all 0.2s ease',
-                  position: 'relative',
-                  borderBottom: '1px solid #E0E0E0',
-                  borderRight: index !== 11 ? '1px solid #E0E0E0' : 'none',
+                  color: darkMode ? '#FFFFFF' : '#333333',
                   textAlign: 'left',
-                  '&:hover': key ? {
-                    backgroundColor: 'rgba(0, 105, 62, 0.08)',
-                    color: '#00693E',
-                  } : {},
-                  '&::after': key ? {
-                    content: sortConfig.key === key ? 
-                      `"${sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}"` : '""',
-                    position: 'absolute',
-                    right: '4px',
-                    opacity: sortConfig.key === key ? 1 : 0.3,
-                    fontSize: '0.7rem',
-                    marginLeft: '4px',
-                  } : {},
-                  // Bottom border highlight for active sort
-                  borderBottom: sortConfig.key === key ? 
-                    '2px solid #00693E' : 
-                    '1px solid #E0E0E0',
-                  // Gradient background for header cells
-                  background: 'linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%)',
-                  // Box shadow for depth
-                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  padding: '16px 12px',
+                  borderBottom: '2px solid #E0E0E0',
+                  borderColor: darkMode ? '#444444' : '#E0E0E0',
+                  backgroundColor: darkMode ? '#333333' : '#F8F8F8',
+                  // Box shadow for the first header cell, if desired
+                  boxShadow:
+                    index === 0
+                      ? darkMode
+                        ? '0 2px 4px rgba(255, 255, 255, 0.05)'
+                        : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                      : 'none',
+                  fontFamily: 'SF Pro Display, sans-serif',
+                  transition: 'background-color 0.3s ease, color 0.3s ease',
                 }}
               >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '4px',
-                  }}
-                >
-                  {label}
-                  {key && (
-                    <Box 
-                      sx={{ 
-                        opacity: 0.3,
-                        transition: 'opacity 0.2s',
-                        '&:hover': {
-                          opacity: 1
-                        }
-                      }}
-                    >
-                      {sortConfig.key === key ? 
-                        (sortConfig.direction === 'ascending' ? '▲' : '▼') : 
-                        '▼'}
-                    </Box>
-                  )}
-                </Box>
+                {header}
               </TableCell>
             ))}
           </TableRow>
         </TableHead>
-        <TableBody>
-      {paginatedCourses.map((course, index) => (
-        <TableRow
-          key={index}
-          sx={{
-            backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#FAFBFC',
-            transition: 'all 0.2s ease',
-            height: '48px', // Fixed height for rows
-            '&:hover': {
-              backgroundColor: 'rgba(0, 105, 62, 0.04)',
-              transform: 'translateY(-1px)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-            },
-            cursor: 'default',
-            borderLeft: '2px solid transparent',
-            '&:hover': {
-              borderLeft: '2px solid #00693E',
-            }
-          }}
-        >
-              {/* Interactive cells (Subject, Number, Title) */}
-              <TableCell
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCourseClick(course);
-                }}
-                sx={{
-                  color: '#571ce0',
-                  padding: '8px 16px', // Reduced padding
-                  fontWeight: 500,
-                  fontSize: '0.875rem', // Slightly smaller font
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  height: '48px', // Fixed height
-                  lineHeight: '1.2', // Reduced line height
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
-              >
-                {course.subj}
-              </TableCell>
-              <TableCell
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCourseClick(course);
-                }}
-                sx={{
-                  color: '#571ce0',
-                  padding: '8px 16px', // Reduced padding
-                  fontWeight: 500,
-                  fontSize: '0.875rem', // Slightly smaller font
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  height: '48px', // Fixed height
-                  lineHeight: '1.2', // Reduced line height
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
-              >
-                {course.num}
-              </TableCell>
-              <TableCell
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCourseClick(course);
-                }}
-                sx={{
-                  color: '#571ce0',
-                  padding: '8px 16px', // Reduced padding
-                  fontWeight: 500,
-                  fontSize: '0.875rem', // Slightly smaller font
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  height: '48px', // Fixed height
-                  lineHeight: '1.2', // Reduced line height
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
-              >
-                {course.title}
-              </TableCell>
 
-              {/* Regular cells */}
-              {['sec', 'period', 'timing', 'room', 'building'].map((field) => (
+        <TableBody>
+          {paginatedCourses.map((course, index) => {
+            // Even/odd row background
+            const rowBackground =
+              index % 2 === 0
+                ? darkMode
+                  ? '#1C1F43'
+                  : '#FFFFFF'
+                : darkMode
+                ? '#24273c'
+                : '#F9F9F9';
+
+            return (
+              <TableRow
+                key={index}
+                sx={{
+                  backgroundColor: rowBackground,
+                  transition: 'background-color 0.3s ease',
+                  '&:hover': {
+                    backgroundColor: darkMode ? '#2a2a2a' : '#E5E5EA',
+                  },
+                  cursor: 'default',
+                }}
+              >
+                {/* Subject */}
                 <TableCell
-                  key={field}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCourseClick(course);
+                  }}
                   sx={{
-                    color: '#1D1D1F',
-                    padding: '8px 16px', // Reduced padding
-                    fontSize: '0.875rem', // Slightly smaller font
-                    fontWeight: 400,
-                    height: '48px', // Fixed height
-                    borderBottom: '1px solid rgba(0, 0, 0, 0.04)', // Lighter border
+                    color: darkMode ? '#BB86FC' : '#571ce0',
+                    padding: '10px',
+                    fontWeight: 500,
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    transition: 'color 0.3s ease',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
                     fontFamily: 'SF Pro Display, sans-serif',
-                    transition: 'all 0.2s ease',
-                    lineHeight: '1.2', // Reduced line height
-                    '&:hover::after': {
-                      opacity: 1,
-                    }
                   }}
                 >
-                  {course[field]}
+                  {course.subj}
                 </TableCell>
-              ))}
-             <ProfessorCell instructor={course.instructor} />
 
-              {/* Add to Calendar Button */}
-              <TableCell 
-                sx={{ 
-                  padding: '8px 12px', 
-                  textAlign: 'left',
-                  height: '48px',
-                  verticalAlign: 'middle',
-                }}
-              >
-                {course.period !== 'ARR' && course.period !== 'FS' && (
-                  <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
-                    <div className="icon">
-                      <GoogleIcon />
-                    </div>
-                    <span className="text">Add to Calendar</span>
-                  </GoogleCalendarButton>
-                )}
-              </TableCell>
-
-              {/* Notify When Available Button */}
-              <TableCell 
-                sx={{ 
-                  padding: '12px',
-                  textAlign: 'left',
-                }}
-              >
-                {isFallAddDropClosed ? (
-                  <Tooltip title="Winter add/drop notifications will open at 5pm on November 14.">
-                    <IconButton>
-                      <LockIcon sx={{ color: '#999999' }} />
-                    </IconButton>
-                  </Tooltip>
-                ) : (
-                  <Tooltip title="Notify me if someone drops this class">
-                    <IconButton onClick={() => handleNotifyDrop(course)}>
-                      <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </TableCell>
-
-              {/* Add Course Button */}
-              <TableCell 
-                sx={{ 
-                  padding: '12px',
-                  textAlign: 'left',
-                }}
-              >
-                <IconButton
-                  onClick={() => handleAddCourse(course)}
-                  disabled={selectedCourses.length >= 3}
+                {/* Number */}
+                <TableCell
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCourseClick(course);
+                  }}
+                  sx={{
+                    color: darkMode ? '#BB86FC' : '#571ce0',
+                    padding: '10px',
+                    fontWeight: 500,
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    transition: 'color 0.3s ease',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                    fontFamily: 'SF Pro Display, sans-serif',
+                  }}
                 >
-                  {selectedCourses.some((c) => c.title === course.title) ? (
-                    <CheckCircleIcon sx={{ color: '#34C759' }} />
-                  ) : (
-                    <AddCircleOutlineIcon
-                      sx={{ color: selectedCourses.length >= 3 ? '#999999' : '#007AFF' }}
-                    />
+                  {course.num}
+                </TableCell>
+
+                {/* Title */}
+                <TableCell
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCourseClick(course);
+                  }}
+                  sx={{
+                    color: darkMode ? '#BB86FC' : '#571ce0',
+                    padding: '10px',
+                    fontWeight: 500,
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    transition: 'color 0.3s ease',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                    fontFamily: 'SF Pro Display, sans-serif',
+                  }}
+                >
+                  {course.title}
+                </TableCell>
+
+                {/* Section */}
+                <TableCell
+                  sx={{
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                    padding: '10px',
+                    fontWeight: 400,
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    transition: 'color 0.3s ease',
+                    fontFamily: 'SF Pro Display, sans-serif',
+                  }}
+                >
+                  {course.sec}
+                </TableCell>
+
+                {/* Timing */}
+                <TableCell
+                  sx={{
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                    padding: '10px',
+                    fontWeight: 400,
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    transition: 'color 0.3s ease',
+                    fontFamily: 'SF Pro Display, sans-serif',
+                  }}
+                >
+                  {course.timing}
+                </TableCell>
+
+                {/* Room */}
+                <TableCell
+                  sx={{
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                    padding: '10px',
+                    fontWeight: 400,
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    transition: 'color 0.3s ease',
+                    fontFamily: 'SF Pro Display, sans-serif',
+                  }}
+                >
+                  {course.room}
+                </TableCell>
+
+                {/* Building */}
+                <TableCell
+                  sx={{
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                    padding: '10px',
+                    fontWeight: 400,
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    transition: 'color 0.3s ease',
+                    fontFamily: 'SF Pro Display, sans-serif',
+                  }}
+                >
+                  {course.building}
+                </TableCell>
+
+                {/* Instructor */}
+                <TableCell
+                  sx={{
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                    padding: '10px',
+                    fontWeight: 400,
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    transition: 'color 0.3s ease',
+                    fontFamily: 'SF Pro Display, sans-serif',
+                  }}
+                >
+                   <ProfessorCell instructor={course.instructor} />
+                </TableCell>
+                {/* ProfessorCell for Instructor (existing logic intact) */}
+               
+
+                {/* Add to Calendar Button */}
+                <TableCell
+                  sx={{
+                    padding: '8px 12px',
+                    textAlign: 'left',
+                    height: '48px',
+                    verticalAlign: 'middle',
+                  }}
+                >
+                  {course.period !== 'ARR' && course.period !== 'FS' && (
+                    <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
+                      <div className="icon">
+                        <GoogleIcon />
+                      </div>
+                      <span className="text">Add to Calendar</span>
+                    </GoogleCalendarButton>
                   )}
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+
+                {/* Notify When Available Button */}
+                <TableCell
+                  sx={{
+                    padding: '12px',
+                    textAlign: 'left',
+                  }}
+                >
+                  {isFallAddDropClosed ? (
+                    <Tooltip title="Winter add/drop notifications will open at 5pm on November 14.">
+                      <IconButton>
+                        <LockIcon color="disabled" />
+                      </IconButton>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Notify me if someone drops this class">
+                      <IconButton onClick={() => handleNotifyDrop(course)}>
+                        <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </TableCell>
+
+                {/* Add Course Button */}
+                <TableCell
+                  sx={{
+                    padding: '12px',
+                    textAlign: 'left',
+                  }}
+                >
+                  <IconButton
+                    onClick={() => handleAddCourse(course)}
+                    disabled={selectedCourses.length >= 3}
+                  >
+                    {selectedCourses.some((c) => c.title === course.title) ? (
+                      <CheckCircleIcon sx={{ color: '#34C759' }} />
+                    ) : (
+                      <AddCircleOutlineIcon
+                        sx={{
+                          color: selectedCourses.length >= 3 ? '#999999' : '#007AFF',
+                        }}
+                      />
+                    )}
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>
 
     {/* Pagination Controls */}
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: '20px',
+      }}
+    >
       <IconButton
         onClick={handlePreviousPage}
         disabled={currentPage === 1}
-        sx={{ 
+        sx={{
           marginRight: '10px',
           color: '#007AFF',
           '&.Mui-disabled': {
-            color: '#999999'
-          }
+            color: darkMode ? '#555555' : '#999999',
+          },
         }}
       >
         <ArrowBackIcon />
       </IconButton>
-      <Typography variant="body1">
+
+      <Typography
+        variant="body1"
+        sx={{
+          color: darkMode ? '#FFFFFF' : '#1D1D1F',
+          transition: 'color 0.3s ease',
+        }}
+      >
         Page {currentPage} of {totalPages}
       </Typography>
+
       <IconButton
         onClick={handleNextPage}
         disabled={currentPage === totalPages}
-        sx={{ 
+        sx={{
           marginLeft: '10px',
           color: '#007AFF',
           '&.Mui-disabled': {
-            color: '#999999'
-          }
+            color: darkMode ? '#555555' : '#999999',
+          },
         }}
       >
         <ArrowForwardIcon />
@@ -1796,8 +1955,11 @@ useEffect(() => {
     </Box>
   </>
 ) : (
-  <Typography>No courses available</Typography>
+  <Typography sx={{ color: darkMode ? '#FFFFFF' : '#1D1D1F' }}>
+    No courses available
+  </Typography>
 )}
+
       </Container>
 
       {/* Snackbars */}
