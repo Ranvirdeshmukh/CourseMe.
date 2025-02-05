@@ -27,7 +27,7 @@ const CACHE_KEY = 'winter_layups_cache';
 const CACHE_VERSION = 'v1';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-const LayupsByTiming = () => {
+const LayupsByTiming = ({darkMode}) => {
   const [timeSlotCourses, setTimeSlotCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -215,35 +215,44 @@ const fetchCoursesByPeriod = useCallback(async (periodCode) => {
         Winter 2025 Layups by Period
       </Typography> */}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel id="period-label" sx={{ color: '#00693E' }}>
-            Period
-          </InputLabel>
-          <Select
-            labelId="period-label"
-            value={selectedPeriod}
-            label="Period"
-            onChange={handlePeriodChange}
-            sx={{
-              height: '48px',
-              backgroundColor: '#F0F4FF',
-              borderRadius: '8px',
-              '&:hover': { backgroundColor: '#E0E7FF' },
-              transition: 'background-color 0.3s ease',
-            }}
-          >
-            {/* <MenuItem value="">
-              <em>Select Period</em>
-            </MenuItem> */}
-            {Object.entries(periodCodeToTiming).map(([code, timing]) => (
-              <MenuItem key={code} value={code}>
-                {`Period ${code} (${timing})`}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+<Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+  <FormControl sx={{ minWidth: 200 }}>
+    <InputLabel
+      id="period-label"
+      sx={{ color: darkMode ? '#fff' : '#00693E' }}
+    >
+      Period
+    </InputLabel>
+    <Select
+      labelId="period-label"
+      value={selectedPeriod}
+      label="Period"
+      onChange={handlePeriodChange}
+      sx={{
+        height: '48px',
+        backgroundColor: darkMode ? '#1C1F43' : '#F0F4FF',
+        borderRadius: '8px',
+        color: darkMode ? '#fff' : '#333',
+        '&:hover': { backgroundColor: darkMode ? '#24273c' : '#E0E7FF' },
+        transition: 'background-color 0.3s ease, color 0.3s ease',
+      }}
+    >
+      {Object.entries(periodCodeToTiming).map(([code, timing]) => (
+        <MenuItem
+          key={code}
+          value={code}
+          sx={{
+            backgroundColor: darkMode ? '#1C1F43' : undefined,
+            color: darkMode ? '#fff' : undefined,
+          }}
+        >
+          {`Period ${code} (${timing})`}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+</Box>
+
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
@@ -252,87 +261,89 @@ const fetchCoursesByPeriod = useCallback(async (periodCode) => {
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : timeSlotCourses.length > 0 ? (
-        <TableContainer 
-  component={Paper} 
-  sx={{ 
-    backgroundColor: '#FFFFFF', 
-    borderRadius: '10px', 
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', 
+        <TableContainer
+  component={Paper}
+  sx={{
+    backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+    borderRadius: '10px',
+    boxShadow: darkMode
+      ? '0 2px 8px rgba(255, 255, 255, 0.1)'
+      : '0 2px 8px rgba(0, 0, 0, 0.1)',
     padding: '10px',
     overflowX: 'auto',
     flex: '3',
+    transition: 'background-color 0.3s ease',
   }}
 >
   <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
     <TableHead>
-      
       <TableRow>
-<TableCell 
-  sx={{ 
-    color: 'black', 
-    textAlign: 'left', 
-    fontWeight: 600, 
-    fontSize: '1rem', 
-    padding: '12px 10px',
-    borderBottom: '2px solid #E0E0E0',
-    width: '5%', 
-    whiteSpace: 'nowrap'
-  }}
->
-  #
-</TableCell>
-<TableCell 
-  sx={{ 
-    color: 'black', 
-    textAlign: 'left', 
-    fontWeight: 600, 
-    fontSize: '1rem', 
-    padding: '12px 20px',
-    borderBottom: '2px solid #E0E0E0',
-    width: '15%' // Changed from 50% to 15%
-  }}
->
-  Course
-</TableCell>
-<TableCell 
-  sx={{ 
-    color: 'black', 
-    textAlign: 'left', 
-    fontWeight: 600, 
-    fontSize: '1rem', 
-    padding: '12px 20px',
-    borderBottom: '2px solid #E0E0E0',
-    width: '40%' // Added width specification
-  }}
->
-  Title
-</TableCell>
-<TableCell 
-  sx={{ 
-    color: 'black', 
-    textAlign: 'left', 
-    fontWeight: 600, 
-    fontSize: '1rem', 
-    padding: '12px 20px',
-    borderBottom: '2px solid #E0E0E0',
-    width: '25%' // Added width specification
-  }}
->
-  Professor
-</TableCell>
-<TableCell 
-  sx={{ 
-    color: 'black', 
-    textAlign: 'center', 
-    fontWeight: 600, 
-    fontSize: '1rem', 
-    padding: '10px', 
-    borderBottom: '2px solid #E0E0E0',
-    width: '15%' // Added width specification
-  }}
->
-  Layup Score
-</TableCell>
+        <TableCell
+          sx={{
+            color: darkMode ? '#fff' : 'black',
+            textAlign: 'left',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '12px 10px',
+            borderBottom: darkMode ? '2px solid #444444' : '2px solid #E0E0E0',
+            width: '5%',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          #
+        </TableCell>
+        <TableCell
+          sx={{
+            color: darkMode ? '#A5A5FF' : 'black',
+            textAlign: 'left',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '12px 20px',
+            borderBottom: darkMode ? '2px solid #444444' : '2px solid #E0E0E0',
+            width: '15%', // Changed from 50% to 15%
+          }}
+        >
+          Course
+        </TableCell>
+        <TableCell
+          sx={{
+            color: darkMode ? '#fff' : 'black',
+            textAlign: 'left',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '12px 20px',
+            borderBottom: darkMode ? '2px solid #444444' : '2px solid #E0E0E0',
+            width: '40%', // Added width specification
+          }}
+        >
+          Title
+        </TableCell>
+        <TableCell
+          sx={{
+            color: darkMode ? '#fff' : 'black',
+            textAlign: 'left',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '12px 20px',
+            borderBottom: darkMode ? '2px solid #444444' : '2px solid #E0E0E0',
+            width: '25%', // Added width specification
+          }}
+        >
+          Professor
+        </TableCell>
+        <TableCell
+          sx={{
+            color: darkMode ? '#fff' : 'black',
+            textAlign: 'center',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '10px',
+            borderBottom: darkMode ? '2px solid #444444' : '2px solid #E0E0E0',
+            width: '15%', // Added width specification
+          }}
+        >
+          Layup Score
+        </TableCell>
       </TableRow>
     </TableHead>
     <TableBody>
@@ -342,11 +353,20 @@ const fetchCoursesByPeriod = useCallback(async (periodCode) => {
           component={Link}
           to={`/departments/${course.subj}/courses/${course.courseId}`}
           sx={{
-            backgroundColor: index % 2 === 0 ? '#F8F8F8' : '#FFFFFF',
+            backgroundColor:
+              index % 2 === 0
+                ? darkMode
+                  ? '#1C1F43'
+                  : '#F8F8F8'
+                : darkMode
+                ? '#24273c'
+                : '#FFFFFF',
             transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
             '&:hover': {
-              backgroundColor: '#E9E9E9',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)', 
+              backgroundColor: darkMode ? '#2a2a2a' : '#E9E9E9',
+              boxShadow: darkMode
+                ? '0 2px 6px rgba(255, 255, 255, 0.1)'
+                : '0 2px 6px rgba(0, 0, 0, 0.1)',
             },
             cursor: 'pointer',
             textDecoration: 'none',
@@ -354,74 +374,80 @@ const fetchCoursesByPeriod = useCallback(async (periodCode) => {
             borderRadius: '6px',
           }}
         >
-<TableCell 
-  sx={{ 
-    color: '#000', 
-    fontWeight: 600, 
-    padding: '10px', 
-    fontSize: '0.95rem', 
-    borderBottom: '1px solid #E0E0E0',
-    width: '5%', 
-    whiteSpace: 'nowrap'
-  }}
->
-  {index + 1}
-</TableCell>
-<TableCell 
-  sx={{ 
-    color: '#571ce0', 
-    padding: '10px 20px',
-    fontSize: '0.95rem', 
-    borderBottom: '1px solid #E0E0E0',
-    fontWeight: 500,
-    width: '15%',
-    '&:hover': {
-      textDecoration: 'underline',
-    }
-  }}
->
-  {`${course.subj} ${course.num}`}
-</TableCell>
-<TableCell 
-  sx={{ 
-    color: '#333', 
-    padding: '10px 20px',
-    fontSize: '0.95rem', 
-    borderBottom: '1px solid #E0E0E0',
-    width: '40%'
-  }}
->
-  {course.title}
-</TableCell>
-<TableCell 
-  sx={{ 
-    color: '#333', 
-    padding: '10px 20px',
-    fontSize: '0.95rem', 
-    borderBottom: '1px solid #E0E0E0',
-    width: '25%'
-  }}
->
-  {course.instructor}
-</TableCell>
-<TableCell 
-  sx={{ 
-    color: course.layup >= 4 ? '#34C759' : course.layup >= 3 ? '#007AFF' : '#FF3B30',
-    padding: isMobile ? '8px' : '10px', 
-    fontSize: '0.95rem', 
-    textAlign: 'center', 
-    borderBottom: '1px solid #E0E0E0',
-    fontWeight: 500,
-    width: '15%'
-  }}
->
-  {course.layup.toFixed(2)}
-</TableCell>
+          <TableCell
+            sx={{
+              color: darkMode ? '#fff' : '#000',
+              fontWeight: 600,
+              padding: '10px',
+              fontSize: '0.95rem',
+              borderBottom: darkMode ? '1px solid #444444' : '1px solid #E0E0E0',
+              width: '5%',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {index + 1}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: darkMode ? '#A5A5FF' : '#571ce0',
+              padding: '10px 20px',
+              fontSize: '0.95rem',
+              borderBottom: darkMode ? '1px solid #444444' : '1px solid #E0E0E0',
+              fontWeight: 500,
+              width: '15%',
+              '&:hover': {
+                textDecoration: 'underline',
+              },
+            }}
+          >
+            {`${course.subj} ${course.num}`}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: darkMode ? '#ccc' : '#333',
+              padding: '10px 20px',
+              fontSize: '0.95rem',
+              borderBottom: darkMode ? '1px solid #444444' : '1px solid #E0E0E0',
+              width: '40%',
+            }}
+          >
+            {course.title}
+          </TableCell>
+          <TableCell
+            sx={{
+              color: darkMode ? '#ccc' : '#333',
+              padding: '10px 20px',
+              fontSize: '0.95rem',
+              borderBottom: darkMode ? '1px solid #444444' : '1px solid #E0E0E0',
+              width: '25%',
+            }}
+          >
+            {course.instructor}
+          </TableCell>
+          <TableCell
+            sx={{
+              color:
+                course.layup >= 4
+                  ? '#34C759'
+                  : course.layup >= 3
+                  ? '#007AFF'
+                  : '#FF3B30',
+              padding: isMobile ? '8px' : '10px',
+              fontSize: '0.95rem',
+              textAlign: 'center',
+              borderBottom: darkMode ? '1px solid #444444' : '1px solid #E0E0E0',
+              fontWeight: 500,
+              width: '15%',
+            }}
+          >
+            {course.layup.toFixed(2)}
+          </TableCell>
         </TableRow>
       ))}
     </TableBody>
   </Table>
 </TableContainer>
+
       ) : (
         <Typography sx={{ color: '#333', fontFamily: 'SF Pro Display, sans-serif' }}>
           Select a period to see the biggest layups in that time slot

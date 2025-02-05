@@ -19,7 +19,7 @@ import AdminRecommendations from '../components/AdminRecommendations';
 import { hiddenLayupCourseIds } from '../constants/hiddenLayupConstants';
 import FilterControls from '../components/filtercontrols';
 
-const HiddenLayups = () => {
+const HiddenLayups = ({darkMode}) => {
   const [hiddenLayups, setHiddenLayups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -289,49 +289,63 @@ console.log('Filtering debug:', {
     <Container maxWidth="lg">
       <Box sx={{ mt: 4 }}>
         {/* Header Section */}
-<Box sx={{ mb: 3 }}>
-  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-    <Box>
-      <Typography variant="h3" gutterBottom sx={{ color: '#34495e', fontWeight: 600 }}>
-        Hidden Gems for Winter '25 💎
-      </Typography>
-      <Typography variant="body2" sx={{ mb: 2, color: '#7f8c8d' }}>
-        Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 
-        Do you agree? Vote to help other students discover these gems!
-      </Typography>
-    </Box>
-    {user && (
-      <Button 
-        onClick={() => setRecommendationOpen(true)}
-        variant="contained"
-        sx={{ 
-          backgroundColor: '#f6f6f6',
-          color: '#000000',
-          fontSize: '0.85rem',
-          fontWeight: '500',
-          borderRadius: '20px',
-          padding: '6px 16px',
-          '&:hover': {
-            backgroundColor: '#571ce0',
-            color: '#ffffff',
-          },
-          height: 'fit-content',
-          ml: 2,
-          transition: 'background-color 0.3s, color 0.3s',
-        }}
-      >
-        Recommend a Course
-      </Button>
-    )}
-  </Box>
-  
-  <FilterControls
-    departments={departments}
-    distribs={allDistribs}
-    filters={filters}
-    setFilters={setFilters}
-  />
-</Box>
+        <Box sx={{ mb: 3 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              mb: 2,
+            }}
+          >
+            <Box>
+              <Typography
+                variant="h3"
+                gutterBottom
+                sx={{ color: darkMode ? '#fff' : '#34495e', fontWeight: 600 }}
+              >
+                Hidden Gems for Winter '25 💎
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ mb: 2, color: darkMode ? '#ccc' : '#7f8c8d' }}
+              >
+                Based on our surveys, these courses are potential "hidden layups" at Dartmouth. 
+                Do you agree? Vote to help other students discover these gems!
+              </Typography>
+            </Box>
+            {user && (
+              <Button
+                onClick={() => setRecommendationOpen(true)}
+                variant="contained"
+                sx={{
+                  backgroundColor: darkMode ? '#2a2a2a' : '#f6f6f6',
+                  color: darkMode ? '#fff' : '#000000',
+                  fontSize: '0.85rem',
+                  fontWeight: '500',
+                  borderRadius: '20px',
+                  padding: '6px 16px',
+                  '&:hover': {
+                    backgroundColor: '#571ce0',
+                    color: '#ffffff',
+                  },
+                  height: 'fit-content',
+                  ml: 2,
+                  transition: 'background-color 0.3s, color 0.3s',
+                }}
+              >
+                Recommend a Course
+              </Button>
+            )}
+          </Box>
+    
+          <FilterControls
+            departments={departments}
+            distribs={allDistribs}
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </Box>
         
         {/* Error Alert */}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -343,21 +357,23 @@ console.log('Filtering debug:', {
             const noCount = layup.no_count || 0;
             const yesPercentage = calculatePercentage(yesCount, noCount);
             const noPercentage = 100 - yesPercentage;
-
+    
             return (
               <Grid item xs={12} sm={6} lg={4} key={layup.id}>
-                <Box 
-                  sx={{ 
-                    border: '1px solid #ecf0f1',
+                <Box
+                  sx={{
+                    border: darkMode ? '1px solid #444' : '1px solid #ecf0f1',
                     borderRadius: '12px',
                     padding: '20px',
                     minHeight: '280px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    backgroundColor: '#ffffff',
+                    backgroundColor: darkMode ? '#1C1F43' : '#ffffff',
                     '&:hover': {
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                      boxShadow: darkMode
+                        ? '0 8px 24px rgba(255,255,255,0.08)'
+                        : '0 8px 24px rgba(0,0,0,0.08)',
                       transform: 'translateY(-2px)',
                     },
                     transition: 'all 0.3s ease',
@@ -365,16 +381,16 @@ console.log('Filtering debug:', {
                 >
                   <Box>
                     <Tooltip title={layup.name} arrow>
-                      <Typography 
-                        variant="h6" 
+                      <Typography
+                        variant="h6"
                         component={Link}
                         to={`/departments/${layup.department}/courses/${layup.id}`}
-                        sx={{ 
-                          fontWeight: 600, 
+                        sx={{
+                          fontWeight: 600,
                           mb: 2,
                           fontSize: '1.1rem',
                           textDecoration: 'none',
-                          color: '#2c3e50',
+                          color: darkMode ? '#fff' : '#2c3e50',
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
@@ -386,27 +402,29 @@ console.log('Filtering debug:', {
                         {layup.name}
                       </Typography>
                     </Tooltip>
-
-                    {/* Distribs and Layup Score - Made more responsive */}
-                    <Box sx={{ 
-                      mb: 3,
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: 1,
-                      alignItems: 'center'
-                    }}>
+    
+                    {/* Distribs and Layup Score */}
+                    <Box
+                      sx={{
+                        mb: 3,
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 1,
+                        alignItems: 'center',
+                      }}
+                    >
                       {layup.distribs && layup.distribs.length > 0 && (
                         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
                           {layup.distribs.map((distrib, index) => (
-                            <Typography 
-                              key={index} 
-                              sx={{ 
-                                backgroundColor: '#e8f5e9',
-                                color: '#2e7d32',
+                            <Typography
+                              key={index}
+                              sx={{
+                                backgroundColor: darkMode ? '#333' : '#e8f5e9',
+                                color: darkMode ? '#fff' : '#2e7d32',
                                 padding: '4px 8px',
                                 borderRadius: '6px',
                                 fontSize: '0.75rem',
-                                fontWeight: 500
+                                fontWeight: 500,
                               }}
                             >
                               {distrib}
@@ -415,103 +433,114 @@ console.log('Filtering debug:', {
                         </Box>
                       )}
                       {layup.layup !== undefined && (
-                        <Typography 
-                          sx={{ 
-                            backgroundColor: '#e3f2fd',
-                            color: '#1565c0',
+                        <Typography
+                          sx={{
+                            backgroundColor: darkMode ? '#333' : '#e3f2fd',
+                            color: darkMode ? '#fff' : '#1565c0',
                             padding: '4px 8px',
                             borderRadius: '6px',
                             fontSize: '0.75rem',
                             fontWeight: 500,
-                            marginLeft: 'auto'
+                            marginLeft: 'auto',
                           }}
                         >
                           Layup: {Math.round(layup.layup)}
                         </Typography>
                       )}
                     </Box>
-
+    
                     {/* Vote Progress Bar */}
-                    <Tooltip title={`Yes: ${yesPercentage.toFixed(1)}% | No: ${noPercentage.toFixed(1)}%`} arrow>
+                    <Tooltip
+                      title={`Yes: ${yesPercentage.toFixed(1)}% | No: ${noPercentage.toFixed(1)}%`}
+                      arrow
+                    >
                       <Box sx={{ width: '100%', mb: 2 }}>
-                        <Box sx={{
-                          height: 10,
-                          borderRadius: 5,
-                          backgroundColor: '#f6f6f6',
-                          position: 'relative',
-                          overflow: 'hidden'
-                        }}>
-                          <Box sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            height: '100%',
-                            width: `${yesPercentage}%`,
-                            backgroundColor: '#00693E',
-                            transition: 'width 0.3s ease'
-                          }} />
+                        <Box
+                          sx={{
+                            height: 10,
+                            borderRadius: 5,
+                            backgroundColor: darkMode ? '#2a2a2a' : '#f6f6f6',
+                            position: 'relative',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              height: '100%',
+                              width: `${yesPercentage}%`,
+                              backgroundColor: '#00693E',
+                              transition: 'width 0.3s ease',
+                            }}
+                          />
                         </Box>
-                        <Box sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          mt: 1
-                        }}>
-                          <Typography variant="caption" sx={{ color: '#00693E', fontWeight: 500 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            mt: 1,
+                          }}
+                        >
+                          <Typography variant="caption" sx={{ color: darkMode ? '#fff' : '#00693E', fontWeight: 500 }}>
                             Yes: {yesCount}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#e74c3c', fontWeight: 500 }}>
+                          <Typography variant="caption" sx={{ color: darkMode ? '#fff' : '#e74c3c', fontWeight: 500 }}>
                             No: {noCount}
                           </Typography>
                         </Box>
                       </Box>
                     </Tooltip>
                   </Box>
-
-                  {/* Vote Buttons - Improved styling */}
-                  <Box sx={{ 
-                    display: 'flex', 
-                    gap: 2, 
-                    mt: 'auto', 
-                    pt: 2
-                  }}>
-                    <Button 
+    
+                  {/* Vote Buttons */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 2,
+                      mt: 'auto',
+                      pt: 2,
+                    }}
+                  >
+                    <Button
                       variant="contained"
                       onClick={(e) => {
                         e.preventDefault();
                         handleVote(layup.id, 'yes');
                       }}
-                      sx={{ 
+                      sx={{
                         flex: 1,
                         py: 1.5,
-                        backgroundColor: layup.userVote === true ? '#00693E' : '#f6f6f6',
-                        color: layup.userVote === true ? '#ffffff' : '#34495e',
+                        backgroundColor: layup.userVote === true ? '#00693E' : darkMode ? '#2a2a2a' : '#f6f6f6',
+                        color: layup.userVote === true ? '#ffffff' : darkMode ? '#fff' : '#34495e',
                         '&:hover': {
                           backgroundColor: '#571ce0',
                           color: '#ffffff',
                         },
                         borderRadius: '8px',
-                        fontWeight: 600
+                        fontWeight: 600,
                       }}
                     >
                       Yes
                     </Button>
-                    <Button 
+                    <Button
                       variant="contained"
                       onClick={(e) => {
                         e.preventDefault();
                         handleVote(layup.id, 'no');
                       }}
-                      sx={{ 
+                      sx={{
                         flex: 1,
                         py: 1.5,
-                        backgroundColor: layup.userVote === false ? '#00693E' : '#f6f6f6',
-                        color: layup.userVote === false ? '#ffffff' : '#34495e',
+                        backgroundColor: layup.userVote === false ? '#00693E' : darkMode ? '#2a2a2a' : '#f6f6f6',
+                        color: layup.userVote === false ? '#ffffff' : darkMode ? '#fff' : '#34495e',
                         '&:hover': {
                           backgroundColor: '#c0392b',
                           color: '#ffffff',
                         },
                         borderRadius: '8px',
-                        fontWeight: 600
+                        fontWeight: 600,
                       }}
                     >
                       No
@@ -523,45 +552,50 @@ console.log('Filtering debug:', {
           })}
         </Grid>
     
-            {/* Show More Button */}
-            {!filters.department && !filters.distribs.length && 
-              filters.layupScore === 0 && filters.approvalRate === 0 && 
-              filteredLayups.length > visibleCount && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                <Button
-                  onClick={handleShowMore}
-                  sx={{ 
-                    bgcolor: 'background.paper',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: '20px',
-                    px: 3,
-                    py: 1,
-                    color: 'text.primary',
-                    fontWeight: 500,
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      bgcolor: 'rgba(87, 28, 224, 0.04)',
-                    },
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  Show More
-                </Button>
-              </Box>
-            )}
-    
-            {/* Results Summary */}
-            <Box sx={{ mt: 4, mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
-                Showing {displayedLayups.length} of {filteredLayups.length} courses
-              </Typography>
-              {filteredLayups.length === 0 && (
-                <Typography variant="body2" sx={{ color: '#e74c3c' }}>
-                  No courses match your filters. Try adjusting your criteria.
-                </Typography>
-              )}
+        {!filters.department &&
+          !filters.distribs.length &&
+          filters.layupScore === 0 &&
+          filters.approvalRate === 0 &&
+          filteredLayups.length > visibleCount && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Button
+                onClick={handleShowMore}
+                sx={{
+                  bgcolor: darkMode ? 'background.paper' : '#f6f6f6',
+                  border: '1px solid',
+                  borderColor: darkMode ? 'divider' : '#ecf0f1',
+                  borderRadius: '20px',
+                  px: 3,
+                  py: 1,
+                  color: darkMode ? 'text.primary' : '#34495e',
+                  fontWeight: 500,
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    bgcolor: darkMode ? 'rgba(87, 28, 224, 0.04)' : '#E9E9E9',
+                  },
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                Show More
+              </Button>
             </Box>
+          )}
+    
+        {/* Results Summary */}
+        <Box sx={{ mt: 4, mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="body2" sx={{ color: darkMode ? '#fff' : '#7f8c8d' }}>
+            Showing {displayedLayups.length} of {filteredLayups.length} courses
+          </Typography>
+          {filteredLayups.length === 0 && (
+            <Typography variant="body2" sx={{ color: darkMode ? '#e74c3c' : '#e74c3c' }}>
+              No courses match your filters. Try adjusting your criteria.
+            </Typography>
+          )}
+        </Box>
+  
+  
+    
+            
     
             {/* Dialogs and Admin Section */}
             <CourseRecommendationDialog
