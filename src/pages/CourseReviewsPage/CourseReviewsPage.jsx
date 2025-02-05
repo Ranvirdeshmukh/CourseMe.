@@ -335,7 +335,7 @@ const CourseReviewsPage = ({ darkMode }) => {
     switch (tabValue) {
       case 0:
         // Description tab content
-        return <CourseDescriptionSection />;
+        return <CourseDescriptionSection darkMode={darkMode}  />;
       case 1:
         // Grades Distribution tab content
         return (
@@ -360,6 +360,7 @@ const CourseReviewsPage = ({ darkMode }) => {
                 {renderGradeChart()}
                 <CanvasGradeTable
                   gradeData={gradeData.sort((a, b) => {
+                    darkMode={darkMode} 
                     const aYear = parseInt(a.Term.slice(0, 2));
                     const bYear = parseInt(b.Term.slice(0, 2));
                     if (aYear !== bYear) return bYear - aYear;
@@ -412,7 +413,7 @@ const CourseReviewsPage = ({ darkMode }) => {
                 freeSolo
                 sx={{ marginTop: 2, marginBottom: 2 }}
               />
-              <InteractiveGradeScale value={newGradeData.Grade} onChange={handleGradeChange} />
+              <InteractiveGradeScale value={newGradeData.Grade} onChange={handleGradeChange} darkMode={darkMode} />
               <Button
                 variant="contained"
                 color="primary"
@@ -427,7 +428,7 @@ const CourseReviewsPage = ({ darkMode }) => {
       case 3:
         // Input Data tab content
         return (
-          <Box sx={{ padding: '20px' }}>
+          <Box sx={{ padding: '20px'  }}>
             <Typography variant="h6" gutterBottom>
               Input Course Data
             </Typography>
@@ -447,7 +448,8 @@ const CourseReviewsPage = ({ darkMode }) => {
           courseId={courseId}
           currentUser={currentUser}
         />
-        <CourseAnalytics metrics={course?.metrics} />
+        <CourseAnalytics metrics={course?.metrics}
+        darkMode={darkMode} />
       </Box>
     </Box>
   );

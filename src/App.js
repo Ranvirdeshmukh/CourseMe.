@@ -126,8 +126,8 @@ const AppContent = () => {
 <Route path="/departments/:department" element={<DepartmentCoursesWithPriorities darkMode={darkMode} />} />
 
         <Route path="/timetable" element={<Timetable darkMode={darkMode} />} />
-        <Route path="/upload-unique-transcript" element={<TranscriptParser />} />
-        <Route path="/professors/:professorId" element={<ProfessorDetails />} />
+        <Route path="/upload-unique-transcript" element={<TranscriptParser darkMode={darkMode} />} />
+        <Route path="/professors/:professorId" element={<ProfessorDetails darkMode={darkMode} />} />
         <Route path="/professors" element={<ProfessorDirectory darkMode={darkMode} />} />
       </Routes>
     </ThemeProvider>

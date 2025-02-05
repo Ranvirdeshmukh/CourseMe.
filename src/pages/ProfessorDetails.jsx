@@ -17,7 +17,37 @@ import {
   X
 } from 'lucide-react';
 
+/* ===========================
+   Reusable Dark Mode Helpers
+   =========================== */
+const getCardClass = (darkMode) => {
+  return darkMode
+    ? 'bg-[#1C1F43] text-white border-[#332F56]'
+    : 'bg-white/80 backdrop-blur-xl text-[#1D1D1F] border-[#E8E8ED]';
+};
 
+const getContainerStyle = (darkMode) => ({
+  background: darkMode
+    ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
+    : '#F9F9F9',
+  transition: 'background-color 0.3s ease, color 0.3s ease'
+});
+
+const getErrorContainerClass = (darkMode) => {
+  return darkMode
+    ? 'min-h-screen flex items-center justify-center p-4'
+    : 'min-h-screen flex items-center justify-center bg-[#F9F9F9] p-4';
+};
+
+const getLoadingContainerClass = (darkMode) => {
+  return darkMode
+    ? 'min-h-screen flex items-center justify-center'
+    : 'min-h-screen flex items-center justify-center bg-[#f9f9f9]';
+};
+
+/* ===========================
+   DisplayTitle Component
+   =========================== */
 const DisplayTitle = ({ title }) => {
   if (!title) return null;
   
@@ -48,46 +78,75 @@ const DisplayTitle = ({ title }) => {
   );
 };
 
-const ContactInfo = ({ info }) => {
-  if (!info) return null;
-  const { email, phone, office, website } = info;
+/* ===========================
+   ContactInfo Component
+   =========================== */
+   const ContactInfo = ({ info, darkMode }) => {
+    if (!info) return null;
+    const { email, phone, office, website } = info;
   
-  return (
-    <div className="mt-4 space-y-3">
-      {email && (
-        <div className="flex items-center gap-2 text-[#1D1D1F] group">
-          <Mail className="w-4 h-4 text-[#00693e]" />
-          <a href={`mailto:${email}`} className="group-hover:text-[#0071E3] transition-colors">
-            {email}
-          </a>
-        </div>
-      )}
-      {phone && (
-        <div className="flex items-center gap-2 text-[#1D1D1F]">
-          <Phone className="w-4 h-4 text-[#0071E3]" />
-          <span>{phone}</span>
-        </div>
-      )}
-      {office && (
-        <div className="flex items-center gap-2 text-[#1D1D1F]">
-          <Building className="w-4 h-4 text-[#0071E3]" />
-          <span>{office}</span>
-        </div>
-      )}
-      {website && (
-        <div className="flex items-center gap-2 text-[#1D1D1F] group">
-          <Globe className="w-4 h-4 text-[#0071E3]" />
-          <a href={website} target="_blank" rel="noopener noreferrer" className="group-hover:text-[#0071E3] transition-colors">
-            Personal Website
-          </a>
-        </div>
-      )}
-    </div>
-  );
-};
+    // Generic text color for phone, office, website:
+    const textColor = darkMode ? 'text-gray-200' : 'text-[#1D1D1F]';
+    const hoverColor = darkMode ? 'hover:text-blue-300' : 'hover:text-[#0071E3]';
+  
+    // Special color overrides for the email link
+    const emailBaseColor = darkMode ? 'text-white' : 'text-[#0071E3]';
+    const emailHoverColor = darkMode ? 'hover:text-blue-300' : 'hover:text-[#0071E3]';
+  
+    return (
+      <div className="mt-4 space-y-3">
+        {email && (
+          <div className={`flex items-center gap-2 group ${textColor}`}>
+            <Mail className="w-4 h-4 text-[#00693e]" />
+            <a
+              href={`mailto:${email}`}
+              className={`transition-colors ${emailBaseColor} ${emailHoverColor}`}
+            >
+              {email}
+            </a>
+          </div>
+        )}
+  
+        {phone && (
+          <div className={`flex items-center gap-2 ${textColor}`}>
+            <Phone className="w-4 h-4 text-[#0071E3]" />
+            <span>{phone}</span>
+          </div>
+        )}
+  
+        {office && (
+          <div className={`flex items-center gap-2 ${textColor}`}>
+            <Building className="w-4 h-4 text-[#0071E3]" />
+            <span>{office}</span>
+          </div>
+        )}
+  
+        {website && (
+          <div className={`flex items-center gap-2 group ${textColor}`}>
+            <Globe className="w-4 h-4 text-[#0071E3]" />
+            <a
+              href={website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`transition-colors ${hoverColor}`}
+            >
+              Personal Website
+            </a>
+          </div>
+        )}
+      </div>
+    );
+  };
+  
 
-const LoadingState = () => (
-  <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
+/* ===========================
+   LoadingState Component
+   =========================== */
+const LoadingState = ({ darkMode }) => (
+  <div 
+    className={getLoadingContainerClass(darkMode)} 
+    style={darkMode ? getContainerStyle(darkMode) : {}}
+  >
     <div className="w-full max-w-md text-center">
       <div className="animate-pulse space-y-4">
         <div className="h-4 bg-[#E8E8ED] rounded-full w-3/4 mx-auto" />
@@ -99,6 +158,9 @@ const LoadingState = () => (
   </div>
 );
 
+/* ===========================
+   AISummary Component
+   =========================== */
 const AISummary = ({ summary, courseId, professorId, professorName }) => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -145,13 +207,17 @@ const AISummary = ({ summary, courseId, professorId, professorName }) => {
   );
 };
 
-const CourseCard = ({ course, professorId, professorName }) => {
+/* ===========================
+   CourseCard Component
+   =========================== */
+// <-- ADDED 'darkMode' as a prop
+const CourseCard = ({ course, professorId, professorName, darkMode }) => {
   const hasReviews = course.metrics.review_count > 0;
-  const [isExpanded, setIsExpanded] = useState(false);  // Changed to false
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-[#E8E8ED] transition-all duration-300 hover:scale-[1.01]">
-      <div 
+      <div
         className="p-6 cursor-pointer flex items-start justify-between"
         onClick={() => hasReviews && setIsExpanded(!isExpanded)}
       >
@@ -163,11 +229,13 @@ const CourseCard = ({ course, professorId, professorName }) => {
           <p className="text-[#1D1D1F] mt-1">{course.name}</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`px-4 py-1.5 rounded-full text-sm font-medium ${
-            hasReviews 
-              ? 'bg-[#0071E3]/10 text-[#0071E3]' 
-              : 'bg-[#F5F5F7] text-[#86868B]'
-          }`}>
+          <span
+            className={`px-4 py-1.5 rounded-full text-sm font-medium ${
+              hasReviews 
+                ? 'bg-[#0071E3]/10 text-[#0071E3]' 
+                : 'bg-[#F5F5F7] text-[#86868B]'
+            }`}
+          >
             {course.metrics.review_count} {course.metrics.review_count === 1 ? 'Review' : 'Reviews'}
           </span>
           {hasReviews && (
@@ -190,9 +258,11 @@ const CourseCard = ({ course, professorId, professorName }) => {
       {hasReviews && isExpanded && (
         <div className="px-6 pb-6">
           <div className="pt-4 border-t border-[#E8E8ED]">
+            {/* <-- PASS darkMode to ProfessorAnalytics */}
             <ProfessorAnalytics 
               analysis={course.metrics}
               courseId={course.courseId}
+              darkMode={darkMode} // <-- ADDED
             />
             {course.summary && (
               <AISummary 
@@ -209,9 +279,14 @@ const CourseCard = ({ course, professorId, professorName }) => {
   );
 };
 
-const CoursesSection = ({ courses, professorId, professorName }) => {
+/* ===========================
+   CoursesSection Component
+   =========================== */
+// <-- ADDED 'darkMode' as a prop here too
+const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [expandAll, setExpandAll] = useState(false);  // Changed from true to false
+  const [expandAll, setExpandAll] = useState(false);
+  
   const sortedCourses = [...courses].sort((a, b) => {
     const aReviews = a.metrics.review_count || 0;
     const bReviews = b.metrics.review_count || 0;
@@ -266,6 +341,7 @@ const CoursesSection = ({ courses, professorId, professorName }) => {
             course={course} 
             professorId={professorId}
             professorName={professorName}
+            darkMode={darkMode} // <-- pass darkMode here
           />
         ))}
       </div>
@@ -273,7 +349,10 @@ const CoursesSection = ({ courses, professorId, professorName }) => {
   );
 };
 
-const ProfessorDetails = () => {
+/* ===========================
+   ProfessorDetails Component
+   =========================== */
+const ProfessorDetails = ({ darkMode = false }) => {
   const { professorId } = useParams();
   const [professor, setProfessor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -321,12 +400,21 @@ const ProfessorDetails = () => {
     fetchProfessorData();
   }, [professorId]);
 
-  if (loading) return <LoadingState />;
+  if (loading) return <LoadingState darkMode={darkMode} />;
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F9F9F9] p-4">
-        <div className="bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] px-6 py-4 rounded-2xl font-medium">
+      <div
+        className={getErrorContainerClass(darkMode)}
+        style={darkMode ? getContainerStyle(darkMode) : {}}
+      >
+        <div 
+          className={
+            darkMode
+              ? 'bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] px-6 py-4 rounded-2xl font-medium'
+              : 'bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] px-6 py-4 rounded-2xl font-medium'
+          }
+        >
           {error}
         </div>
       </div>
@@ -336,16 +424,29 @@ const ProfessorDetails = () => {
   const hasAnalytics = professor?.overall_metrics?.review_count > 0;
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] py-12 px-4">
+    <div 
+      className="min-h-screen py-12 px-4"
+      style={getContainerStyle(darkMode)}
+    >
       <div className="max-w-6xl mx-auto space-y-10">
         {/* Header Card */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-[#E8E8ED] p-8 transition-all duration-300">
+        <div
+          className={`rounded-2xl border p-8 transition-all duration-300 ${getCardClass(darkMode)}`}
+        >
           <div className="flex items-start gap-8">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#00693e] to-[#00693e] flex items-center justify-center text-white text-3xl font-medium shadow-lg">
+            <div
+              className={
+                darkMode
+                  ? 'w-24 h-24 rounded-full bg-gradient-to-br from-[#00693e] to-[#00693e] flex items-center justify-center text-[#fff] text-3xl font-medium shadow-lg'
+                  : 'w-24 h-24 rounded-full bg-gradient-to-br from-[#00693e] to-[#00693e] flex items-center justify-center text-white text-3xl font-medium shadow-lg'
+              }
+            >
               {professor.name?.split(' ').map(n => n[0]).join('')}
             </div>
             <div className="flex-1">
-              <h1 className="text-4xl font-semibold text-[#1D1D1F]">{professor.name}</h1>
+              <h1 className="text-4xl font-semibold">
+                {professor.name}
+              </h1>
               <DisplayTitle title={professor.contact_info?.title} />
               <ContactInfo info={professor.contact_info} />
             </div>
@@ -354,15 +455,23 @@ const ProfessorDetails = () => {
 
         {/* Analytics Section */}
         {hasAnalytics && (
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-[#E8E8ED] p-8 transition-all duration-300">
+          <div
+            className={`p-8 transition-all duration-300 rounded-2xl border ${getCardClass(darkMode)}`}
+          >
             <div className="space-y-6">
-              <h2 className="text-2xl font-semibold text-[#1D1D1F]">Overall Analytics</h2>
-              <h3 className="text-1xl font-semibold text-[#1D1D1F]">*Note metrics are AI generated and may not be entirely accurate</h3>
-              <ProfessorAnalytics analysis={professor.overall_metrics} />
+              <h2 className="text-2xl font-semibold">Overall Analytics</h2>
+              <h3 className="text-1xl font-semibold">
+                *Note metrics are AI generated and may not be entirely accurate
+              </h3>
+              {/* If you want dark mode for the Overall Analytics too */}
+              <ProfessorAnalytics 
+                analysis={professor.overall_metrics} 
+                darkMode={darkMode} // <-- pass darkMode
+              />
             </div>
           </div>
         )}
-  
+
         {/* Courses Section */}
         {courses.length > 0 && (
           <div className="bg-transparent">
@@ -370,16 +479,21 @@ const ProfessorDetails = () => {
               courses={courses} 
               professorId={professor.id} 
               professorName={professor.name}
+              darkMode={darkMode} // <-- pass darkMode
             />
           </div>
         )}
 
         {/* No Courses Message */}
         {courses.length === 0 && (
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-[#E8E8ED] p-8 text-center">
+          <div
+            className={`text-center p-8 rounded-2xl border ${getCardClass(darkMode)}`}
+          >
             <div className="flex flex-col items-center gap-4">
               <Info className="w-12 h-12 text-[#98989D]" />
-              <p className="text-[#1D1D1F] text-lg font-medium">No courses found for this professor</p>
+              <p className="text-lg font-medium">
+                No courses found for this professor
+              </p>
             </div>
           </div>
         )}
@@ -388,7 +502,9 @@ const ProfessorDetails = () => {
   );
 };
 
-// Report Summary Modal with Apple styling
+/* ===========================
+   ReportSummaryModal Component
+   =========================== */
 const ReportSummaryModal = ({ isOpen, onClose, courseId, professorId, professorName, onSubmit }) => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -434,7 +550,9 @@ const ReportSummaryModal = ({ isOpen, onClose, courseId, professorId, professorN
           <X size={20} />
         </button>
         
-        <h3 className="text-xl font-semibold text-[#1D1D1F] mb-4">Report Inaccurate Summary</h3>
+        <h3 className="text-xl font-semibold text-[#1D1D1F] mb-4">
+          Report Inaccurate Summary
+        </h3>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <textarea
