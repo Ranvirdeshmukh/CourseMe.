@@ -727,7 +727,7 @@ const fetchAndCacheCourses = useCallback(async () => {
 
     </Box>
     <CardContent>
-      <LayupsByTiming darkMode={true} />
+      <LayupsByTiming darkMode={darkMode} />
     </CardContent>
   </Card>
 </Box>
@@ -750,7 +750,7 @@ const fetchAndCacheCourses = useCallback(async () => {
   >
     <CardContent>
       {/* Now HiddenLayups is back! */}
-      <HiddenLayups darkMode={true} />
+      <HiddenLayups darkMode={darkMode} />
     </CardContent>
   </Card>
 </Container>

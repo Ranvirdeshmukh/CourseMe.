@@ -14,7 +14,7 @@ import { doc, updateDoc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../contexts/AuthContext';
 
-const AddReviewForm = ({ onReviewAdded }) => {
+const AddReviewForm = ({ onReviewAdded, darkMode }) => {
   const { courseId } = useParams();
   const { currentUser } = useAuth();
   const [term, setTerm] = useState('');
@@ -124,7 +124,7 @@ const AddReviewForm = ({ onReviewAdded }) => {
   return (
     <Box
       sx={{
-        background: 'f9f9f9',
+        background: darkMode ? '#1C1F43' : '#f9f9f9',
         padding: '40px',
         borderRadius: '16px',
         width: '100%',
@@ -136,9 +136,9 @@ const AddReviewForm = ({ onReviewAdded }) => {
         elevation={3}
         sx={{
           padding: '32px',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: darkMode ? '#24273c' : '#FFFFFF',
           borderRadius: '16px',
-          border: '1px solid #D1D1D6',
+          border: darkMode ? '1px solid #44475a' : '1px solid #D1D1D6',
         }}
       >
         <Typography
@@ -147,14 +147,21 @@ const AddReviewForm = ({ onReviewAdded }) => {
           sx={{
             fontFamily: 'SF Pro Display, sans-serif',
             fontWeight: 600,
-            color: '#1D1D1F',
+            color: darkMode ? '#FFFFFF' : '#1D1D1F',
             marginBottom: '24px',
           }}
         >
           Write a Review for {courseId.split('_')[1]}
         </Typography>
         {error && (
-          <Alert severity="error" sx={{ marginBottom: '16px' }}>
+          <Alert
+            severity="error"
+            sx={{
+              marginBottom: '16px',
+              backgroundColor: darkMode ? '#8B0000' : undefined,
+              color: darkMode ? '#FFF' : undefined,
+            }}
+          >
             {error}
           </Alert>
         )}
@@ -169,20 +176,20 @@ const AddReviewForm = ({ onReviewAdded }) => {
             placeholder="e.g., 24F"
             InputProps={{
               sx: {
-                backgroundColor: '#F2F2F7',
-                color: '#1D1D1F',
+                backgroundColor: darkMode ? '#333' : '#F2F2F7',
+                color: darkMode ? '#FFF' : '#1D1D1F',
                 borderRadius: '12px',
                 '&:hover': {
-                  backgroundColor: '#E5E5EA',
+                  backgroundColor: darkMode ? '#444' : '#E5E5EA',
                 },
                 '&.Mui-focused': {
-                  backgroundColor: '#E5E5EA',
+                  backgroundColor: darkMode ? '#444' : '#E5E5EA',
                 },
               },
             }}
             InputLabelProps={{
               sx: {
-                color: '#8E8E93',
+                color: darkMode ? '#BBB' : '#8E8E93',
               },
             }}
           />
@@ -209,20 +216,20 @@ const AddReviewForm = ({ onReviewAdded }) => {
                 InputProps={{
                   ...params.InputProps,
                   sx: {
-                    backgroundColor: '#F2F2F7',
-                    color: '#1D1D1F',
+                    backgroundColor: darkMode ? '#333' : '#F2F2F7',
+                    color: darkMode ? '#FFF' : '#1D1D1F',
                     borderRadius: '12px',
                     '&:hover': {
-                      backgroundColor: '#E5E5EA',
+                      backgroundColor: darkMode ? '#444' : '#E5E5EA',
                     },
                     '&.Mui-focused': {
-                      backgroundColor: '#E5E5EA',
+                      backgroundColor: darkMode ? '#444' : '#E5E5EA',
                     },
                   },
                 }}
                 InputLabelProps={{
                   sx: {
-                    color: '#8E8E93',
+                    color: darkMode ? '#BBB' : '#8E8E93',
                   },
                 }}
               />
@@ -240,20 +247,20 @@ const AddReviewForm = ({ onReviewAdded }) => {
             placeholder="Write your review here..."
             InputProps={{
               sx: {
-                backgroundColor: '#F2F2F7',
-                color: '#1D1D1F',
+                backgroundColor: darkMode ? '#333' : '#F2F2F7',
+                color: darkMode ? '#FFF' : '#1D1D1F',
                 borderRadius: '12px',
                 '&:hover': {
-                  backgroundColor: '#E5E5EA',
+                  backgroundColor: darkMode ? '#444' : '#E5E5EA',
                 },
                 '&.Mui-focused': {
-                  backgroundColor: '#E5E5EA',
+                  backgroundColor: darkMode ? '#444' : '#E5E5EA',
                 },
               },
             }}
             InputLabelProps={{
               sx: {
-                color: '#8E8E93',
+                color: darkMode ? '#BBB' : '#8E8E93',
               },
             }}
           />
@@ -267,9 +274,9 @@ const AddReviewForm = ({ onReviewAdded }) => {
                 fontWeight: 500,
                 borderRadius: '12px',
                 boxShadow: 'none',
-                backgroundColor: '#571CE0',
+                backgroundColor: darkMode ? '#571CE0' : '#571CE0',
                 '&:hover': {
-                  backgroundColor: '#7E55CC',
+                  backgroundColor: darkMode ? '#684ACD' : '#7E55CC',
                 },
                 textTransform: 'none',
                 paddingX: 4,

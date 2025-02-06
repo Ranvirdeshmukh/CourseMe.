@@ -2280,7 +2280,7 @@ useEffect(() => {
           }}
         >
           <Container maxWidth="md">
-            <AddReviewForm onReviewAdded={fetchReviews} />
+          <AddReviewForm onReviewAdded={fetchReviews} darkMode={darkMode} />
           </Container>
         </Box>
       </Container>
