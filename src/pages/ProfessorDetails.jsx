@@ -211,73 +211,123 @@ const AISummary = ({ summary, courseId, professorId, professorName }) => {
    CourseCard Component
    =========================== */
 // <-- ADDED 'darkMode' as a prop
-const CourseCard = ({ course, professorId, professorName, darkMode }) => {
-  const hasReviews = course.metrics.review_count > 0;
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  return (
-    <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-[#E8E8ED] transition-all duration-300 hover:scale-[1.01]">
+/* ===========================
+   CourseCard Component
+   =========================== */
+   const CourseCard = ({ course, professorId, professorName, darkMode }) => {
+    const hasReviews = course.metrics.review_count > 0;
+    const [isExpanded, setIsExpanded] = useState(false);
+  
+    return (
       <div
-        className="p-6 cursor-pointer flex items-start justify-between"
-        onClick={() => hasReviews && setIsExpanded(!isExpanded)}
+        className={`rounded-2xl border transition-all duration-300 ${
+          darkMode
+            ? 'bg-[#1C1F43] text-white border-[#332F56] hover:scale-[1.01]'
+            : 'bg-white/80 text-[#1D1D1F] border-[#E8E8ED] hover:scale-[1.01]'
+        }`}
       >
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-[#1D1D1F]">{course.courseId}</h3>
-            <span className="text-sm text-[#86868B]">({course.deptName})</span>
-          </div>
-          <p className="text-[#1D1D1F] mt-1">{course.name}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span
-            className={`px-4 py-1.5 rounded-full text-sm font-medium ${
-              hasReviews 
-                ? 'bg-[#0071E3]/10 text-[#0071E3]' 
-                : 'bg-[#F5F5F7] text-[#86868B]'
-            }`}
-          >
-            {course.metrics.review_count} {course.metrics.review_count === 1 ? 'Review' : 'Reviews'}
-          </span>
-          {hasReviews && (
-            <div className="text-[#86868B] hover:text-[#1D1D1F] transition-colors">
-              {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        <div
+          className="p-6 cursor-pointer flex items-start justify-between"
+          onClick={() => hasReviews && setIsExpanded(!isExpanded)}
+        >
+          <div>
+            <div className="flex items-center gap-2">
+              <h3
+                className={`text-lg font-semibold ${
+                  darkMode ? 'text-white' : 'text-[#1D1D1F]'
+                }`}
+              >
+                {course.courseId}
+              </h3>
+              <span
+                className={`text-sm ${
+                  darkMode ? 'text-gray-400' : 'text-[#86868B]'
+                }`}
+              >
+                ({course.deptName})
+              </span>
             </div>
-          )}
-        </div>
-      </div>
-      
-      {!hasReviews && (
-        <div className="px-6 pb-6 text-center">
-          <div className="flex items-center justify-center py-4 text-[#86868B] text-sm">
-            <Info className="w-4 h-4 mr-2" />
-            No reviews available for this course yet
+            <p
+              className={`mt-1 ${
+                darkMode ? 'text-gray-300' : 'text-[#1D1D1F]'
+              }`}
+            >
+              {course.name}
+            </p>
           </div>
-        </div>
-      )}
-      
-      {hasReviews && isExpanded && (
-        <div className="px-6 pb-6">
-          <div className="pt-4 border-t border-[#E8E8ED]">
-            {/* <-- PASS darkMode to ProfessorAnalytics */}
-            <ProfessorAnalytics 
-              analysis={course.metrics}
-              courseId={course.courseId}
-              darkMode={darkMode} // <-- ADDED
-            />
-            {course.summary && (
-              <AISummary 
-                summary={course.summary}
-                courseId={course.courseId}
-                professorId={professorId}
-                professorName={professorName}
-              />
+          <div className="flex items-center gap-3">
+            <span
+              className={`px-4 py-1.5 rounded-full text-sm font-medium ${
+                hasReviews
+                  ? darkMode
+                    ? 'bg-[#0071E3]/20 text-[#0071E3]'
+                    : 'bg-[#0071E3]/10 text-[#0071E3]'
+                  : darkMode
+                  ? 'bg-[#24273c] text-gray-500'
+                  : 'bg-[#F5F5F7] text-[#86868B]'
+              }`}
+            >
+              {course.metrics.review_count}{' '}
+              {course.metrics.review_count === 1 ? 'Review' : 'Reviews'}
+            </span>
+            {hasReviews && (
+              <div
+                className={`transition-colors ${
+                  darkMode
+                    ? 'text-gray-400 hover:text-white'
+                    : 'text-[#86868B] hover:text-[#1D1D1F]'
+                }`}
+              >
+                {isExpanded ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </div>
             )}
           </div>
         </div>
-      )}
-    </div>
-  );
-};
+  
+        {!hasReviews && (
+          <div className="px-6 pb-6 text-center">
+            <div
+              className={`flex items-center justify-center py-4 text-sm ${
+                darkMode ? 'text-gray-400' : 'text-[#86868B]'
+              }`}
+            >
+              <Info className="w-4 h-4 mr-2" />
+              No reviews available for this course yet
+            </div>
+          </div>
+        )}
+  
+        {hasReviews && isExpanded && (
+          <div
+            className={`px-6 pb-6 ${
+              darkMode ? 'bg-[#2A2E47] text-white' : 'bg-white text-[#1D1D1F]'
+            }`}
+          >
+            <div className="pt-4 border-t">
+              <ProfessorAnalytics
+                analysis={course.metrics}
+                courseId={course.courseId}
+                darkMode={darkMode}
+              />
+              {course.summary && (
+                <AISummary
+                  summary={course.summary}
+                  courseId={course.courseId}
+                  professorId={professorId}
+                  professorName={professorName}
+                />
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+  
 
 /* ===========================
    CoursesSection Component
@@ -286,7 +336,7 @@ const CourseCard = ({ course, professorId, professorName, darkMode }) => {
 const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [expandAll, setExpandAll] = useState(false);
-  
+
   const sortedCourses = [...courses].sort((a, b) => {
     const aReviews = a.metrics.review_count || 0;
     const bReviews = b.metrics.review_count || 0;
@@ -300,23 +350,43 @@ const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
   });
 
   return (
-    <div>
+    <div
+      className={`transition-all duration-300 ${
+        darkMode ? 'bg-[#1C1F43] text-white' : 'bg-white text-[#1D1D1F]'
+      } p-6 rounded-2xl shadow-lg`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-        <h2 className="text-2xl font-semibold text-[#1D1D1F]">Courses</h2>
-        
+        <h2
+          className={`text-2xl font-semibold ${
+            darkMode ? 'text-white' : 'text-[#1D1D1F]'
+          }`}
+        >
+          Courses
+        </h2>
+
         <div className="flex items-center gap-4">
-          <div className="flex rounded-full border border-[#E8E8ED] bg-white/80 backdrop-blur-xl p-1">
+          <div
+            className={`flex rounded-full border ${
+              darkMode
+                ? 'border-[#332F56] bg-[#24273C]'
+                : 'border-[#E8E8ED] bg-white/80 backdrop-blur-xl'
+            } p-1`}
+          >
             {[
               { id: 'all', label: 'All Courses' },
               { id: 'reviewed', label: 'With Reviews' },
               { id: 'unreviewed', label: 'Without Reviews' },
-            ].map((filter) => (
+            ].map(filter => (
               <button
                 key={filter.id}
                 onClick={() => setSelectedFilter(filter.id)}
                 className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
                   selectedFilter === filter.id
-                    ? 'bg-[#0071E3] text-white'
+                    ? darkMode
+                      ? 'bg-[#0071E3] text-white'
+                      : 'bg-[#0071E3] text-white'
+                    : darkMode
+                    ? 'text-gray-400 hover:text-white'
                     : 'text-[#1D1D1F] hover:text-[#0071E3]'
                 }`}
               >
@@ -324,10 +394,14 @@ const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
               </button>
             ))}
           </div>
-          
+
           <button
             onClick={() => setExpandAll(!expandAll)}
-            className="text-sm text-[#86868B] hover:text-[#1D1D1F] transition-colors"
+            className={`text-sm transition-colors ${
+              darkMode
+                ? 'text-gray-400 hover:text-white'
+                : 'text-[#86868B] hover:text-[#1D1D1F]'
+            }`}
           >
             {expandAll ? 'Collapse All' : 'Expand All'}
           </button>
@@ -335,10 +409,10 @@ const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
       </div>
 
       <div className="grid gap-4">
-        {filteredCourses.map((course) => (
-          <CourseCard 
-            key={course.courseId} 
-            course={course} 
+        {filteredCourses.map(course => (
+          <CourseCard
+            key={course.courseId}
+            course={course}
             professorId={professorId}
             professorName={professorName}
             darkMode={darkMode} // <-- pass darkMode here
@@ -365,7 +439,7 @@ const ProfessorDetails = ({ darkMode = false }) => {
         const db = getFirestore();
         const docRef = doc(db, 'professor', professorId);
         const docSnap = await getDoc(docRef);
-        
+
         if (!docSnap.exists()) {
           setError('Professor not found');
           return;
@@ -374,7 +448,7 @@ const ProfessorDetails = ({ darkMode = false }) => {
         const professorData = docSnap.data();
         setProfessor({
           id: docSnap.id,
-          ...professorData
+          ...professorData,
         });
 
         const allCourses = [];
@@ -405,15 +479,16 @@ const ProfessorDetails = ({ darkMode = false }) => {
   if (error) {
     return (
       <div
-        className={getErrorContainerClass(darkMode)}
-        style={darkMode ? getContainerStyle(darkMode) : {}}
+        className={`min-h-screen flex items-center justify-center p-4 ${
+          darkMode ? 'bg-[#1C1F43] text-white' : 'bg-[#F9F9F9] text-[#1D1D1F]'
+        }`}
       >
-        <div 
-          className={
+        <div
+          className={`px-6 py-4 rounded-2xl font-medium ${
             darkMode
-              ? 'bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] px-6 py-4 rounded-2xl font-medium'
-              : 'bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30] px-6 py-4 rounded-2xl font-medium'
-          }
+              ? 'bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30]'
+              : 'bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30]'
+          }`}
         >
           {error}
         </div>
@@ -424,31 +499,38 @@ const ProfessorDetails = ({ darkMode = false }) => {
   const hasAnalytics = professor?.overall_metrics?.review_count > 0;
 
   return (
-    <div 
+    <div
       className="min-h-screen py-12 px-4"
-      style={getContainerStyle(darkMode)}
+      style={{
+        background: darkMode
+          ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
+          : '#F9F9F9',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
+      }}
     >
       <div className="max-w-6xl mx-auto space-y-10">
         {/* Header Card */}
         <div
-          className={`rounded-2xl border p-8 transition-all duration-300 ${getCardClass(darkMode)}`}
+          className={`rounded-2xl border p-8 transition-all duration-300 ${
+            darkMode
+              ? 'bg-[#1C1F43] text-white border-[#332F56]'
+              : 'bg-white text-[#1D1D1F] border-[#E8E8ED]'
+          }`}
         >
           <div className="flex items-start gap-8">
             <div
-              className={
+              className={`w-24 h-24 rounded-full flex items-center justify-center text-3xl font-medium shadow-lg ${
                 darkMode
-                  ? 'w-24 h-24 rounded-full bg-gradient-to-br from-[#00693e] to-[#00693e] flex items-center justify-center text-[#fff] text-3xl font-medium shadow-lg'
-                  : 'w-24 h-24 rounded-full bg-gradient-to-br from-[#00693e] to-[#00693e] flex items-center justify-center text-white text-3xl font-medium shadow-lg'
-              }
+                  ? 'bg-gradient-to-br from-[#00693e] to-[#004d30] text-white'
+                  : 'bg-gradient-to-br from-[#00693e] to-[#004d30] text-white'
+              }`}
             >
               {professor.name?.split(' ').map(n => n[0]).join('')}
             </div>
             <div className="flex-1">
-              <h1 className="text-4xl font-semibold">
-                {professor.name}
-              </h1>
+              <h1 className="text-4xl font-semibold">{professor.name}</h1>
               <DisplayTitle title={professor.contact_info?.title} />
-              <ContactInfo info={professor.contact_info} />
+              <ContactInfo info={professor.contact_info} darkMode={darkMode} />
             </div>
           </div>
         </div>
@@ -456,17 +538,20 @@ const ProfessorDetails = ({ darkMode = false }) => {
         {/* Analytics Section */}
         {hasAnalytics && (
           <div
-            className={`p-8 transition-all duration-300 rounded-2xl border ${getCardClass(darkMode)}`}
+            className={`p-8 transition-all duration-300 rounded-2xl border ${
+              darkMode
+                ? 'bg-[#1C1F43] text-white border-[#332F56]'
+                : 'bg-white text-[#1D1D1F] border-[#E8E8ED]'
+            }`}
           >
             <div className="space-y-6">
               <h2 className="text-2xl font-semibold">Overall Analytics</h2>
               <h3 className="text-1xl font-semibold">
                 *Note metrics are AI generated and may not be entirely accurate
               </h3>
-              {/* If you want dark mode for the Overall Analytics too */}
-              <ProfessorAnalytics 
-                analysis={professor.overall_metrics} 
-                darkMode={darkMode} // <-- pass darkMode
+              <ProfessorAnalytics
+                analysis={professor.overall_metrics}
+                darkMode={darkMode} // Pass dark mode
               />
             </div>
           </div>
@@ -474,12 +559,12 @@ const ProfessorDetails = ({ darkMode = false }) => {
 
         {/* Courses Section */}
         {courses.length > 0 && (
-          <div className="bg-transparent">
-            <CoursesSection 
-              courses={courses} 
-              professorId={professor.id} 
+          <div>
+            <CoursesSection
+              courses={courses}
+              professorId={professor.id}
               professorName={professor.name}
-              darkMode={darkMode} // <-- pass darkMode
+              darkMode={darkMode} // Pass dark mode
             />
           </div>
         )}
@@ -487,10 +572,18 @@ const ProfessorDetails = ({ darkMode = false }) => {
         {/* No Courses Message */}
         {courses.length === 0 && (
           <div
-            className={`text-center p-8 rounded-2xl border ${getCardClass(darkMode)}`}
+            className={`text-center p-8 rounded-2xl border ${
+              darkMode
+                ? 'bg-[#1C1F43] text-white border-[#332F56]'
+                : 'bg-white text-[#1D1D1F] border-[#E8E8ED]'
+            }`}
           >
             <div className="flex flex-col items-center gap-4">
-              <Info className="w-12 h-12 text-[#98989D]" />
+              <Info
+                className={`w-12 h-12 ${
+                  darkMode ? 'text-[#98989D]' : 'text-[#86868B]'
+                }`}
+              />
               <p className="text-lg font-medium">
                 No courses found for this professor
               </p>
@@ -502,95 +595,116 @@ const ProfessorDetails = ({ darkMode = false }) => {
   );
 };
 
+
 /* ===========================
    ReportSummaryModal Component
    =========================== */
-const ReportSummaryModal = ({ isOpen, onClose, courseId, professorId, professorName, onSubmit }) => {
-  const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-
-    try {
-      const db = getFirestore();
-      const reportsRef = collection(db, 'summary_error');
-      
-      await addDoc(reportsRef, {
-        courseId,
-        professorId,
-        professorName,
-        message,
-        timestamp: new Date().toISOString(),
-        status: 'pending'
-      });
-      
-      onSubmit();
-      onClose();
-    } catch (err) {
-      console.error('Error submitting report:', err);
-      setError('Failed to submit report. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white/90 backdrop-blur-xl rounded-2xl max-w-md w-full p-6 relative border border-[#E8E8ED] shadow-xl">
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 text-[#98989D] hover:text-[#1D1D1F] transition-colors"
+   const ReportSummaryModal = ({ isOpen, onClose, courseId, professorId, professorName, onSubmit, darkMode }) => {
+    const [message, setMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setIsSubmitting(true);
+      setError('');
+  
+      try {
+        const db = getFirestore();
+        const reportsRef = collection(db, 'summary_error');
+  
+        await addDoc(reportsRef, {
+          courseId,
+          professorId,
+          professorName,
+          message,
+          timestamp: new Date().toISOString(),
+          status: 'pending',
+        });
+  
+        onSubmit();
+        onClose();
+      } catch (err) {
+        console.error('Error submitting report:', err);
+        setError('Failed to submit report. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+  
+    if (!isOpen) return null;
+  
+    return (
+      <div
+        className={`fixed inset-0 ${
+          darkMode ? 'bg-black/50' : 'bg-black/20'
+        } backdrop-blur-sm z-50 flex items-center justify-center p-4`}
+      >
+        <div
+          className={`rounded-2xl max-w-md w-full p-6 relative shadow-xl transition-all ${
+            darkMode
+              ? 'bg-[#1C1F43] border border-[#332F56] text-white'
+              : 'bg-white/90 border border-[#E8E8ED] text-[#1D1D1F]'
+          }`}
         >
-          <X size={20} />
-        </button>
-        
-        <h3 className="text-xl font-semibold text-[#1D1D1F] mb-4">
-          Report Inaccurate Summary
-        </h3>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Please describe what's inaccurate about this summary..."
-            className="w-full p-4 border border-[#E8E8ED] rounded-xl h-32 resize-none bg-white/50 backdrop-blur-sm 
-                     focus:outline-none focus:ring-2 focus:ring-[#0071E3] focus:border-transparent
-                     placeholder:text-[#98989D]"
-            required
-          />
-          
-          {error && (
-            <p className="text-[#FF3B30] text-sm font-medium px-1">{error}</p>
-          )}
-          
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-2.5 text-[#1D1D1F] hover:text-[#86868B] transition-colors font-medium disabled:opacity-50"
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2.5 bg-[#0071E3] text-white rounded-full hover:bg-[#0077ED] 
-                       transition-colors disabled:opacity-50 font-medium"
-              disabled={isSubmitting || !message.trim()}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Report'}
-            </button>
-          </div>
-        </form>
+          <button
+            onClick={onClose}
+            className={`absolute top-4 right-4 transition-colors ${
+              darkMode ? 'text-[#98989D] hover:text-[#FFFFFF]' : 'text-[#98989D] hover:text-[#1D1D1F]'
+            }`}
+          >
+            <X size={20} />
+          </button>
+  
+          <h3 className="text-xl font-semibold mb-4">Report Inaccurate Summary</h3>
+  
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Please describe what's inaccurate about this summary..."
+              className={`w-full p-4 h-32 resize-none rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0071E3] focus:border-transparent placeholder:text-[#98989D] transition-colors ${
+                darkMode
+                  ? 'bg-[#24273c] text-white border-[#44475a] focus:ring-blue-400 placeholder:text-[#6B7280]'
+                  : 'bg-white/50 text-[#1D1D1F] border-[#E8E8ED] focus:ring-[#0071E3]'
+              }`}
+              required
+            />
+  
+            {error && (
+              <p className={`text-sm font-medium px-1 ${darkMode ? 'text-[#FF6B6B]' : 'text-[#FF3B30]'}`}>{error}</p>
+            )}
+  
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className={`px-6 py-2.5 font-medium rounded-full transition-colors disabled:opacity-50 ${
+                  darkMode
+                    ? 'text-white hover:text-gray-300'
+                    : 'text-[#1D1D1F] hover:text-[#86868B]'
+                }`}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className={`px-6 py-2.5 rounded-full font-medium transition-colors disabled:opacity-50 ${
+                  darkMode
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-[#0071E3] hover:bg-[#0077ED] text-white'
+                }`}
+                disabled={isSubmitting || !message.trim()}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Report'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
+  
 
 export default ProfessorDetails;
