@@ -448,6 +448,20 @@ const fetchAndCacheCourses = useCallback(async () => {
     gap: 2,
     pb: 2,
     mb: 4,
+    // Scrollbar styles for Firefox
+    scrollbarWidth: 'thin',
+    scrollbarColor: 'transparent transparent',
+    // Scrollbar styles for WebKit browsers (Chrome, Safari, Edge)
+    '&::-webkit-scrollbar': {
+      height: '8px', // Adjust the height as needed
+    },
+    '&::-webkit-scrollbar-track': {
+      backgroundColor: 'transparent',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'transparent',
+    },
+  
   }}
   ref={scrollContainerRef}  // attach custom hook's ref
 >
