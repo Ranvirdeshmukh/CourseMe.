@@ -540,16 +540,17 @@ const fetchAndCacheCourses = useCallback(async () => {
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {course.distribs.split(',').map((dist, idx) => (
                   <Box
-                    key={idx}
-                    sx={{
-                      fontSize: '0.75rem',
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: '9999px',
-                      backgroundColor: darkMode ? '#333' : '#F0F0F0',
-                      color: darkMode ? '#fff' : '#333',
-                    }}
-                  >
+                  key={idx}
+                  sx={{
+                    fontSize: '0.75rem',
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: '9999px',
+                    // For dark mode, use a slightly lighter badge background
+                    backgroundColor: darkMode ? '#444' : '#F0F0F0',
+                    color: darkMode ? '#fff' : '#333',
+                  }}
+                >
                     {dist.trim()}
                   </Box>
                 ))}
@@ -566,57 +567,113 @@ const fetchAndCacheCourses = useCallback(async () => {
                 py: 0.5,
                 borderRadius: '9999px',
                 textAlign: 'center',
-                backgroundColor:
-                        course.layup >= 80
-                          ? '#D1FAE5'
-                          : course.layup >= 60
-                          ? '#FEF3C7'
-                          : '#FEE2E2',
+                background: darkMode
+                  ? course.layup >= 80
+                    ? 'linear-gradient(145deg, #2ecc71, #27ae60)' // High layup: green gradient
+                    : course.layup >= 60
+                    ? 'linear-gradient(145deg, #f39c12, #d35400)' // Moderate layup: orange gradient
+                    : 'linear-gradient(145deg, #e74c3c, #c0392b)' // Low layup: red gradient
+                  : course.layup >= 80
+                  ? '#D1FAE5'
+                  : course.layup >= 60
+                  ? '#FEF3C7'
+                  : '#FEE2E2',
+                boxShadow: darkMode
+                  ? '0px 4px 15px rgba(0, 0, 0, 0.6)' // Subtle shadow for dark mode
+                  : undefined,
               }}
             >
               <Typography
                 variant="caption"
                 sx={{
                   fontWeight: 'bold',
-                  color:
-                  course.layup >= 80
-                  ? '#065F46'
-                  : course.layup >= 60
-                  ? '#92400E'
-                  : '#991B1B',
+                  color: darkMode
+                    ? '#ecf0f1' // Soft white for better contrast in dark mode
+                    : course.layup >= 80
+                    ? '#065F46'
+                    : course.layup >= 60
+                    ? '#92400E'
+                    : '#991B1B',
                 }}
               >
                 {course.layup.toFixed(1)}
               </Typography>
-              <Typography variant="caption" sx={{ display: 'block' }}>
+              <Typography variant="caption" sx={{
+      display: 'block',
+      color: darkMode ? '#ecf0f1' : 'inherit', // Consistent light text for dark mode
+    }}>
                 Layup
               </Typography>
             </Box>
 
-            {/* Reviews Metric */}
-            <Box
-              sx={{
-                px: 1.5,
-                py: 0.5,
-                borderRadius: '9999px',
-                textAlign: 'center',
-                backgroundColor: '#DBEAFE',
-              }}
-            >
-              <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#1D4ED8' }}>
-                {course.numOfReviews}
-              </Typography>
-              <Typography variant="caption" sx={{ display: 'block' }}>
-                Reviews
-              </Typography>
-            </Box>
+          {/* Reviews Metric */}
+<Box
+  sx={{
+    px: 1.5,
+    py: 0.5,
+    borderRadius: '9999px',
+    textAlign: 'center',
+    backgroundColor: darkMode ? '#223044' : '#DBEAFE', // Deep blue-gray for dark mode
+    boxShadow: darkMode
+      ? '0px 4px 12px rgba(0, 0, 0, 0.6)' // Subtle shadow in dark mode
+      : undefined,
+  }}
+>
+  <Typography
+    variant="caption"
+    sx={{
+      fontWeight: 'bold',
+      color: darkMode ? '#82e1d9' : '#1D4ED8', // Soft mint green for dark mode
+    }}
+  >
+    {course.numOfReviews}
+  </Typography>
+  <Typography
+    variant="caption"
+    sx={{
+      display: 'block',
+      color: darkMode ? '#82e1d9' : 'inherit', // Consistent color for dark mode
+    }}
+  >
+    Reviews
+  </Typography>
+</Box>
+
           </Box>
         </CardContent>
         <CardActions>
-          <Button variant="outlined" size="small" color="primary">
-            View Course
-          </Button>
-        </CardActions>
+  <Button
+    variant="outlined"
+    size="small"
+    sx={{
+      borderRadius: '12px',
+      px: 2,
+      py: 0.8,
+      fontWeight: 'bold',
+      textTransform: 'none',
+      border: darkMode ? '1px solid #82e1d9' : '1px solid #1D4ED8', // Border color
+      color: darkMode ? '#82e1d9' : '#1D4ED8', // Text color
+      background: darkMode
+        ? 'linear-gradient(145deg, #2c3e50, #34495e)' // Gradient for dark mode
+        : '#FFFFFF', // White background for light mode
+      boxShadow: darkMode
+        ? '0px 4px 10px rgba(0, 0, 0, 0.6)' // Subtle shadow for dark mode
+        : '0px 4px 6px rgba(0, 0, 0, 0.1)', // Light shadow for light mode
+      transition: 'all 0.3s ease',
+      '&:hover': {
+        background: darkMode
+          ? 'linear-gradient(145deg, #34495e, #2c3e50)' // Hover gradient for dark mode
+          : '#f3f4f6', // Light gray for hover in light mode
+        boxShadow: darkMode
+          ? '0px 6px 14px rgba(0, 0, 0, 0.8)' // Enhanced shadow on hover
+          : '0px 6px 10px rgba(0, 0, 0, 0.2)', // Enhanced shadow for light mode
+      },
+    }}
+  >
+    View Course
+  </Button>
+</CardActions>
+
       </Card>
     ))
   )}
@@ -650,24 +707,24 @@ const fetchAndCacheCourses = useCallback(async () => {
     }}
   >
     <Box sx={{ p: 3 }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{
-          fontWeight: 600,
-          mb: 2,
-          color: darkMode ? '#fff' : '#34495E',
-          backgroundColor: darkMode ? '#24273c' : '#F0F4FF',
-          borderLeft: '4px solid #571CE0',
-          borderRadius: '8px',
-          p: 2,
-          boxShadow: darkMode
-            ? '0 2px 4px rgba(0, 0, 0, 0.2)'
-            : '0 2px 4px rgba(0, 0, 0, 0.05)',
-        }}
-      >
-        Winter 2025 Layups
-      </Typography>
+  <Typography
+    variant="h2"
+    align="center"
+    gutterBottom
+    sx={{
+      fontWeight: 700,
+      marginBottom: '20px',
+      color: darkMode ? '#fff' : '#2c3e50',
+      textShadow: darkMode
+        ? '1px 1px 2px rgba(0, 0, 0, 0.2)'
+        : '1px 1px 2px rgba(0, 0, 0, 0.1)',
+      transition: 'color 0.3s ease',
+    }}
+  >
+    Winter 2025 Layups by time
+  </Typography>
+
+
     </Box>
     <CardContent>
       <LayupsByTiming darkMode={true} />
