@@ -109,7 +109,7 @@ const Timetable = ({darkMode}) => {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const classesPerPage = 50; // Number of classes per page
-  const isFallAddDropClosed = false; // Replace with logic that checks if the fall add/drop period is over
+  const isFallAddDropClosed = true;
   const [documentName, setDocumentName] = useState('');
   const [showFeatures, setShowFeatures] = useState(false);
   const [professorMappings, setProfessorMappings] = useState({});
@@ -1249,7 +1249,7 @@ useEffect(() => {
                         }}
                       >
                         {isFallAddDropClosed ? (
-                          <Tooltip title="Fall add/drop is closed. Notifications will be available during Winter add/drop.">
+                          <Tooltip title="Winter add/drop is closed. Notifications will be available during Spring 25 add/drop.">
                             <IconButton>
                               <LockIcon color="disabled" />
                             </IconButton>
@@ -1863,7 +1863,7 @@ useEffect(() => {
                   }}
                 >
                   {isFallAddDropClosed ? (
-                    <Tooltip title="Winter add/drop notifications will open at 5pm on November 14.">
+                    <Tooltip title="Spring add/drop notifications will open on  8:00 AM Mon, Mar 31">
                       <IconButton>
                         <LockIcon color="disabled" />
                       </IconButton>
