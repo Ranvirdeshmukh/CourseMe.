@@ -31,6 +31,7 @@ import TranscriptParser from './pages/TranscriptParser';
 import ProfessorDetails from './pages/ProfessorDetails';
 import ProfessorDirectory from './pages/ProfessorDirectory';
 import CORA from './pages/MajorTracking/CORA';
+import BetaSignup from './pages/BetaSignup';
 
 import  darkTheme  from './components/theme'; // Your dark theme file
 
@@ -108,6 +109,7 @@ const AppContent = () => {
         <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage darkMode={darkMode} />} />
         <Route path="/major-tracker" element={<CORA darkMode={darkMode} />} />
         <Route path="/major-tracker" element={<CORA darkMode={darkMode} />} />
+        <Route path="/beta" element={<BetaSignup darkMode={darkMode} />} />
         <Route
           path="/departments/:department/courses/:courseId/professors/:professor"
           element={<ProfessorReviewsPage darkMode={darkMode}  />}
