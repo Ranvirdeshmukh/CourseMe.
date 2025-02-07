@@ -633,7 +633,7 @@ return (
         textAlign: 'center',
       }}
     >
-      Get notified for add/drop starting 8:00 AM Mon, Jan 6th 2025
+      Get notified for add/drop starting 8:00 AM Mon, March 31st for Spring 25.
       <span style={{ color: '#F26655' }}>.</span>
     </Typography>
   </ButtonBase>

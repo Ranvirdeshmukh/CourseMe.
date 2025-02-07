@@ -119,58 +119,62 @@ const fetchCoursesByPeriod = useCallback(async (periodCode) => {
       }
     });
 
-    // Fetch winter timetable data
-    const winterQuery = query(
-      collection(db, 'winterTimetable'),
-      where('Period Code', '==', periodCode)
-    );
-    const winterSnapshot = await getDocs(winterQuery);
+    // Fetch spring timetable data
+const springQuery = query(
+  collection(db, 'springTimetable'),
+  where('Period Code', '==', periodCode)
+);
+const springSnapshot = await getDocs(springQuery);
+
     
     // Process data in batches
-    const batchSize = 50;
-    const winterCourses = [];
-    
-    for (let i = 0; i < winterSnapshot.docs.length; i += batchSize) {
-      const batch = winterSnapshot.docs.slice(i, i + batchSize);
-      const batchResults = batch.map(doc => {
-        const data = doc.data();
-        const lookupKey = `${data.Subj}_${normalizeCourseNumber(data.Num)}`;
-        const courseInfo = coursesIndex.get(lookupKey) || { 
-          layup: 0, 
-          id: null,
-          name: '',
-          numOfReviews: 0
-        };
+const batchSize = 50;
+const springCourses = [];  // Declare springCourses here
+for (let i = 0; i < springSnapshot.docs.length; i += batchSize) {
+  const batch = springSnapshot.docs.slice(i, i + batchSize);
+  const batchResults = batch.map(doc => {
+    const data = doc.data();
+    const lookupKey = `${data.Subj}_${normalizeCourseNumber(data.Num)}`;
+    const courseInfo = coursesIndex.get(lookupKey) || { 
+      layup: 0, 
+      id: null,
+      name: '',
+      numOfReviews: 0
+    };
 
-        return {
-          id: doc.id,
-          subj: data.Subj,
-          num: data.Num,
-          title: data.Title,
-          section: data.Section,
-          period: data['Period Code'],
-          instructor: data.Instructor,
-          timing: periodCodeToTiming[data['Period Code']] || 'Unknown Timing',
-          layup: courseInfo.layup,
-          courseId: courseInfo.id,
-          numOfReviews: courseInfo.numOfReviews
-        };
-      });
-      winterCourses.push(...batchResults);
-    }
+    return {
+      id: doc.id,
+      subj: data.Subj,
+      num: data.Num,
+      title: data.Title,
+      section: data.Section,
+      period: data['Period Code'],
+      instructor: data.Instructor,
+      timing: periodCodeToTiming[data['Period Code']] || 'Unknown Timing',
+      layup: courseInfo.layup,
+      courseId: courseInfo.id,
+      numOfReviews: courseInfo.numOfReviews
+    };
+  });
+  springCourses.push(...batchResults);
+}
 
-    // Filter and sort
-    const sortedCourses = winterCourses
-      .filter(course => course.layup > 0)
-      .sort((a, b) => b.layup - a.layup)
-      .slice(0, 15);
 
-    // Cache the results
-    await Promise.all([
-      localforage.setItem(cacheKey, sortedCourses),
-      localforage.setItem(`${cacheKey}_timestamp`, Date.now()),
-      localforage.setItem(`${cacheKey}_version`, CACHE_VERSION)
-    ]);
+const sortedCourses = springCourses
+.filter(course => course.layup > 0)
+.sort((a, b) => b.layup - a.layup)
+.slice(0, 15);
+
+// Cache the results
+await Promise.all([
+localforage.setItem(cacheKey, sortedCourses),
+localforage.setItem(`${cacheKey}_timestamp`, Date.now()),
+localforage.setItem(`${cacheKey}_version`, CACHE_VERSION)
+]);
+
+setTimeSlotCourses(sortedCourses);
+
+
 
     setTimeSlotCourses(sortedCourses);
   } catch (error) {
