@@ -1,0 +1,7 @@
+
+          {/* Dark Mode Switch */}
+          <Switch
+            checked={darkMode}
+            onChange={() => setDarkMode(!darkMode)}
+            color="secondary"
+          />

@@ -119,7 +119,7 @@ const Timetable = ({darkMode}) => {
 
   var courseNameLong = ""
    // Add this near your other state declarations
-   const CACHE_VERSION = 'winter_2025_v2';
+   const CACHE_VERSION = 'springV1';
 
   const isMobile = useMediaQuery('(max-width:600px)');
 
@@ -406,7 +406,7 @@ useEffect(() => {
   
       // Fetch new data
       const db = getFirestore();
-      const coursesSnapshot = await getDocs(collection(db, 'winterTimetable'));
+      const coursesSnapshot = await getDocs(collection(db, 'springTimetable'));
       const coursesData = coursesSnapshot.docs.map((doc) => {
         const periodCode = doc.data()['Period Code'];
         return {
