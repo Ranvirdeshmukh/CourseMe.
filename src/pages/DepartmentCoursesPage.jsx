@@ -701,41 +701,46 @@ const DepartmentCoursesPage = ({ darkMode }) => {
               }
             }}>
               {/* Term Filter */}
-              <Button
-                onClick={() => {
-                  setSelectedTerms(prev => 
-                    prev.includes('25W') 
-                      ? prev.filter(t => t !== '25W') 
-                      : [...prev, '25W']
-                  );
-                }}
-                size="small"
-                sx={{
-                  minHeight: '32px',
-                  px: 2,
-                  py: 0.5,
-                  borderRadius: '16px',
-                  fontSize: '0.813rem',
-                  fontWeight: 500,
-                  whiteSpace: 'nowrap',
-                  backgroundColor: selectedTerms.includes('25W') 
-                    ? 'rgba(87, 28, 224, 0.2)' 
-                    : darkMode ? 'white' : 'white',
-                  color: selectedTerms.includes('25W') 
-                    ? '#571CE0' 
-                    : darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666',
-                  border: selectedTerms.includes('25W') 
-                    ? '1px solid rgba(87, 28, 224, 0.2)' 
-                    : `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.08)'}`,
-                  '&:hover': {
-                    backgroundColor: selectedTerms.includes('25W') 
-                      ? 'rgba(87, 28, 224, 0.15)' 
-                      : darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                  }
-                }}
-              >
-                Winter 2025
-              </Button>
+              <Box sx={{ display: 'flex', gap: '8px' }}>
+  {/* Existing Winter 2025 Toggle */}
+  <Button
+    onClick={() => {
+      setSelectedTerms(prev => 
+        prev.includes('25W') 
+          ? prev.filter(t => t !== '25W') 
+          : [...prev, '25W']
+      );
+    }}
+    size="small"
+    sx={{
+      minHeight: '32px',
+      px: 2,
+      py: 0.5,
+      borderRadius: '16px',
+      fontSize: '0.813rem',
+      fontWeight: 500,
+      whiteSpace: 'nowrap',
+      backgroundColor: selectedTerms.includes('25W')
+      ? 'rgba(87, 28, 224, 0.2)'
+      : darkMode ? '#1C1F43' : '#F0F4FF',
+    color: selectedTerms.includes('25W')
+      ? '#571CE0'
+      : darkMode ? '#FFFFFF' : '#666666',
+    border: selectedTerms.includes('25W')
+      ? '1px solid rgba(87, 28, 224, 0.2)'
+      : darkMode ? '1px solid #444444' : '1px solid rgba(0, 0, 0, 0.08)',
+    '&:hover': {
+      backgroundColor: selectedTerms.includes('25W')
+        ? 'rgba(87, 28, 224, 0.15)'
+        : darkMode ? '#2a2a2a' : 'rgba(0, 0, 0, 0.04)'
+    }
+  }}
+  >
+    Winter 2025
+  </Button>
+
+</Box>
+
 
               {/* Reviews Only Filter */}
               <Button
