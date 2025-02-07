@@ -97,14 +97,23 @@ const ProfilePage = ({darkMode}) => {
             pinnedCourses: userData.pinnedCourses || [],
           });
 
-          // Fetch user's Fall 2024 timetable
-          setSelectedCourses(userData.fallCoursestaken || []);
-          setNotifications(userData.notifications || []);
-        } else {
-          setError('Failed to fetch profile data.');
-        }
-        setLoading(false);
-      }
+          // Fetch the user's spring courses from the subcollection "springCoursestaken"
+      const springCoursesRef = collection(db, 'users', currentUser.uid, 'springCoursestaken');
+      const springCoursesSnapshot = await getDocs(springCoursesRef);
+      const springCoursesData = springCoursesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setSelectedCourses(springCoursesData);
+      
+      // Optionally, if you still need notifications from the main user document:
+      setNotifications(userData.notifications || []);
+    } else {
+      setError('Failed to fetch profile data.');
+    }
+    setLoading(false);
+  }
+
     };
 
     if (currentUser) {
@@ -333,7 +342,7 @@ const ProfilePage = ({darkMode}) => {
             
           }}
         >
-          Make your term more organized by adding your Winter 2025 classes to CourseMe
+          Make your term more organized by adding your Spring 2025 classes to CourseMe
           <span style={{ color: '#F26655' }}>.</span> and your personal Google Calendar.{' '}
           <span 
             style={{ 
@@ -741,7 +750,7 @@ const ProfilePage = ({darkMode}) => {
             marginBottom: 2,
           }}
         >
-          Winter 2025 Course Enrollment Priority.
+          Spring 2025 Course Enrollment Priority.
         </Typography>
         <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#DDD' }} />
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
@@ -984,7 +993,7 @@ const ProfilePage = ({darkMode}) => {
                       marginBottom: 0.9,
                     }}
                   >
-                    Winter 2025 Timetable
+                    Spring 2025 Timetable
                   </Typography>
                   <Divider sx={{ marginBottom: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
                   {renderTimetable()}

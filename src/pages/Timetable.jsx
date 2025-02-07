@@ -7,7 +7,7 @@ import {
   IconButton, ButtonBase, Tooltip,
 } from '@mui/material';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import { getFirestore, collection, getDocs, where, query, doc, updateDoc, getDoc, setDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, where, query, doc, updateDoc, getDoc, setDoc, arrayUnion, addDoc, serverTimestamp } from 'firebase/firestore';
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -532,24 +532,39 @@ useEffect(() => {
     // navigate(coursePath);
   };
   
+  // const fetchUserTimetable = async () => {
+  //   try {
+  //     const db = getFirestore();
+  //     const userRef = doc(collection(db, 'users'), currentUser.uid);
+  //     const userDoc = await getDoc(userRef);
+
+  //     if (userDoc.exists()) {
+  //       const userData = userDoc.data();
+  //       if (userData.fallCoursestaken) {
+  //         setSelectedCourses(userData.fallCoursestaken);
+  //       } else {
+  //         setSelectedCourses([]); 
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching user's timetable:", error);
+  //   }
+  // };
+
   const fetchUserTimetable = async () => {
     try {
       const db = getFirestore();
-      const userRef = doc(collection(db, 'users'), currentUser.uid);
-      const userDoc = await getDoc(userRef);
-
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        if (userData.fallCoursestaken) {
-          setSelectedCourses(userData.fallCoursestaken);
-        } else {
-          setSelectedCourses([]); 
-        }
-      }
+      // Query the subcollection "springCoursestaken" under the current user
+      const springCoursesRef = collection(db, 'users', currentUser.uid, 'springCoursestaken');
+      const snapshot = await getDocs(springCoursesRef);
+      // Map each document to an object that includes its document id (so you can remove it later)
+      const coursesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setSelectedCourses(coursesData);
     } catch (error) {
-      console.error("Error fetching user's timetable:", error);
+      console.error("Error fetching user's spring courses:", error);
     }
   };
+  
 
 
   // const handleNotifyDrop = async (course) => {
@@ -774,28 +789,57 @@ useEffect(() => {
     setSelectedSubject(subject);
   };
 
+  // const handleAddCourse = async (course) => {
+  //   if (navigator.vibrate) {
+  //     navigator.vibrate(200);
+  //   }
+
+  //   if (selectedCourses.length < 3 && !selectedCourses.some((c) => c.title === course.title)) {
+  //     const updatedCourses = [...selectedCourses, course];
+  //     setSelectedCourses(updatedCourses);
+
+  //     try {
+  //       const db = getFirestore();
+  //       const userRef = doc(collection(db, 'users'), currentUser.uid);
+  //       await updateDoc(userRef, { fallCoursestaken: updatedCourses }); 
+  //     } catch (error) {
+  //       console.error('Error saving courses:', error);
+  //     }
+  //   } else if (selectedCourses.some((c) => c.title === course.title)) {
+  //     alert('This course is already added.');
+  //   } else {
+  //     alert('You can only select up to 3 courses.');
+  //   }
+  // };
   const handleAddCourse = async (course) => {
     if (navigator.vibrate) {
       navigator.vibrate(200);
     }
-
-    if (selectedCourses.length < 3 && !selectedCourses.some((c) => c.title === course.title)) {
-      const updatedCourses = [...selectedCourses, course];
-      setSelectedCourses(updatedCourses);
-
-      try {
-        const db = getFirestore();
-        const userRef = doc(collection(db, 'users'), currentUser.uid);
-        await updateDoc(userRef, { fallCoursestaken: updatedCourses }); 
-      } catch (error) {
-        console.error('Error saving courses:', error);
-      }
-    } else if (selectedCourses.some((c) => c.title === course.title)) {
+  
+    // Check if the course is already added (using a unique property such as title)
+    if (selectedCourses.some((c) => c.title === course.title)) {
       alert('This course is already added.');
-    } else {
+      return;
+    }
+  
+    if (selectedCourses.length >= 3) {
       alert('You can only select up to 3 courses.');
+      return;
+    }
+  
+    try {
+      const db = getFirestore();
+      // Get a reference to the subcollection "springCoursestaken" under the current user
+      const springCoursesRef = collection(db, 'users', currentUser.uid, 'springCoursestaken');
+      // Add the new course to the subcollection
+      const docRef = await addDoc(springCoursesRef, course);
+      // Update the state to include the newly added course (with its new document id)
+      setSelectedCourses([...selectedCourses, { id: docRef.id, ...course }]);
+    } catch (error) {
+      console.error('Error saving spring course:', error);
     }
   };
+  
 
   const handleRemoveCourse = async (course) => {
     const updatedCourses = selectedCourses.filter((c) => c.title !== course.title);
@@ -851,8 +895,8 @@ useEffect(() => {
 
     if (!timing) return [];
 
-    const eventStartDate = '20250105'; 
-    const eventEndDate = '20250314'; 
+    const eventStartDate = '20250331'; 
+    const eventEndDate = '20250609'; 
     const timezone = 'America/New_York';
 
     const timingParts = timing.split(', ');
@@ -980,8 +1024,8 @@ useEffect(() => {
               transition: 'color 0.3s ease',
             }}
           >
-            Your Winter 2025 Classes.
-          </Typography>
+    Your Spring 2025 Courses.
+    </Typography>
         )}
   
         {showSelectedCourses && selectedCourses.length > 0 && (
@@ -1284,7 +1328,7 @@ useEffect(() => {
   
         {showSelectedCourses && selectedCourses.length === 0 && (
           <Typography sx={{ marginBottom: '20px', color: darkMode ? '#FFFFFF' : '#1D1D1F' }}>
-            Haven&apos;t added your Winter 2024 timetable on CourseMe? Add now!
+            Haven&apos;t added your Spring 2025 timetable on CourseMe? Add now!
           </Typography>
         )}
      
@@ -1313,7 +1357,7 @@ useEffect(() => {
       transition: 'color 0.3s ease',
     }}
   >
-    Winter 2025 Timetable.
+    Spring 2025 Timetable.
   </Typography>
 
   <TextField
@@ -1790,34 +1834,37 @@ useEffect(() => {
                 </TableCell>
 
                 {/* Room */}
-                <TableCell
-                  sx={{
-                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                    padding: '10px',
-                    fontWeight: 400,
-                    fontSize: '0.95rem',
-                    textAlign: 'left',
-                    transition: 'color 0.3s ease',
-                    fontFamily: 'SF Pro Display, sans-serif',
-                  }}
-                >
-                  {course.room}
-                </TableCell>
+<TableCell
+  sx={{
+    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+    padding: '10px',
+    fontWeight: 400,
+     // Adds ellipsis (...) if text is too long
+    fontSize: '0.95rem',
+    textAlign: 'left',
+    transition: 'color 0.3s ease',
+    fontFamily: 'SF Pro Display, sans-serif',
+  }}
+>
+  {course.room || 'N/A'}
+</TableCell>
 
-                {/* Building */}
-                <TableCell
-                  sx={{
-                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                    padding: '10px',
-                    fontWeight: 400,
-                    fontSize: '0.95rem',
-                    textAlign: 'left',
-                    transition: 'color 0.3s ease',
-                    fontFamily: 'SF Pro Display, sans-serif',
-                  }}
-                >
-                  {course.building}
-                </TableCell>
+{/* Building */}
+<TableCell
+  sx={{
+    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+    padding: '10px',
+    fontWeight: 400,
+      // Adds ellipsis (...) if text is too long
+    fontSize: '0.95rem',
+    textAlign: 'left',
+    transition: 'color 0.3s ease',
+    fontFamily: 'SF Pro Display, sans-serif',
+  }}
+>
+  {course.building || 'N/A'}
+</TableCell>
+
 
                 {/* Instructor */}
                 <TableCell
@@ -1825,12 +1872,14 @@ useEffect(() => {
                     color: darkMode ? '#FFFFFF' : '#1D1D1F',
                     padding: '10px',
                     fontWeight: 400,
+                     
                     fontSize: '0.95rem',
                     textAlign: 'left',
                     transition: 'color 0.3s ease',
                     fontFamily: 'SF Pro Display, sans-serif',
                   }}
                 >
+                  
                    <ProfessorCell instructor={course.instructor} />
                 </TableCell>
                 {/* ProfessorCell for Instructor (existing logic intact) */}
