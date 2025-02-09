@@ -346,7 +346,7 @@ const NavBar = ({ darkMode, themeMode, setThemeMode }) => {
               style={{ height: '25px', marginBottom: '10px' }}
             />
             <Typography variant="body2" sx={{ color: darkMode ? '#CCCCCC' : '#999' }}>
-              © 2024 CourseMe. All Rights Reserved.
+              © 2025 CourseMe. All Rights Reserved.
             </Typography>
           </Box>
         </Drawer>

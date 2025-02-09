@@ -1317,7 +1317,7 @@ return (
     mb: 1 
   }}
 >
-  © 2024 CourseMe. All Rights Reserved.
+  © 2025 CourseMe. All Rights Reserved.
 </Typography>
 
 <Typography 
