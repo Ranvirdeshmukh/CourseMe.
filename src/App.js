@@ -8,7 +8,7 @@ import {
   Routes,
   useLocation
 } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, createTheme } from '@mui/material';
+import { ThemeProvider, CssBaseline, createTheme, useMediaQuery } from '@mui/material';
 
 import NavBar from './components/NavBar';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -33,7 +33,7 @@ import ProfessorDirectory from './pages/ProfessorDirectory';
 import CORA from './pages/MajorTracking/CORA';
 import BetaSignup from './pages/BetaSignup';
 
-import  darkTheme  from './components/theme'; // Your dark theme file
+import darkTheme from './components/theme'; // Your dark theme file
 
 // Simple MUI default theme as our "light" mode
 const lightTheme = createTheme();
@@ -52,10 +52,14 @@ const AppContent = () => {
   const location = useLocation();
   const { currentUser } = useAuth();
 
-  // State to toggle between light & dark mode
-  const [darkMode, setDarkMode] = useState(true);
+  // Change from a boolean to a tri‑state with initial state "dark"
+  const [themeMode, setThemeMode] = useState('dark');
 
-  // If user is not logged in, redirect to the Landing page when accessing restricted routes
+  // Check the system preference (only used when themeMode is "system")
+  const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
+  const effectiveDarkMode = themeMode === 'system' ? prefersDark : themeMode === 'dark';
+
+  // Existing redirect logic (unchanged)
   if (
     !currentUser &&
     location.pathname !== '/' &&
@@ -66,12 +70,11 @@ const AppContent = () => {
     return <Navigate to="/" />;
   }
 
-  // If user is not logged in and is on the Get Started page, redirect to Landing page
   if (!currentUser && location.pathname === '/') {
     return <Navigate to="/landing" />;
   }
 
-  // Define special pages to apply different styles or logic
+  // Define special pages (unchanged)
   const isSpecialPage = [
     '/',
     '/profile',
@@ -86,51 +89,44 @@ const AppContent = () => {
   ].includes(location.pathname);
 
   return (
-    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+    <ThemeProvider theme={effectiveDarkMode ? darkTheme : lightTheme}>
       <CssBaseline />
-      {/* Pass down darkMode & setDarkMode if you want a toggle in NavBar */}
-      <NavBar isSpecialPage={isSpecialPage} darkMode={darkMode} setDarkMode={setDarkMode} />
+      {/* Pass the effective dark mode flag as before plus the new themeMode state */}
+      <NavBar
+        isSpecialPage={isSpecialPage}
+        darkMode={effectiveDarkMode}
+        themeMode={themeMode}
+        setThemeMode={setThemeMode}
+      />
 
       <Routes>
         <Route path="/" element={<GetStartedPage />} />
-        
-        
-        <Route path="/landing" element={<LandingPage darkMode={darkMode} />} />
-        <Route path="/classes" element={<AllClassesPage darkMode={darkMode} />} />
-        <Route path="/profile" element={<ProfilePage darkMode={darkMode} />} />
-        <Route path="/signup" element={<SignUpPage darkMode={darkMode} />} />
-        <Route path="/login" element={<LoginPage darkMode={darkMode} />} />
-        <Route path="/profile" element={<ProfilePage darkMode={darkMode} />} />
-        <Route path="/signup" element={<SignUpPage darkMode={darkMode} />} />
-        <Route path="/login" element={<LoginPage darkMode={darkMode} />} />
-        <Route path="/departments/:department" element={<DepartmentCoursesPage darkMode={darkMode} />} />
-        <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage darkMode={darkMode} />} />
-        <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage darkMode={darkMode} />} />
-        <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage darkMode={darkMode} />} />
-        <Route path="/major-tracker" element={<CORA darkMode={darkMode} />} />
-        <Route path="/major-tracker" element={<CORA darkMode={darkMode} />} />
-        <Route path="/beta" element={<BetaSignup darkMode={darkMode} />} />
+        <Route path="/landing" element={<LandingPage darkMode={effectiveDarkMode} />} />
+        <Route path="/classes" element={<AllClassesPage darkMode={effectiveDarkMode} />} />
+        <Route path="/profile" element={<ProfilePage darkMode={effectiveDarkMode} />} />
+        <Route path="/signup" element={<SignUpPage darkMode={effectiveDarkMode} />} />
+        <Route path="/login" element={<LoginPage darkMode={effectiveDarkMode} />} />
+        <Route path="/departments/:department" element={<DepartmentCoursesPage darkMode={effectiveDarkMode} />} />
+        <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage darkMode={effectiveDarkMode} />} />
+        <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage darkMode={effectiveDarkMode} />} />
+        <Route path="/major-tracker" element={<CORA darkMode={effectiveDarkMode} />} />
+        <Route path="/beta" element={<BetaSignup darkMode={effectiveDarkMode} />} />
         <Route
           path="/departments/:department/courses/:courseId/professors/:professor"
-          element={<ProfessorReviewsPage darkMode={darkMode}  />}
+          element={<ProfessorReviewsPage darkMode={effectiveDarkMode} />}
         />
-        <Route path="/complete-profile" element={<CompleteProfilePage darkMode={darkMode} />} />
-        <Route path="/layups" element={<LayupsPage darkMode={darkMode} />} />
-        <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage darkMode={darkMode} />} />
-        <Route path="/complete-profile" element={<CompleteProfilePage darkMode={darkMode} />} />
-        <Route path="/layups" element={<LayupsPage darkMode={darkMode} />} />
-        <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage darkMode={darkMode} />} />
+        <Route path="/complete-profile" element={<CompleteProfilePage darkMode={effectiveDarkMode} />} />
+        <Route path="/layups" element={<LayupsPage darkMode={effectiveDarkMode} />} />
+        <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage darkMode={effectiveDarkMode} />} />
         <Route
           path="/course-enrollment-priorities/:department"
-          element={<DepartmentCoursesWithPriorities darkMode={darkMode} />}
+          element={<DepartmentCoursesWithPriorities darkMode={effectiveDarkMode} />}
         />
-
-<Route path="/departments/:department" element={<DepartmentCoursesWithPriorities darkMode={darkMode} />} />
-
-        <Route path="/timetable" element={<Timetable darkMode={darkMode} />} />
-        <Route path="/upload-unique-transcript" element={<TranscriptParser darkMode={darkMode} />} />
-        <Route path="/professors/:professorId" element={<ProfessorDetails darkMode={darkMode} />} />
-        <Route path="/professors" element={<ProfessorDirectory darkMode={darkMode} />} />
+        <Route path="/departments/:department" element={<DepartmentCoursesWithPriorities darkMode={effectiveDarkMode} />} />
+        <Route path="/timetable" element={<Timetable darkMode={effectiveDarkMode} />} />
+        <Route path="/upload-unique-transcript" element={<TranscriptParser darkMode={effectiveDarkMode} />} />
+        <Route path="/professors/:professorId" element={<ProfessorDetails darkMode={effectiveDarkMode} />} />
+        <Route path="/professors" element={<ProfessorDirectory darkMode={effectiveDarkMode} />} />
       </Routes>
     </ThemeProvider>
   );

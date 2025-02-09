@@ -1,11 +1,31 @@
+// NavBar.js
+
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Box, IconButton, Drawer, List, ListItem, ListItemText, Snackbar, Alert,Switch } from '@mui/material';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Snackbar,
+  Alert,
+  Tooltip
+} from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/custom.css';
 
-const NavBar = ({ darkMode, setDarkMode }) =>{
+// Import icons for theme modes
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import DesktopMacIcon from '@mui/icons-material/DesktopMac';
+
+const NavBar = ({ darkMode, themeMode, setThemeMode }) => {
   const { currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -14,17 +34,9 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [error, setError] = useState('');
 
-  const handleDrawerOpen = () => {
-    setDrawerOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
+  const handleDrawerOpen = () => setDrawerOpen(true);
+  const handleDrawerClose = () => setDrawerOpen(false);
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   const handleLoginRedirect = () => {
     if (!currentUser) {
@@ -33,6 +45,27 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
       setSnackbarOpen(true);
     }
   };
+
+  // Cycle through the theme modes: system → light → dark → system...
+  const handleThemeToggle = () => {
+    if (themeMode === 'system') {
+      setThemeMode('light');
+    } else if (themeMode === 'light') {
+      setThemeMode('dark');
+    } else if (themeMode === 'dark') {
+      setThemeMode('system');
+    }
+  };
+
+  // Choose the appropriate icon based on the current theme mode
+  let themeIcon;
+  if (themeMode === 'system') {
+    themeIcon = <DesktopMacIcon />;
+  } else if (themeMode === 'light') {
+    themeIcon = <LightModeIcon />;
+  } else if (themeMode === 'dark') {
+    themeIcon = <DarkModeIcon />;
+  }
 
   const isGetStartedPage = location.pathname === '/';
   const isLoginPage = location.pathname === '/login';
@@ -52,7 +85,7 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
       '/timetable',
       '/professors',
     ];
-    return specialPages.some((page) => path === page || path.startsWith(`${page}/`));
+    return specialPages.some(page => path === page || path.startsWith(`${page}/`));
   };
 
   const isSpecialPageStyle = isSpecialPage();
@@ -63,59 +96,58 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
 
   return (
     <AppBar
-  position="static"
-  className="navbar"
-  sx={{
-    boxShadow: 'none',
+      position="static"
+      className="navbar"
+      sx={{
+        boxShadow: 'none',
+        // Use your existing background logic
+        ...(darkMode
+          ? {}
+          : {
+              background: isLandingPage
+                ? '#F9F9F9'
+                : isSpecialPageStyle
+                ? '#f9f9f9'
+                : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
+            }),
+      }}
+    >
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Box
+          component="div"
+          onClick={() => navigate(currentUser ? '/landing' : '/')}
+          sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+        >
+          <img
+            src={
+              isLandingPage || isSpecialPageStyle
+                ? darkMode
+                  ? '/2.png'
+                  : '/1.png'
+                : '/2.png'
+            }
+            alt="Logo"
+            style={{ height: '20px', marginRight: '10px' }}
+          />
+        </Box>
 
-    // Only apply the inline background logic if NOT in dark mode:
-    ...(darkMode
-      ? {}
-      : {
-          background: isLandingPage
-            ? '#F9F9F9'
-            : isSpecialPageStyle
-            ? '#f9f9f9'
-            : 'radial-gradient(circle, #571CE0 0%, #571CE0 20%, black 55%)',
-        }),
-  }}
->
-<Toolbar sx={{ justifyContent: 'space-between' }}>
-  <Box
-    component="div"
-    onClick={() => navigate(currentUser ? '/landing' : '/')}
-    sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-  >
-    <img
-      src={
-        isLandingPage || isSpecialPageStyle
-          ? darkMode
-            ? '/2.png' // Dark mode logo
-            : '/1.png' // Light mode logo
-          : '/2.png' // Default logo for other pages
-      }
-      alt="Logo"
-      style={{ height: '20px', marginRight: '10px' }}
-    />
-  </Box>
-
-        {/* Desktop Navigation Links and Dark Mode Switch */}
+        {/* Desktop Navigation Links and Theme Icon */}
         <Box
           sx={{
             display: { xs: 'none', md: 'flex' },
-            alignItems: 'center', // Centers items vertically
-            gap: 2, // Adds uniform spacing between items
+            alignItems: 'center',
+            gap: 2,
           }}
         >
           {isLandingPage ? (
-            // Only show Login button on landing page if user is not logged in
+            // On Landing page: show only Log In (if not logged in)
             !currentUser && (
               <Typography
                 component={Link}
                 to="/login"
                 sx={{
                   fontFamily: 'SF Pro Display, sans-serif',
-                  color: darkMode ? '#FFFFFF' : '#571CE0', // White in dark mode
+                  color: darkMode ? '#FFFFFF' : '#571CE0',
                   textTransform: 'none',
                   textDecoration: 'none',
                   fontWeight: 600,
@@ -126,7 +158,7 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
               </Typography>
             )
           ) : (
-            // Show all navigation items on other pages
+            // Otherwise, show full navigation if logged in
             currentUser ? (
               <>
                 <Typography
@@ -223,15 +255,15 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
             )
           )}
 
-          {/* Dark Mode Switch */}
-          <Switch
-            checked={darkMode}
-            onChange={() => setDarkMode(!darkMode)}
-            color="secondary"
-          />
+          {/* Theme Mode Icon Button */}
+          <Tooltip title={`Theme: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)} (click to change)`}>
+            <IconButton onClick={handleThemeToggle} color="inherit">
+              {themeIcon}
+            </IconButton>
+          </Tooltip>
         </Box>
 
-        {/* Mobile Hamburger Menu - Hidden on Landing Page when logged in */}
+        {/* Mobile Hamburger Menu */}
         {(!isLandingPage || !currentUser) && (
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
             <IconButton
@@ -255,7 +287,7 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
           PaperProps={{
             sx: {
               width: 250,
-              background: darkMode ? '#333' : '#E4E2DC', // Dark background in dark mode
+              background: darkMode ? '#333' : '#E4E2DC',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -265,14 +297,12 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
         >
           <List>
             {isLandingPage ? (
-              // Only show Login in drawer on landing page if user is not logged in
               !currentUser && (
                 <ListItem button component={Link} to="/login" onClick={handleDrawerClose}>
                   <ListItemText primary="Log In" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
                 </ListItem>
               )
             ) : (
-              // Show all navigation items on other pages
               currentUser ? (
                 <>
                   <ListItem button component={Link} to="/classes" onClick={handleDrawerClose}>
@@ -297,20 +327,24 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
                 </ListItem>
               )
             )}
-            {/* Dark Mode Switch in Drawer */}
+            {/* Theme Icon in Mobile Drawer */}
             <ListItem>
-              <ListItemText primary="Dark Mode" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
-              <Switch
-                checked={darkMode}
-                onChange={() => setDarkMode(!darkMode)}
-                color="secondary"
-              />
+              <IconButton onClick={() => { handleThemeToggle(); handleDrawerClose(); }} color="inherit">
+                {themeIcon}
+              </IconButton>
+              <Typography variant="body2" sx={{ ml: 1, fontFamily: 'SF Pro Display, sans-serif' }}>
+                {themeMode.charAt(0).toUpperCase() + themeMode.slice(1)}
+              </Typography>
             </ListItem>
           </List>
 
           {/* Drawer Footer */}
           <Box sx={{ textAlign: 'center', pb: 3 }}>
-            <img src={darkMode ? '/2.png' : '/1.png'} alt="CourseMe Logo" style={{ height: '25px', marginBottom: '10px' }} />
+            <img
+              src={darkMode ? '/2.png' : '/1.png'}
+              alt="CourseMe Logo"
+              style={{ height: '25px', marginBottom: '10px' }}
+            />
             <Typography variant="body2" sx={{ color: darkMode ? '#CCCCCC' : '#999' }}>
               © 2024 CourseMe. All Rights Reserved.
             </Typography>
@@ -318,7 +352,7 @@ const NavBar = ({ darkMode, setDarkMode }) =>{
         </Drawer>
       </Toolbar>
 
-      {/* Snackbar for Error Messages */}
+      {/* Snackbar for error messages */}
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
           {error}
