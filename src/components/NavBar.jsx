@@ -257,10 +257,11 @@ const NavBar = ({ darkMode, themeMode, setThemeMode }) => {
 
           {/* Theme Mode Icon Button */}
           <Tooltip title={`Theme: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)} (click to change)`}>
-            <IconButton onClick={handleThemeToggle} color="inherit">
-              {themeIcon}
-            </IconButton>
-          </Tooltip>
+  <IconButton onClick={handleThemeToggle} sx={{ color: darkMode ? 'inherit' : 'black' }}>
+    {themeIcon}
+  </IconButton>
+</Tooltip>
+
         </Box>
 
         {/* Mobile Hamburger Menu */}
@@ -329,13 +330,14 @@ const NavBar = ({ darkMode, themeMode, setThemeMode }) => {
             )}
             {/* Theme Icon in Mobile Drawer */}
             <ListItem>
-              <IconButton onClick={() => { handleThemeToggle(); handleDrawerClose(); }} color="inherit">
-                {themeIcon}
-              </IconButton>
-              <Typography variant="body2" sx={{ ml: 1, fontFamily: 'SF Pro Display, sans-serif' }}>
-                {themeMode.charAt(0).toUpperCase() + themeMode.slice(1)}
-              </Typography>
-            </ListItem>
+  <IconButton onClick={() => { handleThemeToggle(); handleDrawerClose(); }} sx={{ color: darkMode ? 'inherit' : 'black' }}>
+    {themeIcon}
+  </IconButton>
+  <Typography variant="body2" sx={{ ml: 1, fontFamily: 'SF Pro Display, sans-serif' }}>
+    {themeMode.charAt(0).toUpperCase() + themeMode.slice(1)}
+  </Typography>
+</ListItem>
+
           </List>
 
           {/* Drawer Footer */}
