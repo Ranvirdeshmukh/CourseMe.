@@ -8,6 +8,96 @@ import GraduationRequirements from './GraduationRequirements';
 import MajorRequirements from './MajorRequirements';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
 import CourseBucket from './CourseBucket';
+import axios from 'axios';
+
+// First, define CoraChat as a separate component outside of MajorTracker
+const CoraChat = ({ 
+  darkMode, 
+  paperBgColor, 
+  textColor, 
+  inputBgColor, 
+  borderColor,
+  coraQuery,
+  setCoraQuery,
+  coraResponse,
+  isLoading,
+  error,
+  handleCoraSubmit 
+}) => {
+  return (
+    <div 
+      className="rounded-lg shadow p-6" 
+      style={{ background: paperBgColor }}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <h2 
+          className="text-lg font-semibold" 
+          style={{ color: textColor }}
+        >
+          CORA
+        </h2>
+        <GraduationCap 
+          className="w-5 h-5" 
+          style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }}
+        />
+      </div>
+
+      {/* Display CORA's response */}
+      {coraResponse && (
+        <div 
+          className="rounded-lg p-4 mb-4 text-sm" 
+          style={{ background: darkMode ? '#333333' : '#E5E7EB', color: textColor }}
+        >
+          {coraResponse}
+        </div>
+      )}
+
+      {/* Error message */}
+      {error && (
+        <div 
+          className="rounded-lg p-4 mb-4 text-sm text-red-500"
+          style={{ background: darkMode ? '#331111' : '#FEE2E2' }}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* Input form */}
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleCoraSubmit();
+        }}
+        className="mt-4 relative"
+      >
+        <input
+          type="text"
+          placeholder="Ask about your degree requirements..."
+          className="w-full p-3 pr-10 border rounded-lg"
+          value={coraQuery}
+          onChange={(e) => setCoraQuery(e.target.value)}
+          disabled={isLoading}
+          style={{
+            background: inputBgColor,
+            color: textColor,
+            borderColor: borderColor,
+          }}
+        />
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2"
+          style={{ 
+            color: darkMode ? '#B0B0B0' : '#6B7280',
+            opacity: isLoading ? 0.5 : 1 
+          }}
+        >
+          <Send className="w-5 h-5" />
+        </button>
+      </form>
+    </div>
+  );
+};
 
 const MajorTracker = ({darkMode}) => {
   const [courseInput, setCourseInput] = useState("");
@@ -21,7 +111,9 @@ const MajorTracker = ({darkMode}) => {
   const auth = getAuth();
 
   const [coraQuery, setCoraQuery] = useState("");
-const [coraResponse, setCoraResponse] = useState("");
+  const [coraResponse, setCoraResponse] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 const mainBgColor = darkMode 
   ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
   : '#F9F9F9';
@@ -32,6 +124,14 @@ const progressBgColor = darkMode ? '#333333' : '#E5E7EB'; // outer bar backgroun
 const progressFillColor = darkMode ? '#349966' : '#3B82F6'; // inner fill color
 const borderColor = darkMode ? '#4B5563' : '#D1D5DB';
 const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
+
+
+const [loading, setLoading] = useState(false);
+const [answer, setAnswer] = useState('');
+const [snackbarOpen, setSnackbarOpen] = useState(false);
+const [question, setQuestion] = useState('');
+
+const API_URL = 'https://cors-proxy.fringe.zone/https://langchain-chatbot-898344091520.us-central1.run.app/chat';
 
 
   const handleCourseComplete = async (course) => {
@@ -57,6 +157,40 @@ const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
     }
   };
   
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setAnswer('');
+    
+    try {
+      const response = await axios.post(API_URL, 
+        { query: question },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-requested-with': 'XMLHttpRequest'
+          },
+        }
+      );
+  
+      console.log('API Response:', response.data);
+      
+      if (response.data && response.data.answer) {
+        setAnswer(response.data.answer);
+      } else {
+        throw new Error('Unexpected response format');
+      }
+  
+    } catch (error) {
+      console.error('Error fetching answer:', error);
+      setError('An error occurred while fetching the answer. Please try again.');
+      setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleCourseSubmit = (e) => {
     e.preventDefault();
     const courseRegex = /^[A-Z]{4}\d{1,3}(?:\.\d{2})?$/;
@@ -342,28 +476,42 @@ const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
     }
   }, []);
 
-   // ----- CORA: Chat handler -----
-   const handleCoraSubmit = async () => {
+  const handleCoraSubmit = async () => {
+    // Don't do anything if the query is empty
     if (!coraQuery.trim()) return;
-
+  
+    setIsLoading(true);
+    setError("");
+  
     try {
-      const response = await fetch("https://langchain-chatbot-898344091520.us-central1.run.app/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query: coraQuery }),
-      });
-
-      // Assuming the endpoint returns JSON with shape: { answer: "...", ... }
-      const data = await response.json();
-      // Adjust the key based on your actual API response
-      setCoraResponse(data.answer || "No answer returned from the chatbot.");
+      const response = await axios.post(
+        API_URL,
+        { query: coraQuery },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-requested-with': 'XMLHttpRequest'
+          }
+        }
+      );
+  
+      console.log('API Response:', response.data);
+  
+      if (response.data && response.data.answer) {
+        setCoraResponse(response.data.answer);
+        setCoraQuery(""); // Clear the input after successful submission
+      } else {
+        throw new Error('Unexpected response format');
+      }
     } catch (error) {
-      console.error("Error calling CORA chatbot: ", error);
-      setCoraResponse("There was an error retrieving the answer.");
+      console.error('Error:', error);
+      setError('Failed to get a response. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
+  
+  
 
   const parseCourse = (course) => {
     if (!course || typeof course !== 'string') return null;
@@ -616,69 +764,19 @@ return (
             </div>
 
             {/* Degree Assistant */}
-            <div 
-              className="rounded-lg shadow p-6" 
-              style={{ background: paperBgColor }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 
-                  className="text-lg font-semibold" 
-                  style={{ color: textColor }}
-                >
-                  CORA
-                </h2>
-                <GraduationCap 
-                  className="w-5 h-5" 
-                  style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }}
-                />
-              </div>
-
-              {/* Optional sample user prompt */}
-              <div 
-                className="rounded-lg p-4 mb-4" 
-                style={{ background: darkMode ? '#0C0F33' : '#F3F4F6' }}
-              >
-                <p style={{ color: darkMode ? '#FFFFFF' : '#374151' }}>
-                  Show me minor paths that fulfill my remaining distributives
-                </p>
-              </div>
-
-              {/* Display CORA's response (if any) */}
-              {coraResponse && (
-                <div 
-                  className="rounded-lg p-4 mb-4 text-sm" 
-                  style={{ background: darkMode ? '#333333' : '#E5E7EB', color: textColor }}
-                >
-                  {coraResponse}
-                </div>
-              )}
-
-              {/* CORA Input Box + Send Button */}
-              <div className="mt-4 relative">
-                <input
-                  type="text"
-                  placeholder="Ask about your degree requirements..."
-                  className="w-full p-3 pr-10 border rounded-lg"
-                  value={coraQuery}
-                  onChange={(e) => setCoraQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleCoraSubmit();
-                  }}
-                  style={{
-                    background: inputBgColor,
-                    color: textColor,
-                    borderColor: borderColor,
-                  }}
-                />
-                <button
-                  onClick={handleCoraSubmit}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                  style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }}
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
+            <CoraChat 
+              darkMode={darkMode}
+              paperBgColor={paperBgColor}
+              textColor={textColor}
+              inputBgColor={inputBgColor}
+              borderColor={borderColor}
+              coraQuery={coraQuery}
+              setCoraQuery={setCoraQuery}
+              coraResponse={coraResponse}
+              isLoading={isLoading}
+              error={error}
+              handleCoraSubmit={handleCoraSubmit}
+            />
 
           </div>
         </div>
