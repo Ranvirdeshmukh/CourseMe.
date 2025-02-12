@@ -1,4 +1,5 @@
 {
+  "proxy": "https://langchain-chatbot-898344091520.us-central1.run.app",
   "name": "college-course-review",
   "version": "0.1.0",
   "private": true,

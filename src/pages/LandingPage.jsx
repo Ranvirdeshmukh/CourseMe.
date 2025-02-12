@@ -21,7 +21,7 @@ import {
   Alert, Chip, LinearProgress, ButtonBase, Tooltip, Fade
 } from '@mui/material';
 
-const API_URL = 'https://coursemebot.pythonanywhere.com/api/chat';
+const API_URL = 'https://cors-proxy.fringe.zone/https://langchain-chatbot-898344091520.us-central1.run.app/chat';
 
 
 // Firebase configuration
@@ -81,48 +81,32 @@ const handleCloseBetaPopup = () => {
   const footerTextColor = darkMode ? '#CCCCCC' : '#333333';
 
   
+  // Update the handleSearch function
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setAnswer('');
-    setDepartment('');
-    setCourseNumber('');
-    setDocumentName('');
-    setShowScrollMessage(false);
-    setDifficulty(null);
-    setSentiment(null);
-
+    
     try {
       const response = await axios.post(API_URL, 
-        { question },
+        { query: question },
         {
           headers: {
             'Content-Type': 'application/json',
+            'x-requested-with': 'XMLHttpRequest'
           },
         }
       );
+  
       console.log('API Response:', response.data);
-      if (typeof response.data === 'object' && response.data.answer) {
+      
+      if (response.data && response.data.answer) {
         setAnswer(response.data.answer);
-        setDepartment(response.data.department || '');
-        setCourseNumber(response.data.course_number || '');
-        setDifficulty(response.data.difficulty || null);
-        setSentiment(response.data.sentiment || null);
-        
-        if (response.data.department && response.data.course_number) {
-          await fetchCourseData(response.data.department, response.data.course_number);
-        }
-      } else if (typeof response.data === 'string') {
-        setAnswer(response.data);
       } else {
         throw new Error('Unexpected response format');
       }
-
-      if (response.data.department && response.data.course_number) {
-        setShowScrollMessage(true);
-      }
-
+  
     } catch (error) {
       console.error('Error fetching answer:', error);
       setError('An error occurred while fetching the answer. Please try again.');
@@ -1117,154 +1101,28 @@ return (
 </Box>
 
        {/* Answer section */}
-{answer && (
+       {answer && (
   <Paper
     elevation={3}
     sx={{
       mt: 4,
       p: 3,
-      bgcolor: darkMode ? '#0C0F33' : '#f9f9f9', // Background based on mode
+      bgcolor: darkMode ? '#0C0F33' : '#f9f9f9',
       borderRadius: 2,
       width: '100%',
       maxWidth: '800px',
       boxShadow: darkMode
-        ? '0px 4px 20px rgba(255, 255, 255, 0.1)' // Light shadow for dark mode
-        : '0px 4px 20px rgba(0, 0, 0, 0.05)', // Dark shadow for light mode
-      color: darkMode ? '#ffffff' : '#bbbbbb', // Text color based on mode
+        ? '0px 4px 20px rgba(255, 255, 255, 0.1)'
+        : '0px 4px 20px rgba(0, 0, 0, 0.05)',
+      color: darkMode ? '#ffffff' : '#333333',
     }}
   >
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        mb: 2,
-      }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 1,
-          flexWrap: 'wrap',
-          alignItems: 'center',
-        }}
-      >
-        {department && (
-          <Chip
-            label={`Department: ${department}`}
-            color={darkMode ? 'default' : 'primary'}
-            sx={{
-              bgcolor: darkMode ? '#0C0F33' : 'primary.main', // Chip background
-              color: '#ffffff', // Chip text color
-            }}
-          />
-        )}
-        {courseNumber && (
-          <Chip
-            label={`Course: ${courseNumber}`}
-            color={darkMode ? 'default' : 'secondary'}
-            sx={{
-              bgcolor: darkMode ? '#00693e' : 'secondary.main', // Chip background
-              color: '#ffffff', // Chip text color
-            }}
-          />
-        )}
-        {difficulty !== null && (
-          <ScaleMeter
-            value={difficulty}
-            title="Layup Meter"
-            getLevelFunc={getDifficultyLevel}
-            darkMode={darkMode} // Pass darkMode to ScaleMeter
-          />
-        )}
-        {sentiment !== null && (
-          <ScaleMeter
-            value={sentiment}
-            title="Quality Meter"
-            getLevelFunc={getSentimentLevel}
-            darkMode={darkMode} // Pass darkMode to ScaleMeter
-          />
-        )}
-      </Box>
-
-      {/* Enhanced Scroll Message Effect */}
-      {showScrollMessage && (
-        <Tooltip title="Click or scroll down to see more course details" placement="top">
-          <Fade in={showScrollMessage}>
-            <Box
-              onClick={() => documentName && navigate(`/departments/${department}/courses/${documentName}`)}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                ml: 2,
-                bgcolor: darkMode ? '#424242' : '#f0f8ff', // Background based on mode
-                p: 1,
-                borderRadius: 2,
-                boxShadow: darkMode
-                  ? '0 2px 5px rgba(255, 255, 255, 0.1)' // Light shadow for dark mode
-                  : '0 2px 5px rgba(0, 0, 0, 0.1)', // Dark shadow for light mode
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                '&:hover': {
-                  bgcolor: darkMode ? '#555555' : '#e6f3ff', // Hover background
-                  transform: 'translateY(-2px)',
-                  boxShadow: darkMode
-                    ? '0 4px 8px rgba(255, 255, 255, 0.15)' // Hover shadow for dark mode
-                    : '0 4px 8px rgba(0, 0, 0, 0.15)', // Hover shadow for light mode
-                },
-                '&:active': {
-                  transform: 'translateY(0)',
-                  boxShadow: darkMode
-                    ? '0 2px 5px rgba(255, 255, 255, 0.1)' // Active shadow for dark mode
-                    : '0 2px 5px rgba(0, 0, 0, 0.1)', // Active shadow for light mode
-                },
-              }}
-            >
-              <Typography
-                variant="body2"
-                sx={{
-                  mb: 1,
-                  color: darkMode ? '#bb86fc' : '#1976d2', // Text color based on mode
-                  fontWeight: 'bold',
-                  fontSize: '0.85rem',
-                }}
-              >
-                Scroll for Details
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={scrollProgress * 100}
-                  sx={{
-                    height: 8,
-                    borderRadius: 4,
-                    width: '100px',
-                    bgcolor: darkMode ? '#bbbbbb' : '#bbdefb', // Progress background
-                    '& .MuiLinearProgress-bar': {
-                      bgcolor: darkMode ? '#bb86fc' : '#1976d2', // Progress bar color
-                    },
-                  }}
-                />
-              </Box>
-            </Box>
-          </Fade>
-        </Tooltip>
-      )}
-    </Box>
-
     <Box sx={{ color: darkMode ? '#ffffff' : '#333333', textAlign: 'left', mb: 2 }}>
-      {formatAnswer(
-        department && courseNumber
-          ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
-          : answer
-      )}
+      {formatAnswer(answer)}
     </Box>
 
-    {/* New note below the AI response */}
     <Typography variant="body2" sx={{ color: darkMode ? '#bbbbbb' : '#888888', mt: 2 }}>
-      Note: This AI chatbot is in its very early stage of development, and we are actively working on improving it.
+      Note: This AI chatbot is in its early stage of development, and we are actively working on improving it.
     </Typography>
   </Paper>
 )}

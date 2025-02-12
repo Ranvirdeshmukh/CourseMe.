@@ -521,7 +521,7 @@ const MajorTracker = () => {
             {/* Degree Assistant */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Degree Assistant</h2>
+                <h2 className="text-lg font-semibold">CORA</h2>
                 <GraduationCap className="w-5 h-5 text-gray-500" />
               </div>
               <div className="bg-gray-100 rounded-lg p-4 mb-4">

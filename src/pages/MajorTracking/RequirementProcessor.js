@@ -293,3 +293,5 @@ export class RequirementProcessor {
     });
   }
 }
+
+export default RequirementProcessor;

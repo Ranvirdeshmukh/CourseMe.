@@ -30,7 +30,7 @@ const CourseDisplayPillar = ({
   // Calculate course color based on completion and pillar allocation
   const calculateCourseColor = useCallback((courseId, isCompleted) => {
     if (!isCompleted) return 'none';
-    
+  
     // Get all pillars that could include this course
     const pillarsWithCourse = duplicateCourses.get(courseId);
     if (!pillarsWithCourse) return 'primary';
@@ -40,25 +40,40 @@ const CourseDisplayPillar = ({
       `${course.department}${course.course_number}`
     ).filter(id => localCompletedCourses.includes(id));
   
-    // For range pillars, we need special handling
+    // For range pillars
     if (pillar.type === 'range') {
       // For COSC 30-49 pillar (which comes first)
       if (pillar.end === 49) {
         const pillarRequiredCount = pillar.count;
         const courseIndex = coursesInPillar.indexOf(courseId);
-        return courseIndex < pillarRequiredCount ? 'primary' : 'secondary';
+        
+        // If not used in this pillar, it's overflow
+        if (courseIndex >= pillarRequiredCount) {
+          return 'overflow';
+        }
+        return 'primary';
       }
       
       // For COSC 30-89 pillar
       if (pillar.end === 89) {
         // Check if this course is already allocated to the 30-49 pillar
         const isAllocatedToEarlierPillar = coursesInPillar.indexOf(courseId) < 2;
+        
         if (!isAllocatedToEarlierPillar) {
-          // If not allocated to 30-49, show as primary for this pillar
+          // If not used in earlier pillar, show as primary
           return 'primary';
         }
+        // If used in earlier pillar, mark as secondary
         return 'secondary';
       }
+  
+      // For other range pillars, if the course isn't counted in the requirement
+      const pillarRequiredCount = pillar.count;
+      const courseIndex = coursesInPillar.indexOf(courseId);
+      if (courseIndex >= pillarRequiredCount) {
+        return 'overflow';
+      }
+      return 'primary';
     }
   
     // Default to secondary color for other cases

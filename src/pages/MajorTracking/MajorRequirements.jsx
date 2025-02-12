@@ -1,9 +1,10 @@
-// MajorRequirements.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { doc, getFirestore, collection, getDocs, setDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import CourseDisplayPillar from './CourseDisplayPillar';
-import { RequirementProcessor } from './RequirementProcessor';
+import CourseDisplayCarousel from './CourseDisplayCarousel';
+import CourseCard from './CourseCard';
+import { RequirementProcessor } from './RequirementProcessor'; 
 
 const MajorRequirements = ({
   selectedMajor,
@@ -13,9 +14,30 @@ const MajorRequirements = ({
 }) => {
   const [localCompletedCourses, setLocalCompletedCourses] = useState(completedCourses);
   const [processedRequirements, setProcessedRequirements] = useState(null);
+  const [courses, setCourses] = useState({});
   const db = getFirestore();
   const auth = getAuth();
 
+  // Add the handler functions
+  const handleCourseClick = async (course) => {
+    if (!auth.currentUser) return;
+    await handleCourseStatusChange(course, []);
+  };
+  
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const coursesRef = collection(db, 'courses');
+      const snapshot = await getDocs(coursesRef);
+      const courseData = {};
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        courseData[`${data.department}${data.course_number}`] = data;
+      });
+      setCourses(courseData);
+    };
+  
+    fetchCourses();
+  }, [db]);
 
   const normalizeCourseId = (courseId) => {
     if (!courseId) return null;
@@ -43,6 +65,44 @@ const MajorRequirements = ({
     setProcessedRequirements(evaluated);
   }, [selectedMajor, majorRequirements, localCompletedCourses]);
 
+const calculatePillarCompletion = useCallback((pillar, completedCourseIds) => {
+  switch (pillar.type) {
+    case 'prerequisites':
+      const requiredCourses = pillar.courses.length;
+      const completedPrereqs = pillar.courses.filter(course => {
+        if (typeof course === 'string') {
+          return completedCourseIds.includes(normalizeCourseId(course));
+        }
+        if (course.type === 'alternative') {
+          return course.options.some(opt => 
+            completedCourseIds.includes(normalizeCourseId(opt))
+          );
+        }
+        return false;
+      }).length;
+      return { completed: completedPrereqs, required: requiredCourses };
+
+    case 'specific':
+      const hasCompleted = pillar.options.some(courseId =>
+        completedCourseIds.includes(normalizeCourseId(courseId))
+      );
+      return { completed: hasCompleted ? 1 : 0, required: 1 };
+
+    case 'range':
+      const inRangeCourses = completedCourseIds.filter(courseId => {
+        const match = courseId.match(/([A-Z]+)(\d+)/);
+        if (!match) return false;
+        const [, dept, numStr] = match;
+        const num = parseInt(numStr);
+        return dept === pillar.department && num >= pillar.start && num <= pillar.end;
+      }).length;
+      return { completed: Math.min(inRangeCourses, pillar.count), required: pillar.count };
+
+    default:
+      return { completed: 0, required: 0 };
+  }
+}, []);
+
   const getPillarCourses = (pillar) => {
     switch (pillar.type) {
       case 'prerequisites':
@@ -69,6 +129,53 @@ const MajorRequirements = ({
     }
   };
 
+
+const overflowCourses = useMemo(() => {
+  if (!selectedMajor || !majorRequirements?.[selectedMajor]) return [];
+  
+  const requirements = majorRequirements[selectedMajor];
+  const allocatedCourses = new Set();
+
+  // Track which courses are needed for each pillar
+  requirements.pillars.forEach(pillar => {
+    // Get completion info for this pillar
+    const completion = calculatePillarCompletion(pillar, localCompletedCourses);
+    const pillarCourses = getPillarCourses(pillar);
+    
+    // Get valid courses for this pillar that aren't already allocated
+    const validCourses = localCompletedCourses
+      .filter(courseId => {
+        // For range pillars, check if course is in range
+        if (pillar.type === 'range') {
+          const match = courseId.match(/([A-Z]+)(\d+)/);
+          if (!match) return false;
+          const [, dept, numStr] = match;
+          const num = parseInt(numStr);
+          return dept === pillar.department && 
+                 num >= pillar.start && 
+                 num <= pillar.end;
+        }
+        // For other pillar types, check if course is in pillar's course list
+        return pillarCourses.includes(courseId);
+      })
+      .filter(courseId => !allocatedCourses.has(courseId));
+
+    // Allocate only the required number of courses
+    validCourses.slice(0, completion.required).forEach(courseId => {
+      allocatedCourses.add(courseId);
+    });
+  });
+
+  // Any completed courses not allocated are overflow
+  return localCompletedCourses.filter(courseId => !allocatedCourses.has(courseId));
+}, [selectedMajor, majorRequirements, localCompletedCourses, calculatePillarCompletion, getPillarCourses]);
+
+// Add a debug log to check overflow courses
+useEffect(() => {
+  console.log('Overflow courses:', overflowCourses);
+}, [overflowCourses]);
+
+
   // Calculate duplicate courses map
   const duplicateCourses = useMemo(() => {
     if (!selectedMajor || !majorRequirements?.[selectedMajor]) return new Map();
@@ -90,45 +197,6 @@ const MajorRequirements = ({
     // Only keep courses that appear in multiple pillars
     return new Map([...courseMap].filter(([_, pillars]) => pillars.length > 1));
   }, [selectedMajor, majorRequirements]);
-
-  // Calculate pillar completion status
-  const calculatePillarCompletion = useCallback((pillar, completedCourseIds) => {
-    switch (pillar.type) {
-      case 'prerequisites':
-        const requiredCourses = pillar.courses.length;
-        const completedPrereqs = pillar.courses.filter(course => {
-          if (typeof course === 'string') {
-            return completedCourseIds.includes(normalizeCourseId(course));
-          }
-          if (course.type === 'alternative') {
-            return course.options.some(opt => 
-              completedCourseIds.includes(normalizeCourseId(opt))
-            );
-          }
-          return false;
-        }).length;
-        return { completed: completedPrereqs, required: requiredCourses };
-
-      case 'specific':
-        const hasCompleted = pillar.options.some(courseId =>
-          completedCourseIds.includes(normalizeCourseId(courseId))
-        );
-        return { completed: hasCompleted ? 1 : 0, required: 1 };
-
-      case 'range':
-        const inRangeCourses = completedCourseIds.filter(courseId => {
-          const match = courseId.match(/([A-Z]+)(\d+)/);
-          if (!match) return false;
-          const [, dept, numStr] = match;
-          const num = parseInt(numStr);
-          return dept === pillar.department && num >= pillar.start && num <= pillar.end;
-        }).length;
-        return { completed: Math.min(inRangeCourses, pillar.count), required: pillar.count };
-
-      default:
-        return { completed: 0, required: 0 };
-    }
-  }, []);
 
   const handleCourseStatusChange = async (course, affectedPillars) => {
     if (!auth.currentUser) return;
@@ -182,6 +250,33 @@ const MajorRequirements = ({
 
   return (
     <div className="space-y-6">
+      {overflowCourses.length > 0 && (
+        <div className="mb-6">
+          <CourseDisplayCarousel
+            title="Additional Courses"
+            subtitle={`${overflowCourses.length} course${overflowCourses.length !== 1 ? 's' : ''} exceeding requirements`}
+          >
+            {overflowCourses.map(courseId => {
+              const course = courses[courseId];
+              if (!course) return null;
+              
+              return (
+                <CourseCard
+                  key={courseId}
+                  course={course}
+                  status={{
+                    isCompleted: true,
+                    isUsedInOtherPillar: false,
+                    isLocked: false,
+                    colorStatus: 'overflow'
+                  }}
+                  onClick={handleCourseStatusChange}
+                />
+              );
+            })}
+          </CourseDisplayCarousel>
+        </div>
+      )}
       {requirements.pillars.map((pillar, index) => (
         <CourseDisplayPillar
           key={`${selectedMajor}-${index}`}

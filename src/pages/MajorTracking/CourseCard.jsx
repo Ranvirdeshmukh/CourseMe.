@@ -13,7 +13,7 @@ const CourseCard = ({
   }
 }) => {
   const [isPressed, setIsPressed] = useState(false);
-  
+
   const {
     isCompleted,
     isUsedInOtherPillar,
@@ -22,9 +22,12 @@ const CourseCard = ({
     allocationInfo,
     colorStatus
   } = status;
-
-  const courseId = `${course.department}${course.course_number}`;
+  
+  const courseId = course?.department && course?.course_number ? 
+    `${course.department}${course.course_number}` : '';
+  
   useEffect(() => {
+    if (!courseId) return;
     console.log(`[${courseId}] Card Status:`, {
       isCompleted,
       isUsedInOtherPillar,
@@ -33,16 +36,15 @@ const CourseCard = ({
       colorStatus,
       allocationInfo
     });
-  }, [status, courseId]);
+  }, [courseId, isCompleted, isUsedInOtherPillar, usedInPillar, isLocked, colorStatus, allocationInfo]);
+  
+  if (!course?.department || !course?.course_number) return null;
 
   const getCardStyles = () => {
     let styles = 'relative rounded-xl shadow p-4 transition-all duration-200 cursor-pointer h-40 ';
     
-    // Add width classes based on viewMode
-    styles += viewMode === 'carousel' ? 'w-80 flex-none ' : 'w-full ';
-    
-    // Log the color determination
-    console.log(`[${courseId}] Determining color:`, { isLocked, isCompleted, colorStatus });
+    // Add width classes based on viewMode - make cards narrower
+    styles += viewMode === 'carousel' ? 'w-64 flex-none ' : 'w-full ';
     
     // Determine the card's color based on its status
     if (isLocked) {
@@ -51,17 +53,18 @@ const CourseCard = ({
     } else if (isCompleted) {
       switch (colorStatus) {
         case 'primary':
-          console.log(`[${courseId}] Setting PRIMARY (green) color`);
           styles += 'ring-2 ring-green-500 bg-green-50 ';
           styles += isPressed ? 'bg-green-200 scale-95 ' : 'hover:bg-green-100 hover:scale-[0.98] ';
           break;
         case 'secondary':
-          console.log(`[${courseId}] Setting SECONDARY (yellow) color`);
           styles += 'ring-2 ring-yellow-500 bg-yellow-50 ';
           styles += isPressed ? 'bg-yellow-200 scale-95 ' : 'hover:bg-yellow-100 hover:scale-[0.98] ';
           break;
+        case 'overflow':
+          styles += 'ring-2 ring-blue-500 bg-blue-50 ';
+          styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
+          break;
         default:
-          console.log(`[${courseId}] Setting DEFAULT (blue) color`);
           styles += 'ring-2 ring-blue-500 bg-blue-50 ';
           styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
       }
@@ -73,13 +76,6 @@ const CourseCard = ({
     return styles.trim();
   };
 
-  const handleCardClick = async (e) => {
-    console.log(`[${courseId}] Card clicked`);
-    if (onClick) {
-      await onClick(course);
-      console.log(`[${courseId}] onClick handler completed`);
-    }
-  };
   const handleCardInteraction = (e) => {
     if (isLocked) return;
     
