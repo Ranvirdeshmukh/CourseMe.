@@ -9,7 +9,7 @@ import MajorRequirements from './MajorRequirements';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
 import CourseBucket from './CourseBucket';
 
-const MajorTracker = () => {
+const MajorTracker = ({darkMode}) => {
   const [courseInput, setCourseInput] = useState("");
   const [completedCourses, setCompletedCourses] = useState([]);
   const [majorRequirements, setMajorRequirements] = useState({});
@@ -19,6 +19,20 @@ const MajorTracker = () => {
   const [availableMajors, setAvailableMajors] = useState([]);
   const db = getFirestore();
   const auth = getAuth();
+
+  const [coraQuery, setCoraQuery] = useState("");
+const [coraResponse, setCoraResponse] = useState("");
+const mainBgColor = darkMode 
+  ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
+  : '#F9F9F9';
+const paperBgColor = darkMode ? '#1C1F43' : '#FFFFFF';
+const textColor = darkMode ? '#FFFFFF' : '#333333';
+const headerTextColor = darkMode ? '#FFFFFF' : '#571CE0';
+const progressBgColor = darkMode ? '#333333' : '#E5E7EB'; // outer bar background
+const progressFillColor = darkMode ? '#349966' : '#3B82F6'; // inner fill color
+const borderColor = darkMode ? '#4B5563' : '#D1D5DB';
+const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
+
 
   const handleCourseComplete = async (course) => {
     const courseId = `${course.department}${course.course_number}`;
@@ -328,6 +342,29 @@ const MajorTracker = () => {
     }
   }, []);
 
+   // ----- CORA: Chat handler -----
+   const handleCoraSubmit = async () => {
+    if (!coraQuery.trim()) return;
+
+    try {
+      const response = await fetch("https://langchain-chatbot-898344091520.us-central1.run.app/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: coraQuery }),
+      });
+
+      // Assuming the endpoint returns JSON with shape: { answer: "...", ... }
+      const data = await response.json();
+      // Adjust the key based on your actual API response
+      setCoraResponse(data.answer || "No answer returned from the chatbot.");
+    } catch (error) {
+      console.error("Error calling CORA chatbot: ", error);
+      setCoraResponse("There was an error retrieving the answer.");
+    }
+  };
+
   const parseCourse = (course) => {
     if (!course || typeof course !== 'string') return null;
     const match = course.match(/^([A-Z]+)(\d+)(\.?\d*)?$/);
@@ -368,183 +405,281 @@ const MajorTracker = () => {
       </div>
     )
   )}
-  const ProgressBar = ({ completed, total, label }) => (
+  // ProgressBar Component
+const ProgressBar = ({ completed, total, label, darkMode }) => {
+  const progressPercentage = (completed / total) * 100;
+  return (
     <div className="mb-4">
       <div className="flex justify-between mb-1">
-        <span className="text-sm font-medium">{label}</span>
-        <span className="text-sm text-gray-500">{completed}/{total} completed</span>
+        <span className="text-sm font-medium" style={{ color: textColor }}>{label}</span>
+        <span className="text-sm" style={{ color: darkMode ? "#B0B0B0" : "#6B7280" }}>
+          {completed}/{total} completed
+        </span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div 
+        className="w-full rounded-full h-2" 
+        style={{ background: progressBgColor }}
+      >
         <div 
-          className="bg-blue-500 rounded-full h-2" 
-          style={{ width: `${(completed/total) * 100}%` }}
+          className="rounded-full h-2" 
+          style={{ background: progressFillColor, width: `${progressPercentage}%` }}
         />
       </div>
     </div>
   );
+};
 
-  const CourseSection = ({ title, courses, isRequired }) => (
-    <div className="mb-8">
-      <h3 className="font-medium mb-4">{title} {isRequired && "(Required)"}</h3>
-      <div className="space-y-2">
-        {courses.map((course, index) => (
-          <div key={index} className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
-            <div>
-              <h4 className="font-medium">{course.code}: {course.title}</h4>
-            </div>
-            <div className="h-5 w-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
-              {course.completed && (
-                <div className="h-3 w-3 rounded-full bg-green-500" />
-              )}
-            </div>
+// CourseSection Component
+const CourseSection = ({ title, courses, isRequired, darkMode }) => (
+  <div className="mb-8">
+    <h3 className="font-medium mb-4" style={{ color: textColor }}>
+      {title} {isRequired && "(Required)"}
+    </h3>
+    <div className="space-y-2">
+      {courses.map((course, index) => (
+        <div 
+          key={index} 
+          className="flex items-center justify-between p-4 rounded-lg shadow"
+          style={{ background: paperBgColor }}
+        >
+          <div>
+            <h4 className="font-medium" style={{ color: textColor }}>
+              {course.code}: {course.title}
+            </h4>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const calculateProgress = useCallback(() => {
-    if (!selectedMajor || !majorRequirements[selectedMajor]) return { major: 0, distributives: 0 };
-    
-    const requirements = majorRequirements[selectedMajor];
-    const totalRequirements = requirements.pillars.reduce((total, pillar) => {
-      if (pillar.type === 'prerequisites') return total + pillar.courses.length;
-      if (pillar.type === 'specific') return total + 1;
-      if (pillar.type === 'range') return total + pillar.count || 1;
-      return total;
-    }, 0);
-
-    const completedCount = completedCourses.length;
-
-    return {
-      major: Math.round((completedCount / totalRequirements) * 100),
-      distributives: Math.round((completedCourses.filter(course => 
-        courseData[course]?.distribs
-      ).length / 9) * 100)
-    };
-  }, [selectedMajor, majorRequirements, completedCourses, courseData]);
-
-  const progress = calculateProgress();
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <GraduationCap className="w-6 h-6" />
-            <h1 className="text-xl font-semibold">Degree Tracker</h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <select 
-              value={selectedMajor}
-              onChange={(e) => handleMajorChange(e.target.value)}
-              className="border rounded-md px-3 py-2"
-            >
-              <option value="">Select Major</option>
-              {availableMajors.map(major => (
-                <option key={major.code} value={major.code}>
-                  {major.name}
-                </option>
-              ))}
-            </select>
-            <button 
-              onClick={saveProgress}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Save Progress
-            </button>
-            <User className="w-6 h-6" />
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-6">
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div className="lg:col-span-2">
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">
-            {showGradReqs ? "Graduation Requirements" : "Major Requirements"}
-          </h2>
-          <button
-            onClick={() => setShowGradReqs(!showGradReqs)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          <div 
+            className="h-5 w-5 rounded-full flex items-center justify-center" 
+            style={{ border: `2px solid ${borderColor}` }}
           >
-            Show {showGradReqs ? "Major" : "Graduation"} Requirements
-          </button>
+            {course.completed && (
+              <div className="h-3 w-3 rounded-full bg-green-500" />
+            )}
+          </div>
         </div>
-
-        {showGradReqs ? (
-          <GraduationRequirements 
-            selectedCourses={completedCourses}
-            courseData={courseData}
-          />
-        ) : (
-          <MajorRequirements
-            selectedMajor={selectedMajor}
-            majorRequirements={majorRequirements}
-            completedCourses={completedCourses}
-            onCourseComplete={handleCourseComplete}
-            courseData={courseData}
-          />
-        )}
-      </div>
+      ))}
     </div>
+  </div>
+);
 
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6 mb-6">
-              <h2 className="text-lg font-semibold mb-4">Progress Summary</h2>
+// ... (calculateProgress remains unchanged)
+const calculateProgress = useCallback(() => {
+  if (!selectedMajor || !majorRequirements[selectedMajor]) return { major: 0, distributives: 0 };
+  
+  const requirements = majorRequirements[selectedMajor];
+  const totalRequirements = requirements.pillars.reduce((total, pillar) => {
+    if (pillar.type === 'prerequisites') return total + pillar.courses.length;
+    if (pillar.type === 'specific') return total + 1;
+    if (pillar.type === 'range') return total + pillar.count || 1;
+    return total;
+  }, 0);
+
+  const completedCount = completedCourses.length;
+
+  return {
+    major: Math.round((completedCount / totalRequirements) * 100),
+    distributives: Math.round((completedCourses.filter(course => 
+      courseData[course]?.distribs
+    ).length / 9) * 100)
+  };
+}, [selectedMajor, majorRequirements, completedCourses, courseData]);
+
+const progress = calculateProgress();
+
+// Main Return (header and content)
+return (
+  <div 
+    className="min-h-screen" 
+    style={{ background: mainBgColor, color: textColor }}
+  >
+    <header 
+      className="shadow" 
+      style={{ background: paperBgColor }}
+    >
+      <div 
+        className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center"
+        style={{ color: headerTextColor }}
+      >
+        <div className="flex items-center space-x-2">
+          <GraduationCap className="w-6 h-6" />
+          <h1 className="text-xl font-semibold">CORA 1.0 (COurse Recommendation Advisor)</h1>
+        </div>
+        <div className="flex items-center space-x-4">
+          <select 
+            value={selectedMajor}
+            onChange={(e) => handleMajorChange(e.target.value)}
+            className="border rounded-md px-3 py-2"
+            style={{ background: paperBgColor, color: textColor, borderColor: headerTextColor }}
+          >
+            <option value="">Select Major</option>
+            {availableMajors.map(major => (
+              <option key={major.code} value={major.code}>
+                {major.name}
+              </option>
+            ))}
+          </select>
+          <button 
+            onClick={saveProgress}
+            className="px-4 py-2 rounded-md hover:bg-blue-700"
+            style={{ background: darkMode ? '#349966' : '#3B82F6', color: '#FFFFFF' }}
+          >
+            Save Progress
+          </button>
+          <User className="w-6 h-6" style={{ color: textColor }} />
+        </div>
+      </div>
+    </header>
+
+    <main className="max-w-7xl mx-auto px-4 py-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <div 
+            className="rounded-lg shadow p-6"
+            style={{ background: paperBgColor, color: textColor }}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">
+                {showGradReqs ? "Graduation Requirements" : "Major Requirements"}
+              </h2>
+              <button
+                onClick={() => setShowGradReqs(!showGradReqs)}
+                className="px-4 py-2 rounded-md hover:bg-blue-700"
+                style={{ background: darkMode ? '#349966' : '#3B82F6', color: '#FFFFFF' }}
+              >
+                Show {showGradReqs ? "Major" : "Graduation"} Requirements
+              </button>
+            </div>
+
+            {showGradReqs ? (
+              <GraduationRequirements 
+                selectedCourses={completedCourses}
+                courseData={courseData}
+                darkMode={true}
+              />
+            ) : (
+              <MajorRequirements
+                selectedMajor={selectedMajor}
+                majorRequirements={majorRequirements}
+                completedCourses={completedCourses}
+                onCourseComplete={handleCourseComplete}
+                courseData={courseData}
+                darkMode={true}
+              />
+            )}
+          </div>
+        </div>
+        
+
+        <div className="lg:col-span-1">
+            <div 
+              className="rounded-lg shadow p-6 mb-6" 
+              style={{ background: paperBgColor }}
+            >
+              <h2 
+                className="text-lg font-semibold mb-4" 
+                style={{ color: textColor }}
+              >
+                Progress Summary
+              </h2>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span>Major Requirements</span>
-                  <span className="font-medium">{progress.major}% completed</span>
+                  <span style={{ color: textColor }}>Major Requirements</span>
+                  <span className="font-medium" style={{ color: textColor }}>
+                    {progress.major}% completed
+                  </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="w-full rounded-full h-2" 
+                  style={{ background: progressBgColor }}
+                >
                   <div 
-                    className="bg-blue-600 h-2 rounded-full" 
-                    style={{ width: `${progress.major}%` }}
+                    className="rounded-full h-2" 
+                    style={{ background: progressFillColor, width: `${progress.major}%` }}
                   />
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span>Distributives</span>
-                  <span className="font-medium">{progress.distributives}% completed</span>
+                  <span style={{ color: textColor }}>Distributives</span>
+                  <span className="font-medium" style={{ color: textColor }}>
+                    {progress.distributives}% completed
+                  </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="w-full rounded-full h-2" 
+                  style={{ background: progressBgColor }}
+                >
                   <div 
-                    className="bg-blue-600 h-2 rounded-full" 
-                    style={{ width: `${progress.distributives}%` }}
+                    className="rounded-full h-2" 
+                    style={{ background: progressFillColor, width: `${progress.distributives}%` }}
                   />
                 </div>
               </div>
             </div>
 
             {/* Degree Assistant */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div 
+              className="rounded-lg shadow p-6" 
+              style={{ background: paperBgColor }}
+            >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">CORA</h2>
-                <GraduationCap className="w-5 h-5 text-gray-500" />
+                <h2 
+                  className="text-lg font-semibold" 
+                  style={{ color: textColor }}
+                >
+                  CORA
+                </h2>
+                <GraduationCap 
+                  className="w-5 h-5" 
+                  style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }}
+                />
               </div>
-              <div className="bg-gray-100 rounded-lg p-4 mb-4">
-                <p className="text-gray-700">
+
+              {/* Optional sample user prompt */}
+              <div 
+                className="rounded-lg p-4 mb-4" 
+                style={{ background: darkMode ? '#0C0F33' : '#F3F4F6' }}
+              >
+                <p style={{ color: darkMode ? '#FFFFFF' : '#374151' }}>
                   Show me minor paths that fulfill my remaining distributives
                 </p>
               </div>
-              <div className="bg-gray-800 text-white rounded-lg p-4">
-                <p className="text-sm">
-                  Based on your remaining requirements, these minors would help:
-                  - Economics (2 distributives)
-                  - History (3 distributives)
-                </p>
-              </div>
+
+              {/* Display CORA's response (if any) */}
+              {coraResponse && (
+                <div 
+                  className="rounded-lg p-4 mb-4 text-sm" 
+                  style={{ background: darkMode ? '#333333' : '#E5E7EB', color: textColor }}
+                >
+                  {coraResponse}
+                </div>
+              )}
+
+              {/* CORA Input Box + Send Button */}
               <div className="mt-4 relative">
                 <input
                   type="text"
                   placeholder="Ask about your degree requirements..."
                   className="w-full p-3 pr-10 border rounded-lg"
+                  value={coraQuery}
+                  onChange={(e) => setCoraQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleCoraSubmit();
+                  }}
+                  style={{
+                    background: inputBgColor,
+                    color: textColor,
+                    borderColor: borderColor,
+                  }}
                 />
-                <Send className="w-5 h-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <button
+                  onClick={handleCoraSubmit}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }}
+                >
+                  <Send className="w-5 h-5" />
+                </button>
               </div>
             </div>
+
           </div>
         </div>
       </main>

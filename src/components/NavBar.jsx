@@ -84,6 +84,7 @@ const NavBar = ({ darkMode, themeMode, setThemeMode }) => {
       '/course-review',
       '/timetable',
       '/professors',
+      '/major-tracking',
     ];
     return specialPages.some(page => path === page || path.startsWith(`${page}/`));
   };

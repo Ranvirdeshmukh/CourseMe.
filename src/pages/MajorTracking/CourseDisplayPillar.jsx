@@ -1,4 +1,3 @@
-// CourseDisplayPillar.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
@@ -12,7 +11,8 @@ const CourseDisplayPillar = ({
   onCourseStatusChange,
   allPillars = [],
   pillarIndex,
-  duplicateCourses = new Map() // Map of courseId -> array of pillarIndices where it appears
+  duplicateCourses = new Map(), // Map of courseId -> array of pillarIndices where it appears
+  darkMode  // added darkMode prop
 }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ const CourseDisplayPillar = ({
   useEffect(() => {
     setLocalCompletedCourses(completedCourses);
   }, [completedCourses]);
-
+  
   // Calculate course color based on completion and pillar allocation
   const calculateCourseColor = useCallback((courseId, isCompleted) => {
     if (!isCompleted) return 'none';
@@ -79,7 +79,7 @@ const CourseDisplayPillar = ({
     // Default to secondary color for other cases
     return 'secondary';
   }, [duplicateCourses, pillarIndex, courses, localCompletedCourses, pillar]);
-
+  
   const getCachedCourses = useCallback(async () => {
     if (!pillar) return [];
     
@@ -143,7 +143,7 @@ const CourseDisplayPillar = ({
       return [];
     }
   }, [pillar, db]);
-
+  
   // Load initial courses and set up statuses
   useEffect(() => {
     const loadCourses = async () => {
@@ -177,7 +177,7 @@ const CourseDisplayPillar = ({
     
     loadCourses();
   }, [getCachedCourses, pillar, calculateCourseColor, localCompletedCourses]);
-
+  
   // Update course statuses when completion status changes
   useEffect(() => {
     setLocalCourseStatuses(prev => {
@@ -195,7 +195,7 @@ const CourseDisplayPillar = ({
       return newStatuses;
     });
   }, [localCompletedCourses, courses, calculateCourseColor]);
-
+  
   const handleCourseClick = async (course) => {
     const courseId = `${course.department}${course.course_number}`;
     
@@ -218,19 +218,19 @@ const CourseDisplayPillar = ({
       });
       return newStatuses;
     });
-
+  
     // Get the list of pillars where this course appears
     const affectedPillars = duplicateCourses.get(courseId) || [pillarIndex];
     
     // Trigger parent update with affected pillars
     await onCourseStatusChange(course, affectedPillars);
   };
-
+  
   // Calculate pillar completion for subtitle
   const getPillarCompletion = useCallback(() => {
     let required = 0;
     let completed = 0;
-
+  
     switch (pillar.type) {
       case 'prerequisites':
         required = pillar.courses.length;
@@ -244,14 +244,14 @@ const CourseDisplayPillar = ({
           return false;
         }).length;
         break;
-
+  
       case 'specific':
         required = 1;
         completed = pillar.options.some(course => 
           localCompletedCourses.includes(course)
         ) ? 1 : 0;
         break;
-
+  
       case 'range':
         required = pillar.count;
         completed = localCompletedCourses.filter(courseId => {
@@ -266,38 +266,36 @@ const CourseDisplayPillar = ({
         completed = Math.min(completed, required);
         break;
     }
-
+  
     return { completed, required };
   }, [pillar, localCompletedCourses]);
-
   
-
   // Memoized content rendering
   const content = useMemo(() => {
     if (loading) {
       return (
         <div className="flex justify-center items-center py-8">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          <Loader2 className={`w-8 h-8 animate-spin ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} />
         </div>
       );
     }
-
+  
     if (error) {
       return (
-        <div className="text-red-600 py-4">
+        <div className={`py-4 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
           Error loading courses: {error}
         </div>
       );
     }
-
+  
     if (!courses.length) {
       return (
-        <div className="text-gray-500 py-4">
+        <div className={`py-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
           No courses available for this requirement
         </div>
       );
     }
-
+  
     return courses.map(course => {
       const courseId = `${course.department}${course.course_number}`;
       const status = localCourseStatuses.get(courseId) || {
@@ -306,28 +304,30 @@ const CourseDisplayPillar = ({
         isLocked: false,
         colorStatus: calculateCourseColor(courseId, localCompletedCourses.includes(courseId))
       };
-
+  
       return (
         <CourseCard
           key={`${courseId}-${status.isCompleted}`}
           course={course}
           status={status}
           onClick={handleCourseClick}
+          darkMode={darkMode}  // pass darkMode prop to CourseCard
         />
       );
     });
-  }, [courses, loading, error, localCourseStatuses, localCompletedCourses, calculateCourseColor]);
-
+  }, [courses, loading, error, localCourseStatuses, localCompletedCourses, calculateCourseColor, darkMode]);
+  
   const completion = getPillarCompletion();
-
+  
   return (
     <CourseDisplayCarousel
       title={pillar.description}
       subtitle={`${completion.completed}/${completion.required} completed`}
+      darkMode={darkMode}  // pass darkMode prop to CourseDisplayCarousel
     >
       {content}
     </CourseDisplayCarousel>
   );
 };
-
+  
 export default CourseDisplayPillar;

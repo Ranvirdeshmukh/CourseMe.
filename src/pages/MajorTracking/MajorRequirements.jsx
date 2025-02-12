@@ -10,7 +10,9 @@ const MajorRequirements = ({
   selectedMajor,
   majorRequirements,
   completedCourses = [],
-  onCoursesUpdate
+  onCoursesUpdate ,
+  darkMode
+
 }) => {
   const [localCompletedCourses, setLocalCompletedCourses] = useState(completedCourses);
   const [processedRequirements, setProcessedRequirements] = useState(null);
@@ -271,6 +273,7 @@ useEffect(() => {
                     colorStatus: 'overflow'
                   }}
                   onClick={handleCourseStatusChange}
+                  darkMode={darkMode}  // ✅ Ensure darkMode is passed
                 />
               );
             })}
@@ -287,26 +290,32 @@ useEffect(() => {
           allPillars={requirements.pillars}
           pillarIndex={index}
           duplicateCourses={duplicateCourses}
+          darkMode={darkMode}  // ✅ Ensure darkMode is passed
         />
       ))}
-      
+  
       {processedRequirements && processedRequirements.results && (
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-lg font-medium mb-4">Major Progress Summary</h3>
+        <div className={`rounded-lg shadow-md p-4 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+          <h3 className={`text-lg font-medium mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            Major Progress Summary
+          </h3>
           {requirements.pillars.map((pillar, index) => {
             const completion = calculatePillarCompletion(pillar, localCompletedCourses);
             return (
               <div key={index} className="mb-4">
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">{pillar.description}</span>
-                  <span className="text-sm text-gray-600">
+                  <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
+                    {pillar.description}
+                  </span>
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {completion.completed}/{completion.required} completed
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className={`w-full rounded-full h-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    className="rounded-full h-2 transition-all duration-300"
                     style={{
+                      background: darkMode ? '#38bdf8' : '#3B82F6', // Light blue for dark mode, normal blue for light mode
                       width: `${(completion.completed / completion.required) * 100}%`
                     }}
                   />
@@ -318,6 +327,7 @@ useEffect(() => {
       )}
     </div>
   );
+  
 };
 
 export default MajorRequirements;

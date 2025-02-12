@@ -10,7 +10,8 @@ const CourseCard = ({
     showDistributives: true,
     showTerms: true,
     showAllocation: true
-  }
+  },
+  darkMode  // added darkMode prop
 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
@@ -43,34 +44,64 @@ const CourseCard = ({
   const getCardStyles = () => {
     let styles = 'relative rounded-xl shadow p-4 transition-all duration-200 cursor-pointer h-40 ';
     
-    // Add width classes based on viewMode - make cards narrower
+    // Adjust width based on viewMode
     styles += viewMode === 'carousel' ? 'w-64 flex-none ' : 'w-full ';
     
-    // Determine the card's color based on its status
+    // Apply background, ring, and hover effects based on status and dark mode
     if (isLocked) {
-      styles += 'ring-2 ring-gray-400 bg-gray-100 ';
-      styles += isPressed ? 'bg-gray-200 scale-95 ' : 'hover:bg-gray-200 hover:scale-[0.98] ';
+      if (darkMode) {
+        styles += 'ring-2 ring-gray-600 bg-gray-800 ';
+        styles += isPressed ? 'bg-gray-700 scale-95 ' : 'hover:bg-gray-700 hover:scale-[0.98] ';
+      } else {
+        styles += 'ring-2 ring-gray-400 bg-gray-100 ';
+        styles += isPressed ? 'bg-gray-200 scale-95 ' : 'hover:bg-gray-200 hover:scale-[0.98] ';
+      }
     } else if (isCompleted) {
       switch (colorStatus) {
         case 'primary':
-          styles += 'ring-2 ring-green-500 bg-green-50 ';
-          styles += isPressed ? 'bg-green-200 scale-95 ' : 'hover:bg-green-100 hover:scale-[0.98] ';
+          if (darkMode) {
+            styles += 'ring-2 ring-green-400 bg-green-900 ';
+            styles += isPressed ? 'bg-green-800 scale-95 ' : 'hover:bg-green-800 hover:scale-[0.98] ';
+          } else {
+            styles += 'ring-2 ring-green-500 bg-green-50 ';
+            styles += isPressed ? 'bg-green-200 scale-95 ' : 'hover:bg-green-100 hover:scale-[0.98] ';
+          }
           break;
         case 'secondary':
-          styles += 'ring-2 ring-yellow-500 bg-yellow-50 ';
-          styles += isPressed ? 'bg-yellow-200 scale-95 ' : 'hover:bg-yellow-100 hover:scale-[0.98] ';
+          if (darkMode) {
+            styles += 'ring-2 ring-yellow-400 bg-yellow-900 ';
+            styles += isPressed ? 'bg-yellow-800 scale-95 ' : 'hover:bg-yellow-800 hover:scale-[0.98] ';
+          } else {
+            styles += 'ring-2 ring-yellow-500 bg-yellow-50 ';
+            styles += isPressed ? 'bg-yellow-200 scale-95 ' : 'hover:bg-yellow-100 hover:scale-[0.98] ';
+          }
           break;
         case 'overflow':
-          styles += 'ring-2 ring-blue-500 bg-blue-50 ';
-          styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
+          if (darkMode) {
+            styles += 'ring-2 ring-blue-400 bg-blue-900 ';
+            styles += isPressed ? 'bg-blue-800 scale-95 ' : 'hover:bg-blue-800 hover:scale-[0.98] ';
+          } else {
+            styles += 'ring-2 ring-blue-500 bg-blue-50 ';
+            styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
+          }
           break;
         default:
-          styles += 'ring-2 ring-blue-500 bg-blue-50 ';
-          styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
+          if (darkMode) {
+            styles += 'ring-2 ring-blue-400 bg-blue-900 ';
+            styles += isPressed ? 'bg-blue-800 scale-95 ' : 'hover:bg-blue-800 hover:scale-[0.98] ';
+          } else {
+            styles += 'ring-2 ring-blue-500 bg-blue-50 ';
+            styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
+          }
       }
     } else {
-      styles += 'bg-white ';
-      styles += isPressed ? 'bg-gray-100 scale-95 ' : 'hover:bg-gray-50 hover:scale-[0.98] hover:shadow-md ';
+      if (darkMode) {
+        styles += 'bg-gray-700 ';
+        styles += isPressed ? 'bg-gray-600 scale-95 ' : 'hover:bg-gray-600 hover:scale-[0.98] hover:shadow-md ';
+      } else {
+        styles += 'bg-white ';
+        styles += isPressed ? 'bg-gray-100 scale-95 ' : 'hover:bg-gray-50 hover:scale-[0.98] hover:shadow-md ';
+      }
     }
     
     return styles.trim();
@@ -108,11 +139,12 @@ const CourseCard = ({
   };
 
   const getStatusIcon = () => {
-    if (isLocked) return <Lock className="w-5 h-5 text-gray-400" />;
-    if (isCompleted && !isUsedInOtherPillar && allocationInfo?.isCurrentPillar) {
-      return <Check className="w-5 h-5 text-green-500" />;
-    }
-    if (isUsedInOtherPillar) return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+    if (isLocked)
+      return <Lock className={`w-5 h-5 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />;
+    if (isCompleted && !isUsedInOtherPillar && allocationInfo?.isCurrentPillar)
+      return <Check className={`w-5 h-5 ${darkMode ? 'text-green-400' : 'text-green-500'}`} />;
+    if (isUsedInOtherPillar)
+      return <AlertTriangle className={`w-5 h-5 ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}`} />;
     return null;
   };
 
@@ -121,13 +153,13 @@ const CourseCard = ({
     
     let badgeStyles = "text-xs px-2 py-1 rounded-full ";
     if (isLocked) {
-      badgeStyles += "bg-gray-200 text-gray-700";
+      badgeStyles += darkMode ? "bg-gray-600 text-gray-300" : "bg-gray-200 text-gray-700";
     } else if (isUsedInOtherPillar) {
-      badgeStyles += "bg-yellow-100 text-yellow-800";
+      badgeStyles += darkMode ? "bg-yellow-600 text-yellow-200" : "bg-yellow-100 text-yellow-800";
     } else if (allocationInfo.isCurrentPillar) {
-      badgeStyles += "bg-green-100 text-green-800";
+      badgeStyles += darkMode ? "bg-green-600 text-green-200" : "bg-green-100 text-green-800";
     } else {
-      badgeStyles += "bg-gray-100 text-gray-800";
+      badgeStyles += darkMode ? "bg-gray-600 text-gray-200" : "bg-gray-100 text-gray-800";
     }
     
     return (
@@ -169,27 +201,27 @@ const CourseCard = ({
               {courseId}
               {getAllocationBadge()}
             </h4>
-            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+            <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'} mt-1 line-clamp-2`}>
               {course.name?.split(':')[1]?.trim() || 'No title available'}
             </p>
           </div>
           {displayOptions.showDistributives && (
-            <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded flex-shrink-0">
+            <span className={`text-xs ${darkMode ? 'bg-indigo-700 text-indigo-300' : 'bg-indigo-100 text-indigo-800'} px-2 py-1 rounded flex-shrink-0`}>
               {course.distribs || 'No distrib'}
             </span>
           )}
         </div>
         
         <div className="mt-auto">
-          <div className="text-sm text-gray-500">
+          <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             {renderTerms()}
           </div>
           
           <div className={`mt-2 text-xs ${
-            isLocked ? 'text-gray-600' :
-            isUsedInOtherPillar ? 'text-yellow-600' :
-            allocationInfo?.isCurrentPillar ? 'text-green-600' :
-            'text-blue-600'
+            isLocked ? (darkMode ? 'text-gray-400' : 'text-gray-600') :
+            isUsedInOtherPillar ? (darkMode ? 'text-yellow-400' : 'text-yellow-600') :
+            allocationInfo?.isCurrentPillar ? (darkMode ? 'text-green-400' : 'text-green-600') :
+            (darkMode ? 'text-blue-400' : 'text-blue-600')
           }`}>
             {getActionText()}
           </div>

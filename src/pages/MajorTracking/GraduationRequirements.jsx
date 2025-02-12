@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const GraduationRequirements = ({ selectedCourses, courseData }) => {
+const GraduationRequirements = ({ selectedCourses, courseData, darkMode }) => {
   const [requirements, setRequirements] = useState({
     totalCourses: {
       required: 35,
@@ -119,7 +119,7 @@ const GraduationRequirements = ({ selectedCourses, courseData }) => {
     return (
       <div className="flex justify-between items-center py-2">
         <span>{requirement.title}</span>
-        <span className={`font-semibold ${completed ? 'text-green-600' : 'text-gray-600'}`}>
+        <span className={`font-semibold ${completed ? (darkMode ? 'text-green-400' : 'text-green-600') : (darkMode ? 'text-gray-400' : 'text-gray-600')}`}>
           {requirement.completed}/{requirement.required}
         </span>
       </div>
@@ -127,19 +127,23 @@ const GraduationRequirements = ({ selectedCourses, courseData }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+    <div className={`rounded-xl shadow-md p-6 mb-8 ${darkMode ? 'bg-[#1C1F43]' : 'bg-white'}`}>
       <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-900">Graduation Requirements Progress</h2>
+        <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          Graduation Requirements Progress
+        </h2>
       </div>
       <div className="space-y-6">
         {/* Total Courses */}
         {renderRequirementStatus(requirements.totalCourses)}
 
         {/* Writing Requirement */}
-        <div className="border-t pt-4">
-          <h3 className="font-semibold mb-2">Writing Requirement (Complete one path)</h3>
+        <div className={`border-t pt-4 ${darkMode ? 'border-gray-600' : ''}`}>
+          <h3 className={`font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            Writing Requirement (Complete one path)
+          </h3>
           {requirements.writing.paths.map((path, index) => (
-            <div key={path.name} className={`flex justify-between items-center py-1 ${path.completed ? 'text-green-600' : 'text-gray-600'}`}>
+            <div key={path.name} className={`flex justify-between items-center py-1 ${path.completed ? (darkMode ? 'text-green-400' : 'text-green-600') : (darkMode ? 'text-gray-400' : 'text-gray-600')}`}>
               <span>{path.name}</span>
               <span>{path.completed ? '✓' : '○'}</span>
             </div>
@@ -147,19 +151,23 @@ const GraduationRequirements = ({ selectedCourses, courseData }) => {
         </div>
 
         {/* Distributive Requirements */}
-        <div className="border-t pt-4">
-          <h3 className="font-semibold mb-2">Distributive Requirements</h3>
+        <div className={`border-t pt-4 ${darkMode ? 'border-gray-600' : ''}`}>
+          <h3 className={`font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            Distributive Requirements
+          </h3>
           {Object.values(requirements.distributives).map((req) => renderRequirementStatus(req))}
         </div>
 
         {/* World Culture Requirements */}
-        <div className="border-t pt-4">
-          <h3 className="font-semibold mb-2">World Culture Requirements</h3>
+        <div className={`border-t pt-4 ${darkMode ? 'border-gray-600' : ''}`}>
+          <h3 className={`font-semibold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            World Culture Requirements
+          </h3>
           {Object.values(requirements.worldCulture).map((req) => renderRequirementStatus(req))}
         </div>
 
         {/* Lab Requirement */}
-        <div className="border-t pt-4">
+        <div className={`border-t pt-4 ${darkMode ? 'border-gray-600' : ''}`}>
           {renderRequirementStatus(requirements.lab)}
         </div>
       </div>

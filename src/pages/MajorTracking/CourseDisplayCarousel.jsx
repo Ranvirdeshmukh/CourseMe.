@@ -1,4 +1,3 @@
-// CourseDisplayCarousel.jsx
 import React, { useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 
@@ -6,7 +5,8 @@ const CourseDisplayCarousel = ({
   title,
   subtitle,
   children,
-  expandable = true
+  expandable = true,
+  darkMode // added darkMode prop
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const scrollContainerRef = useRef(null);
@@ -24,15 +24,19 @@ const CourseDisplayCarousel = ({
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h3 className="text-lg font-medium">{title}</h3>
+          <h3 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            {title}
+          </h3>
           {subtitle && (
-            <p className="text-sm text-gray-600 mt-1">{subtitle}</p>
+            <p className={`text-sm mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              {subtitle}
+            </p>
           )}
         </div>
         {expandable && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            className={`p-1 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
             aria-label={isExpanded ? "Collapse view" : "Expand view"}
           >
             {isExpanded ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
@@ -47,16 +51,14 @@ const CourseDisplayCarousel = ({
           <>
             <button
               onClick={() => scroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4
-                       bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 z-10"
+              className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 shadow-lg rounded-full p-2 z-10 ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'}`}
               aria-label="Scroll left"
             >
               <ChevronLeft size={20} />
             </button>
             <button
               onClick={() => scroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4
-                       bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 z-10"
+              className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 shadow-lg rounded-full p-2 z-10 ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'}`}
               aria-label="Scroll right"
             >
               <ChevronRight size={20} />
