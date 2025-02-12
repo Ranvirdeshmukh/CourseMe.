@@ -1173,6 +1173,7 @@ return (
     fontSize: '0.875rem',  // Slightly smaller text
     fontFamily: 'SF Pro Display, sans-serif',  // Consistent Apple-like font
     mb: 1 
+    
   }}
 >
   © 2025 CourseMe. All Rights Reserved.

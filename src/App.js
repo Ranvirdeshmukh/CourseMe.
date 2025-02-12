@@ -9,6 +9,7 @@ import {
   useLocation
 } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, createTheme, useMediaQuery } from '@mui/material';
+import UniversalFooter from './components/universalfooter.jsx';
 
 import NavBar from './components/NavBar';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -128,7 +129,9 @@ const AppContent = () => {
         <Route path="/professors/:professorId" element={<ProfessorDetails darkMode={effectiveDarkMode} />} />
         <Route path="/professors" element={<ProfessorDirectory darkMode={effectiveDarkMode} />} />
       </Routes>
-    </ThemeProvider>
+ {/* Conditionally render the UniversalFooter (hide on landing page) */}
+ {location.pathname !== '/landing' && <UniversalFooter darkMode={effectiveDarkMode} />}
+            </ThemeProvider>
   );
 };
 
