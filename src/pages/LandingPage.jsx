@@ -482,7 +482,8 @@ return (
 </ButtonBase>
 
 
-{/* <ButtonBase
+{/* Layups Box */} 
+<ButtonBase
   onClick={() => currentUser ? navigate('/layups') : handleLoginRedirect()}
   sx={{
     width: { xs: '140px', sm: '160px', md: '200px' },
@@ -697,42 +698,6 @@ return (
   </Typography>
 </ButtonBase>
 
-<ButtonBase
-  onClick={() => currentUser ? navigate('/beta') : handleLoginRedirect()}
-  sx={{
-    width: { xs: '140px', sm: '160px', md: '200px' },
-    height: { xs: '150px', sm: '170px', md: '180px' },
-    
-    backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-    backgroundImage: darkMode
-      ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
-      : 'none',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: '12px',
-    boxShadow: darkMode ? '0 8px 16px rgba(87, 28, 224, 0.2)' : '0 8px 16px rgba(0, 0, 0, 0.1)',
-    padding: '10px',
-    transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
-    '&:hover': {
-      backgroundColor: darkMode ? 'transparent' : '#ececec',
-      backgroundImage: darkMode
-        ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
-        : 'none',
-      boxShadow: darkMode ? '0 12px 24px rgba(87, 28, 224, 0.3)' : '0 12px 24px rgba(0, 0, 0, 0.2)',
-      transform: 'translateY(-5px)',
-    },
-  }}
->
-  <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}>🧪</Typography>
-  <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center', color: darkMode ? '#FFFFFF' : '#000000' }}>
-    Beta Program
-  </Typography>
-  <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: darkMode ? '#CCCCCC' : '#666666', mt: '4px', textAlign: 'center' }}>
-    Be the first to access CORA<span style={{ color: '#F26655' }}>.</span>
-  </Typography>
-</ButtonBase>
 
 {/* Review Popup Dialog */}
 {/* Review Popup Dialog */}
@@ -985,6 +950,112 @@ return (
     <span style={{ color: '#F26655' }}>.</span>
   </Typography>
 </ButtonBase>
+
+
+<ButtonBase
+  onClick={() => currentUser ? navigate('/beta') : handleLoginRedirect()}
+  sx={{
+    position: 'relative', // So the ribbon can be positioned absolutely
+    width: { xs: '140px', sm: '160px', md: '200px' },
+    height: { xs: '150px', sm: '170px', md: '180px' },
+    backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+    backgroundImage: darkMode
+      ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+      : 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '12px',
+    boxShadow: darkMode
+      ? '0 8px 16px rgba(87, 28, 224, 0.2)'
+      : '0 8px 16px rgba(0, 0, 0, 0.1)',
+    padding: '10px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      backgroundColor: darkMode ? 'transparent' : '#ececec',
+      backgroundImage: darkMode
+        ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
+        : 'none',
+      boxShadow: darkMode
+        ? '0 12px 24px rgba(87, 28, 224, 0.3)'
+        : '0 12px 24px rgba(0, 0, 0, 0.2)',
+      transform: 'translateY(-5px)',
+    },
+  }}
+>
+  {/* Updated Ribbon */}
+  <Box
+    sx={{
+      position: 'absolute',
+      top: { xs: '12px', sm: '20px' },
+      left: { xs: '-5px', sm: '-10px' },
+      transform: 'rotate(-45deg)',
+      background: darkMode
+        ? 'linear-gradient(45deg, #FF4081, #F50057)'
+        : 'linear-gradient(45deg, #F50057, #FF4081)',
+      color: '#fff',
+      px: 1,
+      py: 0.5,
+      borderRadius: '8px', // More rounded for a distinct look
+      fontSize: { xs: '0.65rem', sm: '0.75rem' },
+      fontWeight: 'bold',
+      border: '1px solid #fff', // Adds a crisp outline
+      boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
+      zIndex: 1,
+      animation: 'pulse 2s infinite',
+      '@keyframes pulse': {
+        '0%': { transform: 'rotate(-45deg) scale(1)' },
+        '50%': { transform: 'rotate(-45deg) scale(1.1)' },
+        '100%': { transform: 'rotate(-45deg) scale(1)' },
+      },
+      width: { xs: '70px', sm: '80px' },
+      height: { xs: '18px', sm: '20px' },
+      textAlign: 'center',
+    }}
+  >
+    New
+  </Box>
+
+  {/* Updated Icon */}
+  <Typography
+    variant="h3"
+    sx={{
+      fontSize: '1.5rem',
+      mb: '8px',
+      color: darkMode ? '#FFFFFF' : '#000000',
+    }}
+  >
+    🤖
+  </Typography>
+
+  {/* Updated Title */}
+  <Typography
+    variant="h6"
+    sx={{
+      fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
+      fontWeight: '600',
+      textAlign: 'center',
+      color: darkMode ? '#FFFFFF' : '#000000',
+    }}
+  >
+    CORA 1.0
+  </Typography>
+
+  {/* Updated Description */}
+  <Typography
+    variant="body2"
+    sx={{
+      fontSize: { xs: '0.75rem', sm: '0.85rem' },
+      color: darkMode ? '#CCCCCC' : '#666666',
+      mt: '4px',
+      textAlign: 'center',
+    }}
+  >
+    Your AI college advisor and major planning tool. Launches on Monday 17th Feb
+  </Typography>
+</ButtonBase>
+
 
 {/* Profile Button */}
 <ButtonBase
