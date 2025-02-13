@@ -75,7 +75,7 @@ const BetaSignup = ({ darkMode }) => {
   };
 
   const handleApply = async () => {
-    if (!meetsRequirements() || hasApplied) return;
+    if (hasApplied) return;
 
     try {
       const betaRef = doc(db, 'beta', currentUser.uid);
@@ -146,7 +146,7 @@ const BetaSignup = ({ darkMode }) => {
               <ListItem>
                 <ListItemText 
                   primary="🚀 Early Access" 
-                  secondary="Be the first to try new features and enhancements"
+                  secondary="Be the first to try our new AI chatbot - CORA"
                 />
               </ListItem>
               <ListItem>
@@ -158,27 +158,11 @@ const BetaSignup = ({ darkMode }) => {
             </List>
           </Box>
 
-          <Divider sx={{ my: 4 }} />
-
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h5" gutterBottom sx={{ color: '#571CE0' }}>
-              Your Progress
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              Reviews submitted: {userReviews.length} / 5 required
-            </Typography>
-
-            {!meetsRequirements() && (
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {`Submit ${5 - userReviews.length} more detailed course reviews to unlock beta access.`}
-              </Typography>
-            )}
-          </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <Button
               variant="contained"
-              disabled={!meetsRequirements() || hasApplied}
+              disabled={hasApplied}
               onClick={handleApply}
               sx={{
                 bgcolor: darkMode ? '#571CE0' : '#000000',

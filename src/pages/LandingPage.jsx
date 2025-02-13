@@ -482,7 +482,7 @@ return (
 </ButtonBase>
 
 
-<ButtonBase
+{/* <ButtonBase
   onClick={() => currentUser ? navigate('/layups') : handleLoginRedirect()}
   sx={{
     width: { xs: '140px', sm: '160px', md: '200px' },
@@ -519,9 +519,10 @@ return (
   </Typography>
 </ButtonBase>
 
-<Box sx={{ position: 'relative', display: 'inline-block' }}>
+
+{/* <Box sx={{ position: 'relative', display: 'inline-block' }}> */}
   {/* Trending Ribbon */}
-  <Box
+  {/* <Box
     sx={{
       position: 'absolute',
       top: { xs: '12px', sm: '20px' }, // Adjust ribbon's top position for smaller screens
@@ -548,10 +549,10 @@ return (
     }}
   >
     Trending
-  </Box>
+  </Box> */}
 
   {/* Notifications Button */}
-  <ButtonBase
+  {/* <ButtonBase
     onClick={() => (currentUser ? navigate('/timetable') : handleLoginRedirect())}
     sx={{
       width: { xs: '140px', sm: '160px', md: '200px' },
@@ -581,9 +582,9 @@ return (
         transform: 'translateY(-5px)',
       },
     }}
-  >
+  > */}
     {/* Icon */}
-    <Typography
+    {/* <Typography
       variant="h3"
       sx={{
         fontSize: '1.5rem',
@@ -592,10 +593,10 @@ return (
       }}
     >
       🔔
-    </Typography>
+    </Typography> */}
 
     {/* Title */}
-    <Typography
+    {/* <Typography
       variant="h6"
       sx={{
         fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
@@ -605,10 +606,10 @@ return (
       }}
     >
       Notifications
-    </Typography>
+    </Typography> */}
 
     {/* Description */}
-    <Typography
+    {/* <Typography
       variant="body2"
       sx={{
         fontSize: { xs: '0.75rem', sm: '0.85rem' },
@@ -621,7 +622,7 @@ return (
       <span style={{ color: '#F26655' }}>.</span>
     </Typography>
   </ButtonBase>
-</Box>
+</Box> */}
 
 
 {/* Professors Button */}
@@ -693,6 +694,43 @@ return (
   >
     AI-powered professor insights
     <span style={{ color: '#F26655' }}>.</span>
+  </Typography>
+</ButtonBase>
+
+<ButtonBase
+  onClick={() => currentUser ? navigate('/beta') : handleLoginRedirect()}
+  sx={{
+    width: { xs: '140px', sm: '160px', md: '200px' },
+    height: { xs: '150px', sm: '170px', md: '180px' },
+    
+    backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+    backgroundImage: darkMode
+      ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+      : 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '12px',
+    boxShadow: darkMode ? '0 8px 16px rgba(87, 28, 224, 0.2)' : '0 8px 16px rgba(0, 0, 0, 0.1)',
+    padding: '10px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      backgroundColor: darkMode ? 'transparent' : '#ececec',
+      backgroundImage: darkMode
+        ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
+        : 'none',
+      boxShadow: darkMode ? '0 12px 24px rgba(87, 28, 224, 0.3)' : '0 12px 24px rgba(0, 0, 0, 0.2)',
+      transform: 'translateY(-5px)',
+    },
+  }}
+>
+  <Typography variant="h3" sx={{ fontSize: '1.5rem', mb: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}>🧪</Typography>
+  <Typography variant="h6" sx={{ fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' }, fontWeight: '600', textAlign: 'center', color: darkMode ? '#FFFFFF' : '#000000' }}>
+    Beta Program
+  </Typography>
+  <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: darkMode ? '#CCCCCC' : '#666666', mt: '4px', textAlign: 'center' }}>
+    Be the first to access CORA<span style={{ color: '#F26655' }}>.</span>
   </Typography>
 </ButtonBase>
 
