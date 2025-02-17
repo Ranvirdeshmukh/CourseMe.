@@ -30,10 +30,11 @@ import departmentMapping from '../classstructure/departmentMapping';
 
 const CACHE_PREFIX = 'courses_';
 const CACHE_EXPIRATION = 5 * 24 * 60 * 60 * 1000 // 5 days 
-const CACHE_VERSION = '1.1'; // Add version control to cache
+const CACHE_VERSION = '1.2'; // Add version control to cache
 const DEPARTMENT_VERSIONS = {
-  'ENGS': '1.1', // Increment this version specifically for ENGS
-  'default': '1.0' // Keep default version for other departments
+  // 'ENGS': '1.1', // Increment this version specifically for ENGS
+  // 'AAAS': '1.4',
+  // 'default': '1.0' // Keep default version for other departments
 };
 
 // Utility functions for cache management
@@ -133,10 +134,12 @@ const DepartmentCoursesPage = ({ darkMode }) => {
           setFilteredCourses(cachedData);
           setLastUpdated(new Date().getTime());
           setLoading(false);
+          // Add debug log for cached data
+          console.log('Cached courses data:', cachedData);
           return;
         }
       }
-
+  
       console.log('Fetching fresh data for department:', department);
       const db = getFirestore();
       const coursesRef = collection(db, 'courses');
@@ -150,6 +153,9 @@ const DepartmentCoursesPage = ({ darkMode }) => {
           ...doc.data()
         }));
         
+        // Add debug log for fetched data
+        console.log('Fetched courses data:', coursesData);
+        
         // Save to cache
         saveToCache(department, coursesData);
         
@@ -158,6 +164,7 @@ const DepartmentCoursesPage = ({ darkMode }) => {
         setLastUpdated(new Date().getTime());
       } else {
         setError('No courses found for this department.');
+        console.log('No courses found for department:', department);
       }
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -166,6 +173,7 @@ const DepartmentCoursesPage = ({ darkMode }) => {
       // Try to fall back to cached data if available
       const cachedData = getFromCache(department);
       if (cachedData) {
+        console.log('Fallback to cached data:', cachedData);
         setCourses(cachedData);
         setFilteredCourses(cachedData);
         setLastUpdated(new Date().getTime());
@@ -175,7 +183,6 @@ const DepartmentCoursesPage = ({ darkMode }) => {
       setLoading(false);
     }
   };
-
   // Modified useEffect to handle cache
   useEffect(() => {
     fetchCourses();
@@ -319,6 +326,13 @@ const DepartmentCoursesPage = ({ darkMode }) => {
         default:
           break;
       }
+      console.log('Final filtered courses:', updatedCourses.map(c => ({
+        id: c.id,
+        name: c.name,
+        terms: c.terms,
+        distribs: c.distribs
+      })));
+  
       setFilteredCourses(updatedCourses);
     };
 
@@ -706,9 +720,9 @@ const DepartmentCoursesPage = ({ darkMode }) => {
   <Button
     onClick={() => {
       setSelectedTerms(prev => 
-        prev.includes('25W') 
-          ? prev.filter(t => t !== '25W') 
-          : [...prev, '25W']
+        prev.includes('25S') 
+          ? prev.filter(t => t !== '25S') 
+          : [...prev, '25S']
       );
     }}
     size="small"
@@ -720,23 +734,23 @@ const DepartmentCoursesPage = ({ darkMode }) => {
       fontSize: '0.813rem',
       fontWeight: 500,
       whiteSpace: 'nowrap',
-      backgroundColor: selectedTerms.includes('25W')
+      backgroundColor: selectedTerms.includes('25S')
       ? 'rgba(87, 28, 224, 0.2)'
       : darkMode ? '#1C1F43' : '#F0F4FF',
-    color: selectedTerms.includes('25W')
+    color: selectedTerms.includes('25S')
       ? '#571CE0'
       : darkMode ? '#FFFFFF' : '#666666',
-    border: selectedTerms.includes('25W')
+    border: selectedTerms.includes('25S')
       ? '1px solid rgba(87, 28, 224, 0.2)'
       : darkMode ? '1px solid #444444' : '1px solid rgba(0, 0, 0, 0.08)',
     '&:hover': {
-      backgroundColor: selectedTerms.includes('25W')
+      backgroundColor: selectedTerms.includes('25S')
         ? 'rgba(87, 28, 224, 0.15)'
         : darkMode ? '#2a2a2a' : 'rgba(0, 0, 0, 0.04)'
     }
   }}
   >
-    Winter 2025
+    Spring 2025
   </Button>
 
 </Box>
