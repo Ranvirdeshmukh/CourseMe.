@@ -823,7 +823,7 @@ const LandingPage = ({ darkMode }) => {
                 textAlign: 'center',
               }}
             >
-              Your AI college advisor and major planning tool, launching on Monday 17th Feb
+              Your AI college advisor and major planning tool, launching today.
             </Typography>
           </ButtonBase>
 

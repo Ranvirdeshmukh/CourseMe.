@@ -117,7 +117,7 @@ const BetaSignup = ({ darkMode }) => {
               color: headerTextColor,
             }}
           >
-            CORA 1.0 Launching Monday, 17th February 2025
+            CORA 1.0 Launching Today 🚀
           </Typography>
 
           {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
