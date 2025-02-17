@@ -9,6 +9,7 @@ import MajorRequirements from './MajorRequirements';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
 import axios from 'axios';
 
+
 // First, define CoraChat as a separate component outside of MajorTracker
 const CoraChat = ({ 
   darkMode, 
@@ -106,6 +107,9 @@ const MajorTracker = ({darkMode}) => {
   const [showGradReqs, setShowGradReqs] = useState(false);
   const [selectedMajor, setSelectedMajor] = useState("");
   const [availableMajors, setAvailableMajors] = useState([]);
+  // Add this near your other state declarations at the top of MajorTracker
+  const [chatHistory, setChatHistory] = useState([]);
+
   const db = getFirestore();
   const auth = getAuth();
 
@@ -492,41 +496,96 @@ useEffect(() => {
   }
 }, []);
 
-  const handleCoraSubmit = async () => {
-    // Don't do anything if the query is empty
-    if (!coraQuery.trim()) return;
+const handleCoraSubmit = async () => {
+  // Don't do anything if the query is empty
+  if (!coraQuery.trim()) return;
   
-    setIsLoading(true);
-    setError("");
+  setIsLoading(true);
+  setError("");
   
-    try {
-      const response = await axios.post(
-        API_URL,
-        { query: coraQuery },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-requested-with': 'XMLHttpRequest'
-          }
+  try {
+    const response = await axios.post(
+      API_URL,
+      { query: coraQuery },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-requested-with': 'XMLHttpRequest'
         }
-      );
-  
-      console.log('API Response:', response.data);
-  
-      if (response.data && response.data.answer) {
-        setCoraResponse(response.data.answer);
-        setCoraQuery(""); // Clear the input after successful submission
-      } else {
-        throw new Error('Unexpected response format');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setError('Failed to get a response. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    );
   
+    console.log('API Response:', response.data);
+  
+    if (response.data && response.data.answer) {
+      // Append the user's query and CORA's answer to chatHistory
+      setChatHistory(prevHistory => [
+        ...prevHistory,
+        { role: 'user', text: coraQuery },
+        { role: 'assistant', text: response.data.answer }
+      ]);
+      setCoraResponse(response.data.answer);
+      setCoraQuery(""); // Clear the input after successful submission
+    } else {
+      throw new Error('Unexpected response format');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    setError('Failed to get a response. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const ChatHistorySidebar = ({ chatHistory, darkMode, textColor }) => {
+  return (
+    <div
+      style={{
+        height: '400px',
+        overflowY: 'auto',
+        padding: '1rem'
+      }}
+    >
+      {chatHistory.map((msg, index) => (
+        <div key={index} style={{ display: 'flex', marginBottom: '1rem' }}>
+          {msg.role === 'user' ? (
+            // User message (question) appears on the right
+            <div
+              style={{
+                marginLeft: 'auto',
+                background: darkMode ? '#2563EB' : '#D1E9FF',
+                color: darkMode ? '#fff' : '#000',
+                padding: '0.75rem 1rem',
+                borderRadius: '1.25rem',
+                maxWidth: '70%',
+                textAlign: 'right'
+              }}
+            >
+              {msg.text}
+            </div>
+          ) : (
+            // Assistant message appears on the left
+            <div
+              style={{
+                marginRight: 'auto',
+                background: darkMode ? '#4B5563' : '#F3F4F6',
+                color: textColor,
+                padding: '0.75rem 1rem',
+                borderRadius: '1.25rem',
+                maxWidth: '70%',
+                textAlign: 'left'
+              }}
+            >
+              {msg.text}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+
   
 
   const parseCourse = (course) => {
@@ -779,20 +838,64 @@ return (
               </div>
             </div>
 
-            {/* Degree Assistant */}
-            <CoraChat 
-              darkMode={darkMode}
-              paperBgColor={paperBgColor}
-              textColor={textColor}
-              inputBgColor={inputBgColor}
-              borderColor={borderColor}
-              coraQuery={coraQuery}
-              setCoraQuery={setCoraQuery}
-              coraResponse={coraResponse}
-              isLoading={isLoading}
-              error={error}
-              handleCoraSubmit={handleCoraSubmit}
-            />
+            <div className="lg:col-span-1">
+  <div className="rounded-lg shadow p-6" style={{ background: paperBgColor }}>
+    {/* Conversation History & Chat Input in one container */}
+    <div 
+      style={{ 
+        height: '400px', 
+        overflowY: 'auto', 
+        marginBottom: '1rem', 
+        padding: '0.5rem',
+        border: `1px solid ${borderColor}`,
+        borderRadius: '0.5rem'
+      }}
+    >
+      {chatHistory.map((msg, index) => (
+        <div key={index} style={{ marginBottom: '1rem' }}>
+          <strong>{msg.role === 'user' ? 'You' : 'CORA'}:</strong>
+          <p style={{ margin: '0.5rem 0 0 0' }}>{msg.text}</p>
+        </div>
+      ))}
+    </div>
+
+    {/* Input form (placed below the conversation history) */}
+    <form 
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleCoraSubmit();
+      }}
+      className="mt-4 relative"
+    >
+      <input
+        type="text"
+        placeholder="Ask about your degree requirements..."
+        className="w-full p-3 pr-10 border rounded-lg"
+        value={coraQuery}
+        onChange={(e) => setCoraQuery(e.target.value)}
+        disabled={isLoading}
+        style={{
+          background: inputBgColor,
+          color: textColor,
+          borderColor: borderColor,
+        }}
+      />
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+        style={{ 
+          color: darkMode ? '#B0B0B0' : '#6B7280',
+          opacity: isLoading ? 0.5 : 1 
+        }}
+      >
+        <Send className="w-5 h-5" />
+      </button>
+    </form>
+  </div>
+</div>
+
+
 
           </div>
         </div>
