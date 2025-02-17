@@ -72,9 +72,9 @@ const CourseDisplayCarousel = ({
           className={`
             ${isExpanded 
               ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4' 
-              : 'flex overflow-x-auto hide-scrollbar space-x-4 px-4'
+              : 'flex overflow-x-auto hide-scrollbar space-x-4 px-4 py-2'
             }
-            scroll-smooth
+            scroll-smooth min-h-[11rem]
           `}
         >
           {React.Children.map(children, child => {

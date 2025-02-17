@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { GraduationCap, User, Send } from 'lucide-react';
-import programData from './programData.json';
+import programData from './majors.json';
 import CourseDisplayPillar from './CourseDisplayPillar';
 import GraduationRequirements from './GraduationRequirements';
 import MajorRequirements from './MajorRequirements';
@@ -134,28 +134,30 @@ const [question, setQuestion] = useState('');
 const API_URL = 'https://cors-proxy.fringe.zone/https://langchain-chatbot-898344091520.us-central1.run.app/chat';
 
 
-  const handleCourseComplete = async (course) => {
-    const courseId = `${course.department}${course.course_number}`;
-    let updatedCourses;
+const handleCourseComplete = async (course) => {
+  if (!auth.currentUser) return;
   
-    if (completedCourses.includes(courseId)) {
-      updatedCourses = completedCourses.filter(id => id !== courseId);
-    } else {
-      updatedCourses = [...completedCourses, courseId];
-    }
+  const courseId = `${course.department}${course.course_number}`;
   
+  try {
+    // Update local state
+    const updatedCourses = completedCourses.includes(courseId)
+      ? completedCourses.filter(id => id !== courseId)
+      : [...completedCourses, courseId];
+    
     setCompletedCourses(updatedCourses);
-  
-    if (auth.currentUser) {
-      try {
-        await setDoc(doc(db, 'users', auth.currentUser.uid), {
-          completedCourses: updatedCourses
-        }, { merge: true });
-      } catch (error) {
-        console.error('Error saving course completion:', error);
-      }
-    }
-  };
+    
+    // Update Firebase with the new array
+    await setDoc(doc(db, 'users', auth.currentUser.uid), {
+      completedCourses: updatedCourses
+    }, { merge: true });
+    
+  } catch (error) {
+    console.error('Error saving course completion:', error);
+    // Rollback on error
+    setCompletedCourses(completedCourses);
+  }
+};
   
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -369,112 +371,127 @@ const API_URL = 'https://cors-proxy.fringe.zone/https://langchain-chatbot-898344
   };
 
   // Separates into pillars
-  const parseRequirementString = (reqStr, majorDept) => {
-    if (!reqStr || typeof reqStr !== 'string') return [];
+  // parseRequirementString function for CORA
+const parseRequirementString = (reqStr, majorDept) => {
+  if (!reqStr || typeof reqStr !== 'string') return [];
 
-    try {
+  try {
       // Remove outer parentheses and trim
       const cleanStr = reqStr.replace(/^\(|\)$/g, '').trim();
       if (!cleanStr) return [];
 
-      // split & to extra pillar
+      // Split & to extract pillars
       const groups = cleanStr.split('&')
-        .map(r => r.trim())
-        .filter(Boolean);
+          .map(r => r.trim())
+          .filter(Boolean);
 
-      // oarse each requirement group
+      // Parse each requirement group
       return groups.map(group => {
-        // prereq
-        if (group.startsWith('@[')) {
-          const inner = group.slice(2, -1).trim();
-          return {
-            type: 'prerequisites',
-            courses: parseCourseList(inner),
-            description: 'Required foundation courses'
-          };
-        }
+          // Prerequisites
+          if (group.startsWith('@[')) {
+              const prereqStr = group.slice(2, -1);
+              const prereqs = prereqStr.split(',').map(p => {
+                  if (p.includes('{')) {
+                      return {
+                          type: 'alternative',
+                          options: p.slice(1, -1).split('|').map(o => o.trim())
+                      };
+                  }
+                  return p.trim();
+              });
+              return {
+                  type: 'prerequisites',
+                  courses: prereqs,
+                  description: 'Required foundation courses'
+              };
+          }
 
-        // Course count requirements with range
-        const rangeMatch = group.match(/#(\d+)\[(.+?)\]/);
-        if (rangeMatch) {
-          const [, count, range] = rangeMatch;
-          const deptMatch = range.match(/^([A-Z]+)/);
-          const targetDept = deptMatch ? deptMatch[1] : majorDept;
-          const [start, end] = range.match(/\d+/g)?.map(num => parseInt(num)) || [0, 0];
-          
-          return {
-            type: 'range',
-            count: parseInt(count),
-            department: targetDept,
-            start,
-            end,
-            description: `${count} courses from ${targetDept} ${start}-${end}`
-          };
-        }
+          // Specific courses with options (like #1{[030-089]|094|MATH≥020})
+          if (group.includes('{')) {
+              const match = group.match(/#(\d+){([^}]+)}/);
+              if (match) {
+                  const [, count, optionsStr] = match;
+                  return {
+                      type: 'specific',
+                      count: parseInt(count),
+                      department: majorDept,
+                      options: optionsStr.split('|').map(o => o.trim()),
+                      description: `${count} course from advanced options`
+                  };
+              }
+          }
 
-        // Specific course requirements
-        if (group.startsWith('#{')) {
-          const options = group.slice(2, -1).split('|').map(o => o.trim());
-          return {
-            type: 'specific',
-            options,
-            description: 'One of the following courses'
-          };
-        }
+          // Course count requirements with range
+          const rangeMatch = group.match(/#(\d+)\[(.+?)\]/);
+          if (rangeMatch) {
+              const [, count, range] = rangeMatch;
+              const [start, end] = range.split('-').map(n => parseInt(n));
+              
+              return {
+                  type: 'range',
+                  count: parseInt(count),
+                  department: majorDept,
+                  start,
+                  end,
+                  description: `${count} courses from ${majorDept} ${start}-${end}`
+              };
+          }
 
-        return null;
+          return null;
       }).filter(Boolean);
-    } catch (error) {
+  } catch (error) {
       console.error('Error parsing requirements:', error);
       return [];
-    }
-  };
+  }
+};
 
-  useEffect(() => {
-    try {
+// Inside CORA.jsx, this should be part of the useEffect that processes major requirements
+useEffect(() => {
+  try {
       const processedRequirements = {};
 
       if (!programData?.programs) {
-        console.error('No program data available');
-        return;
+          console.error('No program data available');
+          return;
       }
 
       Object.entries(programData.programs).forEach(([majorCode, majorData]) => {
-        try {
-          if (!majorData?.types?.major?.code) {
-            console.error(`Invalid major data for ${majorCode}`);
-            return;
-          }
+          try {
+              if (!majorData?.types?.major?.code) {
+                  console.error(`Invalid major data for ${majorCode}`);
+                  return;
+              }
 
-          const majorDept = majorData.types.major.code.split('.')[1];
-          if (!majorDept) {
-            console.error(`Could not determine department for ${majorCode}`);
-            return;
-          }
+              const majorDept = majorData.types.major.code.split('.')[1];
+              if (!majorDept) {
+                  console.error(`Could not determine department for ${majorCode}`);
+                  return;
+              }
 
-          const requirements = parseRequirementString(
-            majorData.types.major.requirements,
-            majorDept
-          );
-          console.log(requirements);
+              const requirements = parseRequirementString(
+                  majorData.types.major.requirements,
+                  majorDept
+              );
 
-          if (requirements.length > 0) {
-            processedRequirements[majorCode] = {
-              name: majorData.name || majorCode,
-              department: majorDept,
-              pillars: requirements
-            };
+              console.log(`Parsed requirements for ${majorCode}:`, requirements);
+
+              if (requirements.length > 0) {
+                  processedRequirements[majorCode] = {
+                      name: majorData.name || majorCode,
+                      department: majorDept,
+                      pillars: requirements
+                  };
+              }
+          } catch (error) {
+              console.error(`Error processing major ${majorCode}:`, error);
           }
-        } catch (error) {
-          console.error(`Error processing major ${majorCode}:`, error);
-        }
       });
 
       setMajorRequirements(processedRequirements);
-    } catch (error) {
+  } catch (error) {
       console.error('Error processing program data:', error);
-    }
-  }, []);
+  }
+}, []);
 
   const handleCoraSubmit = async () => {
     // Don't do anything if the query is empty
@@ -649,7 +666,7 @@ return (
       >
         <div className="flex items-center space-x-2">
           <GraduationCap className="w-6 h-6" />
-          <h1 className="text-xl font-semibold">CORA 1.0 (COurse Recommendation Advisor)</h1>
+          <h1 className="text-xl font-semibold">CORA 1.0 (Course Recommendation Advisor)</h1>
         </div>
         <div className="flex items-center space-x-4">
           <select 

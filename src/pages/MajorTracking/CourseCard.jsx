@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, AlertTriangle, Lock } from 'lucide-react';
+import { Check, AlertTriangle } from 'lucide-react';
 
 const CourseCard = ({ 
   course,
@@ -11,17 +11,13 @@ const CourseCard = ({
     showTerms: true,
     showAllocation: true
   },
-  darkMode  // added darkMode prop
+  darkMode
 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const {
     isCompleted,
-    isUsedInOtherPillar,
-    usedInPillar,
-    isLocked,
-    allocationInfo,
-    colorStatus
+    colorStatus = 'none'
   } = status;
   
   const courseId = course?.department && course?.course_number ? 
@@ -31,13 +27,9 @@ const CourseCard = ({
     if (!courseId) return;
     console.log(`[${courseId}] Card Status:`, {
       isCompleted,
-      isUsedInOtherPillar,
-      usedInPillar,
-      isLocked,
-      colorStatus,
-      allocationInfo
+      colorStatus
     });
-  }, [courseId, isCompleted, isUsedInOtherPillar, usedInPillar, isLocked, colorStatus, allocationInfo]);
+  }, [courseId, isCompleted, colorStatus]);
   
   if (!course?.department || !course?.course_number) return null;
 
@@ -45,62 +37,58 @@ const CourseCard = ({
     let styles = 'relative rounded-xl shadow p-4 transition-all duration-200 cursor-pointer h-40 ';
     
     // Adjust width based on viewMode
-    styles += viewMode === 'carousel' ? 'w-64 flex-none ' : 'w-full ';
+    styles += viewMode === 'carousel' ? 'w-56 flex-none ' : 'w-full ';
     
-    // Apply background, ring, and hover effects based on status and dark mode
-    if (isLocked) {
-      if (darkMode) {
-        styles += 'ring-2 ring-gray-600 bg-gray-800 ';
-        styles += isPressed ? 'bg-gray-700 scale-95 ' : 'hover:bg-gray-700 hover:scale-[0.98] ';
+    // Apply background, ring, and hover effects based on status
+    if (isCompleted) {
+      // If course is in overflow, always use blue regardless of other statuses
+      if (colorStatus === 'overflow') {
+        if (darkMode) {
+          styles += 'ring-2 ring-blue-400 bg-blue-900 ';
+          styles += isPressed ? 'bg-blue-800 scale-95 ' : 'hover:bg-blue-800 hover:scale-[0.98] ';
+        } else {
+          styles += 'ring-2 ring-blue-500 bg-blue-50 ';
+          styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
+        }
       } else {
-        styles += 'ring-2 ring-gray-400 bg-gray-100 ';
-        styles += isPressed ? 'bg-gray-200 scale-95 ' : 'hover:bg-gray-200 hover:scale-[0.98] ';
-      }
-    } else if (isCompleted) {
-      switch (colorStatus) {
-        case 'primary':
-          if (darkMode) {
-            styles += 'ring-2 ring-green-400 bg-green-900 ';
-            styles += isPressed ? 'bg-green-800 scale-95 ' : 'hover:bg-green-800 hover:scale-[0.98] ';
-          } else {
-            styles += 'ring-2 ring-green-500 bg-green-50 ';
-            styles += isPressed ? 'bg-green-200 scale-95 ' : 'hover:bg-green-100 hover:scale-[0.98] ';
-          }
-          break;
-        case 'secondary':
-          if (darkMode) {
-            styles += 'ring-2 ring-yellow-400 bg-yellow-900 ';
-            styles += isPressed ? 'bg-yellow-800 scale-95 ' : 'hover:bg-yellow-800 hover:scale-[0.98] ';
-          } else {
-            styles += 'ring-2 ring-yellow-500 bg-yellow-50 ';
-            styles += isPressed ? 'bg-yellow-200 scale-95 ' : 'hover:bg-yellow-100 hover:scale-[0.98] ';
-          }
-          break;
-        case 'overflow':
-          if (darkMode) {
-            styles += 'ring-2 ring-blue-400 bg-blue-900 ';
-            styles += isPressed ? 'bg-blue-800 scale-95 ' : 'hover:bg-blue-800 hover:scale-[0.98] ';
-          } else {
-            styles += 'ring-2 ring-blue-500 bg-blue-50 ';
-            styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
-          }
-          break;
-        default:
-          if (darkMode) {
-            styles += 'ring-2 ring-blue-400 bg-blue-900 ';
-            styles += isPressed ? 'bg-blue-800 scale-95 ' : 'hover:bg-blue-800 hover:scale-[0.98] ';
-          } else {
-            styles += 'ring-2 ring-blue-500 bg-blue-50 ';
-            styles += isPressed ? 'bg-blue-200 scale-95 ' : 'hover:bg-blue-100 hover:scale-[0.98] ';
-          }
+        // If not overflow, use normal status colors
+        switch (colorStatus) {
+          case 'primary': // Green - Used in current pillar
+            if (darkMode) {
+              styles += 'ring-2 ring-green-400 bg-green-900 ';
+              styles += isPressed ? 'bg-green-800 scale-95 ' : 'hover:bg-green-800 hover:scale-[0.98] ';
+            } else {
+              styles += 'ring-2 ring-green-500 bg-green-50 ';
+              styles += isPressed ? 'bg-green-200 scale-95 ' : 'hover:bg-green-100 hover:scale-[0.98] ';
+            }
+            break;
+          case 'secondary': // Yellow - Used in another pillar
+            if (darkMode) {
+              styles += 'ring-2 ring-yellow-400 bg-yellow-900 ';
+              styles += isPressed ? 'bg-yellow-800 scale-95 ' : 'hover:bg-yellow-800 hover:scale-[0.98] ';
+            } else {
+              styles += 'ring-2 ring-yellow-500 bg-yellow-50 ';
+              styles += isPressed ? 'bg-yellow-200 scale-95 ' : 'hover:bg-yellow-100 hover:scale-[0.98] ';
+            }
+            break;
+          default:
+            if (darkMode) {
+              styles += 'ring-2 ring-gray-400 bg-gray-900 ';
+              styles += isPressed ? 'bg-gray-800 scale-95 ' : 'hover:bg-gray-800 hover:scale-[0.98] ';
+            } else {
+              styles += 'ring-2 ring-gray-300 bg-gray-50 ';
+              styles += isPressed ? 'bg-gray-200 scale-95 ' : 'hover:bg-gray-100 hover:scale-[0.98] ';
+            }
+        }
       }
     } else {
+      // Not completed
       if (darkMode) {
-        styles += 'bg-gray-700 ';
-        styles += isPressed ? 'bg-gray-600 scale-95 ' : 'hover:bg-gray-600 hover:scale-[0.98] hover:shadow-md ';
+        styles += 'bg-gray-800 hover:bg-gray-700 ';
+        styles += isPressed ? 'bg-gray-700 scale-95 ' : 'hover:scale-[0.98] hover:shadow-md ';
       } else {
-        styles += 'bg-white ';
-        styles += isPressed ? 'bg-gray-100 scale-95 ' : 'hover:bg-gray-50 hover:scale-[0.98] hover:shadow-md ';
+        styles += 'bg-white hover:bg-gray-50 ';
+        styles += isPressed ? 'bg-gray-100 scale-95 ' : 'hover:scale-[0.98] hover:shadow-md ';
       }
     }
     
@@ -108,8 +96,6 @@ const CourseCard = ({
   };
 
   const handleCardInteraction = (e) => {
-    if (isLocked) return;
-    
     if (e.type === 'mousedown' || e.type === 'touchstart') {
       setIsPressed(true);
     } else if (e.type === 'mouseup' || e.type === 'mouseleave' || e.type === 'touchend') {
@@ -139,42 +125,39 @@ const CourseCard = ({
   };
 
   const getStatusIcon = () => {
-    if (isLocked)
-      return <Lock className={`w-5 h-5 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />;
-    if (isCompleted && !isUsedInOtherPillar && allocationInfo?.isCurrentPillar)
-      return <Check className={`w-5 h-5 ${darkMode ? 'text-green-400' : 'text-green-500'}`} />;
-    if (isUsedInOtherPillar)
-      return <AlertTriangle className={`w-5 h-5 ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}`} />;
+    if (isCompleted) {
+      // Always show blue check for overflow courses
+      if (colorStatus === 'overflow') {
+        return <Check className={`w-5 h-5 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} />;
+      }
+      
+      switch (colorStatus) {
+        case 'primary':
+          return <Check className={`w-5 h-5 ${darkMode ? 'text-green-400' : 'text-green-500'}`} />;
+        case 'secondary':
+          return <AlertTriangle className={`w-5 h-5 ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}`} />;
+        default:
+          return <Check className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />;
+      }
+    }
     return null;
   };
 
-  const getAllocationBadge = () => {
-    if (!displayOptions.showAllocation || !allocationInfo) return null;
-    
-    let badgeStyles = "text-xs px-2 py-1 rounded-full ";
-    if (isLocked) {
-      badgeStyles += darkMode ? "bg-gray-600 text-gray-300" : "bg-gray-200 text-gray-700";
-    } else if (isUsedInOtherPillar) {
-      badgeStyles += darkMode ? "bg-yellow-600 text-yellow-200" : "bg-yellow-100 text-yellow-800";
-    } else if (allocationInfo.isCurrentPillar) {
-      badgeStyles += darkMode ? "bg-green-600 text-green-200" : "bg-green-100 text-green-800";
-    } else {
-      badgeStyles += darkMode ? "bg-gray-600 text-gray-200" : "bg-gray-100 text-gray-800";
-    }
-    
-    return (
-      <span className={badgeStyles}>
-        {allocationInfo.pillarName}
-      </span>
-    );
-  };
-
   const getActionText = () => {
-    if (isLocked) return `Used in ${usedInPillar}`;
-    if (isUsedInOtherPillar) return `Allocated to ${usedInPillar}`;
     if (isCompleted) {
-      if (allocationInfo?.isCurrentPillar) return "Click to remove";
-      return allocationInfo ? `Allocated to ${allocationInfo.pillarName}` : "Click to allocate";
+      // Always show overflow text for overflow courses
+      if (colorStatus === 'overflow') {
+        return "Exceeds requirements";
+      }
+      
+      switch (colorStatus) {
+        case 'primary':
+          return "Click to remove from requirements";
+        case 'secondary':
+          return "Used in another requirement group";
+        default:
+          return "Click to remove";
+      }
     }
     return "Click to add";
   };
@@ -199,15 +182,16 @@ const CourseCard = ({
           <div className="overflow-hidden">
             <h4 className="font-semibold text-lg flex items-center gap-2">
               {courseId}
-              {getAllocationBadge()}
             </h4>
             <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'} mt-1 line-clamp-2`}>
-              {course.name?.split(':')[1]?.trim() || 'No title available'}
+              {course.name?.split(':')[1]?.trim() || course.name || 'No title available'}
             </p>
           </div>
-          {displayOptions.showDistributives && (
-            <span className={`text-xs ${darkMode ? 'bg-indigo-700 text-indigo-300' : 'bg-indigo-100 text-indigo-800'} px-2 py-1 rounded flex-shrink-0`}>
-              {course.distribs || 'No distrib'}
+          {displayOptions.showDistributives && course.distribs && (
+            <span className={`text-xs ${
+              darkMode ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-800'
+            } px-2 py-1 rounded flex-shrink-0`}>
+              {course.distribs}
             </span>
           )}
         </div>
@@ -218,10 +202,10 @@ const CourseCard = ({
           </div>
           
           <div className={`mt-2 text-xs ${
-            isLocked ? (darkMode ? 'text-gray-400' : 'text-gray-600') :
-            isUsedInOtherPillar ? (darkMode ? 'text-yellow-400' : 'text-yellow-600') :
-            allocationInfo?.isCurrentPillar ? (darkMode ? 'text-green-400' : 'text-green-600') :
-            (darkMode ? 'text-blue-400' : 'text-blue-600')
+            colorStatus === 'overflow' ? (darkMode ? 'text-blue-400' : 'text-blue-600') :
+            colorStatus === 'primary' ? (darkMode ? 'text-green-400' : 'text-green-600') :
+            colorStatus === 'secondary' ? (darkMode ? 'text-yellow-400' : 'text-yellow-600') :
+            (darkMode ? 'text-gray-400' : 'text-gray-600')
           }`}>
             {getActionText()}
           </div>

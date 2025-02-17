@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
@@ -6,89 +6,58 @@ import CourseCard from './CourseCard';
 
 const CourseDisplayPillar = ({
   pillar,
-  majorDept,
-  completedCourses = [],
-  onCourseStatusChange,
-  allPillars = [],
   pillarIndex,
-  duplicateCourses = new Map(), // Map of courseId -> array of pillarIndices where it appears
-  darkMode  // added darkMode prop
+  majorDept,
+  requirementManager,
+  requirementStatus,
+  onCourseStatusChange,
+  darkMode
 }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [localCompletedCourses, setLocalCompletedCourses] = useState(completedCourses);
-  const [localCourseStatuses, setLocalCourseStatuses] = useState(new Map());
-  
   const db = getFirestore();
 
-  // Update local state when props change
-  useEffect(() => {
-    setLocalCompletedCourses(completedCourses);
-  }, [completedCourses]);
-  
-  // Calculate course color based on completion and pillar allocation
-  const calculateCourseColor = useCallback((courseId, isCompleted) => {
-    if (!isCompleted) return 'none';
-  
-    // Get all pillars that could include this course
-    const pillarsWithCourse = duplicateCourses.get(courseId);
-    if (!pillarsWithCourse) return 'primary';
-  
-    // Get completed courses that could satisfy this pillar
-    const coursesInPillar = courses.map(course => 
-      `${course.department}${course.course_number}`
-    ).filter(id => localCompletedCourses.includes(id));
-  
-    // For range pillars
-    if (pillar.type === 'range') {
-      // For COSC 30-49 pillar (which comes first)
-      if (pillar.end === 49) {
-        const pillarRequiredCount = pillar.count;
-        const courseIndex = coursesInPillar.indexOf(courseId);
-        
-        // If not used in this pillar, it's overflow
-        if (courseIndex >= pillarRequiredCount) {
-          return 'overflow';
-        }
-        return 'primary';
+  const sortCoursesByStatus = useCallback((coursesToSort) => {
+    // Helper function to get status priority number
+    const getStatusPriority = (courseId) => {
+      const status = requirementManager?.getCourseStatus(courseId, pillarIndex);
+      switch (status) {
+        case 'primary': return 0;    // Green first
+        case 'secondary': return 1;   // Yellow second
+        case 'overflow': return 2;    // Blue third
+        default: return 3;            // Uncolored last
       }
+    };
+
+    return [...coursesToSort].sort((a, b) => {
+      const courseIdA = `${a.department}${a.course_number}`;
+      const courseIdB = `${b.department}${b.course_number}`;
       
-      // For COSC 30-89 pillar
-      if (pillar.end === 89) {
-        // Check if this course is already allocated to the 30-49 pillar
-        const isAllocatedToEarlierPillar = coursesInPillar.indexOf(courseId) < 2;
-        
-        if (!isAllocatedToEarlierPillar) {
-          // If not used in earlier pillar, show as primary
-          return 'primary';
-        }
-        // If used in earlier pillar, mark as secondary
-        return 'secondary';
+      const statusA = getStatusPriority(courseIdA);
+      const statusB = getStatusPriority(courseIdB);
+
+      // If statuses are different, sort by status priority
+      if (statusA !== statusB) {
+        return statusA - statusB;
       }
-  
-      // For other range pillars, if the course isn't counted in the requirement
-      const pillarRequiredCount = pillar.count;
-      const courseIndex = coursesInPillar.indexOf(courseId);
-      if (courseIndex >= pillarRequiredCount) {
-        return 'overflow';
-      }
-      return 'primary';
-    }
-  
-    // Default to secondary color for other cases
-    return 'secondary';
-  }, [duplicateCourses, pillarIndex, courses, localCompletedCourses, pillar]);
-  
+
+      // If statuses are the same, maintain original order
+      return courseIdA.localeCompare(courseIdB);
+    });
+  }, [requirementManager, pillarIndex]);
+
   const getCachedCourses = useCallback(async () => {
     if (!pillar) return [];
+    
+    console.log('Fetching courses for pillar:', pillar);
     
     if (!window.courseCache) {
       window.courseCache = new Map();
     }
     
     const cacheKey = `${pillar.type}-${JSON.stringify({
-      department: pillar.department,
+      department: pillar.department || majorDept,
       start: pillar.start,
       end: pillar.end,
       options: pillar.options,
@@ -98,236 +67,232 @@ const CourseDisplayPillar = ({
     if (window.courseCache.has(cacheKey)) {
       return window.courseCache.get(cacheKey);
     }
-    
+
     const coursesRef = collection(db, 'courses');
-    let q;
+    let fetchedCourses = [];
 
     try {
       switch (pillar.type) {
-        case 'prerequisites':
-          const courseIds = pillar.courses.flatMap(course => {
-            if (typeof course === 'string') return [course];
-            if (course.type === 'alternative') return course.options;
-            return [];
-          });
-          q = query(coursesRef, where('course_id', 'in', courseIds));
+        case 'prerequisites': {
+          for (const prereq of pillar.courses) {
+            if (typeof prereq === 'string') {
+              const match = prereq.match(/([A-Z]+)(\d+)/);
+              if (match) {
+                const [, dept, num] = match;
+                const courseQuery = query(
+                  coursesRef,
+                  where('department', '==', dept),
+                  where('course_number', '==', num.padStart(3, '0'))
+                );
+                const snapshot = await getDocs(courseQuery);
+                fetchedCourses.push(...snapshot.docs.map(doc => ({
+                  id: doc.id,
+                  ...doc.data()
+                })));
+              }
+            } else if (prereq.type === 'alternative') {
+              for (const option of prereq.options) {
+                const match = option.match(/([A-Z]+)(\d+)/);
+                if (match) {
+                  const [, dept, num] = match;
+                  const courseQuery = query(
+                    coursesRef,
+                    where('department', '==', dept),
+                    where('course_number', '==', num.padStart(3, '0'))
+                  );
+                  const snapshot = await getDocs(courseQuery);
+                  fetchedCourses.push(...snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                  })));
+                }
+              }
+            }
+          }
           break;
+        }
 
-        case 'range':
-          q = query(
-            coursesRef,
-            where('department', '==', pillar.department),
-            where('course_number', '>=', pillar.start.toString().padStart(3, '0')),
-            where('course_number', '<=', pillar.end.toString().padStart(3, '0'))
+        case 'specific': {
+          const queries = [];
+          
+          for (const option of pillar.options) {
+            if (option.startsWith('[') && option.endsWith(']')) {
+              const [start, end] = option.slice(1, -1).split('-')
+                .map(num => num.padStart(3, '0'));
+              queries.push(
+                query(
+                  coursesRef,
+                  where('department', '==', majorDept),
+                  where('course_number', '>=', start),
+                  where('course_number', '<=', end)
+                )
+              );
+            } else if (option.includes('≥')) {
+              const [dept, minNum] = option.split('≥');
+              queries.push(
+                query(
+                  coursesRef,
+                  where('department', '==', dept),
+                  where('course_number', '>=', minNum.padStart(3, '0'))
+                )
+              );
+            } else {
+              const courseMatch = option.match(/([A-Z]+)?(\d+)/);
+              if (courseMatch) {
+                const dept = courseMatch[1] || majorDept;
+                const num = courseMatch[2].padStart(3, '0');
+                queries.push(
+                  query(
+                    coursesRef,
+                    where('department', '==', dept),
+                    where('course_number', '==', num)
+                  )
+                );
+              }
+            }
+          }
+
+          const results = await Promise.all(queries.map(q => getDocs(q)));
+          const seenIds = new Set();
+          fetchedCourses = results.flatMap(snapshot =>
+            snapshot.docs
+              .map(doc => ({ id: doc.id, ...doc.data() }))
+              .filter(course => {
+                const id = `${course.department}${course.course_number}`;
+                if (seenIds.has(id)) return false;
+                seenIds.add(id);
+                return true;
+              })
           );
           break;
+        }
 
-        case 'specific':
-          q = query(coursesRef, where('course_id', 'in', pillar.options));
+        case 'range': {
+          const dept = pillar.department || majorDept;
+          const startNum = pillar.start.toString().padStart(3, '0');
+          const endNum = pillar.end.toString().padStart(3, '0');
+          
+          const rangeQuery = query(
+            coursesRef,
+            where('department', '==', dept),
+            where('course_number', '>=', startNum),
+            where('course_number', '<=', endNum)
+          );
+          
+          const snapshot = await getDocs(rangeQuery);
+          fetchedCourses = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
           break;
-
-        default:
-          return [];
+        }
       }
 
-      const snapshot = await getDocs(q);
-      const fetchedCourses = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      
       window.courseCache.set(cacheKey, fetchedCourses);
       return fetchedCourses;
+
     } catch (error) {
-      console.error('Error fetching courses:', error);
-      return [];
+      console.error('Error fetching courses for pillar:', error);
+      throw error;
     }
-  }, [pillar, db]);
-  
-  // Load initial courses and set up statuses
+  }, [pillar, majorDept, db]);
+
+  // Load initial courses
   useEffect(() => {
     const loadCourses = async () => {
       if (!pillar) return;
       
       setLoading(true);
-      
       try {
         const fetchedCourses = await getCachedCourses();
-        setCourses(fetchedCourses);
-        
-        // Pre-compute initial course statuses
-        const newStatuses = new Map();
-        fetchedCourses.forEach(course => {
-          const courseId = `${course.department}${course.course_number}`;
-          const isCompleted = localCompletedCourses.includes(courseId);
-          newStatuses.set(courseId, {
-            isCompleted,
-            isUsedInOtherPillar: false,
-            isLocked: false,
-            colorStatus: calculateCourseColor(courseId, isCompleted)
-          });
-        });
-        setLocalCourseStatuses(newStatuses);
+        const sortedCourses = sortCoursesByStatus(fetchedCourses);
+        setCourses(sortedCourses);
       } catch (err) {
         setError(err.message);
+        console.error('Error loading courses:', err);
       } finally {
         setLoading(false);
       }
     };
     
     loadCourses();
-  }, [getCachedCourses, pillar, calculateCourseColor, localCompletedCourses]);
-  
-  // Update course statuses when completion status changes
+  }, [getCachedCourses, pillar, sortCoursesByStatus]);
+
+  // Re-sort whenever requirement status changes
   useEffect(() => {
-    setLocalCourseStatuses(prev => {
-      const newStatuses = new Map(prev);
-      courses.forEach(course => {
-        const courseId = `${course.department}${course.course_number}`;
-        const isCompleted = localCompletedCourses.includes(courseId);
-        const currentStatus = newStatuses.get(courseId) || {};
-        newStatuses.set(courseId, {
-          ...currentStatus,
-          isCompleted,
-          colorStatus: calculateCourseColor(courseId, isCompleted)
-        });
-      });
-      return newStatuses;
-    });
-  }, [localCompletedCourses, courses, calculateCourseColor]);
-  
-  const handleCourseClick = async (course) => {
+    if (courses.length > 0) {
+      const sortedCourses = sortCoursesByStatus(courses);
+      setCourses(sortedCourses);
+    }
+  }, [requirementStatus, sortCoursesByStatus, courses]);
+
+  const handleCourseClick = useCallback((course) => {
+    if (!requirementManager) return;
+    
     const courseId = `${course.department}${course.course_number}`;
-    
-    // Update local state immediately for instant feedback
-    const isCompleted = localCompletedCourses.includes(courseId);
-    const newCompletedCourses = isCompleted
-      ? localCompletedCourses.filter(id => id !== courseId)
-      : [...localCompletedCourses, courseId];
-    
-    setLocalCompletedCourses(newCompletedCourses);
-    
-    // Update this course's status
-    setLocalCourseStatuses(prev => {
-      const newStatuses = new Map(prev);
-      newStatuses.set(courseId, {
-        isCompleted: !isCompleted,
-        isUsedInOtherPillar: false,
-        isLocked: false,
-        colorStatus: calculateCourseColor(courseId, !isCompleted)
-      });
-      return newStatuses;
-    });
-  
-    // Get the list of pillars where this course appears
-    const affectedPillars = duplicateCourses.get(courseId) || [pillarIndex];
-    
-    // Trigger parent update with affected pillars
-    await onCourseStatusChange(course, affectedPillars);
-  };
-  
-  // Calculate pillar completion for subtitle
+    const isCurrentlyCompleted = requirementStatus?.courseStatuses?.[courseId];
+    onCourseStatusChange(course, !isCurrentlyCompleted);
+  }, [requirementManager, requirementStatus, onCourseStatusChange]);
+
   const getPillarCompletion = useCallback(() => {
-    let required = 0;
-    let completed = 0;
-  
-    switch (pillar.type) {
-      case 'prerequisites':
-        required = pillar.courses.length;
-        completed = pillar.courses.filter(course => {
-          if (typeof course === 'string') {
-            return localCompletedCourses.includes(course);
-          }
-          if (course.type === 'alternative') {
-            return course.options.some(opt => localCompletedCourses.includes(opt));
-          }
-          return false;
-        }).length;
-        break;
-  
-      case 'specific':
-        required = 1;
-        completed = pillar.options.some(course => 
-          localCompletedCourses.includes(course)
-        ) ? 1 : 0;
-        break;
-  
-      case 'range':
-        required = pillar.count;
-        completed = localCompletedCourses.filter(courseId => {
-          const match = courseId.match(/([A-Z]+)(\d+)/);
-          if (!match) return false;
-          const [, dept, numStr] = match;
-          const num = parseInt(numStr);
-          return dept === pillar.department && 
-                 num >= pillar.start && 
-                 num <= pillar.end;
-        }).length;
-        completed = Math.min(completed, required);
-        break;
-    }
-  
-    return { completed, required };
-  }, [pillar, localCompletedCourses]);
-  
-  // Memoized content rendering
-  const content = useMemo(() => {
-    if (loading) {
-      return (
-        <div className="flex justify-center items-center py-8">
-          <Loader2 className={`w-8 h-8 animate-spin ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} />
-        </div>
-      );
-    }
-  
-    if (error) {
-      return (
-        <div className={`py-4 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
-          Error loading courses: {error}
-        </div>
-      );
-    }
-  
-    if (!courses.length) {
-      return (
-        <div className={`py-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-          No courses available for this requirement
-        </div>
-      );
-    }
-  
-    return courses.map(course => {
-      const courseId = `${course.department}${course.course_number}`;
-      const status = localCourseStatuses.get(courseId) || {
-        isCompleted: localCompletedCourses.includes(courseId),
-        isUsedInOtherPillar: false,
-        isLocked: false,
-        colorStatus: calculateCourseColor(courseId, localCompletedCourses.includes(courseId))
-      };
-  
-      return (
-        <CourseCard
-          key={`${courseId}-${status.isCompleted}`}
-          course={course}
-          status={status}
-          onClick={handleCourseClick}
-          darkMode={darkMode}  // pass darkMode prop to CourseCard
-        />
-      );
-    });
-  }, [courses, loading, error, localCourseStatuses, localCompletedCourses, calculateCourseColor, darkMode]);
-  
+    if (!requirementStatus || !pillar) return { completed: 0, required: pillar.count || 0 };
+    
+    const pillarCourses = requirementStatus.pillarFills[pillarIndex] || [];
+    return {
+      completed: pillarCourses.length,
+      required: pillar.count || (pillar.type === 'prerequisites' ? pillar.courses.length : 1)
+    };
+  }, [requirementStatus, pillar, pillarIndex]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <Loader2 className={`w-8 h-8 animate-spin ${
+          darkMode ? 'text-blue-400' : 'text-blue-500'
+        }`} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`py-4 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+        Error loading courses: {error}
+      </div>
+    );
+  }
+
   const completion = getPillarCompletion();
-  
+  const pillarTitle = pillar.description || `${pillar.type} Requirements`;
+  const subtitle = `${completion.completed}/${completion.required} completed`;
+
   return (
     <CourseDisplayCarousel
-      title={pillar.description}
-      subtitle={`${completion.completed}/${completion.required} completed`}
-      darkMode={darkMode}  // pass darkMode prop to CourseDisplayCarousel
+      title={pillarTitle}
+      subtitle={subtitle}
+      darkMode={darkMode}
     >
-      {content}
+      {courses.map(course => {
+        const courseId = `${course.department}${course.course_number}`;
+        const courseStatus = requirementStatus?.courseStatuses?.[courseId];
+        const colorStatus = requirementManager?.getCourseStatus(courseId, pillarIndex);
+
+        return (
+          <CourseCard
+            key={courseId}
+            course={course}
+            status={{
+              isCompleted: !!courseStatus,
+              colorStatus: colorStatus || 'none',
+              isLocked: false
+            }}
+            onClick={handleCourseClick}
+            darkMode={darkMode}
+          />
+        );
+      })}
     </CourseDisplayCarousel>
   );
 };
-  
+
 export default CourseDisplayPillar;
