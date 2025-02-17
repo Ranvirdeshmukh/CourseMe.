@@ -7,7 +7,6 @@ import CourseDisplayPillar from './CourseDisplayPillar';
 import GraduationRequirements from './GraduationRequirements';
 import MajorRequirements from './MajorRequirements';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
-import CourseBucket from './CourseBucket';
 import axios from 'axios';
 
 // First, define CoraChat as a separate component outside of MajorTracker

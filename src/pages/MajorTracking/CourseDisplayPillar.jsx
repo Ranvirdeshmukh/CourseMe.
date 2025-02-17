@@ -19,31 +19,20 @@ const CourseDisplayPillar = ({
   const db = getFirestore();
 
   const sortCoursesByStatus = useCallback((coursesToSort) => {
-    // Helper function to get status priority number
     const getStatusPriority = (courseId) => {
       const status = requirementManager?.getCourseStatus(courseId, pillarIndex);
       switch (status) {
-        case 'primary': return 0;    // Green first
-        case 'secondary': return 1;   // Yellow second
-        case 'overflow': return 2;    // Blue third
-        default: return 3;            // Uncolored last
+        case 'primary': return 0;
+        case 'secondary': return 1;
+        case 'overflow': return 2;
+        default: return 3;
       }
     };
-
+  
     return [...coursesToSort].sort((a, b) => {
       const courseIdA = `${a.department}${a.course_number}`;
       const courseIdB = `${b.department}${b.course_number}`;
-      
-      const statusA = getStatusPriority(courseIdA);
-      const statusB = getStatusPriority(courseIdB);
-
-      // If statuses are different, sort by status priority
-      if (statusA !== statusB) {
-        return statusA - statusB;
-      }
-
-      // If statuses are the same, maintain original order
-      return courseIdA.localeCompare(courseIdB);
+      return getStatusPriority(courseIdA) - getStatusPriority(courseIdB);
     });
   }, [requirementManager, pillarIndex]);
 
@@ -205,8 +194,11 @@ const CourseDisplayPillar = ({
       setLoading(true);
       try {
         const fetchedCourses = await getCachedCourses();
-        const sortedCourses = sortCoursesByStatus(fetchedCourses);
-        setCourses(sortedCourses);
+        // Only sort and set courses if we have new data
+        if (fetchedCourses.length > 0) {
+          const sortedCourses = sortCoursesByStatus(fetchedCourses);
+          setCourses(sortedCourses);
+        }
       } catch (err) {
         setError(err.message);
         console.error('Error loading courses:', err);
@@ -224,7 +216,7 @@ const CourseDisplayPillar = ({
       const sortedCourses = sortCoursesByStatus(courses);
       setCourses(sortedCourses);
     }
-  }, [requirementStatus, sortCoursesByStatus, courses]);
+  }, [requirementStatus, sortCoursesByStatus]); 
 
   const handleCourseClick = useCallback((course) => {
     if (!requirementManager) return;
