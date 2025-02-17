@@ -537,7 +537,7 @@ const DepartmentCoursesPage = ({ darkMode }) => {
                 letterSpacing: '0.2px'
               }}
             >
-              Filter by Winter 2025 (on special demand)
+              Filter by Spring 2025 (on special demand)
             </Typography>
           </Box>
         </Box>
