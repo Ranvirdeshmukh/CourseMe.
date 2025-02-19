@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { hiddenLayupCourseIds } from '../constants/hiddenLayupConstants';
 
-const CACHE_KEY = 'hidden_layups_course_data';
+const CACHE_KEY = 'hidden_layups_course_data_v2';
 const CACHE_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 
 // Get cached course data from localStorage
