@@ -5,7 +5,7 @@
       "types": {
         "major": {
           "code": "MAJ.COSC",
-          "requirements": "(@[{COSC001|ENGS020},COSC010] & #2[030-049] & #2[050-069] & #2[070-089] & #2[030-089] & #1{[030-089]|094|MATH≥020})"
+          "requirements": "(@[{COSC001|ENGS020},COSC010] & #2[COSC030-COSC049] & #2[COSC050-COSC069] & #2[COSC070-COSC089] & #2[COSC030-COSC089] & #1{[COSC030-COSC089]|COSC094|MATH≥020})"
         }
       }
     },
@@ -14,8 +14,7 @@
       "types": {
         "major": {
           "code": "MAJ.MATH",
-          "requirements": "(@[MATH022,MATH024] & #2[030-049])",
-          "prereqs": "@[MATH003,MATH008,MATH013,MATH022,MATH024]"
+          "requirements": "(@[MATH003,MATH008,MATH013,{MATH022|MATH024}] & #1{MATH031|MATH071} & #1{MATH035|MATH043|MATH063} & #6{MATH≥017,!MATH022,!MATH024,!MATH097,COSC≥030,!COSC099}:#2[COSC])"
         }
       }
     },

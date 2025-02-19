@@ -1049,6 +1049,7 @@ const handleQualityVote = async (voteType) => {
   useEffect(() => {
     let isMounted = true;
   
+
     const fetchData = async () => {
       setLoading(true);
       try {

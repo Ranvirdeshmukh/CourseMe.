@@ -18,6 +18,44 @@ const CourseDisplayPillar = ({
   const [error, setError] = useState(null);
   const db = getFirestore();
 
+  const parseComplexRequirement = (reqStr) => {
+    // First, split into main requirements and department limits
+    const [mainReq, deptLimit] = reqStr.split(':').map(part => part?.trim());
+    
+    const parts = mainReq.match(/[{]([^}]+)[}]]/);
+    if (!parts) return null;
+
+    const conditions = parts[1].split(',').map(cond => cond.trim());
+    const result = {
+      departments: new Set(),
+      minNumbers: new Map(),
+      excludedCourses: new Set(),
+      departmentLimits: new Map()
+    };
+
+    // Parse main requirements
+    conditions.forEach(cond => {
+      if (cond.includes('≥')) {
+        const [dept, num] = cond.split('≥');
+        result.departments.add(dept);
+        result.minNumbers.set(dept, parseInt(num));
+      } else if (cond.startsWith('!')) {
+        result.excludedCourses.add(cond.slice(1));
+      }
+    });
+
+    // Parse department limits if they exist
+    if (deptLimit) {
+      const limitMatch = deptLimit.match(/#(\d+)\[([A-Z]+)\]/);
+      if (limitMatch) {
+        const [, limit, dept] = limitMatch;
+        result.departmentLimits.set(dept, parseInt(limit));
+      }
+    }
+
+    return result;
+  };
+
   const sortCoursesByStatus = useCallback((coursesToSort) => {
     const getStatusPriority = (courseId) => {
       const status = requirementManager?.getCourseStatus(courseId, pillarIndex);
@@ -32,9 +70,18 @@ const CourseDisplayPillar = ({
     return [...coursesToSort].sort((a, b) => {
       const courseIdA = `${a.department}${a.course_number}`;
       const courseIdB = `${b.department}${b.course_number}`;
-      return getStatusPriority(courseIdA) - getStatusPriority(courseIdB);
+      const priorityA = getStatusPriority(courseIdA);
+      const priorityB = getStatusPriority(courseIdB);
+      
+      if (priorityA !== priorityB) return priorityA - priorityB;
+      
+      // Secondary sort by department and course number
+      if (a.department !== b.department) return a.department.localeCompare(b.department);
+      return a.course_number.localeCompare(b.course_number);
     });
   }, [requirementManager, pillarIndex]);
+
+  
 
   const getCachedCourses = useCallback(async () => {
     if (!pillar) return [];
@@ -111,7 +158,7 @@ const CourseDisplayPillar = ({
               queries.push(
                 query(
                   coursesRef,
-                  where('department', '==', majorDept),
+                  where('department', '==', pillar.department || majorDept),
                   where('course_number', '>=', start),
                   where('course_number', '<=', end)
                 )
@@ -128,7 +175,7 @@ const CourseDisplayPillar = ({
             } else {
               const courseMatch = option.match(/([A-Z]+)?(\d+)/);
               if (courseMatch) {
-                const dept = courseMatch[1] || majorDept;
+                const dept = courseMatch[1] || pillar.department || majorDept;
                 const num = courseMatch[2].padStart(3, '0');
                 queries.push(
                   query(
@@ -142,43 +189,85 @@ const CourseDisplayPillar = ({
           }
 
           const results = await Promise.all(queries.map(q => getDocs(q)));
-          const seenIds = new Set();
           fetchedCourses = results.flatMap(snapshot =>
-            snapshot.docs
-              .map(doc => ({ id: doc.id, ...doc.data() }))
-              .filter(course => {
-                const id = `${course.department}${course.course_number}`;
-                if (seenIds.has(id)) return false;
-                seenIds.add(id);
-                return true;
-              })
+            snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }))
           );
+          break;
+        }
+
+        case 'complex': {
+          const requirements = pillar.options.map(opt => parseComplexRequirement(opt))
+            .filter(Boolean);
+          
+          for (const req of requirements) {
+            // Fetch courses for each department with minimum number requirement
+            const departmentQueries = Array.from(req.departments).map(async dept => {
+              const minNum = req.minNumbers.get(dept);
+              const courseQuery = query(
+                coursesRef,
+                where('department', '==', dept),
+                where('course_number', '>=', minNum.toString().padStart(3, '0'))
+              );
+              
+              const snapshot = await getDocs(courseQuery);
+              return snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+              }));
+            });
+
+            const departmentResults = await Promise.all(departmentQueries);
+            const allCourses = departmentResults.flat();
+
+            // Filter out excluded courses
+            const filteredCourses = allCourses.filter(course => {
+              const courseId = `${course.department}${course.course_number}`;
+              return !req.excludedCourses.has(courseId);
+            });
+
+            fetchedCourses.push(...filteredCourses);
+          }
           break;
         }
 
         case 'range': {
-          const dept = pillar.department || majorDept;
-          const startNum = pillar.start.toString().padStart(3, '0');
-          const endNum = pillar.end.toString().padStart(3, '0');
-          
-          const rangeQuery = query(
-            coursesRef,
-            where('department', '==', dept),
-            where('course_number', '>=', startNum),
-            where('course_number', '<=', endNum)
-          );
-          
-          const snapshot = await getDocs(rangeQuery);
-          fetchedCourses = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
+          if (typeof pillar.start === 'number' && typeof pillar.end === 'number') {
+            const dept = pillar.department || majorDept;
+            const startNum = pillar.start.toString().padStart(3, '0');
+            const endNum = pillar.end.toString().padStart(3, '0');
+            
+            const rangeQuery = query(
+              coursesRef,
+              where('department', '==', dept),
+              where('course_number', '>=', startNum),
+              where('course_number', '<=', endNum)
+            );
+            
+            const snapshot = await getDocs(rangeQuery);
+            fetchedCourses = snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+          }
           break;
         }
       }
 
-      window.courseCache.set(cacheKey, fetchedCourses);
-      return fetchedCourses;
+      // Remove duplicates while preserving course order
+      const uniqueCourses = Array.from(
+        new Map(
+          fetchedCourses.map(course => [
+            `${course.department}${course.course_number}`,
+            course
+          ])
+        ).values()
+      );
+
+      window.courseCache.set(cacheKey, uniqueCourses);
+      return uniqueCourses;
 
     } catch (error) {
       console.error('Error fetching courses for pillar:', error);
@@ -186,7 +275,6 @@ const CourseDisplayPillar = ({
     }
   }, [pillar, majorDept, db]);
 
-  // Load initial courses
   useEffect(() => {
     const loadCourses = async () => {
       if (!pillar) return;
@@ -194,7 +282,6 @@ const CourseDisplayPillar = ({
       setLoading(true);
       try {
         const fetchedCourses = await getCachedCourses();
-        // Only sort and set courses if we have new data
         if (fetchedCourses.length > 0) {
           const sortedCourses = sortCoursesByStatus(fetchedCourses);
           setCourses(sortedCourses);
@@ -210,7 +297,6 @@ const CourseDisplayPillar = ({
     loadCourses();
   }, [getCachedCourses, pillar, sortCoursesByStatus]);
 
-  // Re-sort whenever requirement status changes
   useEffect(() => {
     if (courses.length > 0) {
       const sortedCourses = sortCoursesByStatus(courses);

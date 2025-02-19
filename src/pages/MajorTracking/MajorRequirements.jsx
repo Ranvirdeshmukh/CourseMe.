@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { doc, getFirestore, collection, getDocs, setDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import CourseDisplayPillar from './CourseDisplayPillar';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
+import DistribsCarousel from './DistribsCarousel';
 import CourseCard from './CourseCard';
 import RequirementManager from './RequirementManager';
 
@@ -13,12 +14,27 @@ const MajorRequirements = ({
   onCoursesUpdate,
   darkMode
 }) => {
+  const db = getFirestore();
+  const auth = getAuth();
+  
   const [localCompletedCourses, setLocalCompletedCourses] = useState(completedCourses);
   const [courses, setCourses] = useState({});
   const [requirementManager, setRequirementManager] = useState(null);
   const [requirementStatus, setRequirementStatus] = useState(null);
-  const db = getFirestore();
-  const auth = getAuth();
+  const [selectedDistrib, setSelectedDistrib] = useState(null);
+  const [availableDistribs, setAvailableDistribs] = useState([]);
+
+  const requirements = majorRequirements?.[selectedMajor];
+
+  // Helper function to check if a course matches any pillar
+  const courseMatchesPillar = useCallback((course) => {
+    if (!requirements?.pillars || !requirementManager) return false;
+    
+    const courseId = `${course.department}${course.course_number}`;
+    return requirements.pillars.some(pillar => 
+      requirementManager.courseMatchesPillar(courseId, pillar)
+    );
+  }, [requirements, requirementManager]);
 
   // Initialize requirement manager when major changes
   useEffect(() => {
@@ -38,6 +54,31 @@ const MajorRequirements = ({
   useEffect(() => {
     setLocalCompletedCourses(completedCourses);
   }, [completedCourses]);
+
+  // Calculate available distribs from pillar courses
+  useEffect(() => {
+    if (!courses || !requirements?.pillars) return;
+
+    const distribSet = new Set();
+    Object.values(courses).forEach(course => {
+      if (courseMatchesPillar(course)) {
+        if (course.distribs) {
+          const distribs = course.distribs.split(/[/-]/).map(d => d.trim());
+          distribs.forEach(distrib => {
+            const baseDistrib = distrib.replace('SLA', 'SCI').replace('TLA', 'TAS');
+            distribSet.add(baseDistrib);
+          });
+        }
+        if (course.world_culture) {
+          course.world_culture.forEach(culture => {
+            distribSet.add(culture);
+          });
+        }
+      }
+    });
+
+    setAvailableDistribs(Array.from(distribSet));
+  }, [courses, requirements, courseMatchesPillar]);
 
   // Fetch course data
   useEffect(() => {
@@ -60,6 +101,10 @@ const MajorRequirements = ({
     fetchCourses();
   }, [db]);
 
+  const handleDistribFilter = useCallback((distrib) => {
+    setSelectedDistrib(distrib);
+  }, []);
+
   const handleCourseStatusChange = async (course, affectedPillars) => {
     if (!auth.currentUser || !requirementManager) return;
 
@@ -68,52 +113,55 @@ const MajorRequirements = ({
       let updatedCourses;
 
       if (localCompletedCourses.includes(courseId)) {
-        // Remove course
         updatedCourses = localCompletedCourses.filter(id => id !== courseId);
       } else {
-        // Add course
         updatedCourses = [...localCompletedCourses, courseId];
       }
 
-      // Update local state immediately
       setLocalCompletedCourses(updatedCourses);
-
-      // Reallocate all courses with the RequirementManager
       const newStatus = requirementManager.processCourseList(updatedCourses);
       setRequirementStatus(newStatus);
 
-      // Update Firebase
       await setDoc(doc(db, 'users', auth.currentUser.uid), {
         completedCourses: updatedCourses
       }, { merge: true });
 
-      // Notify parent component
       if (onCoursesUpdate) {
         onCoursesUpdate(updatedCourses);
       }
     } catch (error) {
       console.error('Error updating course status:', error);
-      // Rollback on error
       setLocalCompletedCourses(completedCourses);
     }
   };
 
-  // Calculate PillarSummary stats
-  const calculatePillarCompletion = useCallback((pillar, pillarCourses = []) => {
-    // For prerequisites, count number of groups that need to be completed
-    if (pillar.type === 'prerequisites') {
-      return {
-        completed: pillarCourses.length,
-        required: pillar.courses.length // Each prerequisite group counts as one requirement
-      };
-    }
-    
-    // For other pillar types, use the count field
-    return {
-      completed: Math.min(pillarCourses.length, pillar.count),
-      required: pillar.count
-    };
-  }, []);
+  // Filter courses based on selected distrib
+  const filterCoursesByDistrib = useCallback((courses) => {
+    if (!selectedDistrib) return courses;
+
+    return courses.filter(course => {
+      if (!course.distribs && !course.world_culture) return false;
+
+      if (selectedDistrib === 'LAB') {
+        return course.distribs && 
+               (course.distribs.includes('SLA') || course.distribs.includes('TLA'));
+      }
+
+      // Check distribs
+      if (course.distribs) {
+        const distribs = course.distribs.split(/[/-]/).map(d => d.trim());
+        const baseDistribs = distribs.map(d => d.replace('SLA', 'SCI').replace('TLA', 'TAS'));
+        if (baseDistribs.includes(selectedDistrib)) return true;
+      }
+
+      // Check world culture
+      if (course.world_culture && course.world_culture.includes(selectedDistrib)) {
+        return true;
+      }
+
+      return false;
+    });
+  }, [selectedDistrib]);
 
   if (!selectedMajor || !majorRequirements?.[selectedMajor]) {
     return (
@@ -123,7 +171,6 @@ const MajorRequirements = ({
     );
   }
 
-  const requirements = majorRequirements[selectedMajor];
   if (!requirements?.pillars) {
     return (
       <div className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -134,40 +181,15 @@ const MajorRequirements = ({
 
   return (
     <div className="space-y-6">
-      {/* Overflow Courses Display */}
-      {requirementStatus?.overflowCourses?.length > 0 && (
-        <div className="mb-6">
-          <CourseDisplayCarousel
-            title="Additional Courses"
-            subtitle={`${requirementStatus.overflowCourses.length} course${
-              requirementStatus.overflowCourses.length !== 1 ? 's' : ''
-            } exceeding requirements`}
-            darkMode={darkMode}
-          >
-            {requirementStatus.overflowCourses.map(courseId => {
-              const course = courses[courseId];
-              if (!course) return null;
+      <DistribsCarousel
+        selectedCourses={completedCourses}
+        courseData={courses}
+        darkMode={darkMode}
+        onDistribFilter={handleDistribFilter}
+        activeDistrib={selectedDistrib}
+        availableDistribs={availableDistribs}
+      />
 
-              return (
-                <CourseCard
-                  key={courseId}
-                  course={course}
-                  status={{
-                    isCompleted: true,
-                    isUsedInOtherPillar: false,
-                    isLocked: false,
-                    colorStatus: 'overflow'
-                  }}
-                  onClick={handleCourseStatusChange}
-                  darkMode={darkMode}
-                />
-              );
-            })}
-          </CourseDisplayCarousel>
-        </div>
-      )}
-
-      {/* Main Requirements Display */}
       {requirements.pillars.map((pillar, index) => (
         <CourseDisplayPillar
           key={`${selectedMajor}-${index}`}
@@ -178,53 +200,9 @@ const MajorRequirements = ({
           requirementStatus={requirementStatus}
           onCourseStatusChange={handleCourseStatusChange}
           darkMode={darkMode}
+          filterCourses={filterCoursesByDistrib}
         />
       ))}
-
-      {/* Progress Summary */}
-      {requirementStatus && (
-        <div className={`rounded-lg shadow-md p-4 ${
-          darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-        }`}>
-          <h3 className={`text-lg font-medium mb-4 ${
-            darkMode ? 'text-white' : 'text-gray-900'
-          }`}>
-            Major Progress Summary
-          </h3>
-          {requirements.pillars.map((pillar, index) => {
-            const pillarCourses = requirementStatus.pillarFills[index] || [];
-            const completion = calculatePillarCompletion(pillar, pillarCourses);
-            
-            return (
-              <div key={index} className="mb-4">
-                <div className="flex justify-between mb-1">
-                  <span className={`text-sm font-medium ${
-                    darkMode ? 'text-gray-300' : 'text-gray-800'
-                  }`}>
-                    {pillar.description || `${pillar.type} Requirements`}
-                  </span>
-                  <span className={`text-sm ${
-                    darkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
-                    {completion.completed}/{completion.required} completed
-                  </span>
-                </div>
-                <div className={`w-full rounded-full h-2 ${
-                  darkMode ? 'bg-gray-600' : 'bg-gray-200'
-                }`}>
-                  <div
-                    className="rounded-full h-2 transition-all duration-300"
-                    style={{
-                      background: darkMode ? '#38bdf8' : '#3B82F6',
-                      width: `${(completion.completed / completion.required) * 100}%`
-                    }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 };

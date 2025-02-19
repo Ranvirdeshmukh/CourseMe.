@@ -370,79 +370,97 @@ const handleCourseComplete = async (course) => {
   };
 
   // Separates into pillars
-  // parseRequirementString function for CORA
-const parseRequirementString = (reqStr, majorDept) => {
-  if (!reqStr || typeof reqStr !== 'string') return [];
-
-  try {
+  const parseRequirementString = (reqStr, majorDept) => {
+    if (!reqStr || typeof reqStr !== 'string') return [];
+    
+    try {
       // Remove outer parentheses and trim
       const cleanStr = reqStr.replace(/^\(|\)$/g, '').trim();
       if (!cleanStr) return [];
-
-      // Split & to extract pillars
-      const groups = cleanStr.split('&')
-          .map(r => r.trim())
-          .filter(Boolean);
-
-      // Parse each requirement group
+      
+      // Split on '&' to extract individual pillars
+      const groups = cleanStr.split('&').map(r => r.trim()).filter(Boolean);
+      
       return groups.map(group => {
-          // Prerequisites
-          if (group.startsWith('@[')) {
-              const prereqStr = group.slice(2, -1);
-              const prereqs = prereqStr.split(',').map(p => {
-                  if (p.includes('{')) {
-                      return {
-                          type: 'alternative',
-                          options: p.slice(1, -1).split('|').map(o => o.trim())
-                      };
-                  }
-                  return p.trim();
-              });
+        // Prerequisites (e.g., "@[MATH003,MATH008,MATH013,{MATH022|MATH024}]")
+        if (group.startsWith('@[')) {
+          const prereqStr = group.slice(2, -1);
+          const prereqs = prereqStr.split(',').map(p => {
+            if (p.includes('{')) {
               return {
-                  type: 'prerequisites',
-                  courses: prereqs,
-                  description: 'Required foundation courses'
+                type: 'alternative',
+                options: p.slice(1, -1).split('|').map(o => o.trim())
               };
+            }
+            return p.trim();
+          });
+          return {
+            type: 'prerequisites',
+            courses: prereqs,
+            description: 'Required foundation courses'
+          };
+        }
+        
+        // Complex requirements with colon for additional department limits.
+        // Example: "#6{MATH≥017,!MATH022,!MATH024,!MATH097,COSC≥030,!COSC099}:#2[COSC]"
+        if (group.startsWith("#") && group.includes(":")) {
+          const countMatch = group.match(/#(\d+)/);
+          const count = countMatch ? parseInt(countMatch[1], 10) : 1;
+          return {
+            type: 'complex',
+            count: count,
+            options: [group], // Pass the full string so RequirementManager can split it.
+            description: `${count} courses meeting advanced requirements`
+          };
+        }
+        
+        // Range requirements (without colon): e.g., "#2[COSC030-COSC049]"
+        const rangeRegex = /^#?(\d+)\s*\[([A-Z]+)(\d+)-([A-Z]+)(\d+)\]$/;
+        if (rangeRegex.test(group)) {
+          const match = group.match(rangeRegex);
+          if (match) {
+            const count = parseInt(match[1], 10);
+            const dept1 = match[2];
+            const start = parseInt(match[3], 10);
+            const dept2 = match[4];
+            const end = parseInt(match[5], 10);
+            return {
+              type: 'range',
+              count: count,
+              department: dept1,
+              start: start,
+              end: end,
+              description: `${count} course(s) from ${dept1} between ${start
+                .toString()
+                .padStart(3, '0')} and ${end.toString().padStart(3, '0')}`
+            };
           }
-
-          // Specific courses with options (like #1{[030-089]|094|MATH≥020})
-          if (group.includes('{')) {
-              const match = group.match(/#(\d+){([^}]+)}/);
-              if (match) {
-                  const [, count, optionsStr] = match;
-                  return {
-                      type: 'specific',
-                      count: parseInt(count),
-                      department: majorDept,
-                      options: optionsStr.split('|').map(o => o.trim()),
-                      description: `${count} course from advanced options`
-                  };
-              }
+        }
+        
+        // Specific courses with options (without colon), e.g., "#1{MATH031|MATH071}"
+        if (group.includes('{')) {
+          const match = group.match(/#(\d+){([^}]+)}/);
+          if (match) {
+            const count = parseInt(match[1], 10);
+            return {
+              type: 'specific',
+              count: count,
+              department: majorDept,
+              options: match[2].split('|').map(o => o.trim()),
+              description: `${count} course from advanced options`
+            };
           }
-
-          // Course count requirements with range
-          const rangeMatch = group.match(/#(\d+)\[(.+?)\]/);
-          if (rangeMatch) {
-              const [, count, range] = rangeMatch;
-              const [start, end] = range.split('-').map(n => parseInt(n));
-              
-              return {
-                  type: 'range',
-                  count: parseInt(count),
-                  department: majorDept,
-                  start,
-                  end,
-                  description: `${count} courses from ${majorDept} ${start}-${end}`
-              };
-          }
-
-          return null;
+        }
+        
+        return null;
       }).filter(Boolean);
-  } catch (error) {
+    } catch (error) {
       console.error('Error parsing requirements:', error);
       return [];
-  }
-};
+    }
+  };
+    
+  
 
 // Inside CORA.jsx, this should be part of the useEffect that processes major requirements
 useEffect(() => {
