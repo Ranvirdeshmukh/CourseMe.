@@ -1,7 +1,7 @@
 // initializeHiddenLayups.js
 
 import { db } from '../firebase';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, setDoc } from 'firebase/firestore';
 import { hiddenLayupCourseIds } from '../constants/hiddenLayupConstants';
 
 const CACHE_KEY = 'hidden_layups_course_data_v2';
@@ -80,11 +80,27 @@ const getVoteCounts = async () => {
   return voteCounts;
 };
 
+// NEW: Ensure each hidden layup course has a Firestore document.
+// If a document is missing, create it with initial vote counts.
+const ensureHiddenLayupDocsExist = async () => {
+  for (const courseId of hiddenLayupCourseIds) {
+    const docRef = doc(db, 'hidden_layups', courseId);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      await setDoc(docRef, { yes_count: 0, no_count: 0 });
+      console.log(`Created document for ${courseId}`);
+    }
+  }
+};
+
 export const initializeHiddenLayups = async () => {
   try {
+    // Ensure Firestore has all the hidden layup documents.
+    await ensureHiddenLayupDocsExist();
+    
     let courseData = getCachedCourseData();
     
-    // If no cached data, fetch from Firestore and cache it
+    // If no cached data, fetch from Firestore and cache it.
     if (!courseData) {
       console.log('Fetching fresh course data');
       courseData = await fetchCourseData();
@@ -93,10 +109,10 @@ export const initializeHiddenLayups = async () => {
       console.log('Using cached course data');
     }
 
-    // Always get fresh vote counts
+    // Always get fresh vote counts.
     const voteCounts = await getVoteCounts();
     
-    // Combine static course data with fresh vote counts
+    // Combine static course data with fresh vote counts.
     const combinedData = {};
     for (const courseId of hiddenLayupCourseIds) {
       if (courseData[courseId]) {
@@ -115,7 +131,7 @@ export const initializeHiddenLayups = async () => {
   }
 };
 
-// Function to get user votes
+// Function to get user votes.
 export const getUserVotes = async (courseId, userId) => {
   if (!userId) return null;
   try {
