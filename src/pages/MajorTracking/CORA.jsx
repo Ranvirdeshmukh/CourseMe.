@@ -497,20 +497,23 @@ useEffect(() => {
 }, []);
 
 const handleCoraSubmit = async () => {
-  // Don't do anything if the query is empty
   if (!coraQuery.trim()) return;
   
   setIsLoading(true);
   setError("");
   
+  // Add a session_id value. In production, use a unique session identifier.
+  const session_id = "default-session"; 
+  
   try {
     const response = await axios.post(
       API_URL,
-      { query: coraQuery },
+      { session_id: session_id, query: coraQuery },
       {
         headers: {
           'Content-Type': 'application/json',
-          'x-requested-with': 'XMLHttpRequest'
+          'x-requested-with': 'XMLHttpRequest',
+          // 'Origin': window.location.origin  // explicitly add origin header
         }
       }
     );
@@ -518,7 +521,6 @@ const handleCoraSubmit = async () => {
     console.log('API Response:', response.data);
   
     if (response.data && response.data.answer) {
-      // Append the user's query and CORA's answer to chatHistory
       setChatHistory(prevHistory => [
         ...prevHistory,
         { role: 'user', text: coraQuery },
@@ -536,6 +538,7 @@ const handleCoraSubmit = async () => {
     setIsLoading(false);
   }
 };
+
 
 const ChatHistorySidebar = ({ chatHistory, darkMode, textColor }) => {
   return (
