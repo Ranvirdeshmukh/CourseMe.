@@ -183,6 +183,16 @@ class RequirementManager {
               if (!req) return false;
               return this.courseMatchesComplexRequirement(courseId, req, pillar.index);
           }
+          case 'range': {
+            const match = courseId.match(/([A-Z]+)(\d+)/);
+            if (!match) return false;
+            const [, dept, numStr] = match;
+            const num = parseInt(numStr);
+            // If a department is specified, ensure it matches
+            if (pillar.department && dept !== pillar.department) return false;
+            return num >= pillar.start && num <= pillar.end;
+          }
+          
 
           default:
               return false;

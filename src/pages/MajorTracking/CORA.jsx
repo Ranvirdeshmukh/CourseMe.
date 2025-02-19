@@ -406,18 +406,22 @@ const handleCourseComplete = async (course) => {
         }
   
         // Complex requirements with minimum number and exclusions
-        if (group.match(/#\d+\[.+≥\d+/)) {
-          const countMatch = group.match(/#(\d+)/);
-          const count = countMatch ? parseInt(countMatch[1]) : 1;
-          const requirements = group.match(/\[([^\]]+)\]/)[1].split(',').map(r => r.trim());
-          
-          return {
-            type: 'complex',
-            count: count,
-            options: [`[${requirements.join(',')}]`],
-            description: `${count} courses meeting advanced requirements`
-          };
-        }
+        // Range requirements (e.g. "#2[300-399]")
+if (group.match(/#(\d+)\[(\d+)-(\d+)\]/)) {
+  const match = group.match(/#(\d+)\[(\d+)-(\d+)\]/);
+  const count = parseInt(match[1]);
+  const start = parseInt(match[2]);
+  const end = parseInt(match[3]);
+  return {
+    type: 'range',
+    count: count,
+    start: start,
+    end: end,
+    department: majorDept,
+    description: `${count} course(s) from ${start} to ${end}`
+  };
+}
+
   
         // Specific courses with options
         if (group.includes('{')) {
@@ -630,7 +634,7 @@ const calculateProgress = useCallback(() => {
   const requirements = majorRequirements[selectedMajor];
   const totalRequirements = requirements.pillars.reduce((total, pillar) => {
     if (pillar.type === 'prerequisites') return total + pillar.courses.length;
-    if (pillar.type === 'specific') return total + 1;
+    if (pillar.type === 'specific') return total + (pillar.count || 1);  
     if (pillar.type === 'range') return total + pillar.count || 1;
     return total;
   }, 0);
