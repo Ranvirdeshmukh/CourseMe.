@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { GraduationCap, User, Send,Loader2 } from 'lucide-react';
+import { GraduationCap, User, Send,Loader2, Plus } from 'lucide-react';
 import programData from './majors.json';
 import CourseDisplayPillar from './CourseDisplayPillar';
 import GraduationRequirements from './GraduationRequirements';
 import MajorRequirements from './MajorRequirements';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
 import axios from 'axios';
-
 
 
 const CoraChat = ({ 
@@ -23,9 +22,18 @@ const CoraChat = ({
   isLoading,
   error,
   handleCoraSubmit,
-  conversation // conversation history array
+  conversation,
+  handleNewChat
 }) => {
   const conversationRef = useRef(null);
+
+  // Demo questions array
+  const demoQuestions = [
+    "How hard is CS30?",
+    "best professor in CS department?",
+    "How hard is Gov5?",
+    "How hard is organic chemistry?"
+  ];
 
   // Auto-scroll the conversation container when new messages are added
   useEffect(() => {
@@ -36,75 +44,99 @@ const CoraChat = ({
 
   return (
     <div 
-      className="flex flex-col rounded-lg shadow-lg p-6"
+      className="flex flex-col rounded-lg shadow-xl p-8"
       style={{ background: paperBgColor }}
     >
       <div 
-        className="flex items-center justify-between mb-4 border-b pb-2"
+        className="flex items-center justify-between mb-6 border-b pb-3"
         style={{ borderColor: darkMode ? borderColor : '#ddd' }}
       >
-        <h2 className="text-xl font-bold" style={{ color: textColor }}>
-          CORA
+        <h2 className="text-2xl font-bold" style={{ color: textColor }}>
+          CORA 1.0
         </h2>
-        <GraduationCap 
-          className="w-6 h-6" 
-          style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }}
-        />
+        <div className="flex items-center space-x-2">
+          <GraduationCap className="w-8 h-8" style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }} />
+          <button 
+            onClick={handleNewChat} 
+            className="p-1 rounded-full hover:bg-gray-200"
+          >
+            <Plus className="w-6 h-6" style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }} />
+          </button>
+        </div>
       </div>
 
       {/* Conversation History */}
-      <div 
-        ref={conversationRef}
-        className="flex-1 overflow-y-auto mb-4 space-y-3 p-3 rounded-md"
-        style={{ 
-          background: darkMode ? paperBgColor : '#F3F4F6',
-          border: darkMode ? `1px solid ${borderColor}` : 'none',
-          maxHeight: '300px'
-        }}
-      >
-        {conversation.length === 0 ? (
-  <div className="text-center text-sm italic" style={{ color: textColor }}>
-    Start the conversation...
-  </div>
-) : (
-  conversation.map((message, index) => (
-    <div 
-      key={index} 
-      className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-    >
-      {message.temporary ? (
-        <div 
-          className="flex items-center text-sm italic"
-          style={{
-            color: darkMode ? '#9CA3AF' : '#6B7280',
-            margin: '4px 0'
-          }}
-        >
-          {message.text}
-          <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-        </div>
-      ) : (
-        <div 
-          className={`max-w-xs px-4 py-2 rounded-lg shadow ${
-            message.type === 'user'
-              ? (darkMode ? 'bg-green-600 text-white' : 'bg-green-100 text-green-800')
-              : (darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800')
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
+<div 
+  ref={conversationRef}
+  className="flex-1 overflow-y-auto mb-6 space-y-4 p-4 rounded-md"
+  style={{ 
+    background: darkMode ? paperBgColor : '#F3F4F6',
+    border: darkMode ? `1px solid ${borderColor}` : '1px solid #ddd',
+    maxHeight: '500px'
+  }}
+>
+  {conversation.length === 0 ? (
+    <div className="text-center text-lg italic" style={{ color: textColor }}>
+      Start the conversation...
     </div>
-  ))
+  ) : (
+    conversation.map((message, index) => (
+      <div 
+        key={index} 
+        className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+      >
+        {message.temporary ? (
+          <div 
+            className="flex items-center text-base italic"
+            style={{
+              color: darkMode ? '#9CA3AF' : '#6B7280',
+              margin: '4px 0'
+            }}
+          >
+            {message.text}
+            <Loader2 className="w-5 h-5 ml-2 animate-spin" />
+          </div>
+        ) : (
+          <div 
+            className={`max-w-md px-6 py-3 rounded-lg shadow ${
+              message.type === 'user'
+                ? (darkMode ? 'bg-green-600 text-white' : 'bg-green-100 text-green-800')
+                : (darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800')
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+      </div>
+    ))
+  )}
+</div>
+
+{/* Demo Questions - only shown if no conversation has started */}
+{conversation.length === 0 && (
+  <div className="mb-4">
+    {demoQuestions.map((question, index) => (
+      <button 
+        key={index}
+        onClick={() => {
+          // Directly feed the demo question into the chat:
+          setCoraQuery(question);
+          handleCoraSubmit();
+        }}
+        className="mr-2 mb-2 px-3 py-1 rounded-full bg-blue-500 text-white hover:bg-blue-600"
+      >
+        {question}
+      </button>
+    ))}
+  </div>
 )}
 
 
-      </div>
-
+      
       {/* Error Message */}
       {error && (
         <div 
-          className="mb-4 p-3 rounded-md text-sm font-medium"
+          className="mb-6 p-4 rounded-md text-base font-medium"
           style={{ 
             background: darkMode ? '#7F1D1D' : '#FEE2E2',
             color: darkMode ? '#FECACA' : '#991B1B'
@@ -125,7 +157,7 @@ const CoraChat = ({
         <input
           type="text"
           placeholder="Ask about your degree requirements..."
-          className="w-full rounded-full border px-4 py-2 pr-12 focus:outline-none focus:ring-2"
+          className="w-full rounded-full border px-6 py-3 pr-16 text-lg focus:outline-none focus:ring-2"
           value={coraQuery}
           onChange={(e) => setCoraQuery(e.target.value)}
           disabled={isLoading}
@@ -138,18 +170,19 @@ const CoraChat = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 focus:outline-none"
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 focus:outline-none"
           style={{ 
             color: darkMode ? '#B0B0B0' : '#6B7280',
             opacity: isLoading ? 0.5 : 1 
           }}
         >
-          <Send className="w-6 h-6" />
+          <Send className="w-7 h-7" />
         </button>
       </form>
     </div>
   );
 };
+
 
 
 const MajorTracker = ({darkMode}) => {
@@ -180,6 +213,7 @@ const progressFillColor = darkMode ? '#349966' : '#3B82F6'; // inner fill color
 const borderColor = darkMode ? '#4B5563' : '#D1D5DB';
 const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
 
+const [currentChatId, setCurrentChatId] = useState(() => Date.now().toString());
 
 const [loading, setLoading] = useState(false);
 const [answer, setAnswer] = useState('');
@@ -272,13 +306,14 @@ useEffect(() => {
     console.log("User is logged in:", auth.currentUser.uid);
     // Debounce saving by 500ms
     const timer = setTimeout(() => {
-      const conversationRef = doc(db, "chatConversations", auth.currentUser.uid);
-      setDoc(conversationRef, { conversation, lastUpdated: new Date() }, { merge: true })
+      const conversationDocRef = doc(db, "chatConversations", auth.currentUser.uid, "sessions", currentChatId);
+      setDoc(conversationDocRef, { conversation, lastUpdated: new Date() }, { merge: true })
         .then(() => console.log("Conversation saved to Firestore"))
         .catch(err => console.error("Error saving conversation to Firestore:", err));
     }, 500);
     return () => clearTimeout(timer);
-  }, [conversation, auth.currentUser, db]);
+  }, [conversation, auth.currentUser, db, currentChatId]);
+  
   
     // Fetch available majors from programData
     useEffect(() => {
@@ -347,6 +382,20 @@ useEffect(() => {
         alert('Error saving progress. Please try again.');
       }
     };
+
+    const handleNewChat = () => {
+      if (conversation.length > 0 && !window.confirm("Start a new chat? The current conversation will be saved.")) {
+        return;
+      }
+      const newSessionId = Date.now().toString();
+      setCurrentChatId(newSessionId);
+      setConversation([]);
+      localStorage.removeItem('coraConversation');
+      setCoraQuery("");
+      setCoraResponse("");
+    };
+    
+    
   
     // Handle major selection
     const handleMajorChange = async (majorCode) => {
@@ -835,69 +884,73 @@ return (
         
 
         <div className="lg:col-span-1">
-            <div 
-              className="rounded-lg shadow p-6 mb-6" 
-              style={{ background: paperBgColor }}
-            >
-              <h2 
-                className="text-lg font-semibold mb-4" 
-                style={{ color: textColor }}
-              >
-                Progress Summary
-              </h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span style={{ color: textColor }}>Major Requirements</span>
-                  <span className="font-medium" style={{ color: textColor }}>
-                    {progress.major}% completed
-                  </span>
-                </div>
-                <div 
-                  className="w-full rounded-full h-2" 
-                  style={{ background: progressBgColor }}
-                >
-                  <div 
-                    className="rounded-full h-2" 
-                    style={{ background: progressFillColor, width: `${progress.major}%` }}
-                  />
-                </div>
+  <div 
+    className="rounded-lg shadow p-6 mb-6" 
+    style={{ background: paperBgColor }}
+  >
+ 
+    <h2 
+      className="text-lg font-semibold mb-4" 
+      style={{ color: textColor }}
+    >
+      Progress Summary
+    </h2>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <span style={{ color: textColor }}>Major Requirements</span>
+        <span className="font-medium" style={{ color: textColor }}>
+          {progress.major}% completed
+        </span>
+      </div>
+      <div 
+        className="w-full rounded-full h-2" 
+        style={{ background: progressBgColor }}
+      >
+        <div 
+          className="rounded-full h-2" 
+          style={{ background: progressFillColor, width: `${progress.major}%` }}
+        />
+      </div>
 
-                <div className="flex justify-between items-center">
-                  <span style={{ color: textColor }}>Distributives</span>
-                  <span className="font-medium" style={{ color: textColor }}>
-                    {progress.distributives}% completed
-                  </span>
-                </div>
-                <div 
-                  className="w-full rounded-full h-2" 
-                  style={{ background: progressBgColor }}
-                >
-                  <div 
-                    className="rounded-full h-2" 
-                    style={{ background: progressFillColor, width: `${progress.distributives}%` }}
-                  />
-                </div>
-              </div>
-            </div>
+      <div className="flex justify-between items-center">
+        <span style={{ color: textColor }}>Distributives</span>
+        <span className="font-medium" style={{ color: textColor }}>
+          {progress.distributives}% completed
+        </span>
+      </div>
+      <div 
+        className="w-full rounded-full h-2" 
+        style={{ background: progressBgColor }}
+      >
+        <div 
+          className="rounded-full h-2" 
+          style={{ background: progressFillColor, width: `${progress.distributives}%` }}
+        />
+      </div>
+    </div>
+  </div>
+  
 
-            {/* Degree Assistant */}
-            <CoraChat 
-              darkMode={darkMode}
-              paperBgColor={paperBgColor}
-              textColor={textColor}
-              inputBgColor={inputBgColor}
-              borderColor={borderColor}
-              coraQuery={coraQuery}
-              setCoraQuery={setCoraQuery}
-              coraResponse={coraResponse}
-              isLoading={isLoading}
-              error={error}
-              handleCoraSubmit={handleCoraSubmit}
-              conversation={conversation}  // new prop passed here
+  
+    <CoraChat 
+  darkMode={darkMode}
+  paperBgColor={paperBgColor}
+  textColor={textColor}
+  inputBgColor={inputBgColor}
+  borderColor={borderColor}
+  coraQuery={coraQuery}
+  setCoraQuery={setCoraQuery}
+  coraResponse={coraResponse}
+  isLoading={isLoading}
+  error={error}
+  handleCoraSubmit={handleCoraSubmit}
+  conversation={conversation}
+  handleNewChat={handleNewChat}   // now defined
+/>
 
-            />
 
-          </div>
+</div>
+
         </div>
       </main>
     </div>
