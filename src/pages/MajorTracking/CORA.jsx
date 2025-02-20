@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { GraduationCap, User, Send } from 'lucide-react';
+import { GraduationCap, User, Send,Loader2 } from 'lucide-react';
 import programData from './majors.json';
 import CourseDisplayPillar from './CourseDisplayPillar';
 import GraduationRequirements from './GraduationRequirements';
@@ -9,7 +9,8 @@ import MajorRequirements from './MajorRequirements';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
 import axios from 'axios';
 
-// First, define CoraChat as a separate component outside of MajorTracker
+
+
 const CoraChat = ({ 
   darkMode, 
   paperBgColor, 
@@ -21,58 +22,110 @@ const CoraChat = ({
   coraResponse,
   isLoading,
   error,
-  handleCoraSubmit 
+  handleCoraSubmit,
+  conversation // conversation history array
 }) => {
+  const conversationRef = useRef(null);
+
+  // Auto-scroll the conversation container when new messages are added
+  useEffect(() => {
+    if (conversationRef.current) {
+      conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
+    }
+  }, [conversation]);
+
   return (
     <div 
-      className="rounded-lg shadow p-6" 
+      className="flex flex-col rounded-lg shadow-lg p-6"
       style={{ background: paperBgColor }}
     >
-      <div className="flex items-center justify-between mb-4">
-        <h2 
-          className="text-lg font-semibold" 
-          style={{ color: textColor }}
-        >
+      <div 
+        className="flex items-center justify-between mb-4 border-b pb-2"
+        style={{ borderColor: darkMode ? borderColor : '#ddd' }}
+      >
+        <h2 className="text-xl font-bold" style={{ color: textColor }}>
           CORA
         </h2>
         <GraduationCap 
-          className="w-5 h-5" 
+          className="w-6 h-6" 
           style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }}
         />
       </div>
 
-      {/* Display CORA's response */}
-      {coraResponse && (
+      {/* Conversation History */}
+      <div 
+        ref={conversationRef}
+        className="flex-1 overflow-y-auto mb-4 space-y-3 p-3 rounded-md"
+        style={{ 
+          background: darkMode ? paperBgColor : '#F3F4F6',
+          border: darkMode ? `1px solid ${borderColor}` : 'none',
+          maxHeight: '300px'
+        }}
+      >
+        {conversation.length === 0 ? (
+  <div className="text-center text-sm italic" style={{ color: textColor }}>
+    Start the conversation...
+  </div>
+) : (
+  conversation.map((message, index) => (
+    <div 
+      key={index} 
+      className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+    >
+      {message.temporary ? (
         <div 
-          className="rounded-lg p-4 mb-4 text-sm" 
-          style={{ background: darkMode ? '#333333' : '#E5E7EB', color: textColor }}
+          className="flex items-center text-sm italic"
+          style={{
+            color: darkMode ? '#9CA3AF' : '#6B7280',
+            margin: '4px 0'
+          }}
         >
-          {coraResponse}
+          {message.text}
+          <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+        </div>
+      ) : (
+        <div 
+          className={`max-w-xs px-4 py-2 rounded-lg shadow ${
+            message.type === 'user'
+              ? (darkMode ? 'bg-green-600 text-white' : 'bg-green-100 text-green-800')
+              : (darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800')
+          }`}
+        >
+          {message.text}
         </div>
       )}
+    </div>
+  ))
+)}
 
-      {/* Error message */}
+
+      </div>
+
+      {/* Error Message */}
       {error && (
         <div 
-          className="rounded-lg p-4 mb-4 text-sm text-red-500"
-          style={{ background: darkMode ? '#331111' : '#FEE2E2' }}
+          className="mb-4 p-3 rounded-md text-sm font-medium"
+          style={{ 
+            background: darkMode ? '#7F1D1D' : '#FEE2E2',
+            color: darkMode ? '#FECACA' : '#991B1B'
+          }}
         >
           {error}
         </div>
       )}
 
-      {/* Input form */}
+      {/* Input Form */}
       <form 
         onSubmit={(e) => {
           e.preventDefault();
           handleCoraSubmit();
         }}
-        className="mt-4 relative"
+        className="relative"
       >
         <input
           type="text"
           placeholder="Ask about your degree requirements..."
-          className="w-full p-3 pr-10 border rounded-lg"
+          className="w-full rounded-full border px-4 py-2 pr-12 focus:outline-none focus:ring-2"
           value={coraQuery}
           onChange={(e) => setCoraQuery(e.target.value)}
           disabled={isLoading}
@@ -85,18 +138,19 @@ const CoraChat = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 focus:outline-none"
           style={{ 
             color: darkMode ? '#B0B0B0' : '#6B7280',
             opacity: isLoading ? 0.5 : 1 
           }}
         >
-          <Send className="w-5 h-5" />
+          <Send className="w-6 h-6" />
         </button>
       </form>
     </div>
   );
 };
+
 
 const MajorTracker = ({darkMode}) => {
   const [courseInput, setCourseInput] = useState("");
@@ -184,6 +238,19 @@ const handleCourseComplete = async (course) => {
     });
     setCourseInput("");
   };
+
+  // Load saved conversation on mount
+useEffect(() => {
+  const savedConversation = localStorage.getItem('coraConversation');
+  if (savedConversation) {
+    setConversation(JSON.parse(savedConversation));
+  }
+}, []);
+
+// Save conversation to localStorage whenever it updates
+useEffect(() => {
+  localStorage.setItem('coraConversation', JSON.stringify(conversation));
+}, [conversation]);
   
   const handleCourseRemove = (index) => {
     setCompletedCourses(prev => {
@@ -197,6 +264,22 @@ const handleCourseComplete = async (course) => {
     });
   };
 
+  useEffect(() => {
+    if (!auth.currentUser) {
+      console.log("User not logged in; conversation will not be saved.");
+      return;
+    }
+    console.log("User is logged in:", auth.currentUser.uid);
+    // Debounce saving by 500ms
+    const timer = setTimeout(() => {
+      const conversationRef = doc(db, "chatConversations", auth.currentUser.uid);
+      setDoc(conversationRef, { conversation, lastUpdated: new Date() }, { merge: true })
+        .then(() => console.log("Conversation saved to Firestore"))
+        .catch(err => console.error("Error saving conversation to Firestore:", err));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [conversation, auth.currentUser, db]);
+  
     // Fetch available majors from programData
     useEffect(() => {
       if (programData?.programs) {
@@ -278,6 +361,8 @@ const handleCourseComplete = async (course) => {
         }
       }
     };
+
+    
   
     // Fetch course data from Firebase
     const fetchCourseData = useCallback(async () => {
@@ -414,6 +499,7 @@ if (group.match(/#(\d+)\[(\d+)-(\d+)\]/)) {
       return [];
     }
   };
+  
 
 // Inside CORA.jsx, this should be part of the useEffect that processes major requirements
 useEffect(() => {
@@ -468,15 +554,37 @@ useEffect(() => {
 const handleCoraSubmit = async () => {
   if (!coraQuery.trim()) return;
 
+  // Append the user's query to the conversation
+  setConversation(prev => [...prev, { type: 'user', text: coraQuery }]);
+
+  // Append a temporary "analyzing" message from CORA
+  const loadingMessages = [
+    "Analyzing your question...",
+    "Let me think...",
+    "Processing your query...",
+    "Just a moment while I analyze your question..."
+  ];
+  const randomLoading = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+  setConversation(prev => [...prev, { type: 'cora', text: randomLoading, temporary: true }]);
+
+  // Start an interval to update the temporary message periodically
+  const intervalId = setInterval(() => {
+    setConversation(prev =>
+      prev.map(msg =>
+        msg.temporary
+          ? { ...msg, text: loadingMessages[Math.floor(Math.random() * loadingMessages.length)] }
+          : msg
+      )
+    );
+  }, 1500);
+
   setIsLoading(true);
   setError("");
 
   try {
     const response = await axios.post(
       'https://cora-chatbot-898344091520.us-central1.run.app/api/chat',
-      { 
-        query: coraQuery
-      },
+      { query: coraQuery },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -485,22 +593,22 @@ const handleCoraSubmit = async () => {
       }
     );
 
+    // Clear the interval before processing the response
+    clearInterval(intervalId);
+
     if (response.data && response.data.answer) {
+      // Remove the temporary message and append the real answer
+      setConversation(prev => {
+        const withoutTemp = prev.filter(msg => !msg.temporary);
+        return [...withoutTemp, { type: 'cora', text: response.data.answer }];
+      });
       setCoraResponse(response.data.answer);
-      
-      // If you want to display the sources
-      if (response.data.sources && response.data.sources.length > 0) {
-        const sourcesText = response.data.sources
-          .map(source => `\n\nSource: ${source.professor} (${source.term}) - ${source.course_name}`)
-          .join('');
-        setCoraResponse(prev => `${response.data.answer}${sourcesText}`);
-      }
-      
-      setCoraQuery(""); // Clear the input
+      setCoraQuery(""); // Clear input
     } else {
       throw new Error('Invalid response format from server');
     }
   } catch (error) {
+    clearInterval(intervalId);
     console.error('Error details:', error);
     
     let errorMessage;
@@ -515,10 +623,17 @@ const handleCoraSubmit = async () => {
     }
     
     setError(errorMessage);
+    // Remove the temporary message and append the error message
+    setConversation(prev => {
+      const withoutTemp = prev.filter(msg => !msg.temporary);
+      return [...withoutTemp, { type: 'cora', text: errorMessage }];
+    });
   } finally {
     setIsLoading(false);
   }
 };
+
+
 
 useEffect(() => {
   console.log('CORA Chat component mounted with API URL:', API_URL);
@@ -778,6 +893,8 @@ return (
               isLoading={isLoading}
               error={error}
               handleCoraSubmit={handleCoraSubmit}
+              conversation={conversation}  // new prop passed here
+
             />
 
           </div>
