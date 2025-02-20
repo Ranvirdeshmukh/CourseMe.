@@ -728,7 +728,7 @@ const LandingPage = ({ darkMode }) => {
 
           {/* CORA 1.0 Beta */}
           <ButtonBase
-            onClick={() => (currentUser ? navigate('/beta') : handleLoginRedirect())}
+            onClick={() => (currentUser ? navigate('/major-tracker') : handleLoginRedirect())}
             sx={{
               position: 'relative',
               width: { xs: '140px', sm: '160px', md: '200px' },
@@ -823,7 +823,7 @@ const LandingPage = ({ darkMode }) => {
                 textAlign: 'center',
               }}
             >
-              Your AI college advisor and major planning tool, launching on Monday 17th Feb
+              Your AI college advisor and major planning tool, launching Wednesday Feb19th.
             </Typography>
           </ButtonBase>
 
