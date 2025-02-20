@@ -130,7 +130,7 @@ const [answer, setAnswer] = useState('');
 const [snackbarOpen, setSnackbarOpen] = useState(false);
 const [question, setQuestion] = useState('');
 
-const API_URL = 'https://cors-proxy.fringe.zone/https://langchain-chatbot-898344091520.us-central1.run.app/chat';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://langchain-chatbot-898344091520.us-central1.run.app';
 
 
 const handleCourseComplete = async (course) => {
@@ -158,39 +158,6 @@ const handleCourseComplete = async (course) => {
   }
 };
   
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setAnswer('');
-    
-    try {
-      const response = await axios.post(API_URL, 
-        { query: question },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-requested-with': 'XMLHttpRequest'
-          },
-        }
-      );
-  
-      console.log('API Response:', response.data);
-      
-      if (response.data && response.data.answer) {
-        setAnswer(response.data.answer);
-      } else {
-        throw new Error('Unexpected response format');
-      }
-  
-    } catch (error) {
-      console.error('Error fetching answer:', error);
-      setError('An error occurred while fetching the answer. Please try again.');
-      setSnackbarOpen(true);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCourseSubmit = (e) => {
     e.preventDefault();
@@ -494,52 +461,67 @@ useEffect(() => {
   }
 }, []);
 
-  const handleCoraSubmit = async () => {
-    // Don't do anything if the query is empty
-    if (!coraQuery.trim()) return;
-  
-    setIsLoading(true);
-    setError("");
-  
-    try {
-      const response = await axios.post(
-        API_URL,
-        { query: coraQuery },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-requested-with': 'XMLHttpRequest'
-          }
-        }
-      );
-  
-      console.log('API Response:', response.data);
-  
-      if (response.data && response.data.answer) {
-        setCoraResponse(response.data.answer);
-        setCoraQuery(""); // Clear the input after successful submission
-      } else {
-        throw new Error('Unexpected response format');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setError('Failed to get a response. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  
 
-  const parseCourse = (course) => {
-    if (!course || typeof course !== 'string') return null;
-    const match = course.match(/^([A-Z]+)(\d+)(\.?\d*)?$/);
-    return match ? {
-      dept: match[1],
-      num: parseInt(match[2]),
-      decimal: match[3] || ''
-    } : null;
-  };
+
+const handleCoraSubmit = async () => {
+  if (!coraQuery.trim()) return;
+
+  setIsLoading(true);
+  setError("");
+
+  try {
+    const response = await axios.post(
+      'https://cora-chatbot-898344091520.us-central1.run.app/api/chat',
+      { 
+        query: coraQuery
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (response.data && response.data.answer) {
+      setCoraResponse(response.data.answer);
+      
+      // If you want to display the sources
+      if (response.data.sources && response.data.sources.length > 0) {
+        const sourcesText = response.data.sources
+          .map(source => `\n\nSource: ${source.professor} (${source.term}) - ${source.course_name}`)
+          .join('');
+        setCoraResponse(prev => `${response.data.answer}${sourcesText}`);
+      }
+      
+      setCoraQuery(""); // Clear the input
+    } else {
+      throw new Error('Invalid response format from server');
+    }
+  } catch (error) {
+    console.error('Error details:', error);
+    
+    let errorMessage;
+    if (error.code === 'ERR_NETWORK') {
+      errorMessage = 'Unable to connect to CORA. Please try again later.';
+    } else if (error.response?.status === 429) {
+      errorMessage = 'Too many requests. Please wait a moment and try again.';
+    } else if (error.response?.status === 500) {
+      errorMessage = 'CORA is having trouble processing your request. Please try again.';
+    } else {
+      errorMessage = 'Something went wrong. Please try again.';
+    }
+    
+    setError(errorMessage);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+useEffect(() => {
+  console.log('CORA Chat component mounted with API URL:', API_URL);
+}, []);
+  
 
   const normalizeCourseNumber = (course) => {
     if (!course || typeof course !== 'string') return null;
