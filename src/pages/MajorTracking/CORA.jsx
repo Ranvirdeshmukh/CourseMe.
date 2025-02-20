@@ -818,19 +818,24 @@ return (
           <h1 className="text-xl font-semibold">CORA 1.0 (Course Recommendation Advisor)</h1>
         </div>
         <div className="flex items-center space-x-4">
-          <select 
-            value={selectedMajor}
-            onChange={(e) => handleMajorChange(e.target.value)}
-            className="border rounded-md px-3 py-2"
-            style={{ background: paperBgColor, color: textColor, borderColor: headerTextColor }}
-          >
-            <option value="">Select Major</option>
-            {availableMajors.map(major => (
-              <option key={major.code} value={major.code}>
-                {major.name}
-              </option>
-            ))}
-          </select>
+        <select 
+  value={selectedMajor}
+  onChange={(e) => handleMajorChange(e.target.value)}
+  className="border rounded-md px-3 py-2"
+  style={{ background: paperBgColor, color: textColor, borderColor: headerTextColor }}
+>
+  <option value="">Select Major</option>
+  {availableMajors.map(major => (
+    <option 
+      key={major.code} 
+      value={major.code} 
+      disabled={major.code !== 'CS'}
+    >
+      {major.name}{major.code !== 'CS' ? ' - Coming Soon' : ''}
+    </option>
+  ))}
+</select>
+
           <button 
             onClick={saveProgress}
             className="px-4 py-2 rounded-md hover:bg-blue-700"
