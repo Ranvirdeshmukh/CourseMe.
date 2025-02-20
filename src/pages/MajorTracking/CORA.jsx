@@ -9,7 +9,6 @@ import MajorRequirements from './MajorRequirements';
 import CourseDisplayCarousel from './CourseDisplayCarousel';
 import axios from 'axios';
 
-
 // First, define CoraChat as a separate component outside of MajorTracker
 const CoraChat = ({ 
   darkMode, 
@@ -107,11 +106,10 @@ const MajorTracker = ({darkMode}) => {
   const [showGradReqs, setShowGradReqs] = useState(false);
   const [selectedMajor, setSelectedMajor] = useState("");
   const [availableMajors, setAvailableMajors] = useState([]);
-  // Add this near your other state declarations at the top of MajorTracker
-  const [chatHistory, setChatHistory] = useState([]);
-
   const db = getFirestore();
   const auth = getAuth();
+
+  const [conversation, setConversation] = useState([]);
 
   const [coraQuery, setCoraQuery] = useState("");
   const [coraResponse, setCoraResponse] = useState("");
@@ -134,7 +132,7 @@ const [answer, setAnswer] = useState('');
 const [snackbarOpen, setSnackbarOpen] = useState(false);
 const [question, setQuestion] = useState('');
 
-const API_URL = 'https://cors-proxy.fringe.zone/https://langchain-chatbot-898344091520.us-central1.run.app/chat';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://langchain-chatbot-898344091520.us-central1.run.app';
 
 
 const handleCourseComplete = async (course) => {
@@ -162,39 +160,6 @@ const handleCourseComplete = async (course) => {
   }
 };
   
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setAnswer('');
-    
-    try {
-      const response = await axios.post(API_URL, 
-        { query: question },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-requested-with': 'XMLHttpRequest'
-          },
-        }
-      );
-  
-      console.log('API Response:', response.data);
-      
-      if (response.data && response.data.answer) {
-        setAnswer(response.data.answer);
-      } else {
-        throw new Error('Unexpected response format');
-      }
-  
-    } catch (error) {
-      console.error('Error fetching answer:', error);
-      setError('An error occurred while fetching the answer. Please try again.');
-      setSnackbarOpen(true);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCourseSubmit = (e) => {
     e.preventDefault();
@@ -375,78 +340,80 @@ const handleCourseComplete = async (course) => {
 
   // Separates into pillars
   // parseRequirementString function for CORA
-const parseRequirementString = (reqStr, majorDept) => {
-  if (!reqStr || typeof reqStr !== 'string') return [];
-
-  try {
+  const parseRequirementString = (reqStr, majorDept) => {
+    if (!reqStr || typeof reqStr !== 'string') return [];
+  
+    try {
       // Remove outer parentheses and trim
       const cleanStr = reqStr.replace(/^\(|\)$/g, '').trim();
       if (!cleanStr) return [];
-
+  
       // Split & to extract pillars
       const groups = cleanStr.split('&')
-          .map(r => r.trim())
-          .filter(Boolean);
-
+        .map(r => r.trim())
+        .filter(Boolean);
+  
       // Parse each requirement group
       return groups.map(group => {
-          // Prerequisites
-          if (group.startsWith('@[')) {
-              const prereqStr = group.slice(2, -1);
-              const prereqs = prereqStr.split(',').map(p => {
-                  if (p.includes('{')) {
-                      return {
-                          type: 'alternative',
-                          options: p.slice(1, -1).split('|').map(o => o.trim())
-                      };
-                  }
-                  return p.trim();
-              });
+        // Prerequisites
+        if (group.startsWith('@[')) {
+          const prereqStr = group.slice(2, -1);
+          const prereqs = prereqStr.split(',').map(p => {
+            if (p.includes('{')) {
               return {
-                  type: 'prerequisites',
-                  courses: prereqs,
-                  description: 'Required foundation courses'
+                type: 'alternative',
+                options: p.slice(1, -1).split('|').map(o => o.trim())
               };
-          }
+            }
+            return p.trim();
+          });
+          return {
+            type: 'prerequisites',
+            courses: prereqs,
+            description: 'Required foundation courses'
+          };
+        }
+  
+        // Complex requirements with minimum number and exclusions
+        // Range requirements (e.g. "#2[300-399]")
+if (group.match(/#(\d+)\[(\d+)-(\d+)\]/)) {
+  const match = group.match(/#(\d+)\[(\d+)-(\d+)\]/);
+  const count = parseInt(match[1]);
+  const start = parseInt(match[2]);
+  const end = parseInt(match[3]);
+  return {
+    type: 'range',
+    count: count,
+    start: start,
+    end: end,
+    department: majorDept,
+    description: `${count} course(s) from ${start} to ${end}`
+  };
+}
 
-          // Specific courses with options (like #1{[030-089]|094|MATH≥020})
-          if (group.includes('{')) {
-              const match = group.match(/#(\d+){([^}]+)}/);
-              if (match) {
-                  const [, count, optionsStr] = match;
-                  return {
-                      type: 'specific',
-                      count: parseInt(count),
-                      department: majorDept,
-                      options: optionsStr.split('|').map(o => o.trim()),
-                      description: `${count} course from advanced options`
-                  };
-              }
+  
+        // Specific courses with options
+        if (group.includes('{')) {
+          const match = group.match(/#(\d+){([^}]+)}/);
+          if (match) {
+            const [, count, optionsStr] = match;
+            return {
+              type: 'specific',
+              count: parseInt(count),
+              department: majorDept,
+              options: optionsStr.split('|').map(o => o.trim()),
+              description: `${count} course from advanced options`
+            };
           }
-
-          // Course count requirements with range
-          const rangeMatch = group.match(/#(\d+)\[(.+?)\]/);
-          if (rangeMatch) {
-              const [, count, range] = rangeMatch;
-              const [start, end] = range.split('-').map(n => parseInt(n));
-              
-              return {
-                  type: 'range',
-                  count: parseInt(count),
-                  department: majorDept,
-                  start,
-                  end,
-                  description: `${count} courses from ${majorDept} ${start}-${end}`
-              };
-          }
-
-          return null;
+        }
+  
+        return null;
       }).filter(Boolean);
-  } catch (error) {
+    } catch (error) {
       console.error('Error parsing requirements:', error);
       return [];
-  }
-};
+    }
+  };
 
 // Inside CORA.jsx, this should be part of the useEffect that processes major requirements
 useEffect(() => {
@@ -496,110 +463,67 @@ useEffect(() => {
   }
 }, []);
 
+
+
 const handleCoraSubmit = async () => {
   if (!coraQuery.trim()) return;
-  
+
   setIsLoading(true);
   setError("");
-  
-  // Add a session_id value. In production, use a unique session identifier.
-  const session_id = "default-session"; 
-  
+
   try {
     const response = await axios.post(
-      API_URL,
-      { session_id: session_id, query: coraQuery },
+      'https://cora-chatbot-898344091520.us-central1.run.app/api/chat',
+      { 
+        query: coraQuery
+      },
       {
         headers: {
           'Content-Type': 'application/json',
-          'x-requested-with': 'XMLHttpRequest',
-          // 'Origin': window.location.origin  // explicitly add origin header
+          'Accept': 'application/json'
         }
       }
     );
-  
-    console.log('API Response:', response.data);
-  
+
     if (response.data && response.data.answer) {
-      setChatHistory(prevHistory => [
-        ...prevHistory,
-        { role: 'user', text: coraQuery },
-        { role: 'assistant', text: response.data.answer }
-      ]);
       setCoraResponse(response.data.answer);
-      setCoraQuery(""); // Clear the input after successful submission
+      
+      // If you want to display the sources
+      if (response.data.sources && response.data.sources.length > 0) {
+        const sourcesText = response.data.sources
+          .map(source => `\n\nSource: ${source.professor} (${source.term}) - ${source.course_name}`)
+          .join('');
+        setCoraResponse(prev => `${response.data.answer}${sourcesText}`);
+      }
+      
+      setCoraQuery(""); // Clear the input
     } else {
-      throw new Error('Unexpected response format');
+      throw new Error('Invalid response format from server');
     }
   } catch (error) {
-    console.error('Error:', error);
-    setError('Failed to get a response. Please try again.');
+    console.error('Error details:', error);
+    
+    let errorMessage;
+    if (error.code === 'ERR_NETWORK') {
+      errorMessage = 'Unable to connect to CORA. Please try again later.';
+    } else if (error.response?.status === 429) {
+      errorMessage = 'Too many requests. Please wait a moment and try again.';
+    } else if (error.response?.status === 500) {
+      errorMessage = 'CORA is having trouble processing your request. Please try again.';
+    } else {
+      errorMessage = 'Something went wrong. Please try again.';
+    }
+    
+    setError(errorMessage);
   } finally {
     setIsLoading(false);
   }
 };
 
-
-const ChatHistorySidebar = ({ chatHistory, darkMode, textColor }) => {
-  return (
-    <div
-      style={{
-        height: '400px',
-        overflowY: 'auto',
-        padding: '1rem'
-      }}
-    >
-      {chatHistory.map((msg, index) => (
-        <div key={index} style={{ display: 'flex', marginBottom: '1rem' }}>
-          {msg.role === 'user' ? (
-            // User message (question) appears on the right
-            <div
-              style={{
-                marginLeft: 'auto',
-                background: darkMode ? '#2563EB' : '#D1E9FF',
-                color: darkMode ? '#fff' : '#000',
-                padding: '0.75rem 1rem',
-                borderRadius: '1.25rem',
-                maxWidth: '70%',
-                textAlign: 'right'
-              }}
-            >
-              {msg.text}
-            </div>
-          ) : (
-            // Assistant message appears on the left
-            <div
-              style={{
-                marginRight: 'auto',
-                background: darkMode ? '#4B5563' : '#F3F4F6',
-                color: textColor,
-                padding: '0.75rem 1rem',
-                borderRadius: '1.25rem',
-                maxWidth: '70%',
-                textAlign: 'left'
-              }}
-            >
-              {msg.text}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-};
-
-
+useEffect(() => {
+  console.log('CORA Chat component mounted with API URL:', API_URL);
+}, []);
   
-
-  const parseCourse = (course) => {
-    if (!course || typeof course !== 'string') return null;
-    const match = course.match(/^([A-Z]+)(\d+)(\.?\d*)?$/);
-    return match ? {
-      dept: match[1],
-      num: parseInt(match[2]),
-      decimal: match[3] || ''
-    } : null;
-  };
 
   const normalizeCourseNumber = (course) => {
     if (!course || typeof course !== 'string') return null;
@@ -694,7 +618,7 @@ const calculateProgress = useCallback(() => {
   const requirements = majorRequirements[selectedMajor];
   const totalRequirements = requirements.pillars.reduce((total, pillar) => {
     if (pillar.type === 'prerequisites') return total + pillar.courses.length;
-    if (pillar.type === 'specific') return total + 1;
+    if (pillar.type === 'specific') return total + (pillar.count || 1);  
     if (pillar.type === 'range') return total + pillar.count || 1;
     return total;
   }, 0);
@@ -841,64 +765,20 @@ return (
               </div>
             </div>
 
-            <div className="lg:col-span-1">
-  <div className="rounded-lg shadow p-6" style={{ background: paperBgColor }}>
-    {/* Conversation History & Chat Input in one container */}
-    <div 
-      style={{ 
-        height: '400px', 
-        overflowY: 'auto', 
-        marginBottom: '1rem', 
-        padding: '0.5rem',
-        border: `1px solid ${borderColor}`,
-        borderRadius: '0.5rem'
-      }}
-    >
-      {chatHistory.map((msg, index) => (
-        <div key={index} style={{ marginBottom: '1rem' }}>
-          <strong>{msg.role === 'user' ? 'You' : 'CORA'}:</strong>
-          <p style={{ margin: '0.5rem 0 0 0' }}>{msg.text}</p>
-        </div>
-      ))}
-    </div>
-
-    {/* Input form (placed below the conversation history) */}
-    <form 
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleCoraSubmit();
-      }}
-      className="mt-4 relative"
-    >
-      <input
-        type="text"
-        placeholder="Ask about your degree requirements..."
-        className="w-full p-3 pr-10 border rounded-lg"
-        value={coraQuery}
-        onChange={(e) => setCoraQuery(e.target.value)}
-        disabled={isLoading}
-        style={{
-          background: inputBgColor,
-          color: textColor,
-          borderColor: borderColor,
-        }}
-      />
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="absolute right-3 top-1/2 transform -translate-y-1/2"
-        style={{ 
-          color: darkMode ? '#B0B0B0' : '#6B7280',
-          opacity: isLoading ? 0.5 : 1 
-        }}
-      >
-        <Send className="w-5 h-5" />
-      </button>
-    </form>
-  </div>
-</div>
-
-
+            {/* Degree Assistant */}
+            <CoraChat 
+              darkMode={darkMode}
+              paperBgColor={paperBgColor}
+              textColor={textColor}
+              inputBgColor={inputBgColor}
+              borderColor={borderColor}
+              coraQuery={coraQuery}
+              setCoraQuery={setCoraQuery}
+              coraResponse={coraResponse}
+              isLoading={isLoading}
+              error={error}
+              handleCoraSubmit={handleCoraSubmit}
+            />
 
           </div>
         </div>
