@@ -3,27 +3,14 @@ import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from 'firebase
 import { getAuth } from 'firebase/auth';
 import { GraduationCap, User, Send,Loader2, Plus } from 'lucide-react';
 import programData from './majors.json';
-import CourseDisplayPillar from './CourseDisplayPillar';
 import GraduationRequirements from './GraduationRequirements';
 import MajorRequirements from './MajorRequirements';
-import CourseDisplayCarousel from './CourseDisplayCarousel';
 import axios from 'axios';
 
 
 const CoraChat = ({ 
-  darkMode, 
-  paperBgColor, 
-  textColor, 
-  inputBgColor, 
-  borderColor,
-  coraQuery,
-  setCoraQuery,
-  coraResponse,
-  isLoading,
-  error,
-  handleCoraSubmit,
-  conversation,
-  handleNewChat
+  darkMode, paperBgColor, textColor, inputBgColor, borderColor,coraQuery,setCoraQuery,
+  coraResponse,isLoading,error,handleCoraSubmit,conversation,handleNewChat
 }) => {
   const conversationRef = useRef(null);
 
@@ -215,11 +202,6 @@ const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
 
 const [currentChatId, setCurrentChatId] = useState(() => Date.now().toString());
 
-const [loading, setLoading] = useState(false);
-const [answer, setAnswer] = useState('');
-const [snackbarOpen, setSnackbarOpen] = useState(false);
-const [question, setQuestion] = useState('');
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://langchain-chatbot-898344091520.us-central1.run.app';
 
 
@@ -247,31 +229,6 @@ const handleCourseComplete = async (course) => {
     setCompletedCourses(completedCourses);
   }
 };
-  
-
-  const handleCourseSubmit = (e) => {
-    e.preventDefault();
-    const courseRegex = /^[A-Z]{4}\d{1,3}(?:\.\d{2})?$/;
-    if (!courseRegex.test(courseInput)) {
-      alert("Please enter a valid course code (e.g., COSC001 or COSC001.01)");
-      return;
-    }
-    const normalizedCourse = normalizeCourseNumber(courseInput);
-    if (!normalizedCourse) {
-      alert("Invalid course format");
-      return;
-    }
-    setCompletedCourses(prev => {
-      const newCourses = [...prev, normalizedCourse];
-      if (auth.currentUser) {
-        setDoc(doc(db, 'users', auth.currentUser.uid), {
-          completedCourses: newCourses
-        }, { merge: true });
-      }
-      return newCourses;
-    });
-    setCourseInput("");
-  };
 
   // Load saved conversation on mount
 useEffect(() => {
@@ -436,44 +393,7 @@ useEffect(() => {
       fetchCourseData();
     }, [fetchCourseData]);
 
-  // parses the list and structures into alternatives and such
-  const parseCourseList = (courseStr) => {
-    if (!courseStr || typeof courseStr !== 'string') return [];
-    
-    const courses = [];
-    let current = '';
-    let braceDepth = 0;
 
-    for (let char of courseStr) {
-      if (char === '{') braceDepth++;
-      if (char === '}') braceDepth--;
-      
-      if (char === ',' && braceDepth === 0) {
-        const trimmed = current.trim();
-        if (trimmed) courses.push(trimmed);
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    
-    const trimmed = current.trim();
-    if (trimmed) courses.push(trimmed);
-
-    return courses.map(course => {
-      if (course.startsWith('{') && course.endsWith('}')) {
-        return {
-          type: 'alternative',
-          options: course.slice(1, -1).split('|').map(opt => opt.trim())
-        };
-      }
-      return course;
-    
-    });
-  };
-
-  // Separates into pillars
-  // parseRequirementString function for CORA
  // parseRequirementString function for CORA
  const parseRequirementString = (reqStr, majorDept) => {
   if (!reqStr || typeof reqStr !== 'string') return [];
@@ -742,36 +662,7 @@ const ProgressBar = ({ completed, total, label, darkMode }) => {
 };
 
 // CourseSection Component
-const CourseSection = ({ title, courses, isRequired, darkMode }) => (
-  <div className="mb-8">
-    <h3 className="font-medium mb-4" style={{ color: textColor }}>
-      {title} {isRequired && "(Required)"}
-    </h3>
-    <div className="space-y-2">
-      {courses.map((course, index) => (
-        <div 
-          key={index} 
-          className="flex items-center justify-between p-4 rounded-lg shadow"
-          style={{ background: paperBgColor }}
-        >
-          <div>
-            <h4 className="font-medium" style={{ color: textColor }}>
-              {course.code}: {course.title}
-            </h4>
-          </div>
-          <div 
-            className="h-5 w-5 rounded-full flex items-center justify-center" 
-            style={{ border: `2px solid ${borderColor}` }}
-          >
-            {course.completed && (
-              <div className="h-3 w-3 rounded-full bg-green-500" />
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
+
 
 // ... (calculateProgress remains unchanged)
 const calculateProgress = useCallback(() => {
@@ -827,7 +718,7 @@ return (
     <option 
       key={major.code} 
       value={major.code} 
-      disabled={!['CS', 'MATH'].includes(major.code)}
+      // disabled={!['CS', 'MATH'].includes(major.code)}
     >
       {major.name}{!['CS', 'MATH'].includes(major.code) ? ' - Coming Soon' : ''}
     </option>

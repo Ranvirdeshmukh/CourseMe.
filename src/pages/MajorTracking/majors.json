@@ -23,7 +23,7 @@
       "types": {
         "major": {
           "code": "MAJ.ECON",
-          "requirements": "(@[ECON001,ECON010,MATH003] & #{ECON020} & #{ECON021} & #{ECON022} & #{ECON062|ECON064|ECON065|ECON066|ECON067|ECON068|ECON069} & #3[023-069] & #2[≥023])",
+          "requirements": "(@[ECON001,ECON010,MATH003] & #3[ECON020-ECON022] & #{ECON062|ECON064|ECON065|ECON066|ECON067|ECON068|ECON069} & #3[023-069] & #2[≥023])",
           "prereqs": "@[ECON001,ECON010,MATH003]"
         }
       }
