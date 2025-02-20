@@ -1,67 +1,163 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { GraduationCap, User, Send } from 'lucide-react';
+import { GraduationCap, User, Send,Loader2, Plus } from 'lucide-react';
 import programData from './majors.json';
+import CourseDisplayPillar from './CourseDisplayPillar';
 import GraduationRequirements from './GraduationRequirements';
 import MajorRequirements from './MajorRequirements';
+import CourseDisplayCarousel from './CourseDisplayCarousel';
 import axios from 'axios';
 
-// First, define CoraChat as a separate component outside of MajorTracker
+
 const CoraChat = ({ 
-  darkMode, paperBgColor, textColor, inputBgColor, borderColor,coraQuery,
-  setCoraQuery,coraResponse,isLoading,error,handleCoraSubmit 
+  darkMode, 
+  paperBgColor, 
+  textColor, 
+  inputBgColor, 
+  borderColor,
+  coraQuery,
+  setCoraQuery,
+  coraResponse,
+  isLoading,
+  error,
+  handleCoraSubmit,
+  conversation,
+  handleNewChat
 }) => {
+  const conversationRef = useRef(null);
+
+  // Demo questions array
+  const demoQuestions = [
+    "How hard is CS30?",
+    "best professor in CS department?",
+    "How hard is Gov5?",
+    "How hard is organic chemistry?"
+  ];
+
+  // Auto-scroll the conversation container when new messages are added
+  useEffect(() => {
+    if (conversationRef.current) {
+      conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
+    }
+  }, [conversation]);
+
   return (
     <div 
-      className="rounded-lg shadow p-6" 
+      className="flex flex-col rounded-lg shadow-xl p-8"
       style={{ background: paperBgColor }}
     >
-      <div className="flex items-center justify-between mb-4">
-        <h2 
-          className="text-lg font-semibold" 
-          style={{ color: textColor }}
-        >
-          CORA
+      <div 
+        className="flex items-center justify-between mb-6 border-b pb-3"
+        style={{ borderColor: darkMode ? borderColor : '#ddd' }}
+      >
+        <h2 className="text-2xl font-bold" style={{ color: textColor }}>
+          CORA 1.0
         </h2>
-        <GraduationCap 
-          className="w-5 h-5" 
-          style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }}
-        />
+        <div className="flex items-center space-x-2">
+          <GraduationCap className="w-8 h-8" style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }} />
+          <button 
+            onClick={handleNewChat} 
+            className="p-1 rounded-full hover:bg-gray-200"
+          >
+            <Plus className="w-6 h-6" style={{ color: darkMode ? '#B0B0B0' : '#6B7280' }} />
+          </button>
+        </div>
       </div>
 
-      {/* Display CORA's response */}
-      {coraResponse && (
-        <div 
-          className="rounded-lg p-4 mb-4 text-sm" 
-          style={{ background: darkMode ? '#333333' : '#E5E7EB', color: textColor }}
-        >
-          {coraResponse}
-        </div>
-      )}
+      {/* Conversation History */}
+<div 
+  ref={conversationRef}
+  className="flex-1 overflow-y-auto mb-6 space-y-4 p-4 rounded-md"
+  style={{ 
+    background: darkMode ? paperBgColor : '#F3F4F6',
+    border: darkMode ? `1px solid ${borderColor}` : '1px solid #ddd',
+    maxHeight: '500px'
+  }}
+>
+  {conversation.length === 0 ? (
+    <div className="text-center text-lg italic" style={{ color: textColor }}>
+      Start the conversation...
+    </div>
+  ) : (
+    conversation.map((message, index) => (
+      <div 
+        key={index} 
+        className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+      >
+        {message.temporary ? (
+          <div 
+            className="flex items-center text-base italic"
+            style={{
+              color: darkMode ? '#9CA3AF' : '#6B7280',
+              margin: '4px 0'
+            }}
+          >
+            {message.text}
+            <Loader2 className="w-5 h-5 ml-2 animate-spin" />
+          </div>
+        ) : (
+          <div 
+            className={`max-w-md px-6 py-3 rounded-lg shadow ${
+              message.type === 'user'
+                ? (darkMode ? 'bg-green-600 text-white' : 'bg-green-100 text-green-800')
+                : (darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800')
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+      </div>
+    ))
+  )}
+</div>
 
-      {/* Error message */}
+{/* Demo Questions - only shown if no conversation has started */}
+{conversation.length === 0 && (
+  <div className="mb-4">
+    {demoQuestions.map((question, index) => (
+      <button 
+        key={index}
+        onClick={() => {
+          // Directly feed the demo question into the chat:
+          setCoraQuery(question);
+          handleCoraSubmit();
+        }}
+        className="mr-2 mb-2 px-3 py-1 rounded-full bg-blue-500 text-white hover:bg-blue-600"
+      >
+        {question}
+      </button>
+    ))}
+  </div>
+)}
+
+
+      
+      {/* Error Message */}
       {error && (
         <div 
-          className="rounded-lg p-4 mb-4 text-sm text-red-500"
-          style={{ background: darkMode ? '#331111' : '#FEE2E2' }}
+          className="mb-6 p-4 rounded-md text-base font-medium"
+          style={{ 
+            background: darkMode ? '#7F1D1D' : '#FEE2E2',
+            color: darkMode ? '#FECACA' : '#991B1B'
+          }}
         >
           {error}
         </div>
       )}
 
-      {/* Input form */}
+      {/* Input Form */}
       <form 
         onSubmit={(e) => {
           e.preventDefault();
           handleCoraSubmit();
         }}
-        className="mt-4 relative"
+        className="relative"
       >
         <input
           type="text"
           placeholder="Ask about your degree requirements..."
-          className="w-full p-3 pr-10 border rounded-lg"
+          className="w-full rounded-full border px-6 py-3 pr-16 text-lg focus:outline-none focus:ring-2"
           value={coraQuery}
           onChange={(e) => setCoraQuery(e.target.value)}
           disabled={isLoading}
@@ -74,18 +170,20 @@ const CoraChat = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2"
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 focus:outline-none"
           style={{ 
             color: darkMode ? '#B0B0B0' : '#6B7280',
             opacity: isLoading ? 0.5 : 1 
           }}
         >
-          <Send className="w-5 h-5" />
+          <Send className="w-7 h-7" />
         </button>
       </form>
     </div>
   );
 };
+
+
 
 const MajorTracker = ({darkMode}) => {
   const [courseInput, setCourseInput] = useState("");
@@ -98,12 +196,12 @@ const MajorTracker = ({darkMode}) => {
   const db = getFirestore();
   const auth = getAuth();
 
+  const [conversation, setConversation] = useState([]);
+
   const [coraQuery, setCoraQuery] = useState("");
   const [coraResponse, setCoraResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeDistrib, setActiveDistrib] = useState(null);
-  const [availableDistribs, setAvailableDistribs] = useState([]);
 const mainBgColor = darkMode 
   ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
   : '#F9F9F9';
@@ -115,6 +213,7 @@ const progressFillColor = darkMode ? '#349966' : '#3B82F6'; // inner fill color
 const borderColor = darkMode ? '#4B5563' : '#D1D5DB';
 const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
 
+const [currentChatId, setCurrentChatId] = useState(() => Date.now().toString());
 
 const [loading, setLoading] = useState(false);
 const [answer, setAnswer] = useState('');
@@ -148,28 +247,73 @@ const handleCourseComplete = async (course) => {
     setCompletedCourses(completedCourses);
   }
 };
+  
 
-const handleDistribFilter = useCallback((distrib) => {
-  setActiveDistrib(distrib);
+  const handleCourseSubmit = (e) => {
+    e.preventDefault();
+    const courseRegex = /^[A-Z]{4}\d{1,3}(?:\.\d{2})?$/;
+    if (!courseRegex.test(courseInput)) {
+      alert("Please enter a valid course code (e.g., COSC001 or COSC001.01)");
+      return;
+    }
+    const normalizedCourse = normalizeCourseNumber(courseInput);
+    if (!normalizedCourse) {
+      alert("Invalid course format");
+      return;
+    }
+    setCompletedCourses(prev => {
+      const newCourses = [...prev, normalizedCourse];
+      if (auth.currentUser) {
+        setDoc(doc(db, 'users', auth.currentUser.uid), {
+          completedCourses: newCourses
+        }, { merge: true });
+      }
+      return newCourses;
+    });
+    setCourseInput("");
+  };
+
+  // Load saved conversation on mount
+useEffect(() => {
+  const savedConversation = localStorage.getItem('coraConversation');
+  if (savedConversation) {
+    setConversation(JSON.parse(savedConversation));
+  }
 }, []);
 
-
+// Save conversation to localStorage whenever it updates
 useEffect(() => {
-  if (!courseData) return;
-  const distribSet = new Set();
-  Object.values(courseData).forEach(course => {
-    if (course.distribs) {
-      const distribs = course.distribs.split(/[/-]/).map(d => d.trim());
-      distribs.forEach(distrib => {
-        const normalizedDistrib = distrib
-          .replace('SLA', 'SCI')
-          .replace('TLA', 'TAS');
-        distribSet.add(normalizedDistrib);
-      });
+  localStorage.setItem('coraConversation', JSON.stringify(conversation));
+}, [conversation]);
+  
+  const handleCourseRemove = (index) => {
+    setCompletedCourses(prev => {
+      const newCourses = prev.filter((_, i) => i !== index);
+      if (auth.currentUser) {
+        setDoc(doc(db, 'users', auth.currentUser.uid), {
+          completedCourses: newCourses
+        }, { merge: true });
+      }
+      return newCourses;
+    });
+  };
+
+  useEffect(() => {
+    if (!auth.currentUser) {
+      console.log("User not logged in; conversation will not be saved.");
+      return;
     }
-  });
-  setAvailableDistribs(Array.from(distribSet));
-}, [courseData]);
+    console.log("User is logged in:", auth.currentUser.uid);
+    // Debounce saving by 500ms
+    const timer = setTimeout(() => {
+      const conversationDocRef = doc(db, "chatConversations", auth.currentUser.uid, "sessions", currentChatId);
+      setDoc(conversationDocRef, { conversation, lastUpdated: new Date() }, { merge: true })
+        .then(() => console.log("Conversation saved to Firestore"))
+        .catch(err => console.error("Error saving conversation to Firestore:", err));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [conversation, auth.currentUser, db, currentChatId]);
+  
   
     // Fetch available majors from programData
     useEffect(() => {
@@ -238,6 +382,20 @@ useEffect(() => {
         alert('Error saving progress. Please try again.');
       }
     };
+
+    const handleNewChat = () => {
+      if (conversation.length > 0 && !window.confirm("Start a new chat? The current conversation will be saved.")) {
+        return;
+      }
+      const newSessionId = Date.now().toString();
+      setCurrentChatId(newSessionId);
+      setConversation([]);
+      localStorage.removeItem('coraConversation');
+      setCoraQuery("");
+      setCoraResponse("");
+    };
+    
+    
   
     // Handle major selection
     const handleMajorChange = async (majorCode) => {
@@ -252,6 +410,8 @@ useEffect(() => {
         }
       }
     };
+
+    
   
     // Fetch course data from Firebase
     const fetchCourseData = useCallback(async () => {
@@ -386,6 +546,7 @@ useEffect(() => {
       return [];
     }
   };
+  
 
 // Inside CORA.jsx, this should be part of the useEffect that processes major requirements
 useEffect(() => {
@@ -436,84 +597,33 @@ useEffect(() => {
 }, []);
 
 
-useEffect(() => {
-  if (!courseData) return;
-
-  const distribSet = new Set();
-  Object.values(courseData).forEach(course => {
-    if (course.distribs) {
-      const distribs = course.distribs.split(/[/-]/).map(d => d.trim());
-      distribs.forEach(distrib => {
-        const normalizedDistrib = distrib
-          .replace('SLA', 'SCI')
-          .replace('TLA', 'TAS');
-        distribSet.add(normalizedDistrib);
-      });
-    }
-    if (course.world_culture) {
-      course.world_culture.forEach(culture => {
-        distribSet.add(culture);
-      });
-    }
-  });
-  setAvailableDistribs(Array.from(distribSet));
-}, [courseData]);
-
-// Add this function to filter courses by distrib
-const filterCoursesByDistrib = useCallback((courses) => {
-  if (!activeDistrib) return courses;
-
-  return courses.filter(course => {
-    if (!course.distribs && !course.world_culture) return false;
-
-    if (activeDistrib === 'LAB') {
-      return course.distribs && 
-             (course.distribs.includes('SLA') || course.distribs.includes('TLA'));
-    }
-
-    // Check distribs
-    if (course.distribs) {
-      const distribs = course.distribs.split(/[/-]/).map(d => d.trim());
-      const baseDistribs = distribs.map(d => 
-        d.replace('SLA', 'SCI').replace('TLA', 'TAS')
-      );
-      if (baseDistribs.includes(activeDistrib)) return true;
-    }
-
-    // Check world culture
-    if (course.world_culture && course.world_culture.includes(activeDistrib)) {
-      return true;
-    }
-
-    return false;
-  });
-}, [activeDistrib]);
-
-// Modify your courseData state to support filtering
-const [filteredCourseData, setFilteredCourseData] = useState({});
-
-// Add this useEffect to handle course filtering
-useEffect(() => {
-  if (!courseData) return;
-  
-  if (!activeDistrib) {
-    setFilteredCourseData(courseData);
-    return;
-  }
-
-  const filtered = {};
-  Object.entries(courseData).forEach(([courseId, course]) => {
-    if (filterCoursesByDistrib([course]).length > 0) {
-      filtered[courseId] = course;
-    }
-  });
-  setFilteredCourseData(filtered);
-}, [courseData, activeDistrib, filterCoursesByDistrib]);
-
-
 
 const handleCoraSubmit = async () => {
   if (!coraQuery.trim()) return;
+
+  // Append the user's query to the conversation
+  setConversation(prev => [...prev, { type: 'user', text: coraQuery }]);
+
+  // Append a temporary "analyzing" message from CORA
+  const loadingMessages = [
+    "Analyzing your question...",
+    "Let me think...",
+    "Processing your query...",
+    "Just a moment while I analyze your question..."
+  ];
+  const randomLoading = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+  setConversation(prev => [...prev, { type: 'cora', text: randomLoading, temporary: true }]);
+
+  // Start an interval to update the temporary message periodically
+  const intervalId = setInterval(() => {
+    setConversation(prev =>
+      prev.map(msg =>
+        msg.temporary
+          ? { ...msg, text: loadingMessages[Math.floor(Math.random() * loadingMessages.length)] }
+          : msg
+      )
+    );
+  }, 1500);
 
   setIsLoading(true);
   setError("");
@@ -521,9 +631,7 @@ const handleCoraSubmit = async () => {
   try {
     const response = await axios.post(
       'https://cora-chatbot-898344091520.us-central1.run.app/api/chat',
-      { 
-        query: coraQuery
-      },
+      { query: coraQuery },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -532,22 +640,22 @@ const handleCoraSubmit = async () => {
       }
     );
 
+    // Clear the interval before processing the response
+    clearInterval(intervalId);
+
     if (response.data && response.data.answer) {
+      // Remove the temporary message and append the real answer
+      setConversation(prev => {
+        const withoutTemp = prev.filter(msg => !msg.temporary);
+        return [...withoutTemp, { type: 'cora', text: response.data.answer }];
+      });
       setCoraResponse(response.data.answer);
-      
-      // If you want to display the sources
-      if (response.data.sources && response.data.sources.length > 0) {
-        const sourcesText = response.data.sources
-          .map(source => `\n\nSource: ${source.professor} (${source.term}) - ${source.course_name}`)
-          .join('');
-        setCoraResponse(prev => `${response.data.answer}${sourcesText}`);
-      }
-      
-      setCoraQuery(""); // Clear the input
+      setCoraQuery(""); // Clear input
     } else {
       throw new Error('Invalid response format from server');
     }
   } catch (error) {
+    clearInterval(intervalId);
     console.error('Error details:', error);
     
     let errorMessage;
@@ -562,10 +670,17 @@ const handleCoraSubmit = async () => {
     }
     
     setError(errorMessage);
+    // Remove the temporary message and append the error message
+    setConversation(prev => {
+      const withoutTemp = prev.filter(msg => !msg.temporary);
+      return [...withoutTemp, { type: 'cora', text: errorMessage }];
+    });
   } finally {
     setIsLoading(false);
   }
 };
+
+
 
 useEffect(() => {
   console.log('CORA Chat component mounted with API URL:', API_URL);
@@ -701,19 +816,24 @@ return (
           <h1 className="text-xl font-semibold">CORA 1.0 (Course Recommendation Advisor)</h1>
         </div>
         <div className="flex items-center space-x-4">
-          <select 
-            value={selectedMajor}
-            onChange={(e) => handleMajorChange(e.target.value)}
-            className="border rounded-md px-3 py-2"
-            style={{ background: paperBgColor, color: textColor, borderColor: headerTextColor }}
-          >
-            <option value="">Select Major</option>
-            {availableMajors.map(major => (
-              <option key={major.code} value={major.code}>
-                {major.name}
-              </option>
-            ))}
-          </select>
+        <select 
+  value={selectedMajor}
+  onChange={(e) => handleMajorChange(e.target.value)}
+  className="border rounded-md px-3 py-2"
+  style={{ background: paperBgColor, color: textColor, borderColor: headerTextColor }}
+>
+  <option value="">Select Major</option>
+  {availableMajors.map(major => (
+    <option 
+      key={major.code} 
+      value={major.code} 
+      disabled={major.code !== 'CS'}
+    >
+      {major.name}{major.code !== 'CS' ? ' - Coming Soon' : ''}
+    </option>
+  ))}
+</select>
+
           <button 
             onClick={saveProgress}
             className="px-4 py-2 rounded-md hover:bg-blue-700"
@@ -750,7 +870,7 @@ return (
               <GraduationRequirements 
                 selectedCourses={completedCourses}
                 courseData={courseData}
-                darkMode={darkMode}
+                darkMode={true}
               />
             ) : (
               <MajorRequirements
@@ -759,82 +879,85 @@ return (
                 completedCourses={completedCourses}
                 onCourseComplete={handleCourseComplete}
                 courseData={courseData}
-                darkMode={darkMode}
-                activeDistrib={activeDistrib}
-                onDistribFilter={setActiveDistrib}
-                availableDistribs={availableDistribs}
-                filterCoursesByDistrib={filterCoursesByDistrib}
+                darkMode={true}
               />
             )}
           </div>
         </div>
+        
 
         <div className="lg:col-span-1">
-          <div 
-            className="rounded-lg shadow p-6 mb-6" 
-            style={{ background: paperBgColor }}
-          >
-            <h2 
-              className="text-lg font-semibold mb-4" 
-              style={{ color: textColor }}
-            >
-              Progress Summary
-            </h2>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span style={{ color: textColor }}>Major Requirements</span>
-                <span className="font-medium" style={{ color: textColor }}>
-                  {progress.major}% completed
-                </span>
-              </div>
-              <div 
-                className="w-full rounded-full h-2" 
-                style={{ background: progressBgColor }}
-              >
-                <div 
-                  className="rounded-full h-2" 
-                  style={{ background: progressFillColor, width: `${progress.major}%` }}
-                />
-              </div>
+  <div 
+    className="rounded-lg shadow p-6 mb-6" 
+    style={{ background: paperBgColor }}
+  >
+ 
+    <h2 
+      className="text-lg font-semibold mb-4" 
+      style={{ color: textColor }}
+    >
+      Progress Summary
+    </h2>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <span style={{ color: textColor }}>Major Requirements</span>
+        <span className="font-medium" style={{ color: textColor }}>
+          {progress.major}% completed
+        </span>
+      </div>
+      <div 
+        className="w-full rounded-full h-2" 
+        style={{ background: progressBgColor }}
+      >
+        <div 
+          className="rounded-full h-2" 
+          style={{ background: progressFillColor, width: `${progress.major}%` }}
+        />
+      </div>
 
-              <div className="flex justify-between items-center">
-                <span style={{ color: textColor }}>Distributives</span>
-                <span className="font-medium" style={{ color: textColor }}>
-                  {progress.distributives}% completed
-                </span>
-              </div>
-              <div 
-                className="w-full rounded-full h-2" 
-                style={{ background: progressBgColor }}
-              >
-                <div 
-                  className="rounded-full h-2" 
-                  style={{ background: progressFillColor, width: `${progress.distributives}%` }}
-                />
-              </div>
-            </div>
-          </div>
+      <div className="flex justify-between items-center">
+        <span style={{ color: textColor }}>Distributives</span>
+        <span className="font-medium" style={{ color: textColor }}>
+          {progress.distributives}% completed
+        </span>
+      </div>
+      <div 
+        className="w-full rounded-full h-2" 
+        style={{ background: progressBgColor }}
+      >
+        <div 
+          className="rounded-full h-2" 
+          style={{ background: progressFillColor, width: `${progress.distributives}%` }}
+        />
+      </div>
+    </div>
+  </div>
+  
 
-          {/* Degree Assistant */}
-          <CoraChat 
-            darkMode={darkMode}
-            paperBgColor={paperBgColor}
-            textColor={textColor}
-            inputBgColor={inputBgColor}
-            borderColor={borderColor}
-            coraQuery={coraQuery}
-            setCoraQuery={setCoraQuery}
-            coraResponse={coraResponse}
-            isLoading={isLoading}
-            error={error}
-            handleCoraSubmit={handleCoraSubmit}
-          />
+  
+    <CoraChat 
+  darkMode={darkMode}
+  paperBgColor={paperBgColor}
+  textColor={textColor}
+  inputBgColor={inputBgColor}
+  borderColor={borderColor}
+  coraQuery={coraQuery}
+  setCoraQuery={setCoraQuery}
+  coraResponse={coraResponse}
+  isLoading={isLoading}
+  error={error}
+  handleCoraSubmit={handleCoraSubmit}
+  conversation={conversation}
+  handleNewChat={handleNewChat}   // now defined
+/>
+
+
+</div>
 
         </div>
-      </div>
-    </main>
-  </div>
-);
+      </main>
+    </div>
+  );
 };
 
 export default MajorTracker;
