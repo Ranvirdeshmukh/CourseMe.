@@ -474,81 +474,79 @@ useEffect(() => {
 
   // Separates into pillars
   // parseRequirementString function for CORA
-  const parseRequirementString = (reqStr, majorDept) => {
-    if (!reqStr || typeof reqStr !== 'string') return [];
-  
-    try {
-      // Remove outer parentheses and trim
-      const cleanStr = reqStr.replace(/^\(|\)$/g, '').trim();
-      if (!cleanStr) return [];
-  
-      // Split & to extract pillars
-      const groups = cleanStr.split('&')
-        .map(r => r.trim())
-        .filter(Boolean);
-  
-      // Parse each requirement group
-      return groups.map(group => {
-        // Prerequisites
-        if (group.startsWith('@[')) {
-          const prereqStr = group.slice(2, -1);
-          const prereqs = prereqStr.split(',').map(p => {
-            if (p.includes('{')) {
-              return {
-                type: 'alternative',
-                options: p.slice(1, -1).split('|').map(o => o.trim())
-              };
-            }
-            return p.trim();
-          });
-          return {
-            type: 'prerequisites',
-            courses: prereqs,
-            description: 'Required foundation courses'
-          };
-        }
-  
-        // Complex requirements with minimum number and exclusions
-        // Range requirements (e.g. "#2[300-399]")
-if (group.match(/#(\d+)\[(\d+)-(\d+)\]/)) {
-  const match = group.match(/#(\d+)\[(\d+)-(\d+)\]/);
-  const count = parseInt(match[1]);
-  const start = parseInt(match[2]);
-  const end = parseInt(match[3]);
-  return {
-    type: 'range',
-    count: count,
-    start: start,
-    end: end,
-    department: majorDept,
-    description: `${count} course(s) from ${start} to ${end}`
-  };
-}
+ // parseRequirementString function for CORA
+ const parseRequirementString = (reqStr, majorDept) => {
+  if (!reqStr || typeof reqStr !== 'string') return [];
 
-  
-        // Specific courses with options
-        if (group.includes('{')) {
-          const match = group.match(/#(\d+){([^}]+)}/);
-          if (match) {
-            const [, count, optionsStr] = match;
+  try {
+    // Remove outer parentheses and trim
+    const cleanStr = reqStr.replace(/^\(|\)$/g, '').trim();
+    if (!cleanStr) return [];
+
+    // Split & to extract pillars
+    const groups = cleanStr.split('&')
+      .map(r => r.trim())
+      .filter(Boolean);
+
+    // Parse each requirement group
+    return groups.map(group => {
+      // Prerequisites with alternatives
+      if (group.startsWith('@[')) {
+        const prereqStr = group.slice(2, -1);
+        const prereqs = prereqStr.split(',').map(p => {
+          if (p.includes('{')) {
             return {
-              type: 'specific',
-              count: parseInt(count),
-              department: majorDept,
-              options: optionsStr.split('|').map(o => o.trim()),
-              description: `${count} course from advanced options`
+              type: 'alternative',
+              options: p.slice(1, -1).split('|').map(o => o.trim())
             };
           }
+          return p.trim();
+        });
+        return {
+          type: 'prerequisites',
+          courses: prereqs,
+          description: 'Required foundation courses'
+        };
+      }
+
+      // Range requirements with count (e.g. "#2[COSC030-COSC049]")
+      const rangeMatch = group.match(/#(\d+)\[([A-Z]+)(\d+)-([A-Z]+)(\d+)\]/);
+      if (rangeMatch) {
+        const [, count, startDept, startNum, endDept, endNum] = rangeMatch;
+        // If start and end departments are the same, use range type
+        if (startDept === endDept) {
+          return {
+            type: 'range',
+            count: parseInt(count),
+            department: startDept,
+            start: parseInt(startNum),
+            end: parseInt(endNum),
+            description: `${count} course(s) from ${startDept}${startNum} to ${startDept}${endNum}`
+          };
         }
-  
-        return null;
-      }).filter(Boolean);
-    } catch (error) {
-      console.error('Error parsing requirements:', error);
-      return [];
-    }
-  };
-  
+      }
+
+      // Complex requirements with alternatives (e.g. "#1{[COSC030-COSC089]|COSC094|MATH≥020}")
+      if (group.match(/#(\d+){/)) {
+        const [countStr, rest] = group.split('{');
+        const count = parseInt(countStr.slice(1));
+        const options = rest.slice(0, -1).split('|').map(opt => opt.trim());
+        return {
+          type: 'specific',
+          count: count,
+          department: majorDept,
+          options: options,
+          description: `${count} course(s) from advanced options`
+        };
+      }
+
+      return null;
+    }).filter(Boolean);
+  } catch (error) {
+    console.error('Error parsing requirements:', error);
+    return [];
+  }
+};
 
 // Inside CORA.jsx, this should be part of the useEffect that processes major requirements
 useEffect(() => {
@@ -824,14 +822,14 @@ return (
   className="border rounded-md px-3 py-2"
   style={{ background: paperBgColor, color: textColor, borderColor: headerTextColor }}
 >
-  <option value="">Select Major</option>
+<option value="">Select Major</option>
   {availableMajors.map(major => (
     <option 
       key={major.code} 
       value={major.code} 
-      disabled={major.code !== 'CS'}
+      disabled={!['CS', 'MATH'].includes(major.code)}
     >
-      {major.name}{major.code !== 'CS' ? ' - Coming Soon' : ''}
+      {major.name}{!['CS', 'MATH'].includes(major.code) ? ' - Coming Soon' : ''}
     </option>
   ))}
 </select>
