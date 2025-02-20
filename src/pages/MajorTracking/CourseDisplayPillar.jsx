@@ -11,49 +11,92 @@ const CourseDisplayPillar = ({
   requirementManager,
   requirementStatus,
   onCourseStatusChange,
-  darkMode
+  darkMode,
+  activeDistrib
 }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const db = getFirestore();
 
-  const parseComplexRequirement = (reqStr) => {
-    // First, split into main requirements and department limits
-    const [mainReq, deptLimit] = reqStr.split(':').map(part => part?.trim());
-    
-    const parts = mainReq.match(/[{]([^}]+)[}]]/);
-    if (!parts) return null;
-
-    const conditions = parts[1].split(',').map(cond => cond.trim());
-    const result = {
-      departments: new Set(),
-      minNumbers: new Map(),
-      excludedCourses: new Set(),
-      departmentLimits: new Map()
-    };
-
-    // Parse main requirements
-    conditions.forEach(cond => {
-      if (cond.includes('≥')) {
-        const [dept, num] = cond.split('≥');
-        result.departments.add(dept);
-        result.minNumbers.set(dept, parseInt(num));
-      } else if (cond.startsWith('!')) {
-        result.excludedCourses.add(cond.slice(1));
+  // Filter courses by distribs
+  const filterByDistrib = useCallback((courseList) => {
+    if (!activeDistrib || !courseList) return courseList;
+  
+    return courseList.filter(course => {
+      // Early return if course has no distribs or world culture
+      if (!course.distribs && !course.world_culture) return false;
+  
+      // Special handling for LAB requirement
+      if (activeDistrib === 'LAB') {
+        return course.distribs && 
+               (course.distribs.includes('SLA') || 
+                course.distribs.includes('TLA'));
       }
+  
+      // Check distribs with normalized values
+      if (course.distribs) {
+        const distribs = course.distribs
+          .split(/[/-]/)
+          .map(d => d.trim())
+          .map(d => {
+            switch(d) {
+              case 'SLA': return 'SCI';
+              case 'TLA': return 'TAS';
+              default: return d;
+            }
+          });
+        if (distribs.includes(activeDistrib)) return true;
+      }
+  
+      // Check world culture
+      if (course.world_culture && 
+          Array.isArray(course.world_culture) && 
+          course.world_culture.includes(activeDistrib)) {
+        return true;
+      }
+  
+      return false;
     });
+  }, [activeDistrib]);
 
-    // Parse department limits if they exist
-    if (deptLimit) {
-      const limitMatch = deptLimit.match(/#(\d+)\[([A-Z]+)\]/);
-      if (limitMatch) {
-        const [, limit, dept] = limitMatch;
-        result.departmentLimits.set(dept, parseInt(limit));
-      }
+  const parseOption = (option) => {
+    if (option.startsWith('[') && option.endsWith(']')) {
+      const rangeStr = option.slice(1, -1);
+      const [start, end] = rangeStr.split('-');
+      const startDept = start.match(/([A-Z]+)/)[1];
+      const startNum = start.match(/(\d+)/)[1];
+      const endDept = end.match(/([A-Z]+)/)[1];
+      const endNum = end.match(/(\d+)/)[1];
+      return {
+        type: 'range',
+        startDept,
+        startNum: startNum.padStart(3, '0'),
+        endDept,
+        endNum: endNum.padStart(3, '0')
+      };
     }
-
-    return result;
+    
+    if (option.includes('≥')) {
+      const [dept, minNum] = option.split('≥');
+      return {
+        type: 'min',
+        dept,
+        minNum: minNum.padStart(3, '0')
+      };
+    }
+    
+    const match = option.match(/([A-Z]+)?(\d+)/);
+    if (match) {
+      const [, dept = pillar.department || majorDept, num] = match;
+      return {
+        type: 'direct',
+        dept,
+        num: num.padStart(3, '0')
+      };
+    }
+    
+    return null;
   };
 
   const sortCoursesByStatus = useCallback((coursesToSort) => {
@@ -75,13 +118,10 @@ const CourseDisplayPillar = ({
       
       if (priorityA !== priorityB) return priorityA - priorityB;
       
-      // Secondary sort by department and course number
       if (a.department !== b.department) return a.department.localeCompare(b.department);
       return a.course_number.localeCompare(b.course_number);
     });
   }, [requirementManager, pillarIndex]);
-
-  
 
   const getCachedCourses = useCallback(async () => {
     if (!pillar) return [];
@@ -101,7 +141,8 @@ const CourseDisplayPillar = ({
     })}`;
     
     if (window.courseCache.has(cacheKey)) {
-      return window.courseCache.get(cacheKey);
+      const cachedCourses = window.courseCache.get(cacheKey);
+      return filterByDistrib(cachedCourses);
     }
 
     const coursesRef = collection(db, 'courses');
@@ -152,38 +193,42 @@ const CourseDisplayPillar = ({
           const queries = [];
           
           for (const option of pillar.options) {
-            if (option.startsWith('[') && option.endsWith(']')) {
-              const [start, end] = option.slice(1, -1).split('-')
-                .map(num => num.padStart(3, '0'));
-              queries.push(
-                query(
-                  coursesRef,
-                  where('department', '==', pillar.department || majorDept),
-                  where('course_number', '>=', start),
-                  where('course_number', '<=', end)
-                )
-              );
-            } else if (option.includes('≥')) {
-              const [dept, minNum] = option.split('≥');
-              queries.push(
-                query(
-                  coursesRef,
-                  where('department', '==', dept),
-                  where('course_number', '>=', minNum.padStart(3, '0'))
-                )
-              );
-            } else {
-              const courseMatch = option.match(/([A-Z]+)?(\d+)/);
-              if (courseMatch) {
-                const dept = courseMatch[1] || pillar.department || majorDept;
-                const num = courseMatch[2].padStart(3, '0');
+            const parsedOption = parseOption(option);
+            if (!parsedOption) continue;
+
+            switch (parsedOption.type) {
+              case 'range': {
+                if (parsedOption.startDept === parsedOption.endDept) {
+                  queries.push(
+                    query(
+                      coursesRef,
+                      where('department', '==', parsedOption.startDept),
+                      where('course_number', '>=', parsedOption.startNum),
+                      where('course_number', '<=', parsedOption.endNum)
+                    )
+                  );
+                }
+                break;
+              }
+              case 'min': {
                 queries.push(
                   query(
                     coursesRef,
-                    where('department', '==', dept),
-                    where('course_number', '==', num)
+                    where('department', '==', parsedOption.dept),
+                    where('course_number', '>=', parsedOption.minNum)
                   )
                 );
+                break;
+              }
+              case 'direct': {
+                queries.push(
+                  query(
+                    coursesRef,
+                    where('department', '==', parsedOption.dept),
+                    where('course_number', '==', parsedOption.num)
+                  )
+                );
+                break;
               }
             }
           }
@@ -195,41 +240,6 @@ const CourseDisplayPillar = ({
               ...doc.data()
             }))
           );
-          break;
-        }
-
-        case 'complex': {
-          const requirements = pillar.options.map(opt => parseComplexRequirement(opt))
-            .filter(Boolean);
-          
-          for (const req of requirements) {
-            // Fetch courses for each department with minimum number requirement
-            const departmentQueries = Array.from(req.departments).map(async dept => {
-              const minNum = req.minNumbers.get(dept);
-              const courseQuery = query(
-                coursesRef,
-                where('department', '==', dept),
-                where('course_number', '>=', minNum.toString().padStart(3, '0'))
-              );
-              
-              const snapshot = await getDocs(courseQuery);
-              return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-              }));
-            });
-
-            const departmentResults = await Promise.all(departmentQueries);
-            const allCourses = departmentResults.flat();
-
-            // Filter out excluded courses
-            const filteredCourses = allCourses.filter(course => {
-              const courseId = `${course.department}${course.course_number}`;
-              return !req.excludedCourses.has(courseId);
-            });
-
-            fetchedCourses.push(...filteredCourses);
-          }
           break;
         }
 
@@ -267,13 +277,13 @@ const CourseDisplayPillar = ({
       );
 
       window.courseCache.set(cacheKey, uniqueCourses);
-      return uniqueCourses;
+      return filterByDistrib(uniqueCourses);
 
     } catch (error) {
       console.error('Error fetching courses for pillar:', error);
       throw error;
     }
-  }, [pillar, majorDept, db]);
+  }, [pillar, majorDept, db, filterByDistrib]);
 
   useEffect(() => {
     const loadCourses = async () => {
@@ -295,14 +305,14 @@ const CourseDisplayPillar = ({
     };
     
     loadCourses();
-  }, [getCachedCourses, pillar, sortCoursesByStatus]);
+  }, [getCachedCourses, pillar, sortCoursesByStatus, activeDistrib]);
 
   useEffect(() => {
     if (courses.length > 0) {
       const sortedCourses = sortCoursesByStatus(courses);
       setCourses(sortedCourses);
     }
-  }, [requirementStatus, sortCoursesByStatus]); 
+  }, [requirementStatus, sortCoursesByStatus]);
 
   const handleCourseClick = useCallback((course) => {
     if (!requirementManager) return;
@@ -353,7 +363,7 @@ const CourseDisplayPillar = ({
       {courses.map(course => {
         const courseId = `${course.department}${course.course_number}`;
         const courseStatus = requirementStatus?.courseStatuses?.[courseId];
-        const colorStatus = requirementManager?.getCourseStatus(courseId, pillarIndex);
+        const colorStatus = requirementManager?.getCourseStatus(courseId, pillarIndex) || 'none';
 
         return (
           <CourseCard
@@ -361,10 +371,10 @@ const CourseDisplayPillar = ({
             course={course}
             status={{
               isCompleted: !!courseStatus,
-              colorStatus: colorStatus || 'none',
+              colorStatus: courseStatus ? colorStatus : 'none',
               isLocked: false
             }}
-            onClick={handleCourseClick}
+            onClick={() => handleCourseClick(course)}
             darkMode={darkMode}
           />
         );

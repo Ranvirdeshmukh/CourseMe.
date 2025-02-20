@@ -3,25 +3,14 @@ import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from 'firebase
 import { getAuth } from 'firebase/auth';
 import { GraduationCap, User, Send } from 'lucide-react';
 import programData from './majors.json';
-import CourseDisplayPillar from './CourseDisplayPillar';
 import GraduationRequirements from './GraduationRequirements';
 import MajorRequirements from './MajorRequirements';
-import CourseDisplayCarousel from './CourseDisplayCarousel';
 import axios from 'axios';
 
 // First, define CoraChat as a separate component outside of MajorTracker
 const CoraChat = ({ 
-  darkMode, 
-  paperBgColor, 
-  textColor, 
-  inputBgColor, 
-  borderColor,
-  coraQuery,
-  setCoraQuery,
-  coraResponse,
-  isLoading,
-  error,
-  handleCoraSubmit 
+  darkMode, paperBgColor, textColor, inputBgColor, borderColor,coraQuery,
+  setCoraQuery,coraResponse,isLoading,error,handleCoraSubmit 
 }) => {
   return (
     <div 
@@ -113,6 +102,8 @@ const MajorTracker = ({darkMode}) => {
   const [coraResponse, setCoraResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeDistrib, setActiveDistrib] = useState(null);
+  const [availableDistribs, setAvailableDistribs] = useState([]);
 const mainBgColor = darkMode 
   ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
   : '#F9F9F9';
@@ -157,44 +148,29 @@ const handleCourseComplete = async (course) => {
     setCompletedCourses(completedCourses);
   }
 };
-  
 
-  const handleCourseSubmit = (e) => {
-    e.preventDefault();
-    const courseRegex = /^[A-Z]{4}\d{1,3}(?:\.\d{2})?$/;
-    if (!courseRegex.test(courseInput)) {
-      alert("Please enter a valid course code (e.g., COSC001 or COSC001.01)");
-      return;
-    }
-    const normalizedCourse = normalizeCourseNumber(courseInput);
-    if (!normalizedCourse) {
-      alert("Invalid course format");
-      return;
-    }
-    setCompletedCourses(prev => {
-      const newCourses = [...prev, normalizedCourse];
-      if (auth.currentUser) {
-        setDoc(doc(db, 'users', auth.currentUser.uid), {
-          completedCourses: newCourses
-        }, { merge: true });
-      }
-      return newCourses;
-    });
-    setCourseInput("");
-  };
-  
-  const handleCourseRemove = (index) => {
-    setCompletedCourses(prev => {
-      const newCourses = prev.filter((_, i) => i !== index);
-      if (auth.currentUser) {
-        setDoc(doc(db, 'users', auth.currentUser.uid), {
-          completedCourses: newCourses
-        }, { merge: true });
-      }
-      return newCourses;
-    });
-  };
+const handleDistribFilter = useCallback((distrib) => {
+  setActiveDistrib(distrib);
+}, []);
 
+
+useEffect(() => {
+  if (!courseData) return;
+  const distribSet = new Set();
+  Object.values(courseData).forEach(course => {
+    if (course.distribs) {
+      const distribs = course.distribs.split(/[/-]/).map(d => d.trim());
+      distribs.forEach(distrib => {
+        const normalizedDistrib = distrib
+          .replace('SLA', 'SCI')
+          .replace('TLA', 'TAS');
+        distribSet.add(normalizedDistrib);
+      });
+    }
+  });
+  setAvailableDistribs(Array.from(distribSet));
+}, [courseData]);
+  
     // Fetch available majors from programData
     useEffect(() => {
       if (programData?.programs) {
@@ -353,7 +329,7 @@ const handleCourseComplete = async (course) => {
   
       // Parse each requirement group
       return groups.map(group => {
-        // Prerequisites
+        // Prerequisites with alternatives
         if (group.startsWith('@[')) {
           const prereqStr = group.slice(2, -1);
           const prereqs = prereqStr.split(',').map(p => {
@@ -372,37 +348,35 @@ const handleCourseComplete = async (course) => {
           };
         }
   
-        // Complex requirements with minimum number and exclusions
-        // Range requirements (e.g. "#2[300-399]")
-if (group.match(/#(\d+)\[(\d+)-(\d+)\]/)) {
-  const match = group.match(/#(\d+)\[(\d+)-(\d+)\]/);
-  const count = parseInt(match[1]);
-  const start = parseInt(match[2]);
-  const end = parseInt(match[3]);
-  return {
-    type: 'range',
-    count: count,
-    start: start,
-    end: end,
-    department: majorDept,
-    description: `${count} course(s) from ${start} to ${end}`
-  };
-}
-
-  
-        // Specific courses with options
-        if (group.includes('{')) {
-          const match = group.match(/#(\d+){([^}]+)}/);
-          if (match) {
-            const [, count, optionsStr] = match;
+        // Range requirements with count (e.g. "#2[COSC030-COSC049]")
+        const rangeMatch = group.match(/#(\d+)\[([A-Z]+)(\d+)-([A-Z]+)(\d+)\]/);
+        if (rangeMatch) {
+          const [, count, startDept, startNum, endDept, endNum] = rangeMatch;
+          // If start and end departments are the same, use range type
+          if (startDept === endDept) {
             return {
-              type: 'specific',
+              type: 'range',
               count: parseInt(count),
-              department: majorDept,
-              options: optionsStr.split('|').map(o => o.trim()),
-              description: `${count} course from advanced options`
+              department: startDept,
+              start: parseInt(startNum),
+              end: parseInt(endNum),
+              description: `${count} course(s) from ${startDept}${startNum} to ${startDept}${endNum}`
             };
           }
+        }
+  
+        // Complex requirements with alternatives (e.g. "#1{[COSC030-COSC089]|COSC094|MATH≥020}")
+        if (group.match(/#(\d+){/)) {
+          const [countStr, rest] = group.split('{');
+          const count = parseInt(countStr.slice(1));
+          const options = rest.slice(0, -1).split('|').map(opt => opt.trim());
+          return {
+            type: 'specific',
+            count: count,
+            department: majorDept,
+            options: options,
+            description: `${count} course(s) from advanced options`
+          };
         }
   
         return null;
@@ -460,6 +434,81 @@ useEffect(() => {
       console.error('Error processing program data:', error);
   }
 }, []);
+
+
+useEffect(() => {
+  if (!courseData) return;
+
+  const distribSet = new Set();
+  Object.values(courseData).forEach(course => {
+    if (course.distribs) {
+      const distribs = course.distribs.split(/[/-]/).map(d => d.trim());
+      distribs.forEach(distrib => {
+        const normalizedDistrib = distrib
+          .replace('SLA', 'SCI')
+          .replace('TLA', 'TAS');
+        distribSet.add(normalizedDistrib);
+      });
+    }
+    if (course.world_culture) {
+      course.world_culture.forEach(culture => {
+        distribSet.add(culture);
+      });
+    }
+  });
+  setAvailableDistribs(Array.from(distribSet));
+}, [courseData]);
+
+// Add this function to filter courses by distrib
+const filterCoursesByDistrib = useCallback((courses) => {
+  if (!activeDistrib) return courses;
+
+  return courses.filter(course => {
+    if (!course.distribs && !course.world_culture) return false;
+
+    if (activeDistrib === 'LAB') {
+      return course.distribs && 
+             (course.distribs.includes('SLA') || course.distribs.includes('TLA'));
+    }
+
+    // Check distribs
+    if (course.distribs) {
+      const distribs = course.distribs.split(/[/-]/).map(d => d.trim());
+      const baseDistribs = distribs.map(d => 
+        d.replace('SLA', 'SCI').replace('TLA', 'TAS')
+      );
+      if (baseDistribs.includes(activeDistrib)) return true;
+    }
+
+    // Check world culture
+    if (course.world_culture && course.world_culture.includes(activeDistrib)) {
+      return true;
+    }
+
+    return false;
+  });
+}, [activeDistrib]);
+
+// Modify your courseData state to support filtering
+const [filteredCourseData, setFilteredCourseData] = useState({});
+
+// Add this useEffect to handle course filtering
+useEffect(() => {
+  if (!courseData) return;
+  
+  if (!activeDistrib) {
+    setFilteredCourseData(courseData);
+    return;
+  }
+
+  const filtered = {};
+  Object.entries(courseData).forEach(([courseId, course]) => {
+    if (filterCoursesByDistrib([course]).length > 0) {
+      filtered[courseId] = course;
+    }
+  });
+  setFilteredCourseData(filtered);
+}, [courseData, activeDistrib, filterCoursesByDistrib]);
 
 
 
@@ -701,7 +750,7 @@ return (
               <GraduationRequirements 
                 selectedCourses={completedCourses}
                 courseData={courseData}
-                darkMode={true}
+                darkMode={darkMode}
               />
             ) : (
               <MajorRequirements
@@ -710,79 +759,82 @@ return (
                 completedCourses={completedCourses}
                 onCourseComplete={handleCourseComplete}
                 courseData={courseData}
-                darkMode={true}
+                darkMode={darkMode}
+                activeDistrib={activeDistrib}
+                onDistribFilter={setActiveDistrib}
+                availableDistribs={availableDistribs}
+                filterCoursesByDistrib={filterCoursesByDistrib}
               />
             )}
           </div>
         </div>
-        
 
         <div className="lg:col-span-1">
-            <div 
-              className="rounded-lg shadow p-6 mb-6" 
-              style={{ background: paperBgColor }}
+          <div 
+            className="rounded-lg shadow p-6 mb-6" 
+            style={{ background: paperBgColor }}
+          >
+            <h2 
+              className="text-lg font-semibold mb-4" 
+              style={{ color: textColor }}
             >
-              <h2 
-                className="text-lg font-semibold mb-4" 
-                style={{ color: textColor }}
+              Progress Summary
+            </h2>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span style={{ color: textColor }}>Major Requirements</span>
+                <span className="font-medium" style={{ color: textColor }}>
+                  {progress.major}% completed
+                </span>
+              </div>
+              <div 
+                className="w-full rounded-full h-2" 
+                style={{ background: progressBgColor }}
               >
-                Progress Summary
-              </h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span style={{ color: textColor }}>Major Requirements</span>
-                  <span className="font-medium" style={{ color: textColor }}>
-                    {progress.major}% completed
-                  </span>
-                </div>
                 <div 
-                  className="w-full rounded-full h-2" 
-                  style={{ background: progressBgColor }}
-                >
-                  <div 
-                    className="rounded-full h-2" 
-                    style={{ background: progressFillColor, width: `${progress.major}%` }}
-                  />
-                </div>
+                  className="rounded-full h-2" 
+                  style={{ background: progressFillColor, width: `${progress.major}%` }}
+                />
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span style={{ color: textColor }}>Distributives</span>
-                  <span className="font-medium" style={{ color: textColor }}>
-                    {progress.distributives}% completed
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span style={{ color: textColor }}>Distributives</span>
+                <span className="font-medium" style={{ color: textColor }}>
+                  {progress.distributives}% completed
+                </span>
+              </div>
+              <div 
+                className="w-full rounded-full h-2" 
+                style={{ background: progressBgColor }}
+              >
                 <div 
-                  className="w-full rounded-full h-2" 
-                  style={{ background: progressBgColor }}
-                >
-                  <div 
-                    className="rounded-full h-2" 
-                    style={{ background: progressFillColor, width: `${progress.distributives}%` }}
-                  />
-                </div>
+                  className="rounded-full h-2" 
+                  style={{ background: progressFillColor, width: `${progress.distributives}%` }}
+                />
               </div>
             </div>
-
-            {/* Degree Assistant */}
-            <CoraChat 
-              darkMode={darkMode}
-              paperBgColor={paperBgColor}
-              textColor={textColor}
-              inputBgColor={inputBgColor}
-              borderColor={borderColor}
-              coraQuery={coraQuery}
-              setCoraQuery={setCoraQuery}
-              coraResponse={coraResponse}
-              isLoading={isLoading}
-              error={error}
-              handleCoraSubmit={handleCoraSubmit}
-            />
-
           </div>
+
+          {/* Degree Assistant */}
+          <CoraChat 
+            darkMode={darkMode}
+            paperBgColor={paperBgColor}
+            textColor={textColor}
+            inputBgColor={inputBgColor}
+            borderColor={borderColor}
+            coraQuery={coraQuery}
+            setCoraQuery={setCoraQuery}
+            coraResponse={coraResponse}
+            isLoading={isLoading}
+            error={error}
+            handleCoraSubmit={handleCoraSubmit}
+          />
+
         </div>
-      </main>
-    </div>
-  );
+      </div>
+    </main>
+  </div>
+);
 };
 
 export default MajorTracker;
