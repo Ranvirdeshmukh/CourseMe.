@@ -713,12 +713,12 @@ return (
   className="border rounded-md px-3 py-2"
   style={{ background: paperBgColor, color: textColor, borderColor: headerTextColor }}
 >
-<option value="">Select Major</option>
+  <option value="">Select Major</option>
   {availableMajors.map(major => (
     <option 
       key={major.code} 
       value={major.code} 
-      // disabled={!['CS', 'MATH'].includes(major.code)}
+      disabled={!['CS', 'MATH'].includes(major.code)}
     >
       {major.name}{!['CS', 'MATH'].includes(major.code) ? ' - Coming Soon' : ''}
     </option>
