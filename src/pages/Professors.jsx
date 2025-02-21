@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Loader } from 'lucide-react';
-import { getFirestore, collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, getFirestore, limit, orderBy, query } from 'firebase/firestore';
+import { Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Progress } from '../components/ui/progress';
 
@@ -32,7 +32,7 @@ const ProfessorDirectory = () => {
       setLoading(true);
       
       // Fetch professors
-      const professorsRef = collection(db, 'professors');
+      const professorsRef = collection(db, 'professor');
       const professorsQuery = query(
         professorsRef,
         orderBy('overall_analysis.metrics.review_count', 'desc'),
