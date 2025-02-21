@@ -1,21 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
-import { getFirestore, doc, getDoc, addDoc, collection } from 'firebase/firestore';
-import ProfessorAnalytics from './ProfessorAnalytics';
-import { 
-  Mail, 
-  Phone, 
-  Globe, 
-  Building, 
-  AlertCircle, 
-  ChevronDown, 
-  ChevronUp, 
-  Info,
-  Bot,
-  Flag,
-  X
+import { addDoc, collection, doc, getDoc, getFirestore } from 'firebase/firestore';
+import {
+  Building, ChevronDown,
+  ChevronUp, Flag, Globe, Info, Mail,
+  Phone, Sparkles, X
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import ProfessorAnalytics from './ProfessorAnalytics';
 
 /* ===========================
    Reusable Dark Mode Helpers

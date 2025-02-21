@@ -16,6 +16,7 @@ const MajorRequirements = ({
 }) => {
   const db = getFirestore();
   const auth = getAuth();
+  const [activeDistrib, setActiveDistrib] = useState(null);
 
   // State hooks at the top
   const [localCompletedCourses, setLocalCompletedCourses] = useState(completedCourses);
@@ -49,6 +50,33 @@ const MajorRequirements = ({
       return false;
     });
   }, [selectedDistrib]);
+  
+  useEffect(() => {
+    if (!selectedMajor || !majorRequirements?.[selectedMajor]) return;
+
+    const manager = new RequirementManager(majorRequirements[selectedMajor]);
+    manager.loadSavedSequences().then(() => {
+      setRequirementManager(manager);
+      if (completedCourses.length > 0) {
+        const status = manager.processCourseList(completedCourses);
+        setRequirementStatus(status);
+      }
+    });
+  }, [selectedMajor, majorRequirements, completedCourses]);
+
+  const handleSequenceSelection = async (pillarIndex, sequenceIndex) => {
+    if (!requirementManager || !selectedMajor) return;
+
+    // Get the department code from the selected major
+    const deptCode = selectedMajor.split('.')[0] || selectedMajor;
+    
+    // Update the selected sequence
+    requirementManager.setSelectedSequence(deptCode, sequenceIndex);
+    
+    // Reprocess course list with new sequence
+    const newStatus = requirementManager.processCourseList(completedCourses);
+    setRequirementStatus(newStatus);
+  };
 
   const calculatePillarCompletion = useCallback((pillar, pillarCourses = []) => {
     if (!pillar) return { completed: 0, required: 0 };
@@ -193,6 +221,9 @@ const MajorRequirements = ({
           requirementStatus={requirementStatus}
           onCourseStatusChange={handleCourseStatusChange}
           darkMode={darkMode}
+          activeDistrib={activeDistrib}
+          completedCourses={completedCourses}
+          setRequirementStatus={setRequirementStatus}
         />
       ))}
 

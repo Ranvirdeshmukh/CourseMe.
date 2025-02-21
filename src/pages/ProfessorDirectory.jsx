@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Mail } from 'lucide-react';
-import { getFirestore, collection, query as firestoreQuery, getDocs, where, orderBy, limit } from 'firebase/firestore';
-import { query } from 'firebase/firestore';
+import { getFirestore, collection, query as firestoreQuery, getDocs, limit, orderBy, where } from 'firebase/firestore';
+import { db } from '../firebase'; 
+import { Mail, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const LoadingSpinner = ({ darkMode }) => (
@@ -81,6 +81,7 @@ const MetricBadge = ({ value, label, isDifficulty = false, onClick, courseLink, 
   );
 };
 
+
 const NoReviewsCard = ({ darkMode }) => (
   <div
     className={
@@ -110,41 +111,185 @@ const SORT_OPTIONS = {
   RANDOM: { label: 'Random', field: null }
 };
 
-const ProfessorDirectory = ({ darkMode }) => {
+const normalizeText = (text) => {
+  if (!text) return '';
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, '');
+};
+
+const generateSearchTokens = (text) => {
+  const normalized = normalizeText(text);
+  const tokens = normalized.split(/\s+/).filter(token => token.length > 0);
+  return [...new Set(tokens)];
+};
+
+const calculateRelevanceScore = (professor, searchTerms) => {
+  let score = 0;
+  const normalizedName = normalizeText(professor.name);
+  const normalizedDepartments = Object.keys(professor.departments || {}).map(normalizeText);
+  
+  for (const term of searchTerms) {
+    if (normalizedName.includes(term)) {
+      score += 10;
+      if (normalizedName.startsWith(term)) {
+        score += 5;
+      }
+    }
+    
+    for (const dept of normalizedDepartments) {
+      if (dept.includes(term)) {
+        score += 3;
+      }
+    }
+    
+    if (term.length >= 3) {
+      const partialMatches = normalizedName.split(' ')
+        .filter(word => word.startsWith(term) || word.endsWith(term))
+        .length;
+      score += partialMatches * 2;
+    }
+  }
+  
+  return score;
+};
+
+// Separate search function
+// Replace the existing searchProfessors function with this implementation:
+const searchProfessors = async (searchTerm, db) => {
+  if (!searchTerm?.trim() || !db) {
+    return { results: [], isPartialMatch: false };
+  }
+
+  try {
+    const searchTokens = generateSearchTokens(searchTerm);
+    const professorsRef = collection(db, "professor");
+    const searchResults = new Map();
+    
+    // Create queries for each search token
+    const queries = searchTokens.flatMap(token => [
+      // Name search
+      getDocs(
+        firestoreQuery(
+          professorsRef,
+          where("name", ">=", token),
+          where("name", "<=", token + "\uf8ff"),
+          limit(50)
+        )
+      ),
+      // Department search if department_tokens exists
+      getDocs(
+        firestoreQuery(
+          professorsRef,
+          where("department_tokens", "array-contains", token),
+          limit(50)
+        )
+      )
+    ]);
+
+    // Execute all queries in parallel
+    const querySnapshots = await Promise.all(queries);
+    
+    // Process results
+    for (const snapshot of querySnapshots) {
+      for (const doc of snapshot.docs) {
+        if (!searchResults.has(doc.id)) {
+          searchResults.set(doc.id, { id: doc.id, ...doc.data() });
+        }
+      }
+    }
+
+    // Process and sort results
+    let results = Array.from(searchResults.values())
+      .map(prof => ({
+        ...prof,
+        relevanceScore: calculateRelevanceScore(prof, searchTokens)
+      }))
+      .filter(prof => prof.relevanceScore > 0)
+      .sort((a, b) => b.relevanceScore - a.relevanceScore)
+      .slice(0, 20);
+
+    const isPartialMatch = results.length > 0 && 
+      results[0].relevanceScore < (searchTokens.length * 15);
+
+    return { results, isPartialMatch };
+  } catch (error) {
+    console.error("Search error:", error);
+    throw new Error("Search failed. Please try again.");
+  }
+};
+
+// Custom hook for search functionality
+const useEnhancedSearch = (db, initialDelay = 300) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [professors, setProfessors] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isPartialMatch, setIsPartialMatch] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!db) {
+      console.error('Firestore instance not available');
+      setError('Database connection error');
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        setIsPartialMatch(false);
+        return;
+      }
+
+      setIsSearching(true);
+      setError(null);
+
+      try {
+        const { results, isPartialMatch: partial } = await searchProfessors(searchQuery, db);
+        setSearchResults(results);
+        setIsPartialMatch(partial);
+      } catch (err) {
+        console.error("Search error:", err);
+        setError("Search failed. Please try again.");
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, initialDelay);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, db, initialDelay]);
+
+  return {
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    isSearching,
+    isPartialMatch,
+    error
+  };
+};
+
+// Then in your ProfessorDirectory component, modify how you use the hook:
+const ProfessorDirectory = ({ darkMode }) => {
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    isSearching,
+    isPartialMatch,
+    error: searchError
+  } = useEnhancedSearch(db);
+
+  const [professors, setProfessors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState(SORT_OPTIONS.REVIEW_COUNT);
   const [minReviews, setMinReviews] = useState(10);
-  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
-  const db = getFirestore();
-
-  const handleCourseClick = (courseLink) => {
-    navigate(courseLink);
-  };
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [professors, searchResults]);
-
-  const getCourseLink = (prof) => {
-    if (prof.courses && Object.keys(prof.courses).length > 0) {
-      const firstCourse = Object.values(prof.courses)[0];
-      if (firstCourse.department && firstCourse.document_id) {
-        return `/departments/${firstCourse.department}/courses/${firstCourse.document_id}`;
-      }
-    }
-    if (prof.latest_course) {
-      const { department, document_id } = prof.latest_course;
-      if (department && document_id) {
-        return `/departments/${department}/courses/${document_id}`;
-      }
-    }
-    return null;
-  };
+  // const [searchResults, setSearchResults] = useState([]);
 
   const fetchInitialProfessors = async (selectedSort = sortBy, reviewThreshold = minReviews) => {
     try {
@@ -198,7 +343,6 @@ const ProfessorDirectory = ({ darkMode }) => {
       }
 
       setProfessors(professorsData);
-      setSearchResults([]);
     } catch (err) {
       console.error('Error fetching professors:', err);
       setError('Failed to load professors');
@@ -206,6 +350,40 @@ const ProfessorDirectory = ({ darkMode }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchInitialProfessors();
+  }, []);
+
+  // Utility functions for search enhancement
+
+
+  const handleCourseClick = (courseLink) => {
+    navigate(courseLink);
+  };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [professors, searchResults]);
+  
+
+  const getCourseLink = (prof) => {
+    if (prof.courses && Object.keys(prof.courses).length > 0) {
+      const firstCourse = Object.values(prof.courses)[0];
+      if (firstCourse.department && firstCourse.document_id) {
+        return `/departments/${firstCourse.department}/courses/${firstCourse.document_id}`;
+      }
+    }
+    if (prof.latest_course) {
+      const { department, document_id } = prof.latest_course;
+      if (department && document_id) {
+        return `/departments/${department}/courses/${document_id}`;
+      }
+    }
+    return null;
+  };
+
+
 
   const InfoBanner = () => (
     <div
@@ -228,56 +406,11 @@ const ProfessorDirectory = ({ darkMode }) => {
     </div>
   );
 
-  const searchProfessors = async (searchTerm) => {
-    if (!searchTerm.trim()) {
-      setSearchResults([]);
-      fetchInitialProfessors(sortBy, minReviews);
-      return;
-    }
-    try {
-      setIsSearching(true);
-      const professorsRef = collection(db, 'professor');
-
-      // Format the search term to match the capitalization pattern
-      const formattedSearch = searchTerm.trim().toLowerCase().split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-
-      // Create query to search by name field
-      const searchQuery = query(
-        professorsRef,
-        where('name', '>=', formattedSearch),
-        where('name', '<=', formattedSearch + '\uf8ff'),
-        limit(20)
-      );
-
-      const querySnapshot = await getDocs(searchQuery);
-      const results = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
-      setSearchResults(results);
-    } catch (err) {
-      console.error('Error searching professors:', err);
-      setError('Search failed. Please try again.');
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
   useEffect(() => {
     fetchInitialProfessors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      searchProfessors(searchQuery);
-    }, 300);
-    return () => clearTimeout(timeoutId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
 
   const handleSortChange = (option) => {
     setSortBy(option);
@@ -309,6 +442,13 @@ const ProfessorDirectory = ({ darkMode }) => {
     );
   };
 
+
+  // Load more data when scrolling
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [professors, searchResults]);
+
+  // Display Logic
   const displayProfessors = searchQuery ? searchResults : professors;
 
   if (error) {

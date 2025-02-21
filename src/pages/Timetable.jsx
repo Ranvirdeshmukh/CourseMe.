@@ -1,29 +1,44 @@
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import {
-  Box, Container, Paper, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Typography, TextField, InputAdornment, CircularProgress,
-  Alert, useMediaQuery, MenuItem, Select, FormControl, InputLabel, Snackbar, Button,
-  IconButton, ButtonBase, Tooltip,
-} from '@mui/material';
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import { getFirestore, collection, getDocs, where, query, doc, updateDoc, getDoc, setDoc, arrayUnion, addDoc, serverTimestamp } from 'firebase/firestore';
-import SearchIcon from '@mui/icons-material/Search';
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { useAuth } from '../contexts/AuthContext';
-import moment from 'moment-timezone';
-import { styled } from '@mui/material/styles';
-import debounce from 'lodash/debounce';
-import localforage from 'localforage';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import LockIcon from '@mui/icons-material/Lock';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import { Collapse } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { memo } from 'react';
+import LockIcon from '@mui/icons-material/Lock';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import SearchIcon from '@mui/icons-material/Search';
+import {
+    Alert,
+    Box,
+    Button,
+    ButtonBase,
+    CircularProgress,
+    Collapse,
+    Container,
+    FormControl,
+    IconButton,
+    InputAdornment,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    Snackbar,
+    Table, TableBody, TableCell, TableContainer,
+    TableHead, TableRow,
+    TextField,
+    Tooltip,
+    Typography,
+    useMediaQuery,
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import localforage from 'localforage';
+import debounce from 'lodash/debounce';
+import moment from 'moment-timezone';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useAuth } from '../contexts/AuthContext';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({

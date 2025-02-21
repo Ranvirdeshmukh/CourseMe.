@@ -5,6 +5,7 @@ import { GraduationCap, User, Send,Loader2, Plus } from 'lucide-react';
 import programData from './majors.json';
 import GraduationRequirements from './GraduationRequirements';
 import MajorRequirements from './MajorRequirements';
+import RequirementManager from './RequirementManager';
 import axios from 'axios';
 
 
@@ -199,6 +200,7 @@ const progressBgColor = darkMode ? '#333333' : '#E5E7EB'; // outer bar backgroun
 const progressFillColor = darkMode ? '#349966' : '#3B82F6'; // inner fill color
 const borderColor = darkMode ? '#4B5563' : '#D1D5DB';
 const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
+const [requirementStatus, setRequirementStatus] = useState(null);
 
 const [currentChatId, setCurrentChatId] = useState(() => Date.now().toString());
 
@@ -393,81 +395,6 @@ useEffect(() => {
       fetchCourseData();
     }, [fetchCourseData]);
 
-
- // parseRequirementString function for CORA
- const parseRequirementString = (reqStr, majorDept) => {
-  if (!reqStr || typeof reqStr !== 'string') return [];
-
-  try {
-    // Remove outer parentheses and trim
-    const cleanStr = reqStr.replace(/^\(|\)$/g, '').trim();
-    if (!cleanStr) return [];
-
-    // Split & to extract pillars
-    const groups = cleanStr.split('&')
-      .map(r => r.trim())
-      .filter(Boolean);
-
-    // Parse each requirement group
-    return groups.map(group => {
-      // Prerequisites with alternatives
-      if (group.startsWith('@[')) {
-        const prereqStr = group.slice(2, -1);
-        const prereqs = prereqStr.split(',').map(p => {
-          if (p.includes('{')) {
-            return {
-              type: 'alternative',
-              options: p.slice(1, -1).split('|').map(o => o.trim())
-            };
-          }
-          return p.trim();
-        });
-        return {
-          type: 'prerequisites',
-          courses: prereqs,
-          description: 'Required foundation courses'
-        };
-      }
-
-      // Range requirements with count (e.g. "#2[COSC030-COSC049]")
-      const rangeMatch = group.match(/#(\d+)\[([A-Z]+)(\d+)-([A-Z]+)(\d+)\]/);
-      if (rangeMatch) {
-        const [, count, startDept, startNum, endDept, endNum] = rangeMatch;
-        // If start and end departments are the same, use range type
-        if (startDept === endDept) {
-          return {
-            type: 'range',
-            count: parseInt(count),
-            department: startDept,
-            start: parseInt(startNum),
-            end: parseInt(endNum),
-            description: `${count} course(s) from ${startDept}${startNum} to ${startDept}${endNum}`
-          };
-        }
-      }
-
-      // Complex requirements with alternatives (e.g. "#1{[COSC030-COSC089]|COSC094|MATH≥020}")
-      if (group.match(/#(\d+){/)) {
-        const [countStr, rest] = group.split('{');
-        const count = parseInt(countStr.slice(1));
-        const options = rest.slice(0, -1).split('|').map(opt => opt.trim());
-        return {
-          type: 'specific',
-          count: count,
-          department: majorDept,
-          options: options,
-          description: `${count} course(s) from advanced options`
-        };
-      }
-
-      return null;
-    }).filter(Boolean);
-  } catch (error) {
-    console.error('Error parsing requirements:', error);
-    return [];
-  }
-};
-
 // Inside CORA.jsx, this should be part of the useEffect that processes major requirements
 useEffect(() => {
   try {
@@ -491,10 +418,10 @@ useEffect(() => {
                   return;
               }
 
-              const requirements = parseRequirementString(
-                  majorData.types.major.requirements,
-                  majorDept
-              );
+              const requirements = RequirementManager.parseRequirementString(
+                majorData.types.major.requirements,
+                majorDept
+            );
 
               console.log(`Parsed requirements for ${majorCode}:`, requirements);
 
@@ -623,14 +550,15 @@ useEffect(() => {
     />
   ) : (
     selectedMajor && majorRequirements[selectedMajor] ? (
-      <MajorRequirements
-        selectedMajor={selectedMajor}
-        majorRequirements={majorRequirements}
-        completedCourses={completedCourses}
-        onCoursesUpdate={(updatedCourses) => {
-          setCompletedCourses(updatedCourses);
-        }}
-      />
+        <MajorRequirements
+                selectedMajor={selectedMajor}
+                majorRequirements={majorRequirements}
+                completedCourses={completedCourses}
+                onCourseComplete={handleCourseComplete}
+                courseData={courseData}
+                darkMode={true}
+                setRequirementStatus={setRequirementStatus}
+              />
     ) : (
       <div className="text-center py-8 text-gray-500">
         Please select a major to view requirements
