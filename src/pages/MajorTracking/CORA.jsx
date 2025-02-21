@@ -646,7 +646,7 @@ return (
     <option 
       key={major.code} 
       value={major.code} 
-      // disabled={!['CS', 'MATH'].includes(major.code)}
+      disabled={!['CS', 'MATH'].includes(major.code)}
     >
       {major.name}{!['CS', 'MATH'].includes(major.code) ? ' - Coming Soon' : ''}
     </option>

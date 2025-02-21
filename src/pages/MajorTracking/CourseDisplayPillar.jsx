@@ -196,7 +196,7 @@ const CourseDisplayPillar = ({
 // Update handleSequenceSelect to prevent unnecessary updates
 const handleSequenceSelect = useCallback(async (sequence) => {
   if (!sequence || (selectedSequence === sequence)) return;
-  
+    
   console.log('Selecting new sequence:', sequence);
   setLoading(true);
   setError(null);

@@ -171,8 +171,13 @@ class RequirementManager {
 
   sortPillarsBySpecificity() {
     this.pillars.sort((a, b) => {
+      // Culminating experience has highest priority
+      if (a.type === 'culminating') return -1;
+      if (b.type === 'culminating') return 1;
+      // Prerequisites come second
       if (a.type === 'prerequisites') return -1;
       if (b.type === 'prerequisites') return 1;
+      // Other types maintain their relative order
       return 0;
     });
   }
@@ -392,114 +397,74 @@ class RequirementManager {
   allocateCourse(courseId) {
     console.log(`Attempting to allocate ${courseId}`);
     
-    // Remove any existing allocation first
     this.deallocateCourse(courseId);
     let allocated = false;
+
+    // First, try to allocate to culminating experience if the course matches
+    const culminatingPillar = this.pillars.find(p => p.type === 'culminating');
+    if (culminatingPillar && this.courseMatchesPillar(courseId, culminatingPillar)) {
+      console.log(`${courseId} matches culminating experience requirements`);
+      const pillarCourses = this.pillarFills.get(culminatingPillar.index) || [];
+      
+      const altGroup = this.getAlternativeGroupForCourse(courseId, culminatingPillar.selectedSequence);
+      if (altGroup) {
+        const altCourses = pillarCourses.filter(course => altGroup.options.includes(course));
+        if (altCourses.length === 0) {
+          pillarCourses.push(courseId);
+          this.pillarFills.set(culminatingPillar.index, pillarCourses);
+          this.courseAllocations.set(courseId, {
+            pillarIndex: culminatingPillar.index,
+            status: 'primary'
+          });
+        } else {
+          this.overflowCourses.add(courseId);
+          this.courseAllocations.set(courseId, {
+            pillarIndex: -1,
+            status: 'overflow'
+          });
+        }
+        return this.getFullStatus();
+      } else {
+        pillarCourses.push(courseId);
+        this.pillarFills.set(culminatingPillar.index, pillarCourses);
+        this.courseAllocations.set(courseId, {
+          pillarIndex: culminatingPillar.index,
+          status: 'primary'
+        });
+        return this.getFullStatus();
+      }
+    }
   
-    // Try to allocate to each pillar in order
+    // Then try other pillars
     for (let i = 0; i < this.pillars.length; i++) {
       const pillar = this.pillars[i];
+      if (pillar.type === 'culminating') continue; // Skip culminating as we already checked it
+      
       console.log(`Checking pillar ${i} (${pillar.type})`);
       
-      // For culminating pillar, log the selected sequence
-      if (pillar.type === 'culminating') {
-        console.log('Selected sequence:', pillar.selectedSequence);
-      }
-  
-      // Check if course matches pillar requirements
-      const matches = this.courseMatchesPillar(courseId, pillar);
-      if (!matches) {
+      if (!this.courseMatchesPillar(courseId, pillar)) {
         console.log(`${courseId} does not match pillar ${i} requirements`);
         continue;
       }
+      
       console.log(`${courseId} matches pillar ${i} requirements`);
-  
       const pillarCourses = this.pillarFills.get(i) || [];
 
-      // Special handling for culminating experience
-      if (pillar.type === 'culminating' && pillar.selectedSequence) {
-        const sequence = pillar.selectedSequence;
-        
-        if (this.isPartOfSelectedSequence(courseId, sequence)) {
-          // Check if this is an alternative course
-          const altGroup = this.getAlternativeGroupForCourse(courseId, sequence);
-          
-          if (altGroup) {
-            console.log(`${courseId} is part of alternative group:`, altGroup);
-            const altCourses = pillarCourses.filter(course => 
-              altGroup.options.includes(course)
-            );
-            console.log('Current alternative courses:', altCourses);
-            
-            if (altCourses.length === 0) {
-              // First alternative selected becomes primary
-              console.log(`${courseId} is first alternative, marking as primary`);
-              pillarCourses.push(courseId);
-              this.pillarFills.set(i, pillarCourses);
-              this.courseAllocations.set(courseId, {
-                pillarIndex: i,
-                status: 'primary'
-              });
-              allocated = true;
-            } else {
-              // Additional alternatives go to overflow
-              console.log(`${courseId} is additional alternative, marking as overflow`);
-              this.overflowCourses.add(courseId);
-              this.courseAllocations.set(courseId, {
-                pillarIndex: -1,
-                status: 'overflow'
-              });
-              allocated = true;
-            }
-          } else {
-            // Regular required course
-            console.log(`${courseId} is required course, marking as primary`);
-            pillarCourses.push(courseId);
-            this.pillarFills.set(i, pillarCourses);
-            this.courseAllocations.set(courseId, {
-              pillarIndex: i,
-              status: 'primary'
-            });
-            allocated = true;
-          }
-          break;
-        }
-        continue;
-      }
-  
-        // Handle prerequisites
-        if (pillar.type === 'prerequisites') {
-          const prereqGroup = pillar.courses.find(prereq => {
-            if (typeof prereq === 'string') return prereq === courseId;
-            if (prereq.type === 'alternative') return prereq.options.includes(courseId);
-            return false;
+      // Handle prerequisites
+      if (pillar.type === 'prerequisites') {
+        const prereqGroup = pillar.courses.find(prereq => {
+          if (typeof prereq === 'string') return prereq === courseId;
+          if (prereq.type === 'alternative') return prereq.options.includes(courseId);
+          return false;
+        });
+
+        if (prereqGroup) {
+          const groupSatisfied = pillarCourses.some(course => {
+            if (typeof prereqGroup === 'string') return course === prereqGroup;
+            return prereqGroup.options.includes(course);
           });
-  
-          if (prereqGroup) {
-            const groupSatisfied = pillarCourses.some(course => {
-              if (typeof prereqGroup === 'string') return course === prereqGroup;
-              return prereqGroup.options.includes(course);
-            });
-  
-            if (!groupSatisfied) {
-              pillarCourses.push(courseId);
-              this.pillarFills.set(i, pillarCourses);
-              this.courseAllocations.set(courseId, {
-                pillarIndex: i,
-                status: 'primary'
-              });
-              allocated = true;
-              break;
-            }
-          }
-        }
-        // For other pillar types
-        else {
-          const req = pillar.type === 'complex' ? 
-            this.parseComplexRequirement(pillar.options[0]) : 
-            { totalRequired: pillar.count || 1 };
-    
-          if (pillarCourses.length < req.totalRequired) {
+
+          if (!groupSatisfied) {
             pillarCourses.push(courseId);
             this.pillarFills.set(i, pillarCourses);
             this.courseAllocations.set(courseId, {
@@ -507,24 +472,42 @@ class RequirementManager {
               status: 'primary'
             });
             allocated = true;
-            console.log(`Successfully allocated ${courseId} to pillar ${i}`);
             break;
           }
         }
       }
-    
-      // If course couldn't be allocated to any pillar, add to overflow
-      if (!allocated) {
-        console.log(`Adding ${courseId} to overflow`);
-        this.overflowCourses.add(courseId);
-        this.courseAllocations.set(courseId, {
-          pillarIndex: -1,
-          status: 'overflow'
-        });
+      // For other pillar types
+      else {
+        const requirement = pillar.type === 'complex' ? 
+          this.parseComplexRequirement(pillar.options[0]) : 
+          { totalRequired: pillar.count || 1 };
+
+        if (pillarCourses.length < requirement.totalRequired) {
+          pillarCourses.push(courseId);
+          this.pillarFills.set(i, pillarCourses);
+          this.courseAllocations.set(courseId, {
+            pillarIndex: i,
+            status: 'primary'
+          });
+          allocated = true;
+          console.log(`Successfully allocated ${courseId} to pillar ${i}`);
+          break;
+        }
       }
-    
-      return this.getFullStatus();
     }
+  
+    // If course couldn't be allocated to any pillar, add to overflow
+    if (!allocated) {
+      console.log(`Adding ${courseId} to overflow`);
+      this.overflowCourses.add(courseId);
+      this.courseAllocations.set(courseId, {
+        pillarIndex: -1,
+        status: 'overflow'
+      });
+    }
+  
+    return this.getFullStatus();
+  }
   
     deallocateCourse(courseId) {
       const existing = this.courseAllocations.get(courseId);
