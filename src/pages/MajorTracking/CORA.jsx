@@ -204,6 +204,8 @@ const progressFillColor = darkMode ? '#349966' : '#3B82F6'; // inner fill color
 const borderColor = darkMode ? '#4B5563' : '#D1D5DB';
 const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
 const [requirementStatus, setRequirementStatus] = useState(null);
+const [activeChatId, setActiveChatId] = useState("");
+
 
 const [currentChatId, setCurrentChatId] = useState(() => Date.now().toString());
 
@@ -791,20 +793,30 @@ return (
   </div>
 
 
-
-<div className="mb-4 p-4 rounded-lg shadow bg-white">
-  <h3 className="text-lg font-bold mb-2">Previous Chats</h3>
+  <div 
+  className="mb-4 p-4 rounded-lg shadow" 
+  style={{ background: paperBgColor }}
+>
+  <h3 className="text-lg font-bold mb-2" style={{ color: textColor }}>
+    Previous Chats
+  </h3>
   {chatHistory.length === 0 ? (
-    <p className="text-gray-500">No previous chats</p>
+    <p className="text-gray-400">No previous chats</p>
   ) : (
     <ul className="space-y-2">
       {chatHistory.map((chat, index) => (
         <li
           key={chat.sessionId}
-          className="cursor-pointer text-blue-600 hover:underline"
+          className={`cursor-pointer p-2 rounded-md transition-colors ${
+            activeChatId === chat.sessionId 
+              ? (darkMode ? "bg-blue-900" : "bg-blue-200")
+              : "hover:bg-gray-100 dark:hover:bg-gray-700"
+          }`}
+          style={{ color: darkMode ? '#93C5FD' : '#2563EB' }}
           onClick={() => {
             setConversation(chat.conversation);
             setChatName(chat.chatName || "");
+            setActiveChatId(chat.sessionId);
           }}
         >
           {chat.chatName
@@ -815,6 +827,9 @@ return (
     </ul>
   )}
 </div>
+
+
+
 
   
 
