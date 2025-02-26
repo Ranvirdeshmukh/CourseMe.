@@ -185,6 +185,7 @@ const MajorTracker = ({darkMode}) => {
   const auth = getAuth();
   const [chatHistory, setChatHistory] = useState([""]);
 
+  const [chatName, setChatName] = useState("");
 
   const [conversation, setConversation] = useState([]);
 
@@ -350,11 +351,16 @@ useEffect(() => {
         if (!window.confirm("Start a new chat? The current conversation will be saved.")) {
           return;
         }
+        // 3. NEW: Save current conversation along with the chat name into chatHistory
+    setChatHistory(prevHistory => [
+      ...prevHistory,
+      { sessionId: currentChatId, conversation, chatName }
+    ]);
         // Save current conversation to history
-        setChatHistory(prevHistory => [
-          ...prevHistory,
-          { sessionId: currentChatId, conversation }
-        ]);
+        // setChatHistory(prevHistory => [
+        //   ...prevHistory,
+        //   { sessionId: currentChatId, conversation }
+        // ]);
       }
       const newSessionId = Date.now().toString();
       setCurrentChatId(newSessionId);
@@ -363,6 +369,8 @@ useEffect(() => {
       // localStorage.removeItem('coraConversation'); // Remove this line if you want to keep them.
       setCoraQuery("");
       setCoraResponse("");
+      // 4. NEW: Reset chatName for the new chat session
+      setChatName("");
     };
 
     
@@ -472,6 +480,11 @@ useEffect(() => {
 
 const handleCoraSubmit = async () => {
   if (!coraQuery.trim()) return;
+
+  // 2. NEW: If this is the first user message, set the chat name using the current query
+  if (!chatName && conversation.length === 0) {
+    setChatName(coraQuery);
+  }
 
   // Append the user's query to the conversation
   setConversation(prev => [...prev, { type: 'user', text: coraQuery }]);
@@ -776,24 +789,32 @@ return (
       </div>
     </div>
   </div>
-  {/* Previous Chats Section */}
-  <div className="mb-4 p-4 rounded-lg shadow bg-white">
-    <h3 className="text-lg font-bold mb-2">Previous Chats</h3>
-    {chatHistory.length === 0 ? (
-      <p className="text-gray-500">No previous chats</p>
-    ) : (
-      <ul className="space-y-2">
-        {chatHistory.map((chat, index) => (
-          <li key={chat.sessionId} className="cursor-pointer text-blue-600 hover:underline" 
-              onClick={() => {
-                setConversation(chat.conversation);
-              }}>
-            Chat session {index + 1} (ID: {chat.sessionId})
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
+
+
+
+<div className="mb-4 p-4 rounded-lg shadow bg-white">
+  <h3 className="text-lg font-bold mb-2">Previous Chats</h3>
+  {chatHistory.length === 0 ? (
+    <p className="text-gray-500">No previous chats</p>
+  ) : (
+    <ul className="space-y-2">
+      {chatHistory.map((chat, index) => (
+        <li
+          key={chat.sessionId}
+          className="cursor-pointer text-blue-600 hover:underline"
+          onClick={() => {
+            setConversation(chat.conversation);
+            setChatName(chat.chatName || "");
+          }}
+        >
+          {chat.chatName
+            ? chat.chatName
+            : `Chat session ${index + 1} (ID: ${chat.sessionId})`}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
   
 
