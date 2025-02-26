@@ -32,8 +32,8 @@ const CoraChat = ({
 
   return (
     <div 
-      className="flex flex-col rounded-lg shadow-xl p-8"
-      style={{ background: paperBgColor }}
+    className="flex flex-col rounded-lg shadow-xl p-8 w-full" // added w-full
+    style={{ background: paperBgColor, minHeight: '600px' }} // adjust minHeight as needed
     >
       <div 
         className="flex items-center justify-between mb-6 border-b pb-3"
@@ -54,15 +54,15 @@ const CoraChat = ({
       </div>
 
       {/* Conversation History */}
-<div 
-  ref={conversationRef}
-  className="flex-1 overflow-y-auto mb-6 space-y-4 p-4 rounded-md"
-  style={{ 
-    background: darkMode ? paperBgColor : '#F3F4F6',
-    border: darkMode ? `1px solid ${borderColor}` : '1px solid #ddd',
-    maxHeight: '500px'
-  }}
->
+      <div 
+    ref={conversationRef}
+    className="flex-1 overflow-y-auto mb-6 space-y-4 p-4 rounded-md"
+    style={{ 
+      background: darkMode ? paperBgColor : '#F3F4F6',
+      border: darkMode ? `1px solid ${borderColor}` : '1px solid #ddd',
+      maxHeight: '600px' // increased maxHeight from 500px to 600px (or remove if you want it fully fluid)
+    }}
+  >
   {conversation.length === 0 ? (
     <div className="text-center text-lg italic" style={{ color: textColor }}>
       Start the conversation...
@@ -183,6 +183,9 @@ const MajorTracker = ({darkMode}) => {
   const [availableMajors, setAvailableMajors] = useState([]);
   const db = getFirestore();
   const auth = getAuth();
+  const [chatHistory, setChatHistory] = useState([""]);
+
+  const [chatName, setChatName] = useState("");
 
   const [conversation, setConversation] = useState([]);
 
@@ -201,6 +204,8 @@ const progressFillColor = darkMode ? '#349966' : '#3B82F6'; // inner fill color
 const borderColor = darkMode ? '#4B5563' : '#D1D5DB';
 const inputBgColor = darkMode ? '#0C0F33' : '#F3F4F6';
 const [requirementStatus, setRequirementStatus] = useState(null);
+const [activeChatId, setActiveChatId] = useState("");
+
 
 const [currentChatId, setCurrentChatId] = useState(() => Date.now().toString());
 
@@ -343,16 +348,46 @@ useEffect(() => {
     };
 
     const handleNewChat = () => {
-      if (conversation.length > 0 && !window.confirm("Start a new chat? The current conversation will be saved.")) {
-        return;
+      if (conversation.length > 0) {
+        // Optionally ask for confirmation before saving the current conversation
+        if (!window.confirm("Start a new chat? The current conversation will be saved.")) {
+          return;
+        }
+        // 3. NEW: Save current conversation along with the chat name into chatHistory
+    setChatHistory(prevHistory => [
+      ...prevHistory,
+      { sessionId: currentChatId, conversation, chatName }
+    ]);
+        // Save current conversation to history
+        // setChatHistory(prevHistory => [
+        //   ...prevHistory,
+        //   { sessionId: currentChatId, conversation }
+        // ]);
       }
       const newSessionId = Date.now().toString();
       setCurrentChatId(newSessionId);
       setConversation([]);
-      localStorage.removeItem('coraConversation');
+      // Optionally, do not clear localStorage so that old chats persist across refreshes.
+      // localStorage.removeItem('coraConversation'); // Remove this line if you want to keep them.
       setCoraQuery("");
       setCoraResponse("");
+      // 4. NEW: Reset chatName for the new chat session
+      setChatName("");
     };
+
+    
+    useEffect(() => {
+      const savedHistory = localStorage.getItem('chatHistory');
+      if (savedHistory) {
+        setChatHistory(JSON.parse(savedHistory));
+      }
+    }, []);
+
+    
+    useEffect(() => {
+      localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    }, [chatHistory]);
+    
     
     
   
@@ -447,6 +482,11 @@ useEffect(() => {
 
 const handleCoraSubmit = async () => {
   if (!coraQuery.trim()) return;
+
+  // 2. NEW: If this is the first user message, set the chat name using the current query
+  if (!chatName && conversation.length === 0) {
+    setChatName(coraQuery);
+  }
 
   // Append the user's query to the conversation
   setConversation(prev => [...prev, { type: 'user', text: coraQuery }]);
@@ -751,6 +791,46 @@ return (
       </div>
     </div>
   </div>
+
+
+  <div 
+  className="mb-4 p-4 rounded-lg shadow" 
+  style={{ background: paperBgColor }}
+>
+  <h3 className="text-lg font-bold mb-2" style={{ color: textColor }}>
+    Previous Chats
+  </h3>
+  {chatHistory.length === 0 ? (
+    <p className="text-gray-400">No previous chats</p>
+  ) : (
+    <ul className="space-y-2">
+      {chatHistory.map((chat, index) => (
+        <li
+          key={chat.sessionId}
+          className={`cursor-pointer p-2 rounded-md transition-colors ${
+            activeChatId === chat.sessionId 
+              ? (darkMode ? "bg-blue-900" : "bg-blue-200")
+              : "hover:bg-gray-100 dark:hover:bg-gray-700"
+          }`}
+          style={{ color: darkMode ? '#93C5FD' : '#2563EB' }}
+          onClick={() => {
+            setConversation(chat.conversation);
+            setChatName(chat.chatName || "");
+            setActiveChatId(chat.sessionId);
+          }}
+        >
+          {chat.chatName
+            ? chat.chatName
+            : `Chat session ${index + 1} (ID: ${chat.sessionId})`}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
+
+
+
   
 
   
