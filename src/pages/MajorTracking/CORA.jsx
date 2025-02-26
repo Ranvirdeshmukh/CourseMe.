@@ -32,8 +32,8 @@ const CoraChat = ({
 
   return (
     <div 
-      className="flex flex-col rounded-lg shadow-xl p-8"
-      style={{ background: paperBgColor }}
+    className="flex flex-col rounded-lg shadow-xl p-8 w-full" // added w-full
+    style={{ background: paperBgColor, minHeight: '600px' }} // adjust minHeight as needed
     >
       <div 
         className="flex items-center justify-between mb-6 border-b pb-3"
@@ -54,15 +54,15 @@ const CoraChat = ({
       </div>
 
       {/* Conversation History */}
-<div 
-  ref={conversationRef}
-  className="flex-1 overflow-y-auto mb-6 space-y-4 p-4 rounded-md"
-  style={{ 
-    background: darkMode ? paperBgColor : '#F3F4F6',
-    border: darkMode ? `1px solid ${borderColor}` : '1px solid #ddd',
-    maxHeight: '500px'
-  }}
->
+      <div 
+    ref={conversationRef}
+    className="flex-1 overflow-y-auto mb-6 space-y-4 p-4 rounded-md"
+    style={{ 
+      background: darkMode ? paperBgColor : '#F3F4F6',
+      border: darkMode ? `1px solid ${borderColor}` : '1px solid #ddd',
+      maxHeight: '600px' // increased maxHeight from 500px to 600px (or remove if you want it fully fluid)
+    }}
+  >
   {conversation.length === 0 ? (
     <div className="text-center text-lg italic" style={{ color: textColor }}>
       Start the conversation...
@@ -183,6 +183,8 @@ const MajorTracker = ({darkMode}) => {
   const [availableMajors, setAvailableMajors] = useState([]);
   const db = getFirestore();
   const auth = getAuth();
+  const [chatHistory, setChatHistory] = useState([""]);
+
 
   const [conversation, setConversation] = useState([]);
 
@@ -343,16 +345,39 @@ useEffect(() => {
     };
 
     const handleNewChat = () => {
-      if (conversation.length > 0 && !window.confirm("Start a new chat? The current conversation will be saved.")) {
-        return;
+      if (conversation.length > 0) {
+        // Optionally ask for confirmation before saving the current conversation
+        if (!window.confirm("Start a new chat? The current conversation will be saved.")) {
+          return;
+        }
+        // Save current conversation to history
+        setChatHistory(prevHistory => [
+          ...prevHistory,
+          { sessionId: currentChatId, conversation }
+        ]);
       }
       const newSessionId = Date.now().toString();
       setCurrentChatId(newSessionId);
       setConversation([]);
-      localStorage.removeItem('coraConversation');
+      // Optionally, do not clear localStorage so that old chats persist across refreshes.
+      // localStorage.removeItem('coraConversation'); // Remove this line if you want to keep them.
       setCoraQuery("");
       setCoraResponse("");
     };
+
+    
+    useEffect(() => {
+      const savedHistory = localStorage.getItem('chatHistory');
+      if (savedHistory) {
+        setChatHistory(JSON.parse(savedHistory));
+      }
+    }, []);
+
+    
+    useEffect(() => {
+      localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    }, [chatHistory]);
+    
     
     
   
@@ -751,6 +776,25 @@ return (
       </div>
     </div>
   </div>
+  {/* Previous Chats Section */}
+  <div className="mb-4 p-4 rounded-lg shadow bg-white">
+    <h3 className="text-lg font-bold mb-2">Previous Chats</h3>
+    {chatHistory.length === 0 ? (
+      <p className="text-gray-500">No previous chats</p>
+    ) : (
+      <ul className="space-y-2">
+        {chatHistory.map((chat, index) => (
+          <li key={chat.sessionId} className="cursor-pointer text-blue-600 hover:underline" 
+              onClick={() => {
+                setConversation(chat.conversation);
+              }}>
+            Chat session {index + 1} (ID: {chat.sessionId})
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+
   
 
   
