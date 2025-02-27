@@ -1268,7 +1268,7 @@ const LandingPage = ({ darkMode }) => {
               lineHeight: 1.2,
             }}
           >
-            Join the <span style={{ color: '#571CE0' }}>Beta</span> Program
+            Join the <span style={{ color: '#571CE0' }}>CORA 1.0</span> 
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ textAlign: 'center', paddingTop: '10px' }}>
@@ -1285,7 +1285,7 @@ const LandingPage = ({ darkMode }) => {
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexDirection: 'column' }}>
             <Button
               onClick={() => {
-                navigate('/beta');
+                navigate('/major-tracker');
                 handleCloseBetaPopup();
               }}
               variant="contained"
