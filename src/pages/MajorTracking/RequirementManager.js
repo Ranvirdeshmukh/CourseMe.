@@ -1,5 +1,5 @@
 import { doc, getFirestore, collection, getDocs, setDoc, getDoc } from 'firebase/firestore';
-import { getAuth, } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 
 class RequirementManager {
   constructor(majorRequirements) {
@@ -11,12 +11,10 @@ class RequirementManager {
     this.pillarFills = new Map();
     this.overflowCourses = new Set();
     this.selectedSequences = new Map(); // Map to store selected sequence indices by major
-    this.sortPillarsBySpecificity();
   }
 
   setSelectedSequence(majorCode, sequenceIndex) {
     this.selectedSequences.set(majorCode, sequenceIndex);
-    // We'll add Firebase update logic here
     this.updateFirebaseSequences(majorCode, sequenceIndex);
   }
 
@@ -107,7 +105,7 @@ class RequirementManager {
               type: 'culminating',
               sequences,
               description: 'Culminating Experience',
-              count: 1
+              count: 10 // Set a high count to allow all courses in a sequence
             };
           }
         }
@@ -169,115 +167,66 @@ class RequirementManager {
     }
   }
 
-  sortPillarsBySpecificity() {
-    this.pillars.sort((a, b) => {
-      // Culminating experience has highest priority
-      if (a.type === 'culminating') return -1;
-      if (b.type === 'culminating') return 1;
-      // Prerequisites come second
-      if (a.type === 'prerequisites') return -1;
-      if (b.type === 'prerequisites') return 1;
-      // Other types maintain their relative order
-      return 0;
-    });
-  }
-
-  isPartOfSelectedSequence(courseId, sequence) {
-    if (!sequence) return false;
-
-    // Check if the course is the final course
-    if (courseId === sequence.final) {
-      console.log(`${courseId} matches final course ${sequence.final}`);
-      return true;
-    }
-
-    // Check if the course is a direct prerequisite or part of an alternative group
+  // Get all courses in a culminating sequence (including alternatives)
+  getAllSequenceCourses(sequence) {
+    if (!sequence) return [];
+    
+    // For the simplified approach, treat all courses equally
+    const courses = [sequence.final];
+    
+    // Add all prerequisites
     for (const prereq of sequence.prereqs) {
       if (typeof prereq === 'string') {
-        if (prereq === courseId) {
-          console.log(`${courseId} matches direct prerequisite`);
-          return true;
-        }
+        courses.push(prereq);
       } else if (prereq.type === 'alternative') {
-        // Handle prerequisites wrapped in curly braces
-        const cleanedOptions = prereq.options.map(opt => {
-          // Remove curly braces if present
-          return opt.replace(/[{}]/g, '').trim();
-        });
-        
-        if (cleanedOptions.includes(courseId)) {
-          console.log(`${courseId} matches alternative prerequisite in ${cleanedOptions.join('|')}`);
-          return true;
-        }
+        // Add all options from alternative sets
+        courses.push(...prereq.options);
       }
     }
+    
+    return courses;
+  }
 
-    console.log(`${courseId} does not match any part of sequence ${sequence.final}`);
+  // Check if a course is part of the sequence
+  isCourseInSequence(courseId, sequence) {
+    if (!sequence) return false;
+    
+    // Check if it's the final course
+    if (courseId === sequence.final) return true;
+    
+    // Check if it's a prerequisite
+    for (const prereq of sequence.prereqs) {
+      if (typeof prereq === 'string') {
+        if (courseId === prereq) return true;
+      } else if (prereq.type === 'alternative') {
+        if (prereq.options.includes(courseId)) return true;
+      }
+    }
+    
     return false;
   }
 
-  getAlternativeGroupForCourse(courseId, sequence) {
-    for (const prereq of sequence.prereqs) {
-      if (prereq.type === 'alternative') {
-        // Handle prerequisites wrapped in curly braces
-        const cleanedOptions = prereq.options.map(opt => {
-          // Remove curly braces if present
-          return opt.replace(/[{}]/g, '').trim();
-        });
-        
-        if (cleanedOptions.includes(courseId)) {
-          // Return cleaned up version of alternative group
-          return {
-            ...prereq,
-            options: cleanedOptions
-          };
-        }
-      }
+  // Find the currently selected sequence
+  getSelectedCulminatingSequence() {
+    const culminatingPillar = this.pillars.find(p => p.type === 'culminating');
+    if (!culminatingPillar || !culminatingPillar.sequences || culminatingPillar.sequences.length === 0) {
+      return null;
     }
-    return undefined;
+    
+    // Get department from first sequence's final course
+    const deptMatch = culminatingPillar.sequences[0].final.match(/([A-Z]+)/);
+    const dept = deptMatch ? deptMatch[1] : null;
+    
+    if (!dept) return culminatingPillar.sequences[0];
+    
+    const sequenceIndex = this.getSelectedSequence(dept);
+    const selectedSequence = culminatingPillar.sequences[sequenceIndex] || culminatingPillar.sequences[0];
+    
+    culminatingPillar.selectedSequence = selectedSequence;
+    return selectedSequence;
   }
 
-  matchPrerequisite(courseId, pillar) {
-    return pillar.courses.some(prereq => {
-      if (typeof prereq === 'string') return prereq === courseId;
-      if (prereq.type === 'alternative') return prereq.options.includes(courseId);
-      return false;
-    });
-  }
-
-  matchSpecificRequirement(courseId, pillar) {
-    const match = courseId.match(/([A-Z]+)(\d+)/);
-    if (!match) return false;
-
-    const [, dept, numStr] = match;
-    const num = parseInt(numStr);
-    const paddedNum = numStr.padStart(3, '0');
-
-    return pillar.options.some(option => {
-      if (option.startsWith('[') && option.endsWith(']')) {
-        const [start, end] = option.slice(1, -1).split('-').map(r => {
-          const m = r.match(/([A-Z]+)(\d+)/);
-          return {
-            dept: m[1],
-            num: parseInt(m[2])
-          };
-        });
-        return dept === start.dept && num >= start.num && num <= end.num;
-      }
-
-      if (option.includes('≥')) {
-        const [optDept, minNum] = option.split('≥');
-        return dept === optDept && num >= parseInt(minNum);
-      }
-
-      if (option.match(/^\d+$/)) {
-        return dept === (pillar.department || 'COSC') && paddedNum === option.padStart(3, '0');
-      }
-
-      return courseId === option;
-    });
-  }
-
+  // Main function to check if a course matches a pillar
   courseMatchesPillar(courseId, pillar) {
     if (!pillar) return false;
     
@@ -286,33 +235,60 @@ class RequirementManager {
     
     const [, dept, numStr] = match;
     const num = parseInt(numStr);
-  
+    
     switch (pillar.type) {
       case 'culminating': {
-        if (!pillar.sequences) {
-          console.log(`No sequences available for pillar`);
-          return false;
-        }
-        
-        // Get the selected sequence for this major
-        const sequenceIndex = this.getSelectedSequence(dept);
-        const selectedSequence = pillar.sequences[sequenceIndex];
-        
-        if (!selectedSequence) {
-          console.log(`No selected sequence found for index ${sequenceIndex}`);
-          return false;
-        }
-
-        pillar.selectedSequence = selectedSequence; // Set the selected sequence
-        const isMatch = this.isPartOfSelectedSequence(courseId, selectedSequence);
-        console.log(`Checking if ${courseId} matches culminating sequence: ${isMatch}`);
-        return isMatch;
+        // For culminating experience, check if the course is part of the selected sequence
+        const selectedSequence = this.getSelectedCulminatingSequence();
+        return this.isCourseInSequence(courseId, selectedSequence);
       }
+      
       case 'prerequisites':
-        return this.matchPrerequisite(courseId, pillar);
+        return pillar.courses.some(prereq => {
+          if (typeof prereq === 'string') return prereq === courseId;
+          if (prereq.type === 'alternative') return prereq.options.includes(courseId);
+          return false;
+        });
 
-      case 'specific':
-        return this.matchSpecificRequirement(courseId, pillar);
+      case 'specific': {
+        // Match against exact course IDs or ranges
+        return (pillar.options || []).some(option => {
+          // Handle ranges like [ECON001-ECON099]
+          if (option.startsWith('[') && option.endsWith(']')) {
+            const rangeParts = option.slice(1, -1).split('-');
+            if (rangeParts.length === 2) {
+              const [startCourse, endCourse] = rangeParts;
+              
+              const startMatch = startCourse.match(/([A-Z]+)(\d+)/);
+              const endMatch = endCourse.match(/([A-Z]+)(\d+)/);
+              
+              if (startMatch && endMatch) {
+                const startDept = startMatch[1];
+                const startNum = parseInt(startMatch[2]);
+                const endDept = endMatch[1];
+                const endNum = parseInt(endMatch[2]);
+                
+                return dept === startDept && dept === endDept && 
+                       num >= startNum && num <= endNum;
+              }
+            }
+          }
+          
+          // Handle minimum requirements like ECON≥002
+          if (option.includes('≥')) {
+            const [optDept, minNum] = option.split('≥');
+            return dept === optDept && num >= parseInt(minNum);
+          }
+          
+          // Handle exclusions like !ECON010
+          if (option.startsWith('!')) {
+            return courseId !== option.slice(1);
+          }
+          
+          // Direct match
+          return courseId === option;
+        });
+      }
 
       case 'range':
         if (pillar.department && dept !== pillar.department) {
@@ -320,285 +296,146 @@ class RequirementManager {
         }
         return num >= pillar.start && num <= pillar.end;
 
-      case 'complex': {
-        const reqStr = pillar.options[0];
-        const req = this.parseComplexRequirement(reqStr);
-        if (!req) return false;
-        return this.courseMatchesComplexRequirement(courseId, req, pillar.index);
-      }
-
       default:
         return false;
     }
   }
 
+  // Get a course's status for a specific pillar
   getCourseStatus(courseId, pillarIndex) {
+    // Get the allocation for this course
     const allocation = this.courseAllocations.get(courseId);
     if (!allocation) return 'none';
     
-    const pillar = this.pillars[pillarIndex];
-    
-    if (pillar?.type === 'culminating' && pillar.selectedSequence) {
-      const sequence = pillar.selectedSequence;
-      
-      if (!this.isPartOfSelectedSequence(courseId, sequence)) {
-        return 'none';
-      }
-      
-      const altGroup = this.getAlternativeGroupForCourse(courseId, sequence);
-      if (altGroup) {
-        const pillarCourses = this.pillarFills.get(pillarIndex) || [];
-        const alternativesInPillar = pillarCourses.filter(course => 
-          altGroup.options.includes(course)
-        );
-        
-        if (alternativesInPillar.length > 0) {
-          // If this course is the first alternative selected, it's primary
-          if (alternativesInPillar[0] === courseId) {
-            return 'primary';
-          }
-          // Any subsequent alternatives should be overflow
-          return 'overflow';
-        }
-      }
-      
-      return allocation.pillarIndex === pillarIndex ? 'primary' : 'secondary';
-    }
-    
-    // For non-culminating pillars
+    // If course is allocated to this pillar, it's primary
     if (allocation.pillarIndex === pillarIndex) {
       return 'primary';
     }
     
-    if (this.overflowCourses.has(courseId)) {
+    // If course is in overflow, return overflow status
+    if (allocation.status === 'overflow') {
       return 'overflow';
     }
     
-    return this.courseMatchesPillar(courseId, pillar) ? 'secondary' : 'none';
-  }
-
-  deallocateCourse(courseId) {
-    const existing = this.courseAllocations.get(courseId);
-    if (!existing) return;
-
-    if (existing.pillarIndex >= 0) {
-      const pillarCourses = this.pillarFills.get(existing.pillarIndex) || [];
-      const index = pillarCourses.indexOf(courseId);
-      if (index >= 0) {
-        pillarCourses.splice(index, 1);
-        this.pillarFills.set(existing.pillarIndex, pillarCourses);
-      }
+    // If course matches this pillar but is allocated elsewhere, it's secondary
+    const pillar = this.pillars[pillarIndex];
+    if (this.courseMatchesPillar(courseId, pillar)) {
+      return 'secondary';
     }
-
-    this.courseAllocations.delete(courseId);
-    this.overflowCourses.delete(courseId);
+    
+    // Otherwise, it's not related to this pillar
+    return 'none';
   }
 
-  allocateCourse(courseId) {
-    console.log(`Attempting to allocate ${courseId}`);
-    
-    this.deallocateCourse(courseId);
-    let allocated = false;
+  // Reset all allocations
+  resetAllocations() {
+    this.courseAllocations.clear();
+    this.pillarFills.clear();
+    this.overflowCourses.clear();
+  }
 
-    // First, try to allocate to culminating experience if the course matches
+  // Process the complete list of completed courses
+  processCourseList(courses) {
+    console.log("Processing course list:", courses);
+    // Reset all allocations first
+    this.resetAllocations();
+    
+    // Find the culminating pillar and get the selected sequence
     const culminatingPillar = this.pillars.find(p => p.type === 'culminating');
-    if (culminatingPillar && this.courseMatchesPillar(courseId, culminatingPillar)) {
-      console.log(`${courseId} matches culminating experience requirements`);
-      const pillarCourses = this.pillarFills.get(culminatingPillar.index) || [];
+    const selectedSequence = culminatingPillar ? this.getSelectedCulminatingSequence() : null;
+    
+    // Track all courses that are part of the selected sequence
+    const sequenceCourses = selectedSequence ? this.getAllSequenceCourses(selectedSequence) : [];
+    console.log("Sequence courses:", sequenceCourses);
+    
+    // Create a set to track courses we've already processed
+    const processedCourses = new Set();
+    
+    // FIRST PASS: Process all culminating experience courses first
+    if (culminatingPillar && selectedSequence) {
+      const pillarCourses = [];
       
-      const altGroup = this.getAlternativeGroupForCourse(courseId, culminatingPillar.selectedSequence);
-      if (altGroup) {
-        const altCourses = pillarCourses.filter(course => altGroup.options.includes(course));
-        if (altCourses.length === 0) {
+      // For each completed course, check if it's part of the selected sequence
+      for (const courseId of courses) {
+        if (sequenceCourses.includes(courseId)) {
           pillarCourses.push(courseId);
-          this.pillarFills.set(culminatingPillar.index, pillarCourses);
+          processedCourses.add(courseId);
+          
+          // Mark as allocated to this pillar
           this.courseAllocations.set(courseId, {
             pillarIndex: culminatingPillar.index,
             status: 'primary'
           });
-        } else {
-          this.overflowCourses.add(courseId);
-          this.courseAllocations.set(courseId, {
-            pillarIndex: -1,
-            status: 'overflow'
-          });
+          
+          console.log(`Allocated ${courseId} to culminating pillar as primary`);
         }
-        return this.getFullStatus();
-      } else {
-        pillarCourses.push(courseId);
+      }
+      
+      // Update the pillar fills
+      if (pillarCourses.length > 0) {
         this.pillarFills.set(culminatingPillar.index, pillarCourses);
-        this.courseAllocations.set(courseId, {
-          pillarIndex: culminatingPillar.index,
-          status: 'primary'
-        });
-        return this.getFullStatus();
       }
     }
-  
-    // Then try other pillars
-    for (let i = 0; i < this.pillars.length; i++) {
-      const pillar = this.pillars[i];
-      if (pillar.type === 'culminating') continue; // Skip culminating as we already checked it
+    
+    // SECOND PASS: Process all remaining courses
+    // Sort pillars to handle prerequisites first, then specific/range pillars
+    const remainingPillars = this.pillars
+      .filter(p => p.type !== 'culminating')
+      .sort((a, b) => {
+        if (a.type === 'prerequisites') return -1;
+        if (b.type === 'prerequisites') return 1;
+        return 0;
+      });
+    
+    for (const courseId of courses) {
+      // Skip courses already processed in first pass
+      if (processedCourses.has(courseId)) continue;
       
-      console.log(`Checking pillar ${i} (${pillar.type})`);
+      let allocated = false;
       
-      if (!this.courseMatchesPillar(courseId, pillar)) {
-        console.log(`${courseId} does not match pillar ${i} requirements`);
-        continue;
-      }
-      
-      console.log(`${courseId} matches pillar ${i} requirements`);
-      const pillarCourses = this.pillarFills.get(i) || [];
-
-      // Handle prerequisites
-      if (pillar.type === 'prerequisites') {
-        const prereqGroup = pillar.courses.find(prereq => {
-          if (typeof prereq === 'string') return prereq === courseId;
-          if (prereq.type === 'alternative') return prereq.options.includes(courseId);
-          return false;
-        });
-
-        if (prereqGroup) {
-          const groupSatisfied = pillarCourses.some(course => {
-            if (typeof prereqGroup === 'string') return course === prereqGroup;
-            return prereqGroup.options.includes(course);
-          });
-
-          if (!groupSatisfied) {
+      // Try to allocate to each remaining pillar
+      for (const pillar of remainingPillars) {
+        if (this.courseMatchesPillar(courseId, pillar)) {
+          const pillarCourses = this.pillarFills.get(pillar.index) || [];
+          const maxCourses = pillar.count || 
+                           (pillar.type === 'prerequisites' ? pillar.courses?.length : 1);
+          
+          // Only allocate if pillar isn't already full
+          if (pillarCourses.length < maxCourses) {
             pillarCourses.push(courseId);
-            this.pillarFills.set(i, pillarCourses);
+            this.pillarFills.set(pillar.index, pillarCourses);
+            
             this.courseAllocations.set(courseId, {
-              pillarIndex: i,
+              pillarIndex: pillar.index,
               status: 'primary'
             });
+            
             allocated = true;
+            processedCourses.add(courseId);
+            console.log(`Allocated ${courseId} to ${pillar.type} pillar ${pillar.index} as primary`);
             break;
           }
         }
       }
-      // For other pillar types
-      else {
-        const requirement = pillar.type === 'complex' ? 
-          this.parseComplexRequirement(pillar.options[0]) : 
-          { totalRequired: pillar.count || 1 };
-
-        if (pillarCourses.length < requirement.totalRequired) {
-          pillarCourses.push(courseId);
-          this.pillarFills.set(i, pillarCourses);
-          this.courseAllocations.set(courseId, {
-            pillarIndex: i,
-            status: 'primary'
-          });
-          allocated = true;
-          console.log(`Successfully allocated ${courseId} to pillar ${i}`);
-          break;
-        }
-      }
-    }
-  
-    // If course couldn't be allocated to any pillar, add to overflow
-    if (!allocated) {
-      console.log(`Adding ${courseId} to overflow`);
-      this.overflowCourses.add(courseId);
-      this.courseAllocations.set(courseId, {
-        pillarIndex: -1,
-        status: 'overflow'
-      });
-    }
-  
-    return this.getFullStatus();
-  }
-  
-    deallocateCourse(courseId) {
-      const existing = this.courseAllocations.get(courseId);
-      if (!existing) return;
-  
-      if (existing.pillarIndex >= 0) {
-        const pillarCourses = this.pillarFills.get(existing.pillarIndex) || [];
-        const index = pillarCourses.indexOf(courseId);
-        if (index >= 0) {
-          pillarCourses.splice(index, 1);
-          this.pillarFills.set(existing.pillarIndex, pillarCourses);
-        }
-      }
-  
-      this.courseAllocations.delete(courseId);
-      this.overflowCourses.delete(courseId);
-    }
-    
-      getCourseStatus(courseId, pillarIndex) {
-        const allocation = this.courseAllocations.get(courseId);
-        if (!allocation) return 'none';
-        
-        const pillar = this.pillars[pillarIndex];
-        
-        if (pillar?.type === 'culminating' && pillar.selectedSequence) {
-          const sequence = pillar.selectedSequence;
-          
-          if (!this.isPartOfSelectedSequence(courseId, sequence)) {
-            return 'none';
-          }
-          
-          const altGroup = this.getAlternativeGroupForCourse(courseId, sequence);
-          if (altGroup) {
-            const pillarCourses = this.pillarFills.get(pillarIndex) || [];
-            const alternativesInPillar = pillarCourses.filter(course => 
-              altGroup.options.includes(course)
-            );
-            
-            if (alternativesInPillar.length > 0) {
-              // If this course is the first alternative selected, it's primary
-              if (alternativesInPillar[0] === courseId) {
-                return 'primary';
-              }
-              // Any subsequent alternatives should be overflow
-              return 'overflow';
-            }
-          }
-          
-          return allocation.pillarIndex === pillarIndex ? 'primary' : 'secondary';
-        }
-        
-        // For non-culminating pillars
-        if (allocation.pillarIndex === pillarIndex) {
-          return 'primary';
-        }
-        
-        if (this.overflowCourses.has(courseId)) {
-          return 'overflow';
-        }
-        
-        return this.courseMatchesPillar(courseId, pillar) ? 'secondary' : 'none';
-      }
-  
-      getFullStatus() {
-        return {
-          pillarFills: Object.fromEntries([...this.pillarFills.entries()]),
-          courseStatuses: Object.fromEntries([...this.courseAllocations.entries()]),
-          overflowCourses: Array.from(this.overflowCourses)
-        };
-      }
-  
-      processCourseList(courses) {
-        // Clear existing allocations
-        this.courseAllocations.clear();
-        this.pillarFills.clear();
-        this.overflowCourses.clear();
-    
-        // Ensure proper pillar indexing
-        this.pillars = this.pillars.map((pillar, index) => ({
-          ...pillar,
-          index
-        }));
-        this.sortPillarsBySpecificity();
-    
-        // Process each course
-        courses.forEach(courseId => {
-          this.allocateCourse(courseId);
+      
+      // If not allocated to any pillar, add to overflow
+      if (!allocated) {
+        this.overflowCourses.add(courseId);
+        this.courseAllocations.set(courseId, {
+          pillarIndex: -1,
+          status: 'overflow'
         });
-    
-        return this.getFullStatus();
+        console.log(`Added ${courseId} to overflow`);
       }
+    }
+    
+    // Return the allocation status
+    return {
+      pillarFills: Object.fromEntries([...this.pillarFills.entries()]),
+      courseStatuses: Object.fromEntries([...this.courseAllocations.entries()]),
+      overflowCourses: Array.from(this.overflowCourses)
+    };
   }
-  
-  export default RequirementManager;
+}
+
+export default RequirementManager;
