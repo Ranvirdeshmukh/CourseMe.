@@ -1,4 +1,3 @@
-
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -9,27 +8,10 @@ import LockIcon from '@mui/icons-material/Lock';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import SearchIcon from '@mui/icons-material/Search';
 import {
-    Alert,
-    Box,
-    Button,
-    ButtonBase,
-    CircularProgress,
-    Collapse,
-    Container,
-    FormControl,
-    IconButton,
-    InputAdornment,
-    InputLabel,
-    MenuItem,
-    Paper,
-    Select,
-    Snackbar,
-    Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow,
-    TextField,
-    Tooltip,
-    Typography,
-    useMediaQuery,
+    Alert, Box, Button, ButtonBase, CircularProgress, Collapse, Container,
+    FormControl, IconButton, InputAdornment, InputLabel, MenuItem, Paper,
+    Select, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, 
+    TableRow, TextField, Tooltip, Typography, useMediaQuery,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
@@ -141,9 +123,7 @@ const Timetable = ({darkMode}) => {
   const totalPages = Math.ceil(filteredCourses.length / classesPerPage); // Total number of pages
   const navigate = useNavigate();
 
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
-  const [columnWidths, setColumnWidths] = useState({});
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [sortConfig] = useState({ key: null, direction: 'ascending' });
 
   
   const mainBgColor = darkMode
@@ -161,15 +141,6 @@ const borderColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
 const accentHoverBg = darkMode
   ? 'rgba(255, 255, 255, 0.08)'
   : 'rgba(0, 105, 62, 0.08)';
-
-
-  const handleSort = (key) => {
-    let direction = 'ascending';
-    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
-    }
-    setSortConfig({ key, direction });
-  };
 
   const getSortedCourses = useCallback((courses) => {
     if (!sortConfig.key) return courses;
@@ -253,42 +224,6 @@ useEffect(() => {
   useEffect(() => {
     fetchProfessorData();
   }, []);
-
-  const handleProfessorClick = (professorName, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const professorId = findClosestProfessorMatch(professorName, professorNames);
-    if (professorId) {
-      navigate(`/professors/${professorId}`, { replace: false, state: { from: 'timetable' } });
-      window.scrollTo(0, 0); // Force scroll to top
-    }
-  };
-  const formatProfessorId = (name) => {
-    if (!name) return '';
-    // Split on common delimiters and clean up
-    const parts = name.split(/[,;]/)[0].trim().split(' ');
-    if (parts.length < 2) return name;
-    return `${parts[0]}_${parts[parts.length - 1]}`;
-  };
-  
-  // Add this function to find the closest matching professor
-  const findClosestProfessorMatch = useCallback((professorName) => {
-    if (!professorName) return null;
-    
-    const nameLower = professorName.toLowerCase();
-    // Direct lookup from map
-    if (professorMap.has(nameLower)) {
-      return professorMap.get(nameLower);
-    }
-  
-    // If no exact match, try formatted ID
-    const formattedId = formatProfessorId(professorName);
-    for (const [, id] of professorMap) {
-      if (id === formattedId) return id;
-    }
-
-    return null;
-  }, [professorMap]);
 
   const ProfessorCell = memo(({ instructor }) => {
     const navigate = useNavigate();
@@ -509,63 +444,8 @@ useEffect(() => {
     await fetchCourseData(department, courseNumber);
     console.log("course name" + courseNameLong)
     navigate(`/departments/${department}/courses/${courseNameLong}`);
-    // if (courseNumber.includes('.')) {
-    //   const [mainPart, decimalPart] = courseNumber.split('.');
-    //   courseNumber = mainPart.padStart(3, '0') + '_' + decimalPart.padStart(2, '0');
-    // } else {
-    //   courseNumber = courseNumber.padStart(3, '0');
-    // }
-  
-    // const formattedTitle = course.title
-    //   .replace(/[^a-zA-Z0-9]+/g, '_')
-    //   .replace(/_+/g, '_')
-    //   .replace(/^_+|_+$/g, '');
-  
-    // const courseId = `${department}_${department}${courseNumber}__${formattedTitle}`;
-    // const encodedCourseId = encodeURIComponent(courseId);
-  
-    // // Check if the course exists in Firestore
-    // const courseRef = doc(db, 'courses', courseId);
-    // const courseSnap = await getDoc(courseRef);
-  
-    // if (!courseSnap.exists()) {
-    //   // Course doesn't exist, create it
-    //   await setDoc(courseRef, {
-    //     department: department,
-    //     number: courseNumber,
-    //     title: course.title,
-    //     description: 'Course description not available',
-    //     reviews: {},
-    //     layup: 0,
-    //     quality: 0
-    //   });
-    //   console.log('Created new course document in Firestore');
-    // }
-  
-    // const coursePath = `/departments/${department}/courses/${encodedCourseId}`;
-    // console.log('Navigating to:', coursePath);
-    // navigate(coursePath);
   };
   
-  // const fetchUserTimetable = async () => {
-  //   try {
-  //     const db = getFirestore();
-  //     const userRef = doc(collection(db, 'users'), currentUser.uid);
-  //     const userDoc = await getDoc(userRef);
-
-  //     if (userDoc.exists()) {
-  //       const userData = userDoc.data();
-  //       if (userData.fallCoursestaken) {
-  //         setSelectedCourses(userData.fallCoursestaken);
-  //       } else {
-  //         setSelectedCourses([]); 
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching user's timetable:", error);
-  //   }
-  // };
-
   const fetchUserTimetable = async () => {
     try {
       const db = getFirestore();
@@ -580,70 +460,7 @@ useEffect(() => {
     }
   };
   
-
-
-  // const handleNotifyDrop = async (course) => {
-  //   try {
-  //     const db = getFirestore();
-  //     const formattedNumber = course.num.includes('.') 
-  //       ? course.num 
-  //       : course.num.padStart(3, '0');
-  //     const formattedSection = course.sec.padStart(2, '0');
-      
-  //     console.log("department", course.subj);
-  //     console.log("number", formattedNumber);
-  //     console.log("section", formattedSection);
-      
-  //     const timetableRequestsRef = collection(db, 'timetable-requests');
-  //     const q = query(
-  //       timetableRequestsRef,
-  //       where("department", "==", course.subj),
-  //       where("number", "==", formattedNumber),
-  //       where("section", "==", formattedSection)
-  //     );
   
-  //     const querySnapshot = await getDocs(q);
-      
-  //     if (!querySnapshot.empty) {
-  //       // Document exists, check if user is already in the array
-  //       const docRef = doc(db, 'timetable-requests', querySnapshot.docs[0].id);
-  //       const docData = querySnapshot.docs[0].data();
-  //       const users = docData.users || [];
-        
-  //       const userExists = users.some(user => user.email === currentUser.email);
-        
-  //       if (!userExists) {
-  //         // User not in array, add them
-  //         await updateDoc(docRef, {
-  //           users: arrayUnion({
-  //             email: currentUser.email,
-  //             open: false
-  //           })
-  //         });
-  //         setSnackbarOpen(true);
-  //       } else {
-  //         // User already in array, notify them
-  //         alert('You are already on the notification list for this course.');
-  //       }
-  //     } else {
-  //       // Document doesn't exist, create a new one
-  //       await setDoc(doc(timetableRequestsRef), {
-  //         department: course.subj,
-  //         number: formattedNumber,
-  //         section: formattedSection,
-  //         users: [{
-  //           email: currentUser.email,
-  //           open: false
-  //         }]
-  //       });
-  //       setSnackbarOpen(true);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error setting up drop notification:', error);
-  //     alert('Failed to set up drop notification. Please try again.');
-  //   }
-  // };
-
   const handleNotifyDrop = async (course) => {
     try {
       const db = getFirestore();
@@ -804,28 +621,6 @@ useEffect(() => {
     setSelectedSubject(subject);
   };
 
-  // const handleAddCourse = async (course) => {
-  //   if (navigator.vibrate) {
-  //     navigator.vibrate(200);
-  //   }
-
-  //   if (selectedCourses.length < 3 && !selectedCourses.some((c) => c.title === course.title)) {
-  //     const updatedCourses = [...selectedCourses, course];
-  //     setSelectedCourses(updatedCourses);
-
-  //     try {
-  //       const db = getFirestore();
-  //       const userRef = doc(collection(db, 'users'), currentUser.uid);
-  //       await updateDoc(userRef, { fallCoursestaken: updatedCourses }); 
-  //     } catch (error) {
-  //       console.error('Error saving courses:', error);
-  //     }
-  //   } else if (selectedCourses.some((c) => c.title === course.title)) {
-  //     alert('This course is already added.');
-  //   } else {
-  //     alert('You can only select up to 3 courses.');
-  //   }
-  // };
   const handleAddCourse = async (course) => {
     if (navigator.vibrate) {
       navigator.vibrate(200);
@@ -2027,13 +1822,51 @@ useEffect(() => {
       </Container>
 
       {/* Snackbars */}
+{/* Notification Snackbar */}
+<Snackbar
+  open={snackbarOpen}
+  autoHideDuration={6000}
+  onClose={handleSnackbarClose}
+  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+>
+  <Alert 
+    onClose={handleSnackbarClose} 
+    severity="success"
+    sx={{
+      width: '100%',
+      backgroundColor: darkMode ? '#1C1F43' : '#E6F4EA',
+      color: darkMode ? '#FFFFFF' : '#1D1D1F',
+      '& .MuiAlert-icon': {
+        color: '#34C759'
+      }
+    }}
+  >
+    Thank you, you will be notified if someone drops the class.
+  </Alert>
+</Snackbar>
+
+{/* Pop-up Blocked Snackbar */}
       <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        message="Thank you, you will be notified if someone drops the class."
+        open={popupMessageOpen}
+        autoHideDuration={8000}
+        onClose={handlePopupMessageClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
+      >
+        <Alert 
+          onClose={handlePopupMessageClose} 
+          severity="warning"
+          sx={{
+            width: '100%',
+            backgroundColor: darkMode ? '#332D41' : '#FFF4E5',
+            color: darkMode ? '#FFFFFF' : '#1D1D1F',
+            '& .MuiAlert-icon': {
+              color: '#FF9500'
+            }
+          }}
+        >
+          Pop-up blocked! Please click on the blocked content icon in your browser's address bar to allow pop-ups.
+        </Alert>
+      </Snackbar>
 
       <Snackbar
         open={popupMessageOpen}
