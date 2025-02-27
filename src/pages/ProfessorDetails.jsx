@@ -1,11 +1,11 @@
-import { addDoc, collection, doc, getDoc, getFirestore } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, getFirestore, getDocs } from 'firebase/firestore';
 import {
   Building, ChevronDown,
   ChevronUp, Flag, Globe, Info, Mail,
   Phone, Sparkles, X
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ProfessorAnalytics from './ProfessorAnalytics';
 
 /* ===========================
@@ -208,6 +208,110 @@ const AISummary = ({ summary, courseId, professorId, professorName }) => {
    const CourseCard = ({ course, professorId, professorName, darkMode }) => {
     const hasReviews = course.metrics.review_count > 0;
     const [isExpanded, setIsExpanded] = useState(false);
+    const navigate = useNavigate();
+    const [courseDocId, setCourseDocId] = useState(null);
+    const [courseDepartment, setCourseDepartment] = useState(null);
+    
+    // Use the same approach as ProfessorAnalytics to find the courseDocId
+    useEffect(() => {
+      const fetchCourseDocId = async () => {
+        if (!course.courseId) return;
+        try {
+          const db = getFirestore();
+          const normalizedId = normalizeCourseId(course.courseId);
+          
+          if (!normalizedId) {
+            console.error('Invalid course ID format');
+            return;
+          }
+  
+          // Set department from the course data or extract it from courseId
+          const dept = course.deptName || course.courseId.match(/([A-Z]+)/)[0];
+          setCourseDepartment(dept);
+  
+          // First, try to see if we already have courseDocId from ProfessorAnalytics
+          if (course.fullDocId) {
+            setCourseDocId(course.fullDocId);
+            return;
+          }
+  
+          // Otherwise, query Firestore to find the document
+          const coursesRef = collection(db, 'courses');
+          const coursesSnapshot = await getDocs(coursesRef);
+          
+          const matchingDoc = coursesSnapshot.docs.find(doc =>
+            doc.id.startsWith(normalizedId)
+          );
+  
+          if (matchingDoc) {
+            setCourseDocId(matchingDoc.id);
+          } else {
+            // As a fallback, try the normalized ID as the doc ID
+            // Check if this document exists
+            const directDocRef = doc(db, 'courses', normalizedId);
+            const directDocSnap = await getDoc(directDocRef);
+            
+            if (directDocSnap.exists()) {
+              setCourseDocId(normalizedId);
+            } else {
+              // If course name is available, try to construct a potential full ID
+              if (course.name) {
+                const formattedName = course.name.replace(/\s+/g, '_').replace(/[^\w]/g, '');
+                const potentialId = `${normalizedId}_${formattedName}`;
+                
+                // Check if this constructed ID exists
+                const constructedDocRef = doc(db, 'courses', potentialId);
+                const constructedDocSnap = await getDoc(constructedDocRef);
+                
+                if (constructedDocSnap.exists()) {
+                  setCourseDocId(potentialId);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching course doc ID:', error);
+        }
+      };
+  
+      fetchCourseDocId();
+    }, [course.courseId, course.deptName, course.fullDocId, course.name]);
+    
+    // Utility function from your code
+    const normalizeCourseId = (courseId) => {
+      const match = courseId.match(/([A-Z]+)(\d+.*)/);
+      if (!match) return null;
+  
+      const [_, dept, number] = match;
+      const parts = number.split('.');
+      const baseNumber = parts[0].padStart(3, '0');
+      const section = parts[1];
+      
+      if (section) {
+        return `${dept}_${dept}${baseNumber}_${section.padStart(2, '0')}`;
+      } else {
+        return `${dept}_${dept}${baseNumber}__`;
+      }
+    };
+  
+    // Handle navigation to course reviews page with professor param
+    const handleSeeReviews = (e) => {
+      e.stopPropagation(); // Prevent toggling the card expansion
+      
+      if (courseDocId && courseDepartment) {
+        // Capitalize first letter of each word in professor name
+        const formattedProfessorName = professorName
+          .split(' ')
+          .map(name => name.charAt(0).toUpperCase() + name.slice(1))
+          .join(' ');
+        
+        // Navigate to the course page with the professor parameter
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        navigate(`/departments/${courseDepartment}/courses/${courseDocId}/professors/${encodeURIComponent(formattedProfessorName)}`);
+      } else {
+        console.error('Course document ID or department not found');
+      }
+    };
   
     return (
       <div
@@ -247,6 +351,20 @@ const AISummary = ({ summary, courseId, professorId, professorName }) => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Add See Reviews button here */}
+            {hasReviews && (
+              <button
+                onClick={handleSeeReviews}
+                className={`
+                  px-3 py-1.5 text-sm font-medium rounded-full transition-colors
+                  ${darkMode 
+                    ? 'text-indigo-200 bg-indigo-900 hover:bg-indigo-800' 
+                    : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'}
+                `}
+              >
+                See Reviews
+              </button>
+            )}
             <span
               className={`px-4 py-1.5 rounded-full text-sm font-medium ${
                 hasReviews

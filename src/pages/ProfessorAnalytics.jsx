@@ -156,21 +156,6 @@ const ScoreIndicator = ({
         <span className={`text-sm font-medium ${labelTextColor}`}>{label}</span>
 
         <div className="flex items-center gap-3">
-          {/* Optional "View Course" button for difficulty */}
-          {courseDocId && label.toLowerCase().includes('difficulty') && (
-            <button
-              onClick={handleCourseClick}
-              className={`
-                text-xs px-2 py-1 rounded-full transition-colors
-                ${darkMode 
-                  ? 'bg-indigo-900 text-indigo-300 hover:bg-indigo-800'
-                  : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'}
-              `}
-            >
-              View Course
-            </button>
-          )}
-
           {/* Chip showing "X% above average" etc. */}
           {comparisonText && shouldShowAverage && (
             <span
