@@ -124,7 +124,7 @@ const Timetable = ({darkMode}) => {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const classesPerPage = 50; // Number of classes per page
-  const isFallAddDropClosed = true;
+  const isFallAddDropClosed = false;
   const [documentName, setDocumentName] = useState('');
   const [showFeatures, setShowFeatures] = useState(false);
   const [professorMappings, setProfessorMappings] = useState({});
@@ -1314,7 +1314,7 @@ useEffect(() => {
                             </IconButton>
                           </Tooltip>
                         ) : (
-                          <Tooltip title="Notify me if someone drops this class">
+                          <Tooltip title="Notify me if someone drops this class. Spring notifications will start from tomorrow morning 8am">
                             <IconButton onClick={() => handleNotifyDrop(course)}>
                               <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
                             </IconButton>
