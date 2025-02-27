@@ -183,7 +183,7 @@ const MajorTracker = ({darkMode}) => {
   const [availableMajors, setAvailableMajors] = useState([]);
   const db = getFirestore();
   const auth = getAuth();
-  const [chatHistory, setChatHistory] = useState([""]);
+  const [chatHistory, setChatHistory] = useState([]);
 
   const [chatName, setChatName] = useState("");
 
