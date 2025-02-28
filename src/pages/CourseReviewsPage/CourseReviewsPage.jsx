@@ -457,6 +457,11 @@ const CourseReviewsPage = ({ darkMode }) => {
         return null;
     }
   };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   
 
   useEffect(() => {
