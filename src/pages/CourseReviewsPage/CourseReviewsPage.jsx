@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip,
@@ -35,6 +35,7 @@ import CourseVoting from './CourseVoting.jsx';
 
 const CourseReviewsPage = ({ darkMode }) => {
   const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
+  const [isTaughtSpringTerm, setIsTaughtSpringTerm] = useState(false);
   const { department, courseId } = useParams();
   const { currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
@@ -886,24 +887,43 @@ const handleQualityVote = async (voteType) => {
           const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
           console.log("fetching current instructors")
           try {
-            const fallTimetableRef = collection(db, 'winterTimetable');
+            // Check Winter Term
+            const winterTimetableRef = collection(db, 'winterTimetable');
             console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
-            const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
-            const querySnapshot = await getDocs(q);
+            const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+            const winterQuerySnapshot = await getDocs(winterQuery);
             
-            let found = false;
-            querySnapshot.forEach((doc) => {
+            let winterFound = false;
+            winterQuerySnapshot.forEach((doc) => {
               const data = doc.data();
               if (data.Instructor) {
-                found = true;
+                winterFound = true;
                 if (!instructors.includes(data.Instructor)) {
                   instructors.push(data.Instructor);
                 }
               }
             });
+            
+            // Check Spring Term
+            const springTimetableRef = collection(db, 'springTimetable');
+            const springQuery = query(springTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+            const springQuerySnapshot = await getDocs(springQuery);
+            
+            let springFound = false;
+            springQuerySnapshot.forEach((doc) => {
+              const data = doc.data();
+              if (data.Instructor) {
+                springFound = true;
+                if (!instructors.includes(data.Instructor)) {
+                  instructors.push(data.Instructor);
+                }
+              }
+            });
+            
             console.log("Matching instructors:", instructors);
 
-            setIsTaughtCurrentTerm(found);
+            setIsTaughtCurrentTerm(winterFound);
+            setIsTaughtSpringTerm(springFound);
             if (instructors.length > 0) {
               setCurrentInstructors(instructors);
             } else {
@@ -979,19 +999,42 @@ const handleQualityVote = async (voteType) => {
         const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
         console.log("Fetching current instructors");
 
-        const fallTimetableRef = collection(db, 'winterTimetable');
-        const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
-        const querySnapshot = await getDocs(q);
+        // Check Winter Term
+        const winterTimetableRef = collection(db, 'winterTimetable');
+        const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+        const winterQuerySnapshot = await getDocs(winterQuery);
         
         let instructors = [];
-        querySnapshot.forEach((doc) => {
+        let winterFound = false;
+        winterQuerySnapshot.forEach((doc) => {
           const data = doc.data();
-          if (data.Instructor && !instructors.includes(data.Instructor)) {
-            instructors.push(data.Instructor);
+          if (data.Instructor) {
+            winterFound = true;
+            if (!instructors.includes(data.Instructor)) {
+              instructors.push(data.Instructor);
+            }
+          }
+        });
+        
+        // Check Spring Term
+        const springTimetableRef = collection(db, 'springTimetable');
+        const springQuery = query(springTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+        const springQuerySnapshot = await getDocs(springQuery);
+        
+        let springFound = false;
+        springQuerySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.Instructor) {
+            springFound = true;
+            if (!instructors.includes(data.Instructor)) {
+              instructors.push(data.Instructor);
+            }
           }
         });
 
         setCurrentInstructors(instructors);
+        setIsTaughtCurrentTerm(winterFound);
+        setIsTaughtSpringTerm(springFound);
         console.log("Current instructors:", instructors);
         let data = null;
         const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -1150,13 +1193,23 @@ const handleQualityVote = async (voteType) => {
   };
 
   const addReplyLocally = (reviewIndex, newReply) => {
-    setReviews((prevReviews) =>
-      prevReviews.map((review) =>
-        review.reviewIndex === reviewIndex
-          ? { ...review, replies: Array.isArray(review.replies) ? [...review.replies, newReply] : [newReply] }
-          : review
-      )
-    );
+    // Use a functional update to avoid potential stale state issues
+    setReviews(prevReviews => {
+      // Create a new array with the updated review
+      return prevReviews.map(review => {
+        if (review.reviewIndex === reviewIndex) {
+          // Create a new review object with the updated replies array
+          return {
+            ...review,
+            replies: Array.isArray(review.replies) 
+              ? [...review.replies, newReply] 
+              : [newReply]
+          };
+        }
+        // Return unchanged reviews
+        return review;
+      });
+    });
   };
 
   const ReviewItem = ({ instructor, prefix, rest, courseId, reviewIndex, onReplyAdded }) => {
@@ -1167,6 +1220,16 @@ const handleQualityVote = async (voteType) => {
     const [replyCount, setReplyCount] = useState(0);
     const [likeCount, setLikeCount] = useState(0);
     const [hasLiked, setHasLiked] = useState(false);
+    
+    // Add a ref to track if component is mounted
+    const isMounted = useRef(true);
+    
+    // Clean up on unmount
+    useEffect(() => {
+      return () => {
+        isMounted.current = false;
+      };
+    }, []);
 
     const fetchReplies = async () => {
       try {
@@ -1184,11 +1247,17 @@ const handleQualityVote = async (voteType) => {
         const replyDocs = await getDocs(repliesCollectionRef);
 
         const fetchedReplies = replyDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setReplies(fetchedReplies);
-        setReplyCount(fetchedReplies.length);
+        
+        // Only update state if component is still mounted
+        if (isMounted.current) {
+          setReplies(fetchedReplies);
+          setReplyCount(fetchedReplies.length);
+        }
       } catch (error) {
         console.error('Error fetching replies:', error);
-        setError('Failed to fetch replies.');
+        if (isMounted.current) {
+          setError('Failed to fetch replies.');
+        }
       }
     };
 
@@ -1352,68 +1421,162 @@ const handleQualityVote = async (voteType) => {
                 <Typography variant="body2" sx={{ color: '#8E8E93' }}>
                   {likeCount}
                 </Typography>
-                <IconButton
+                <Button
                   onClick={toggleReplies}
-                  sx={{ color: '#007AFF', padding: '6px' }}
+                  startIcon={<ChatBubbleOutlineIcon fontSize="small" />}
+                  sx={{ 
+                    color: showReplies ? (darkMode ? '#E0E0E0' : '#555555') : '#8E8E93',
+                    backgroundColor: showReplies ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)') : 'transparent',
+                    textTransform: 'none',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.85rem',
+                    fontWeight: showReplies ? 600 : 400,
+                    '&:hover': {
+                      backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    }
+                  }}
                 >
-                  <ChatBubbleOutlineIcon />
-                </IconButton>
-                <Typography variant="body2" sx={{ color: '#8E8E93' }}>
-                  {replyCount}
-                </Typography>
+                  {showReplies ? 'Hide replies' : `${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}
+                </Button>
               </Box>
             </Box>
           </ListItem>
           {showReplies && (
             <>
-              <List sx={{ pl: 4 }}>
-                {replies.map((reply, index) => (
-                  <ListItem
+              <Box 
+                sx={{ 
+                  pl: 4, 
+                  pr: 2,
+                  pb: 2,
+                  position: 'relative',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    left: '40px',
+                    top: '0',
+                    bottom: '0',
+                    width: '2px',
+                    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    borderRadius: '1px',
+                  }
+                }}
+              >
+                {replies && replies.length > 0 && replies.map((reply, index) => (
+                  <Box
                     key={index}
                     sx={{
-                      backgroundColor: darkMode ? '#2a2a2a' : '#F9F9F9', // Darker background in dark mode
-                      borderRadius: '8px',
-                      marginTop: '8px',
-                      alignItems: 'flex-start',
+                      position: 'relative',
+                      ml: 3,
+                      mt: 2,
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        left: '-16px',
+                        top: '12px',
+                        width: '12px',
+                        height: '2px',
+                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                      }
                     }}
                   >
-                    <ListItemText
-                      primary={
-                        <>
-                                                  <Typography
-                          component="span"
-                          sx={{ color: textColor, fontWeight: 600, fontSize: '0.9rem' }} // Dynamic text color
-                        >
-                          Reply:
-                        </Typography>{' '}
+                    <Box
+                      sx={{
+                        backgroundColor: darkMode ? 'rgba(42, 42, 42, 0.7)' : 'rgba(249, 249, 249, 0.7)',
+                        borderRadius: '8px',
+                        p: 2,
+                        border: darkMode ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.05)',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: darkMode ? 'rgba(50, 50, 50, 0.8)' : 'rgba(240, 240, 240, 0.8)',
+                        }
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                         <Typography
                           component="span"
-                          sx={{ color: textColor, fontSize: '0.85rem' }} // Dynamic text color
+                          sx={{ 
+                            color: darkMode ? '#909090' : '#8E8E93', 
+                            fontSize: '0.75rem' 
+                          }}
                         >
-                          {reply.reply}
+                          {reply && reply.timestamp ? new Date(reply.timestamp).toLocaleString() : ''}
                         </Typography>
-                        <Typography
-                          component="span"
-                          sx={{ color: darkMode ? '#B0B0B0' : '#8E8E93', fontSize: '0.75rem', marginLeft: '10px' }} // Lighter gray in dark mode
-                        >
-                            {new Date(reply.timestamp).toLocaleString()}
-                          </Typography>
-                        </>
-                      }
-                    />
-                  </ListItem>
+                      </Box>
+                      <Typography
+                        component="p"
+                        sx={{ 
+                          color: textColor, 
+                          fontSize: '0.9rem',
+                          lineHeight: 1.5
+                        }}
+                      >
+                        {reply && reply.reply ? reply.reply : ''}
+                      </Typography>
+                    </Box>
+                  </Box>
                 ))}
-              </List>
-              <AddReplyForm
-                
-                reviewData={{ instructor, reviewIndex }}
-                courseId={courseId}
-                onReplyAdded={(newReply) => {
-                  // Add the new reply to the local state
-                  setReplies((prevReplies) => [...prevReplies, newReply]);
-                  setReplyCount(replyCount + 1);
-                }}
-              />
+                {replies && replies.length > 3 && (
+                  <Box 
+                    sx={{ 
+                      ml: 3, 
+                      mt: 2, 
+                      display: 'flex',
+                      alignItems: 'center',
+                      position: 'relative',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        left: '-16px',
+                        top: '12px',
+                        width: '12px',
+                        height: '2px',
+                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                      }
+                    }}
+                  >
+                    <Button
+                      sx={{
+                        color: darkMode ? '#007AFF' : '#0056b3',
+                        textTransform: 'none',
+                        fontSize: '0.85rem',
+                        padding: '4px 8px',
+                        backgroundColor: 'transparent',
+                        '&:hover': {
+                          backgroundColor: darkMode ? 'rgba(0, 122, 255, 0.1)' : 'rgba(0, 86, 179, 0.1)',
+                        }
+                      }}
+                    >
+                      Continue this thread
+                    </Button>
+                  </Box>
+                )}
+                <Box sx={{ mt: 2, ml: 3 }}>
+                  <AddReplyForm
+                    reviewData={{ instructor, reviewIndex }}
+                    courseId={courseId}
+                    onReplyAdded={(newReply) => {
+                      // Add the new reply to the local state
+                      setReplies((prevReplies) => [...prevReplies, newReply]);
+                      setReplyCount((prevCount) => prevCount + 1);
+                      // Ensure replies section stays open
+                      setShowReplies(true);
+                      // Call the parent's onReplyAdded function if provided
+                      if (onReplyAdded) {
+                        onReplyAdded(newReply);
+                      }
+                    }}
+                    darkMode={darkMode}
+                    textColor={textColor}
+                    backgroundColor={darkMode ? 'rgba(42, 42, 42, 0.7)' : 'rgba(249, 249, 249, 0.7)'}
+                    buttonColor={darkMode ? '#007AFF' : '#007AFF'}
+                    buttonHoverColor={darkMode ? '#0056b3' : '#0056b3'}
+                    inputBgColor={darkMode ? '#333333' : '#FFFFFF'}
+                    inputBorderColor={darkMode ? '#555555' : '#E0E0E0'}
+                    inputTextColor={textColor}
+                  />
+                </Box>
+              </Box>
             </>
           )}
         </Box>
@@ -1445,7 +1608,6 @@ const handleQualityVote = async (voteType) => {
           lastInstructor = item.instructor;
   
           const { prefix, rest } = splitReviewText(item.review);
-          const replies = Array.isArray(item.replies) ? item.replies : [];
   
           return (
             <React.Fragment key={idx}>
@@ -1467,10 +1629,14 @@ const handleQualityVote = async (voteType) => {
                 instructor={item.instructor}
                 prefix={prefix}
                 rest={rest}
-                replies={replies}
                 courseId={courseId}
                 reviewIndex={item.reviewIndex}
-                onReplyAdded={fetchReviews}
+                onReplyAdded={(newReply) => {
+                  // Add the reply locally to avoid needing to reload the page
+                  addReplyLocally(item.reviewIndex, newReply);
+                  // Remove the fetchReviews call to prevent page re-render
+                  // fetchReviews();
+                }}
               />
             </React.Fragment>
           );
@@ -1765,36 +1931,82 @@ useEffect(() => {
 >
           {courseName}
         </Typography>
-        {isTaughtCurrentTerm && (
-          <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '2rem',
-            marginLeft: 2,
-          }}
-        >
+        {(isTaughtCurrentTerm || isTaughtSpringTerm) && (
           <Box
             sx={{
-              backgroundColor: darkMode ? '#333333' : '#E5F0FF', // Dark mode background or light blue
-              padding: '2px 8px',
-              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
+              height: '2rem',
+              marginLeft: 2,
+              gap: '8px', // Add gap between tags
             }}
           >
-            <Typography
-              variant="body2"
-              sx={{
-                fontSize: '0.9rem',
-                color: darkMode ? '#FFFFFF' : '#1D1D1F', // Dynamic text color
-              }}
-            >
-              25W
-            </Typography>
+            {isTaughtCurrentTerm && (
+              <Tooltip title="This course is offered in Winter 2025" arrow placement="top">
+                <Box
+                  sx={{
+                    backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
+                    transition: 'all 0.2s ease',
+                    cursor: 'help',
+                    '&:hover': {
+                      backgroundColor: darkMode ? '#34495E' : '#B3E5FC',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: darkMode ? '#B3E5FC' : '#0277BD', // Winter blue text
+                    }}
+                  >
+                    25W
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )}
+            
+            {isTaughtSpringTerm && (
+              <Tooltip title="This course is offered in Spring 2025" arrow placement="top">
+                <Box
+                  sx={{
+                    backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9', // Spring green color
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                    transition: 'all 0.2s ease',
+                    cursor: 'help',
+                    '&:hover': {
+                      backgroundColor: darkMode ? '#2E7D32' : '#A5D6A7',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: darkMode ? '#A5D6A7' : '#2E7D32', // Spring green text
+                    }}
+                  >
+                    25S
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )}
           </Box>
-        </Box>
-        
         )}
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2285,7 +2497,24 @@ useEffect(() => {
           }}
         >
           <Container maxWidth="md">
-          <AddReviewForm onReviewAdded={fetchReviews} darkMode={darkMode} />
+          <AddReviewForm 
+            onReviewAdded={(newReview) => {
+              // Add the review locally first to avoid full page re-render
+              if (newReview) {
+                setReviews(prevReviews => [
+                  {
+                    instructor: newReview.instructor,
+                    review: newReview.review,
+                    reviewIndex: newReview.reviewIndex || 0,
+                    courseId: courseId,
+                    termValue: newReview.termValue || 0
+                  },
+                  ...prevReviews
+                ]);
+              }
+            }} 
+            darkMode={darkMode} 
+          />
           </Container>
         </Box>
       </Container>
