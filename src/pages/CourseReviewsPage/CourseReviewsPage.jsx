@@ -35,6 +35,7 @@ import CourseVoting from './CourseVoting.jsx';
 
 const CourseReviewsPage = ({ darkMode }) => {
   const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
+  const [isTaughtSpringTerm, setIsTaughtSpringTerm] = useState(false);
   const { department, courseId } = useParams();
   const { currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
@@ -886,24 +887,43 @@ const handleQualityVote = async (voteType) => {
           const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
           console.log("fetching current instructors")
           try {
-            const fallTimetableRef = collection(db, 'winterTimetable');
+            // Check Winter Term
+            const winterTimetableRef = collection(db, 'winterTimetable');
             console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
-            const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
-            const querySnapshot = await getDocs(q);
+            const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+            const winterQuerySnapshot = await getDocs(winterQuery);
             
-            let found = false;
-            querySnapshot.forEach((doc) => {
+            let winterFound = false;
+            winterQuerySnapshot.forEach((doc) => {
               const data = doc.data();
               if (data.Instructor) {
-                found = true;
+                winterFound = true;
                 if (!instructors.includes(data.Instructor)) {
                   instructors.push(data.Instructor);
                 }
               }
             });
+            
+            // Check Spring Term
+            const springTimetableRef = collection(db, 'springTimetable');
+            const springQuery = query(springTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+            const springQuerySnapshot = await getDocs(springQuery);
+            
+            let springFound = false;
+            springQuerySnapshot.forEach((doc) => {
+              const data = doc.data();
+              if (data.Instructor) {
+                springFound = true;
+                if (!instructors.includes(data.Instructor)) {
+                  instructors.push(data.Instructor);
+                }
+              }
+            });
+            
             console.log("Matching instructors:", instructors);
 
-            setIsTaughtCurrentTerm(found);
+            setIsTaughtCurrentTerm(winterFound);
+            setIsTaughtSpringTerm(springFound);
             if (instructors.length > 0) {
               setCurrentInstructors(instructors);
             } else {
@@ -979,19 +999,42 @@ const handleQualityVote = async (voteType) => {
         const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
         console.log("Fetching current instructors");
 
-        const fallTimetableRef = collection(db, 'winterTimetable');
-        const q = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
-        const querySnapshot = await getDocs(q);
+        // Check Winter Term
+        const winterTimetableRef = collection(db, 'winterTimetable');
+        const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+        const winterQuerySnapshot = await getDocs(winterQuery);
         
         let instructors = [];
-        querySnapshot.forEach((doc) => {
+        let winterFound = false;
+        winterQuerySnapshot.forEach((doc) => {
           const data = doc.data();
-          if (data.Instructor && !instructors.includes(data.Instructor)) {
-            instructors.push(data.Instructor);
+          if (data.Instructor) {
+            winterFound = true;
+            if (!instructors.includes(data.Instructor)) {
+              instructors.push(data.Instructor);
+            }
+          }
+        });
+        
+        // Check Spring Term
+        const springTimetableRef = collection(db, 'springTimetable');
+        const springQuery = query(springTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+        const springQuerySnapshot = await getDocs(springQuery);
+        
+        let springFound = false;
+        springQuerySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.Instructor) {
+            springFound = true;
+            if (!instructors.includes(data.Instructor)) {
+              instructors.push(data.Instructor);
+            }
           }
         });
 
         setCurrentInstructors(instructors);
+        setIsTaughtCurrentTerm(winterFound);
+        setIsTaughtSpringTerm(springFound);
         console.log("Current instructors:", instructors);
         let data = null;
         const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -1888,36 +1931,82 @@ useEffect(() => {
 >
           {courseName}
         </Typography>
-        {isTaughtCurrentTerm && (
-          <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '2rem',
-            marginLeft: 2,
-          }}
-        >
+        {(isTaughtCurrentTerm || isTaughtSpringTerm) && (
           <Box
             sx={{
-              backgroundColor: darkMode ? '#333333' : '#E5F0FF', // Dark mode background or light blue
-              padding: '2px 8px',
-              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
+              height: '2rem',
+              marginLeft: 2,
+              gap: '8px', // Add gap between tags
             }}
           >
-            <Typography
-              variant="body2"
-              sx={{
-                fontSize: '0.9rem',
-                color: darkMode ? '#FFFFFF' : '#1D1D1F', // Dynamic text color
-              }}
-            >
-              25W
-            </Typography>
+            {isTaughtCurrentTerm && (
+              <Tooltip title="This course is offered in Winter 2025" arrow placement="top">
+                <Box
+                  sx={{
+                    backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
+                    transition: 'all 0.2s ease',
+                    cursor: 'help',
+                    '&:hover': {
+                      backgroundColor: darkMode ? '#34495E' : '#B3E5FC',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: darkMode ? '#B3E5FC' : '#0277BD', // Winter blue text
+                    }}
+                  >
+                    25W
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )}
+            
+            {isTaughtSpringTerm && (
+              <Tooltip title="This course is offered in Spring 2025" arrow placement="top">
+                <Box
+                  sx={{
+                    backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9', // Spring green color
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                    transition: 'all 0.2s ease',
+                    cursor: 'help',
+                    '&:hover': {
+                      backgroundColor: darkMode ? '#2E7D32' : '#A5D6A7',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: darkMode ? '#A5D6A7' : '#2E7D32', // Spring green text
+                    }}
+                  >
+                    25S
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )}
           </Box>
-        </Box>
-        
         )}
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
