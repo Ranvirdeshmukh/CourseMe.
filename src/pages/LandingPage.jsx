@@ -491,12 +491,17 @@ const LandingPage = ({ darkMode }) => {
               },
             }}
           >
-            <Typography
-              variant="h3"
-              sx={{ fontSize: '1.5rem', mb: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}
-            >
-              📚
-            </Typography>
+            <Box
+              component="img"
+              src={darkMode ? "/images/icons/classes-icon-dark.svg" : "/images/icons/classes-icon.svg"}
+              alt="Classes"
+              sx={{
+                width: '40px',
+                height: '40px',
+                mb: '8px',
+                transition: 'filter 0.3s ease',
+              }}
+            />
             <Typography
               variant="h6"
               sx={{
@@ -556,16 +561,17 @@ const LandingPage = ({ darkMode }) => {
               },
             }}
           >
-            <Typography
-              variant="h3"
+            <Box
+              component="img"
+              src={darkMode ? "/images/icons/layups-icon-dark.svg" : "/images/icons/layups-icon.svg"}
+              alt="Layups"
               sx={{
-                fontSize: '1.5rem',
+                width: '40px',
+                height: '40px',
                 mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
+                transition: 'filter 0.3s ease',
               }}
-            >
-              🎯
-            </Typography>
+            />
             <Typography
               variant="h6"
               sx={{
@@ -623,16 +629,17 @@ const LandingPage = ({ darkMode }) => {
               },
             }}
           >
-            <Typography
-              variant="h3"
+            <Box
+              component="img"
+              src={darkMode ? "/images/icons/professors-icon-dark.svg" : "/images/icons/professors-icon.svg"}
+              alt="Professors"
               sx={{
-                fontSize: '1.5rem',
+                width: '40px',
+                height: '40px',
                 mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
+                transition: 'filter 0.3s ease',
               }}
-            >
-              👨‍🏫
-            </Typography>
+            />
             <Typography
               variant="h6"
               sx={{
@@ -691,16 +698,17 @@ const LandingPage = ({ darkMode }) => {
               },
             }}
           >
-            <Typography
-              variant="h3"
+            <Box
+              component="img"
+              src={darkMode ? "/images/icons/timetable-icon-dark.svg" : "/images/icons/timetable-icon.svg"}
+              alt="Timetable"
               sx={{
-                fontSize: '1.5rem',
+                width: '40px',
+                height: '40px',
                 mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
+                transition: 'filter 0.3s ease',
               }}
-            >
-              🗓️
-            </Typography>
+            />
             <Typography
               variant="h6"
               sx={{
@@ -793,16 +801,17 @@ const LandingPage = ({ darkMode }) => {
               New
             </Box>
 
-            <Typography
-              variant="h3"
+            <Box
+              component="img"
+              src={darkMode ? "/images/icons/cora-icon-dark.svg" : "/images/icons/cora-icon.svg"}
+              alt="CORA 1.0"
               sx={{
-                fontSize: '1.5rem',
+                width: '40px',
+                height: '40px',
                 mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
+                transition: 'filter 0.3s ease',
               }}
-            >
-              🤖
-            </Typography>
+            />
             <Typography
               variant="h6"
               sx={{
@@ -892,16 +901,17 @@ const LandingPage = ({ darkMode }) => {
     }}
   >
     {/* Icon */}
-    <Typography
-      variant="h3"
+    <Box
+      component="img"
+      src={darkMode ? "/images/icons/notifications-icon-dark.svg" : "/images/icons/notifications-icon.svg"}
+      alt="Notifications"
       sx={{
-        fontSize: '1.5rem',
+        width: '40px',
+        height: '40px',
         mb: '8px',
-        color: darkMode ? '#FFFFFF' : '#000000',
+        transition: 'filter 0.3s ease',
       }}
-    >
-      🔔
-    </Typography>
+    />
 
     {/* Title */}
     <Typography
@@ -965,12 +975,17 @@ const LandingPage = ({ darkMode }) => {
               },
             }}
           >
-            <Typography
-              variant="h3"
-              sx={{ fontSize: '1.5rem', mb: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}
-            >
-              👤
-            </Typography>
+            <Box
+              component="img"
+              src={darkMode ? "/images/icons/profile-icon-dark.svg" : "/images/icons/profile-icon.svg"}
+              alt="Profile"
+              sx={{
+                width: '40px',
+                height: '40px',
+                mb: '8px',
+                transition: 'filter 0.3s ease',
+              }}
+            />
             <Typography
               variant="h6"
               sx={{
