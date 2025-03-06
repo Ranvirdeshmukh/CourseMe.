@@ -1352,79 +1352,171 @@ const handleQualityVote = async (voteType) => {
                 <Typography variant="body2" sx={{ color: '#8E8E93' }}>
                   {likeCount}
                 </Typography>
-                <IconButton
+                <Button
                   onClick={toggleReplies}
-                  sx={{ color: '#007AFF', padding: '6px' }}
+                  startIcon={<ChatBubbleOutlineIcon fontSize="small" />}
+                  sx={{ 
+                    color: showReplies ? (darkMode ? '#E0E0E0' : '#555555') : '#8E8E93',
+                    backgroundColor: showReplies ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)') : 'transparent',
+                    textTransform: 'none',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.85rem',
+                    fontWeight: showReplies ? 600 : 400,
+                    '&:hover': {
+                      backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    }
+                  }}
                 >
-                  <ChatBubbleOutlineIcon />
-                </IconButton>
-                <Typography variant="body2" sx={{ color: '#8E8E93' }}>
-                  {replyCount}
-                </Typography>
+                  {showReplies ? 'Hide replies' : `${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}
+                </Button>
               </Box>
             </Box>
           </ListItem>
           {showReplies && (
             <>
-              <List sx={{ pl: 4 }}>
-                {replies && replies.length > 0 && replies.map((reply, index) => (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      backgroundColor: darkMode ? '#2a2a2a' : '#F9F9F9', // Darker background in dark mode
-                      borderRadius: '8px',
-                      marginTop: '8px',
-                      alignItems: 'flex-start',
-                    }}
-                  >
-                    <ListItemText
-                      primary={
-                        <>
-                          <Typography
-                            component="span"
-                            sx={{ color: textColor, fontWeight: 600, fontSize: '0.9rem' }} // Dynamic text color
-                          >
-                            Reply:
-                          </Typography>{' '}
-                          <Typography
-                            component="span"
-                            sx={{ color: textColor, fontSize: '0.85rem' }} // Dynamic text color
-                          >
-                            {reply && reply.reply ? reply.reply : ''}
-                          </Typography>
-                          <Typography
-                            component="span"
-                            sx={{ color: darkMode ? '#B0B0B0' : '#8E8E93', fontSize: '0.75rem', marginLeft: '10px' }} // Lighter gray in dark mode
-                          >
-                            {reply && reply.timestamp ? new Date(reply.timestamp).toLocaleString() : ''}
-                          </Typography>
-                        </>
-                      }
-                    />
-                  </ListItem>
-                ))}
-              </List>
-              <AddReplyForm
-                reviewData={{ instructor, reviewIndex }}
-                courseId={courseId}
-                onReplyAdded={(newReply) => {
-                  // Add the new reply to the local state
-                  setReplies((prevReplies) => [...prevReplies, newReply]);
-                  setReplyCount(replyCount + 1);
-                  // Call the parent's onReplyAdded function if provided
-                  if (onReplyAdded) {
-                    onReplyAdded(newReply);
+              <Box 
+                sx={{ 
+                  pl: 4, 
+                  pr: 2,
+                  pb: 2,
+                  position: 'relative',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    left: '40px',
+                    top: '0',
+                    bottom: '0',
+                    width: '2px',
+                    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    borderRadius: '1px',
                   }
                 }}
-                darkMode={darkMode}
-                textColor={textColor}
-                backgroundColor={darkMode ? '#2a2a2a' : '#F9F9F9'}
-                buttonColor={darkMode ? '#007AFF' : '#007AFF'}
-                buttonHoverColor={darkMode ? '#0056b3' : '#0056b3'}
-                inputBgColor={darkMode ? '#333333' : '#FFFFFF'}
-                inputBorderColor={darkMode ? '#555555' : '#E0E0E0'}
-                inputTextColor={textColor}
-              />
+              >
+                {replies && replies.length > 0 && replies.map((reply, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      position: 'relative',
+                      ml: 3,
+                      mt: 2,
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        left: '-16px',
+                        top: '12px',
+                        width: '12px',
+                        height: '2px',
+                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                      }
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        backgroundColor: darkMode ? 'rgba(42, 42, 42, 0.7)' : 'rgba(249, 249, 249, 0.7)',
+                        borderRadius: '8px',
+                        p: 2,
+                        border: darkMode ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.05)',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: darkMode ? 'rgba(50, 50, 50, 0.8)' : 'rgba(240, 240, 240, 0.8)',
+                        }
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography
+                          component="span"
+                          sx={{ 
+                            color: darkMode ? '#E0E0E0' : '#555555', 
+                            fontWeight: 600, 
+                            fontSize: '0.85rem',
+                            mr: 1
+                          }}
+                        >
+                          {reply && reply.author ? reply.author : 'Anonymous'}
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ 
+                            color: darkMode ? '#909090' : '#8E8E93', 
+                            fontSize: '0.75rem' 
+                          }}
+                        >
+                          {reply && reply.timestamp ? new Date(reply.timestamp).toLocaleString() : ''}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        component="p"
+                        sx={{ 
+                          color: textColor, 
+                          fontSize: '0.9rem',
+                          lineHeight: 1.5
+                        }}
+                      >
+                        {reply && reply.reply ? reply.reply : ''}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+                {replies && replies.length > 3 && (
+                  <Box 
+                    sx={{ 
+                      ml: 3, 
+                      mt: 2, 
+                      display: 'flex',
+                      alignItems: 'center',
+                      position: 'relative',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        left: '-16px',
+                        top: '12px',
+                        width: '12px',
+                        height: '2px',
+                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                      }
+                    }}
+                  >
+                    <Button
+                      sx={{
+                        color: darkMode ? '#007AFF' : '#0056b3',
+                        textTransform: 'none',
+                        fontSize: '0.85rem',
+                        padding: '4px 8px',
+                        backgroundColor: 'transparent',
+                        '&:hover': {
+                          backgroundColor: darkMode ? 'rgba(0, 122, 255, 0.1)' : 'rgba(0, 86, 179, 0.1)',
+                        }
+                      }}
+                    >
+                      Continue this thread
+                    </Button>
+                  </Box>
+                )}
+                <Box sx={{ mt: 2, ml: 3 }}>
+                  <AddReplyForm
+                    reviewData={{ instructor, reviewIndex }}
+                    courseId={courseId}
+                    onReplyAdded={(newReply) => {
+                      // Add the new reply to the local state
+                      setReplies((prevReplies) => [...prevReplies, newReply]);
+                      setReplyCount(replyCount + 1);
+                      // Call the parent's onReplyAdded function if provided
+                      if (onReplyAdded) {
+                        onReplyAdded(newReply);
+                      }
+                    }}
+                    darkMode={darkMode}
+                    textColor={textColor}
+                    backgroundColor={darkMode ? 'rgba(42, 42, 42, 0.7)' : 'rgba(249, 249, 249, 0.7)'}
+                    buttonColor={darkMode ? '#007AFF' : '#007AFF'}
+                    buttonHoverColor={darkMode ? '#0056b3' : '#0056b3'}
+                    inputBgColor={darkMode ? '#333333' : '#FFFFFF'}
+                    inputBorderColor={darkMode ? '#555555' : '#E0E0E0'}
+                    inputTextColor={textColor}
+                  />
+                </Box>
+              </Box>
             </>
           )}
         </Box>
