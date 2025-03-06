@@ -1957,7 +1957,7 @@ useEffect(() => {
             }}
           >
             {isTaughtCurrentTerm && (
-              <Tooltip title="This course is offered in Winter 2025" arrow placement="top">
+              <Tooltip title="This course is offered in W25" arrow placement="top">
                 <Box
                   sx={{
                     backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
@@ -1990,7 +1990,7 @@ useEffect(() => {
             )}
             
             {isTaughtSpringTerm && (
-              <Tooltip title="This course is offered in Spring 2025" arrow placement="top">
+              <Tooltip title="This course is offered in X25" arrow placement="top">
                 <Box
                   sx={{
                     backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9', // Spring green color
@@ -2016,7 +2016,7 @@ useEffect(() => {
                       color: darkMode ? '#A5D6A7' : '#2E7D32', // Spring green text
                     }}
                   >
-                    25S
+                    25X
                   </Typography>
                 </Box>
               </Tooltip>
@@ -2298,13 +2298,96 @@ useEffect(() => {
                   fontWeight: isBothTerms ? 700 : 400,
                 }}
               >
-                {isBothTerms 
-                  ? 'Winter 2025 & Spring 2025' 
-                  : isWinter 
-                    ? 'Winter 2025' 
-                    : isSpring 
-                      ? 'Spring 2025' 
-                      : ''}
+                {isBothTerms ? (
+                  <Box sx={{ display: 'flex', gap: '8px' }}>
+                    <Box
+                      sx={{
+                        backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
+                          color: darkMode ? '#B3E5FC' : '#0277BD',
+                        }}
+                      >
+                        W25
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
+                          color: darkMode ? '#A5D6A7' : '#2E7D32',
+                        }}
+                      >
+                        25X
+                      </Typography>
+                    </Box>
+                  </Box>
+                ) : isWinter ? (
+                  <Box
+                    sx={{
+                      backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.8rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#B3E5FC' : '#0277BD',
+                      }}
+                    >
+                      W25
+                    </Typography>
+                  </Box>
+                ) : isSpring ? (
+                  <Box
+                    sx={{
+                      backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.8rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#A5D6A7' : '#2E7D32',
+                      }}
+                    >
+                      25X
+                    </Typography>
+                  </Box>
+                ) : ''}
               </TableCell>
             </TableRow>
           );
@@ -2327,27 +2410,6 @@ useEffect(() => {
       )}
     </TableBody>
   </Table>
-  
-  {/* Legend for the table */}
-  <Box sx={{ mt: 2, p: 2, bgcolor: darkMode ? 'rgba(28, 31, 67, 0.7)' : 'rgba(229, 240, 255, 0.7)', borderRadius: 1 }}>
-    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: textColor, mb: 1 }}>
-      Color Code Legend:
-    </Typography>
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ width: 16, height: 16, bgcolor: darkMode ? '#2C2F73' : '#D0E0FF', borderRadius: 1 }}></Box>
-        <Typography variant="body2" sx={{ color: textColor }}>
-          Professor teaching both Winter 2025 & Spring 2025
-        </Typography>
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ width: 16, height: 16, bgcolor: darkMode ? '#1C1F43' : '#E5F0FF', borderRadius: 1 }}></Box>
-        <Typography variant="body2" sx={{ color: textColor }}>
-          Professor teaching either Winter 2025 or Spring 2025
-        </Typography>
-      </Box>
-    </Box>
-  </Box>
 </TableContainer>
 
 <Box
