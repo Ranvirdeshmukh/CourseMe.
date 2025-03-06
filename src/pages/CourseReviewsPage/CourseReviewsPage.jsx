@@ -50,6 +50,9 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [quality, setQuality] = useState(0); // Add this line
   const [showAllProfessors, setShowAllProfessors] = useState(false);
   const [currentInstructors, setCurrentInstructors] = useState([]);
+  const [winterInstructors, setWinterInstructors] = useState([]);
+  const [springInstructors, setSpringInstructors] = useState([]);
+  const [bothTermsInstructors, setBothTermsInstructors] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [reviewInstructors, setReviewInstructors] = useState([]);
   const [allProfessors, setAllProfessors] = useState([]);
@@ -1004,14 +1007,14 @@ const handleQualityVote = async (voteType) => {
         const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
         const winterQuerySnapshot = await getDocs(winterQuery);
         
-        let instructors = [];
+        let winterInstructors = [];
         let winterFound = false;
         winterQuerySnapshot.forEach((doc) => {
           const data = doc.data();
           if (data.Instructor) {
             winterFound = true;
-            if (!instructors.includes(data.Instructor)) {
-              instructors.push(data.Instructor);
+            if (!winterInstructors.includes(data.Instructor)) {
+              winterInstructors.push(data.Instructor);
             }
           }
         });
@@ -1021,21 +1024,33 @@ const handleQualityVote = async (voteType) => {
         const springQuery = query(springTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
         const springQuerySnapshot = await getDocs(springQuery);
         
+        let springInstructors = [];
         let springFound = false;
         springQuerySnapshot.forEach((doc) => {
           const data = doc.data();
           if (data.Instructor) {
             springFound = true;
-            if (!instructors.includes(data.Instructor)) {
-              instructors.push(data.Instructor);
+            if (!springInstructors.includes(data.Instructor)) {
+              springInstructors.push(data.Instructor);
             }
           }
         });
 
-        setCurrentInstructors(instructors);
+        // Find instructors who teach in both terms
+        const bothTermsInstructors = winterInstructors.filter(instructor => 
+          springInstructors.includes(instructor)
+        );
+
+        setCurrentInstructors([...winterInstructors, ...springInstructors]);
+        setWinterInstructors(winterInstructors);
+        setSpringInstructors(springInstructors);
+        setBothTermsInstructors(bothTermsInstructors);
         setIsTaughtCurrentTerm(winterFound);
         setIsTaughtSpringTerm(springFound);
-        console.log("Current instructors:", instructors);
+        console.log("Current instructors:", [...winterInstructors, ...springInstructors]);
+        console.log("Winter instructors:", winterInstructors);
+        console.log("Spring instructors:", springInstructors);
+        console.log("Both terms instructors:", bothTermsInstructors);
         let data = null;
         const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
         const transformedCourseId = transformedCourseIdMatch ? transformedCourseIdMatch[0] : null;
@@ -1061,7 +1076,7 @@ const handleQualityVote = async (voteType) => {
           console.log("Review instructors:", reviewInstructors);
 
           // Compare and update if necessary
-          const instructorsToAdd = instructors.filter(instructor => 
+          const instructorsToAdd = [...winterInstructors, ...springInstructors].filter(instructor => 
             !reviewInstructors.some(reviewInstructor => compareNames(instructor, reviewInstructor))
           );
 
@@ -1077,14 +1092,14 @@ const handleQualityVote = async (voteType) => {
         } else {
           // If the document doesn't exist, create it with the current instructors
           const newReviewsData = {};
-          instructors.forEach(instructor => {
+          [...winterInstructors, ...springInstructors].forEach(instructor => {
             newReviewsData[instructor] = [];
           });
           await setDoc(reviewsRef, newReviewsData);
-          console.log("Created new reviews document with instructors:", instructors);
+          console.log("Created new reviews document with instructors:", [...winterInstructors, ...springInstructors]);
         }
 
-        setIsTaughtCurrentTerm(instructors.length > 0);
+        setIsTaughtCurrentTerm([...winterInstructors, ...springInstructors].length > 0);
       }
     } catch (error) {
       console.error("Error fetching and updating instructors:", error);
@@ -2206,7 +2221,18 @@ useEffect(() => {
         >
           Reviews
         </TableCell>
-
+        <TableCell
+          sx={{
+            color: textColor,
+            textAlign: 'left',
+            fontWeight: 600,
+            fontSize: '1rem',
+            padding: '12px 16px',
+            backgroundColor: tableHeaderBgColor,
+          }}
+        >
+          Terms Teaching
+        </TableCell>
       </TableRow>
     </TableHead>
     <TableBody>
@@ -2221,6 +2247,9 @@ useEffect(() => {
         .slice(0, showAllProfessors ? undefined : 12)
         .map((professor, index) => {
           const isCurrent = currentInstructors.includes(professor);
+          const isWinter = winterInstructors.includes(professor);
+          const isSpring = springInstructors.includes(professor);
+          const isBothTerms = bothTermsInstructors.includes(professor);
           const reviewCount = reviews.filter(
             (review) => review.instructor === professor
           ).length;
@@ -2230,9 +2259,11 @@ useEffect(() => {
               component={Link}
               to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
               sx={{
-                backgroundColor: isCurrent
-                  ? (darkMode ? '#1C1F43' : '#E5F0FF') // Dark mode or light blue
-                  : (index % 2 === 0 ? tableRowEvenBgColor : tableRowOddBgColor),
+                backgroundColor: isBothTerms
+                  ? (darkMode ? '#2C2F73' : '#D0E0FF') // Highlighted color for both terms
+                  : isCurrent
+                    ? (darkMode ? '#1C1F43' : '#E5F0FF') // Dark mode or light blue
+                    : (index % 2 === 0 ? tableRowEvenBgColor : tableRowOddBgColor),
                 '&:hover': { backgroundColor: darkMode ? '#2a2a2a' : '#E5E5EA' }, // Darker on hover for dark mode
                 cursor: 'pointer',
                 textDecoration: 'none',
@@ -2244,7 +2275,7 @@ useEffect(() => {
                   color: textColor,              // Use dynamic text color
                   padding: '12px 16px',
                   textAlign: 'left',
-                  fontWeight: isCurrent ? 600 : 400,
+                  fontWeight: isBothTerms ? 700 : (isCurrent ? 600 : 400),
                 }}
               >
                 {professor}
@@ -2259,49 +2290,65 @@ useEffect(() => {
               >
                 {reviewCount}
               </TableCell>
+              <TableCell
+                sx={{
+                  color: textColor,
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontWeight: isBothTerms ? 700 : 400,
+                }}
+              >
+                {isBothTerms 
+                  ? 'Winter 2025 & Spring 2025' 
+                  : isWinter 
+                    ? 'Winter 2025' 
+                    : isSpring 
+                      ? 'Spring 2025' 
+                      : ''}
+              </TableCell>
             </TableRow>
           );
         })}
       {allProfessors.length > 12 && (
         <TableRow>
-          <TableCell colSpan={2} sx={{ textAlign: 'center', padding: '16px' }}>
-                  <Button
-          onClick={() => setShowAllProfessors((prev) => !prev)}
-          sx={{
-            color: darkMode ? '#FFFFFF' : '#007AFF',                // Dynamic text color
-            backgroundColor: darkMode ? '#007AFF' : 'transparent',   // Optional: Add background for better visibility
-            fontWeight: 500,
-            textTransform: 'none',
-            padding: '8px 16px',
-            '&:hover': {
-              backgroundColor: darkMode ? '#0066D6' : '#E5E5EA',     // Darker shade on hover for dark mode
-            },
-          }}
-        >
-          {showAllProfessors ? 'Show Less' : 'More Professors'}
-        </Button>
-
+          <TableCell colSpan={3} align="center">
+            <Button
+              variant="text"
+              onClick={() => setShowAllProfessors(!showAllProfessors)}
+              sx={{
+                color: darkMode ? '#007AFF' : '#007AFF',
+                '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
+              }}
+            >
+              {showAllProfessors ? 'Show Less' : 'Show All'}
+            </Button>
           </TableCell>
         </TableRow>
       )}
     </TableBody>
   </Table>
+  
+  {/* Legend for the table */}
+  <Box sx={{ mt: 2, p: 2, bgcolor: darkMode ? 'rgba(28, 31, 67, 0.7)' : 'rgba(229, 240, 255, 0.7)', borderRadius: 1 }}>
+    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: textColor, mb: 1 }}>
+      Color Code Legend:
+    </Typography>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ width: 16, height: 16, bgcolor: darkMode ? '#2C2F73' : '#D0E0FF', borderRadius: 1 }}></Box>
+        <Typography variant="body2" sx={{ color: textColor }}>
+          Professor teaching both Winter 2025 & Spring 2025
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ width: 16, height: 16, bgcolor: darkMode ? '#1C1F43' : '#E5F0FF', borderRadius: 1 }}></Box>
+        <Typography variant="body2" sx={{ color: textColor }}>
+          Professor teaching either Winter 2025 or Spring 2025
+        </Typography>
+      </Box>
+    </Box>
+  </Box>
 </TableContainer>
-{/* Legend component */}
-  <Typography variant="caption" sx={{ color: textColor, marginTop: 2 }}>
-    <span
-      style={{
-        backgroundColor: darkMode ? '#1C1F43' : '#E5F0FF', // Use darkMode instead of isCurrent
-        padding: '2px 4px',
-        borderRadius: '4px',
-        color: darkMode ? '#FFFFFF' : '#000000',
-      }}
-    >
-      Highlighted professors
-    </span>{' '}
-    are teaching the current term.
-  </Typography>
-
 
 <Box
   sx={{
