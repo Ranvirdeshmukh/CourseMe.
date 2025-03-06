@@ -239,34 +239,29 @@ useEffect(() => {
     }, [professorId, navigate]);
   
     return (
-        <TableCell
-          onClick={handleClick}
-          sx={{
-            // Always remove underline by default
-            textDecoration: 'none',
-            // If clickable, use brand color; otherwise normal text
-            color: professorId
-              ? (darkMode ? '#007AFF' : '#571ce0')
-              : (darkMode ? '#FFFFFF' : '#1D1D1F'),
-            padding: '8px 16px',
-            fontWeight: 400,
-            fontSize: '0.81rem',
-            textAlign: 'left',
-            cursor: professorId ? 'pointer' : 'default',
-            height: '48px',
-            lineHeight: '1.2',
-            transition: 'color 0.3s ease, text-decoration 0.3s ease',
-            // Only underline on hover if there's a valid professorId
-            '&:hover': professorId
-              ? { textDecoration: 'underline' }
-              : {},
-          }}
-        
+      <Box
+        onClick={handleClick}
+        sx={{
+          // Always remove underline by default
+          textDecoration: 'none',
+          // If clickable, use brand color; otherwise normal text
+          color: professorId
+            ? (darkMode ? '#007AFF' : '#571ce0')
+            : (darkMode ? '#FFFFFF' : '#1D1D1F'),
+          fontWeight: 400,
+          fontSize: '0.81rem',
+          cursor: professorId ? 'pointer' : 'default',
+          lineHeight: '1.2',
+          transition: 'color 0.3s ease, text-decoration 0.3s ease',
+          // Only underline on hover if there's a valid professorId
+          '&:hover': professorId
+            ? { textDecoration: 'underline' }
+            : {},
+        }}
       >
         {instructor}
-      </TableCell>
+      </Box>
     );
-    
   });
 
   const fetchProfessorData = async () => {
@@ -1076,9 +1071,12 @@ useEffect(() => {
                           textAlign: 'left',
                           transition: 'color 0.3s ease',
                           fontFamily: 'SF Pro Display, sans-serif',
+                          width: '150px', // Add fixed width
+                          maxWidth: '150px', // Add max width
+                          whiteSpace: 'normal', // Allow text wrapping
                         }}
                       >
-                        {course.instructor}
+                        <ProfessorCell instructor={course.instructor} />
                       </TableCell>
   
                       {/* Add to Calendar Button */}
@@ -1088,6 +1086,7 @@ useEffect(() => {
                           textAlign: 'left',
                           height: '48px',
                           verticalAlign: 'middle',
+                          width: '160px', // Add fixed width
                         }}
                       >
                         {course.period !== 'ARR' && course.period !== 'FS' && (
@@ -1108,13 +1107,13 @@ useEffect(() => {
                         }}
                       >
                         {isFallAddDropClosed ? (
-                          <Tooltip title="Winter add/drop is closed. Notifications will be available during Spring 25 add/drop.">
+                          <Tooltip title="Spring add/drop notifications will open on  8:00 AM Mon, Mar 31">
                             <IconButton>
                               <LockIcon color="disabled" />
                             </IconButton>
                           </Tooltip>
                         ) : (
-                          <Tooltip title="Notify me if someone drops this class. Spring notifications will start from tomorrow morning 8am">
+                          <Tooltip title="Notify me if someone drops this class">
                             <IconButton onClick={() => handleNotifyDrop(course)}>
                               <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
                             </IconButton>
@@ -1517,7 +1516,7 @@ useEffect(() => {
                 }}
               >
                 {header}
-              </TableCell>
+                </TableCell>
             ))}
           </TableRow>
         </TableHead>
@@ -1687,17 +1686,17 @@ useEffect(() => {
                     color: darkMode ? '#FFFFFF' : '#1D1D1F',
                     padding: '10px',
                     fontWeight: 400,
-                     
                     fontSize: '0.95rem',
                     textAlign: 'left',
                     transition: 'color 0.3s ease',
                     fontFamily: 'SF Pro Display, sans-serif',
+                    width: '150px', // Add fixed width
+                    maxWidth: '150px', // Add max width
+                    whiteSpace: 'normal', // Allow text wrapping
                   }}
                 >
-                  
-                   <ProfessorCell instructor={course.instructor} />
+                  <ProfessorCell instructor={course.instructor} />
                 </TableCell>
-                {/* ProfessorCell for Instructor (existing logic intact) */}
                
 
                 {/* Add to Calendar Button */}
@@ -1707,6 +1706,7 @@ useEffect(() => {
                     textAlign: 'left',
                     height: '48px',
                     verticalAlign: 'middle',
+                    width: '160px', // Add fixed width
                   }}
                 >
                   {course.period !== 'ARR' && course.period !== 'FS' && (
