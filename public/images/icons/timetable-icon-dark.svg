@@ -1,12 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-  <rect x="8" y="8" width="24" height="24" rx="2" fill="#8A5CF7" opacity="0.9"/>
-  <rect x="10" y="10" width="20" height="20" rx="1" fill="#FFFFFF"/>
-  <path d="M10 14H30" stroke="#8A5CF7" stroke-width="1"/>
-  <path d="M16 10V30" stroke="#8A5CF7" stroke-width="1"/>
-  <path d="M22 10V30" stroke="#8A5CF7" stroke-width="1"/>
-  <path d="M10 20H30" stroke="#8A5CF7" stroke-width="1"/>
-  <path d="M10 26H30" stroke="#8A5CF7" stroke-width="1"/>
-  <circle cx="13" cy="17" r="1.5" fill="#FF8A80"/>
-  <circle cx="19" cy="23" r="1.5" fill="#FF8A80"/>
-  <circle cx="25" cy="17" r="1.5" fill="#FF8A80"/>
+  <!-- Calendar background -->
+  <rect x="6" y="8" width="28" height="26" rx="3" fill="#FFFFFF"/>
+  
+  <!-- Calendar header -->
+  <rect x="6" y="8" width="28" height="6" rx="3" fill="#5B86E5"/>
+  
+  <!-- Calendar grid -->
+  <path d="M6 14H34" stroke="#5B86E5" stroke-width="1"/>
+  <path d="M13 8V34" stroke="#5B86E5" stroke-width="1"/>
+  <path d="M20 8V34" stroke="#5B86E5" stroke-width="1"/>
+  <path d="M27 8V34" stroke="#5B86E5" stroke-width="1"/>
+  <path d="M6 21H34" stroke="#5B86E5" stroke-width="1"/>
+  <path d="M6 28H34" stroke="#5B86E5" stroke-width="1"/>
+  
+  <!-- Calendar dates -->
+  <circle cx="10" cy="17.5" r="2" fill="#FF5252"/>
+  <circle cx="17" cy="24.5" r="2" fill="#FF5252"/>
+  <circle cx="24" cy="31.5" r="2" fill="#FF5252"/>
+  
+  <!-- Calendar hangers -->
+  <path d="M13 6V8" stroke="#5B86E5" stroke-width="2" stroke-linecap="round"/>
+  <path d="M27 6V8" stroke="#5B86E5" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Glow effect for dark mode -->
+  <rect x="6" y="8" width="28" height="26" rx="3" stroke="#FFDA6A" stroke-width="1" stroke-opacity="0.5"/>
 </svg> 

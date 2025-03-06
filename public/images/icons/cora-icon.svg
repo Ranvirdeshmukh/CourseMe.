@@ -1,9 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-  <rect x="12" y="8" width="16" height="20" rx="2" fill="#571CE0" opacity="0.8"/>
-  <rect x="14" y="10" width="12" height="16" rx="1" fill="white"/>
-  <circle cx="17" cy="14" r="2" fill="#571CE0"/>
-  <circle cx="23" cy="14" r="2" fill="#571CE0"/>
-  <path d="M17 20H23" stroke="#571CE0" stroke-width="2" stroke-linecap="round"/>
-  <path d="M10 28C10 26.8954 10.8954 26 12 26H28C29.1046 26 30 26.8954 30 28V30C30 31.1046 29.1046 32 28 32H12C10.8954 32 10 31.1046 10 30V28Z" fill="#571CE0"/>
-  <rect x="14" y="28" width="12" height="2" rx="1" fill="white"/>
+  <!-- Robot head -->
+  <rect x="10" y="8" width="20" height="20" rx="4" fill="#5B86E5"/>
+  
+  <!-- Robot face -->
+  <rect x="12" y="12" width="16" height="12" rx="2" fill="#FFFFFF"/>
+  
+  <!-- Robot eyes -->
+  <circle cx="16" cy="16" r="2" fill="#5B86E5"/>
+  <circle cx="24" cy="16" r="2" fill="#5B86E5"/>
+  
+  <!-- Robot mouth -->
+  <path d="M16 22H24" stroke="#5B86E5" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Robot antenna -->
+  <path d="M20 8V4" stroke="#444444" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="20" cy="3" r="1" fill="#FF5252"/>
+  
+  <!-- Robot body -->
+  <rect x="12" y="28" width="16" height="6" rx="2" fill="#5B86E5"/>
+  <rect x="14" y="30" width="12" height="2" rx="1" fill="#FFFFFF"/>
+  
+  <!-- Robot neck -->
+  <rect x="16" y="26" width="8" height="2" rx="1" fill="#5B86E5"/>
 </svg> 

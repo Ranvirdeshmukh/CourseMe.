@@ -1,7 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-  <circle cx="20" cy="12" r="6" fill="#8A5CF7"/>
-  <path d="M10 32C10 26.4772 14.4772 22 20 22C25.5228 22 30 26.4772 30 32" stroke="#8A5CF7" stroke-width="3" stroke-linecap="round"/>
-  <rect x="14" y="28" width="12" height="2" rx="1" fill="#8A5CF7"/>
-  <path d="M14 8H26" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-  <path d="M12 34H28" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  <!-- Graduation cap -->
+  <path d="M20 6L36 14L20 22L4 14L20 6Z" fill="#5B86E5"/>
+  
+  <!-- Tassel -->
+  <path d="M36 14V18" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="36" cy="20" r="2" fill="#FFFFFF"/>
+  
+  <!-- Face -->
+  <circle cx="20" cy="26" r="8" fill="#FFDA6A"/>
+  
+  <!-- Glasses -->
+  <path d="M14 24H26" stroke="#444444" stroke-width="1.5"/>
+  <circle cx="16" cy="24" r="2" stroke="#444444" stroke-width="1.5" fill="none"/>
+  <circle cx="24" cy="24" r="2" stroke="#444444" stroke-width="1.5" fill="none"/>
+  
+  <!-- Smile -->
+  <path d="M17 28C18 29 19 29.5 20 29.5C21 29.5 22 29 23 28" stroke="#444444" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Glow effect for dark mode -->
+  <path d="M20 6L36 14L20 22L4 14L20 6Z" stroke="#FFDA6A" stroke-width="1" stroke-opacity="0.5"/>
 </svg> 
