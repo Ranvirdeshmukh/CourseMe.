@@ -90,7 +90,8 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [descriptionError, setDescriptionError] = useState(null);
   const reviewsPerPage = 5;
   const [isBetaUser, setIsBetaUser] = useState(false);
-
+  const [professorTermsMap, setProfessorTermsMap] = useState({});
+  
   useEffect(() => {
     const checkBetaStatus = async () => {
       if (currentUser) {
@@ -1894,6 +1895,42 @@ useEffect(() => {
 
   const uniqueProfessors = [...new Set(reviews.map((item) => item.instructor))];
 
+  // Function to extract term information from reviews
+  const extractTermsFromReviews = (reviewsList) => {
+    const termsMap = {};
+    
+    reviewsList.forEach(review => {
+      if (review && review.review && review.instructor) {
+        // Extract term from review prefix (e.g., "19S with Professor Name:")
+        const termMatch = review.review.match(/(\d{2}[A-Z]) with/);
+        if (termMatch && termMatch[1]) {
+          const term = termMatch[1];
+          
+          if (!termsMap[review.instructor]) {
+            termsMap[review.instructor] = new Set();
+          }
+          termsMap[review.instructor].add(term);
+        }
+      }
+    });
+    
+    // Convert Sets to Arrays
+    const result = {};
+    Object.keys(termsMap).forEach(professor => {
+      result[professor] = Array.from(termsMap[professor]).sort();
+    });
+    
+    return result;
+  };
+
+  // Function to get color scheme based on term
+    if (reviews && reviews.length > 0) {
+      // Extract terms taught by professors
+      const termsMap = extractTermsFromReviews(reviews);
+      setProfessorTermsMap(termsMap);
+    }
+  }, [reviews]);
+
   return (
     <Box
   sx={{
@@ -2253,6 +2290,7 @@ useEffect(() => {
           const reviewCount = reviews.filter(
             (review) => review.instructor === professor
           ).length;
+          const professorTerms = professorTermsMap[professor] || [];
           return (
             <TableRow
               key={index}
@@ -2298,16 +2336,16 @@ useEffect(() => {
                   fontWeight: isBothTerms ? 700 : 400,
                 }}
               >
+                {/* Current term badges */}
                 {isBothTerms ? (
                   <Box sx={{ display: 'flex', gap: '8px' }}>
                     <Box
                       sx={{
-                        backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF',
+                        backgroundColor: '#1976D2', // Bright blue
                         padding: '2px 8px',
                         borderRadius: '12px',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
                       }}
                     >
                       <Typography
@@ -2315,7 +2353,7 @@ useEffect(() => {
                         sx={{
                           fontSize: '0.8rem',
                           fontWeight: 500,
-                          color: darkMode ? '#B3E5FC' : '#0277BD',
+                          color: '#FFFFFF',
                         }}
                       >
                         W25
@@ -2384,10 +2422,67 @@ useEffect(() => {
                         color: darkMode ? '#A5D6A7' : '#2E7D32',
                       }}
                     >
-                      25X
+                      X25
                     </Typography>
                   </Box>
                 ) : ''}
+                
+                {/* Historical terms badges */}
+                {professorTerms.length > 0 && (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '4px', mt: 1 }}>
+                    {professorTerms.map((term, i) => {
+                      // Determine color based on term suffix (F, W, S, X)
+                      const termCode = term.charAt(term.length - 1);
+                      let bgColor, textColor;
+                      
+                      switch (termCode) {
+                        case 'F': // Fall - Red
+                          bgColor = '#D32F2F';
+                          textColor = '#FFFFFF';
+                          break;
+                        case 'W': // Winter - Blue
+                          bgColor = '#1976D2';
+                          textColor = '#FFFFFF';
+                          break;
+                        case 'S': // Spring - Green
+                          bgColor = '#388E3C';
+                          textColor = '#FFFFFF';
+                          break;
+                        case 'X': // Summer/Spring - Orange
+                          bgColor = '#F57C00';
+                          textColor = '#FFFFFF';
+                          break;
+                        default:
+                          bgColor = '#7B1FA2'; // Purple
+                          textColor = '#FFFFFF';
+                      }
+                      
+                      return (
+                        <Box
+                          key={i}
+                          sx={{
+                            backgroundColor: bgColor,
+                            padding: '2px 6px',
+                            borderRadius: '8px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontSize: '0.7rem',
+                              fontWeight: 500,
+                              color: textColor,
+                            }}
+                          >
+                            {term}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                )}
               </TableCell>
             </TableRow>
           );
