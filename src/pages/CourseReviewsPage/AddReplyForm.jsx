@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { TextField, Button, Box, IconButton } from '@mui/material';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc, addDoc, collection, updateDoc, arrayUnion } from 'firebase/firestore';
@@ -19,15 +19,25 @@ const AddReplyForm = ({
   inputTextColor,
 }) => {
   const [reply, setReply] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { currentUser } = useAuth();
+  const isMounted = useRef(true);
+  
+  // Clean up on unmount
+  React.useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const handleReplySubmit = async (e) => {
     e.preventDefault();
-    if (!currentUser || !reply) return;
+    if (!currentUser || !reply || isSubmitting) return;
+
+    setIsSubmitting(true);
 
     const newReply = {
       reply,
-      author: currentUser.displayName,
       timestamp: new Date().toISOString(),
       courseId,
       reviewData,
@@ -55,16 +65,26 @@ const AddReplyForm = ({
           replies: arrayUnion(newReply),
         });
 
-        setReply('');
+        if (isMounted.current) {
+          setReply('');
+          setIsSubmitting(false);
+        }
+        
         // Pass the new reply to the parent component
         if (typeof onReplyAdded === 'function') {
           onReplyAdded(newReply);
         }
       } catch (error) {
         console.error('Error adding reply:', error);
+        if (isMounted.current) {
+          setIsSubmitting(false);
+        }
       }
     } else {
       console.error('Review document does not exist');
+      if (isMounted.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -91,6 +111,7 @@ const AddReplyForm = ({
           rows={1}
           variant="outlined"
           size="small"
+          disabled={isSubmitting}
           sx={{ 
             backgroundColor: inputBgColor,
             '& .MuiOutlinedInput-root': {
@@ -122,12 +143,14 @@ const AddReplyForm = ({
         />
         <IconButton
           type="submit"
+          disabled={isSubmitting || !reply.trim()}
           sx={{ 
             backgroundColor: buttonColor,
             color: '#FFFFFF',
             width: '36px',
             height: '36px',
             marginTop: '4px',
+            opacity: isSubmitting || !reply.trim() ? 0.7 : 1,
             '&:hover': {
               backgroundColor: buttonHoverColor,
             },

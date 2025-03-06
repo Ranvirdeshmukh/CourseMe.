@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip,
@@ -1150,13 +1150,23 @@ const handleQualityVote = async (voteType) => {
   };
 
   const addReplyLocally = (reviewIndex, newReply) => {
-    setReviews((prevReviews) =>
-      prevReviews.map((review) =>
-        review.reviewIndex === reviewIndex
-          ? { ...review, replies: Array.isArray(review.replies) ? [...review.replies, newReply] : [newReply] }
-          : review
-      )
-    );
+    // Use a functional update to avoid potential stale state issues
+    setReviews(prevReviews => {
+      // Create a new array with the updated review
+      return prevReviews.map(review => {
+        if (review.reviewIndex === reviewIndex) {
+          // Create a new review object with the updated replies array
+          return {
+            ...review,
+            replies: Array.isArray(review.replies) 
+              ? [...review.replies, newReply] 
+              : [newReply]
+          };
+        }
+        // Return unchanged reviews
+        return review;
+      });
+    });
   };
 
   const ReviewItem = ({ instructor, prefix, rest, courseId, reviewIndex, onReplyAdded }) => {
@@ -1167,6 +1177,16 @@ const handleQualityVote = async (voteType) => {
     const [replyCount, setReplyCount] = useState(0);
     const [likeCount, setLikeCount] = useState(0);
     const [hasLiked, setHasLiked] = useState(false);
+    
+    // Add a ref to track if component is mounted
+    const isMounted = useRef(true);
+    
+    // Clean up on unmount
+    useEffect(() => {
+      return () => {
+        isMounted.current = false;
+      };
+    }, []);
 
     const fetchReplies = async () => {
       try {
@@ -1184,11 +1204,17 @@ const handleQualityVote = async (voteType) => {
         const replyDocs = await getDocs(repliesCollectionRef);
 
         const fetchedReplies = replyDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setReplies(fetchedReplies);
-        setReplyCount(fetchedReplies.length);
+        
+        // Only update state if component is still mounted
+        if (isMounted.current) {
+          setReplies(fetchedReplies);
+          setReplyCount(fetchedReplies.length);
+        }
       } catch (error) {
         console.error('Error fetching replies:', error);
-        setError('Failed to fetch replies.');
+        if (isMounted.current) {
+          setError('Failed to fetch replies.');
+        }
       }
     };
 
@@ -1427,17 +1453,6 @@ const handleQualityVote = async (voteType) => {
                         <Typography
                           component="span"
                           sx={{ 
-                            color: darkMode ? '#E0E0E0' : '#555555', 
-                            fontWeight: 600, 
-                            fontSize: '0.85rem',
-                            mr: 1
-                          }}
-                        >
-                          {reply && reply.author ? reply.author : 'Anonymous'}
-                        </Typography>
-                        <Typography
-                          component="span"
-                          sx={{ 
                             color: darkMode ? '#909090' : '#8E8E93', 
                             fontSize: '0.75rem' 
                           }}
@@ -1500,7 +1515,9 @@ const handleQualityVote = async (voteType) => {
                     onReplyAdded={(newReply) => {
                       // Add the new reply to the local state
                       setReplies((prevReplies) => [...prevReplies, newReply]);
-                      setReplyCount(replyCount + 1);
+                      setReplyCount((prevCount) => prevCount + 1);
+                      // Ensure replies section stays open
+                      setShowReplies(true);
                       // Call the parent's onReplyAdded function if provided
                       if (onReplyAdded) {
                         onReplyAdded(newReply);
@@ -1574,8 +1591,8 @@ const handleQualityVote = async (voteType) => {
                 onReplyAdded={(newReply) => {
                   // Add the reply locally to avoid needing to reload the page
                   addReplyLocally(item.reviewIndex, newReply);
-                  // Also fetch the reviews to ensure data is up to date
-                  fetchReviews();
+                  // Remove the fetchReviews call to prevent page re-render
+                  // fetchReviews();
                 }}
               />
             </React.Fragment>
@@ -2391,7 +2408,24 @@ useEffect(() => {
           }}
         >
           <Container maxWidth="md">
-          <AddReviewForm onReviewAdded={fetchReviews} darkMode={darkMode} />
+          <AddReviewForm 
+            onReviewAdded={(newReview) => {
+              // Add the review locally first to avoid full page re-render
+              if (newReview) {
+                setReviews(prevReviews => [
+                  {
+                    instructor: newReview.instructor,
+                    review: newReview.review,
+                    reviewIndex: newReview.reviewIndex || 0,
+                    courseId: courseId,
+                    termValue: newReview.termValue || 0
+                  },
+                  ...prevReviews
+                ]);
+              }
+            }} 
+            darkMode={darkMode} 
+          />
           </Container>
         </Box>
       </Container>
