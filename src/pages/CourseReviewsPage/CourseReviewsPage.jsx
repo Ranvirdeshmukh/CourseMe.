@@ -1367,7 +1367,7 @@ const handleQualityVote = async (voteType) => {
           {showReplies && (
             <>
               <List sx={{ pl: 4 }}>
-                {replies.map((reply, index) => (
+                {replies && replies.length > 0 && replies.map((reply, index) => (
                   <ListItem
                     key={index}
                     sx={{
@@ -1380,23 +1380,23 @@ const handleQualityVote = async (voteType) => {
                     <ListItemText
                       primary={
                         <>
-                                                  <Typography
-                          component="span"
-                          sx={{ color: textColor, fontWeight: 600, fontSize: '0.9rem' }} // Dynamic text color
-                        >
-                          Reply:
-                        </Typography>{' '}
-                        <Typography
-                          component="span"
-                          sx={{ color: textColor, fontSize: '0.85rem' }} // Dynamic text color
-                        >
-                          {reply.reply}
-                        </Typography>
-                        <Typography
-                          component="span"
-                          sx={{ color: darkMode ? '#B0B0B0' : '#8E8E93', fontSize: '0.75rem', marginLeft: '10px' }} // Lighter gray in dark mode
-                        >
-                            {new Date(reply.timestamp).toLocaleString()}
+                          <Typography
+                            component="span"
+                            sx={{ color: textColor, fontWeight: 600, fontSize: '0.9rem' }} // Dynamic text color
+                          >
+                            Reply:
+                          </Typography>{' '}
+                          <Typography
+                            component="span"
+                            sx={{ color: textColor, fontSize: '0.85rem' }} // Dynamic text color
+                          >
+                            {reply && reply.reply ? reply.reply : ''}
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ color: darkMode ? '#B0B0B0' : '#8E8E93', fontSize: '0.75rem', marginLeft: '10px' }} // Lighter gray in dark mode
+                          >
+                            {reply && reply.timestamp ? new Date(reply.timestamp).toLocaleString() : ''}
                           </Typography>
                         </>
                       }
@@ -1405,14 +1405,25 @@ const handleQualityVote = async (voteType) => {
                 ))}
               </List>
               <AddReplyForm
-                
                 reviewData={{ instructor, reviewIndex }}
                 courseId={courseId}
                 onReplyAdded={(newReply) => {
                   // Add the new reply to the local state
                   setReplies((prevReplies) => [...prevReplies, newReply]);
                   setReplyCount(replyCount + 1);
+                  // Call the parent's onReplyAdded function if provided
+                  if (onReplyAdded) {
+                    onReplyAdded(newReply);
+                  }
                 }}
+                darkMode={darkMode}
+                textColor={textColor}
+                backgroundColor={darkMode ? '#2a2a2a' : '#F9F9F9'}
+                buttonColor={darkMode ? '#007AFF' : '#007AFF'}
+                buttonHoverColor={darkMode ? '#0056b3' : '#0056b3'}
+                inputBgColor={darkMode ? '#333333' : '#FFFFFF'}
+                inputBorderColor={darkMode ? '#555555' : '#E0E0E0'}
+                inputTextColor={textColor}
               />
             </>
           )}
@@ -1445,7 +1456,6 @@ const handleQualityVote = async (voteType) => {
           lastInstructor = item.instructor;
   
           const { prefix, rest } = splitReviewText(item.review);
-          const replies = Array.isArray(item.replies) ? item.replies : [];
   
           return (
             <React.Fragment key={idx}>
@@ -1467,10 +1477,14 @@ const handleQualityVote = async (voteType) => {
                 instructor={item.instructor}
                 prefix={prefix}
                 rest={rest}
-                replies={replies}
                 courseId={courseId}
                 reviewIndex={item.reviewIndex}
-                onReplyAdded={fetchReviews}
+                onReplyAdded={(newReply) => {
+                  // Add the reply locally to avoid needing to reload the page
+                  addReplyLocally(item.reviewIndex, newReply);
+                  // Also fetch the reviews to ensure data is up to date
+                  fetchReviews();
+                }}
               />
             </React.Fragment>
           );

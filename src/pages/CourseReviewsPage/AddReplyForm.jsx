@@ -55,7 +55,10 @@ const AddReplyForm = ({
         });
 
         setReply('');
-        onReplyAdded(); // Refresh the reviews
+        // Pass the new reply to the parent component
+        if (typeof onReplyAdded === 'function') {
+          onReplyAdded(newReply);
+        }
       } catch (error) {
         console.error('Error adding reply:', error);
       }
