@@ -14,7 +14,7 @@ import {
     TableRow, TextField, Tooltip, Typography, useMediaQuery,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, deleteDoc } from 'firebase/firestore';
 import localforage from 'localforage';
 import debounce from 'lodash/debounce';
 import moment from 'moment-timezone';
@@ -657,8 +657,13 @@ useEffect(() => {
 
     try {
       const db = getFirestore();
-      const userRef = doc(collection(db, 'users'), currentUser.uid);
-      await updateDoc(userRef, { fallCoursestaken: updatedCourses });
+      // Delete the document from the springCoursestaken subcollection
+      if (course.id) {
+        const courseDocRef = doc(db, 'users', currentUser.uid, 'springCoursestaken', course.id);
+        await deleteDoc(courseDocRef);
+      } else {
+        console.error('Course ID not found, cannot remove from database');
+      }
     } catch (error) {
       console.error('Error removing course:', error);
     }
@@ -714,7 +719,7 @@ useEffect(() => {
 
     timingParts.forEach((part) => {
       const [days, times] = part.trim().split(' '); 
-      const [startTime, endTime] = times.split('-'); 
+      const [startTime, endTime] = times.split('-');
 
       const startMoment = parseTime(eventStartDate, startTime, timezone);
       const endMoment = parseTime(eventStartDate, endTime, timezone);
