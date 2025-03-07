@@ -452,6 +452,7 @@ const CourseReviewsPage = ({ darkMode }) => {
           course={course}
           courseId={courseId}
           currentUser={currentUser}
+          darkMode={darkMode}
         />
         <CourseAnalytics metrics={course?.metrics}
         darkMode={darkMode} />

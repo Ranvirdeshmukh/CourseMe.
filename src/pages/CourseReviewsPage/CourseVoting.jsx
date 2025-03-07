@@ -8,17 +8,18 @@ const VotingCard = ({
   score, 
   onUpvote, 
   onDownvote, 
-  userVote
+  userVote,
+  darkMode
 }) => {
   return (
-    <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <div className={`flex-1 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-4`}>
       <div className="flex items-center gap-2 mb-3 justify-center">
         {type === 'quality' ? (
           <Award className="w-5 h-5 text-indigo-600" />
         ) : (
           <Sparkles className="w-5 h-5 text-indigo-600" />
         )}
-        <span className="text-sm font-medium text-gray-900">
+        <span className={`text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
           {type === 'quality' ? 'Course Quality' : 'Layup Rating'}
         </span>
       </div>
@@ -33,7 +34,9 @@ const VotingCard = ({
           className={`p-2 rounded-lg transition-colors ${
             userVote === 'upvote'
               ? 'bg-green-100 text-green-700'
-              : 'hover:bg-gray-100 text-gray-600'
+              : darkMode 
+                ? 'hover:bg-gray-700 text-gray-300' 
+                : 'hover:bg-gray-100 text-gray-600'
           }`}
         >
           <ThumbsUp className="w-5 h-5" />
@@ -43,7 +46,9 @@ const VotingCard = ({
           className={`p-2 rounded-lg transition-colors ${
             userVote === 'downvote'
               ? 'bg-red-100 text-red-700'
-              : 'hover:bg-gray-100 text-gray-600'
+              : darkMode 
+                ? 'hover:bg-gray-700 text-gray-300' 
+                : 'hover:bg-gray-100 text-gray-600'
           }`}
         >
           <ThumbsDown className="w-5 h-5" />
@@ -53,7 +58,7 @@ const VotingCard = ({
   );
 };
 
-const CourseVoting = ({ course, courseId, currentUser }) => {
+const CourseVoting = ({ course, courseId, currentUser, darkMode }) => {
   const [qualityVote, setQualityVote] = useState(null);
   const [layupVote, setLayupVote] = useState(null);
   const [qualityScore, setQualityScore] = useState(course?.quality || 0);
@@ -168,6 +173,7 @@ const CourseVoting = ({ course, courseId, currentUser }) => {
         onUpvote={() => handleLayupVote('upvote')}
         onDownvote={() => handleLayupVote('downvote')}
         userVote={layupVote}
+        darkMode={darkMode}
       />
       <VotingCard
         type="quality"
@@ -175,6 +181,7 @@ const CourseVoting = ({ course, courseId, currentUser }) => {
         onUpvote={() => handleQualityVote('upvote')}
         onDownvote={() => handleQualityVote('downvote')}
         userVote={qualityVote}
+        darkMode={darkMode}
       />
     </div>
   );
