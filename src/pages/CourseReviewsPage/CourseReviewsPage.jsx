@@ -57,6 +57,7 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [reviewInstructors, setReviewInstructors] = useState([]);
   const [allProfessors, setAllProfessors] = useState([]);
   const [professorInput, setProfessorInput] = useState('');
+  const [professorTerms, setProfessorTerms] = useState({});
   const gradeToNum = {
     'A': 11, 'A-': 10, 'A/A-': 10.5,
     'B+': 9, 'A-/B+': 9.5, 'B': 8, 'B+/B': 8.5, 'B-': 7, 'B/B-': 7.5,
@@ -552,14 +553,20 @@ const CourseReviewsPage = ({ darkMode }) => {
   
         setReviews(reviewsArray);
         setAllProfessors(Array.from(professorsSet));
+        
+        // Extract and set professor terms
+        const extractedTerms = extractProfessorTerms(reviewsArray);
+        setProfessorTerms(extractedTerms);
       } else {
         setError('No reviews found for this course.');
         setAllProfessors([]);
+        setProfessorTerms({});
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
       setError('Failed to fetch reviews.');
       setAllProfessors([]);
+      setProfessorTerms({});
     } finally {
       setLoading(false);
       console.log('Finished fetching reviews');
@@ -773,10 +780,27 @@ const CourseReviewsPage = ({ darkMode }) => {
   };
   // helper function to the sort the reviews
   const getTermValue = (termCode) => {
-    const year = parseInt(termCode.slice(0, 2), 10);
-    const term = termCode.slice(2);
+    // Handle both YYT (e.g., 21W) and TYY (e.g., W21) formats
+    let year, term;
+    
+    // Check if it's in YYT format (e.g., 21W)
+    const yyFormat = /^(\d{2})([WSXF])$/i.exec(termCode);
+    if (yyFormat) {
+      year = parseInt(yyFormat[1], 10);
+      term = yyFormat[2].toUpperCase();
+    } else {
+      // Check if it's in TYY format (e.g., W21)
+      const tyFormat = /^([WSXF])(\d{2})$/i.exec(termCode);
+      if (tyFormat) {
+        year = parseInt(tyFormat[2], 10);
+        term = tyFormat[1].toUpperCase();
+      } else {
+        // If format is unrecognized, return a default low value
+        return 0;
+      }
+    }
+    
     let termValue;
-  
     switch (term) {
       case 'W': // Winter
         termValue = 1;
@@ -798,7 +822,232 @@ const CourseReviewsPage = ({ darkMode }) => {
     return year * 10 + termValue; // Multiplying the year to get a comparable numeric value
   };
   
+  // Extract term codes from reviews for each professor
+  const extractProfessorTerms = (reviews) => {
+    const professorTerms = {};
+    
+    reviews.forEach(review => {
+      const { instructor, review: reviewText } = review;
+      
+      // More flexible regex to match term patterns in various formats
+      // Look for patterns like "21W with", "21W:", "W21 with", or just "21W" at the start of review
+      const termPatterns = [
+        /^(\d{2}[WSXF])\s+with/i,  // "21W with"
+        /^(\d{2}[WSXF]):/i,        // "21W:"
+        /^([WSXF]\d{2})\s+with/i,  // "W21 with"
+        /^(\d{2}[WSXF])/i          // Just "21W" at start
+      ];
+      
+      let termCode = null;
+      
+      // Try each pattern until we find a match
+      for (const pattern of termPatterns) {
+        const match = reviewText.match(pattern);
+        if (match && match[1]) {
+          // Standardize format to YYT (e.g., 21W)
+          if (match[1].match(/^[WSXF]\d{2}/)) {
+            // If format is T21, convert to 21T
+            const term = match[1].charAt(0);
+            const year = match[1].substring(1);
+            termCode = year + term;
+          } else {
+            termCode = match[1];
+          }
+          break;
+        }
+      }
+      
+      // If no match with standard patterns, try a more general approach
+      if (!termCode) {
+        // Look for any standalone term indicator like "Winter 2021" or "Fall 2019"
+        const termWords = {
+          'winter': 'W',
+          'spring': 'S',
+          'summer': 'X',
+          'fall': 'F'
+        };
+        
+        for (const [word, code] of Object.entries(termWords)) {
+          const seasonMatch = new RegExp(`${word}\\s+(20|19)(\\d{2})`, 'i').exec(reviewText);
+          if (seasonMatch) {
+            const year = seasonMatch[2]; // Get the last two digits of the year
+            termCode = year + code;
+            break;
+          }
+        }
+      }
+      
+      // Add the term to the professor's set if found
+      if (termCode) {
+        if (!professorTerms[instructor]) {
+          professorTerms[instructor] = new Set();
+        }
+        professorTerms[instructor].add(termCode);
+        
+        // Log successful extraction for debugging
+        console.log(`Extracted term ${termCode} for professor ${instructor}`);
+      }
+    });
+    
+    // Convert Sets to sorted Arrays
+    Object.keys(professorTerms).forEach(professor => {
+      const termArray = Array.from(professorTerms[professor]);
+      
+      // Sort terms by termValue (most recent first)
+      termArray.sort((a, b) => getTermValue(b) - getTermValue(a));
+      
+      professorTerms[professor] = termArray;
+    });
+    
+    // Add current term data from winterInstructors and springInstructors
+    const currentYear = new Date().getFullYear().toString().substring(2);
+    
+    winterInstructors.forEach(instructor => {
+      if (!professorTerms[instructor]) {
+        professorTerms[instructor] = [];
+      }
+      
+      const winterTerm = currentYear + 'W';
+      if (!professorTerms[instructor].includes(winterTerm)) {
+        professorTerms[instructor].unshift(winterTerm);
+      }
+    });
+    
+    springInstructors.forEach(instructor => {
+      if (!professorTerms[instructor]) {
+        professorTerms[instructor] = [];
+      }
+      
+      const springTerm = currentYear + 'S';
+      if (!professorTerms[instructor].includes(springTerm)) {
+        professorTerms[instructor].unshift(springTerm);
+      }
+    });
+    
+    return professorTerms;
+  };
+
+  // Format term code to display format (e.g., 25W instead of W25)
+  const formatTermCode = (termCode) => {
+    if (!termCode) return "";
+    
+    // Ensure we have a valid term code format (YYT)
+    const regex = /^(\d{2})([WSXF])$/i;
+    const match = termCode.match(regex);
+    
+    if (match) {
+      const year = match[1];
+      const term = match[2].toUpperCase();
+      
+      // Return in format with year first, then term (e.g., 21W, 20F)
+      return `${year}${term}`;
+    }
+    
+    // If not matching our expected format, try the TYY format
+    const altRegex = /^([WSXF])(\d{2})$/i;
+    const altMatch = termCode.match(altRegex);
+    
+    if (altMatch) {
+      const term = altMatch[1].toUpperCase();
+      const year = altMatch[2];
+      
+      // Convert from TYY to YYT format
+      return `${year}${term}`;
+    }
+    
+    // If not matching any expected format, return as is
+    return termCode;
+  };
   
+  // NOTE: There may be some hardcoded term values (like W25, 25X) in the UI components
+  // These should be manually updated to match the new format (25W, 25X) if necessary
+  
+  // Render term chip with appropriate styling based on term
+  const renderTermChip = (termCode, darkMode) => {
+    // Extract the term letter (W, S, X, F)
+    let term = '';
+    
+    // Check format: if it's YYT (e.g., 21W) then term is the last character
+    const yyTermRegex = /^(\d{2})([WSXF])$/i;
+    const tyTermRegex = /^([WSXF])(\d{2})$/i;
+    
+    if (yyTermRegex.test(termCode)) {
+      term = termCode.charAt(2).toUpperCase();
+    } else if (tyTermRegex.test(termCode)) {
+      term = termCode.charAt(0).toUpperCase();
+    } else {
+      // Default to no specific styling if format is unknown
+      term = 'U'; // Unknown
+    }
+    
+    // Define color schemes for each term
+    let colors = {
+      bg: '',
+      border: '',
+      text: ''
+    };
+    
+    switch (term) {
+      case 'W': // Winter - Blue
+        colors = {
+          bg: darkMode ? '#2C3E50' : '#E0F7FF',
+          border: darkMode ? '#4A6572' : '#B3E5FC',
+          text: darkMode ? '#B3E5FC' : '#0277BD'
+        };
+        break;
+      case 'S': // Spring - Yellow
+        colors = {
+          bg: darkMode ? '#4D3C14' : '#FFF8E1',
+          border: darkMode ? '#6D5B24' : '#FFE082',
+          text: darkMode ? '#FFE082' : '#F57F17'
+        };
+        break;
+      case 'X': // Summer - Green
+        colors = {
+          bg: darkMode ? '#1B5E20' : '#E8F5E9',
+          border: darkMode ? '#388E3C' : '#A5D6A7',
+          text: darkMode ? '#A5D6A7' : '#2E7D32'
+        };
+        break;
+      case 'F': // Fall - Orange/Red
+        colors = {
+          bg: darkMode ? '#4E342E' : '#FBE9E7',
+          border: darkMode ? '#6D4C41' : '#FFCCBC',
+          text: darkMode ? '#FFCCBC' : '#D84315'
+        };
+        break;
+      default:
+        colors = {
+          bg: darkMode ? '#424242' : '#F5F5F5',
+          border: darkMode ? '#616161' : '#E0E0E0',
+          text: darkMode ? '#E0E0E0' : '#616161'
+        };
+    }
+    
+    return (
+      <Box
+        sx={{
+          backgroundColor: colors.bg,
+          padding: '2px 8px',
+          borderRadius: '12px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          border: `1px solid ${colors.border}`,
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            fontSize: '0.8rem',
+            fontWeight: 500,
+            color: colors.text,
+          }}
+        >
+          {formatTermCode(termCode)}
+        </Typography>
+      </Box>
+    );
+  };
 
   const fetchCourse = useCallback(async () => {
     setLoading(true);
@@ -1894,6 +2143,99 @@ useEffect(() => {
 
   const uniqueProfessors = [...new Set(reviews.map((item) => item.instructor))];
 
+  // Add this as a fallback to extract terms for professors by analyzing their reviews
+  const analyzeReviewsForTerms = () => {
+    // Only run if professorTerms is mostly empty
+    const hasTerms = Object.values(professorTerms).filter(terms => terms.length > 0).length;
+    const totalProfessors = Object.keys(professorTerms).length;
+    
+    // If less than 50% of professors have terms, try manual extraction
+    if (hasTerms / totalProfessors < 0.5 && reviews.length > 0) {
+      console.log("Starting manual term extraction for professors...");
+      
+      // Group reviews by professor
+      const professorReviews = {};
+      
+      reviews.forEach(review => {
+        const { instructor, review: reviewText } = review;
+        
+        if (!professorReviews[instructor]) {
+          professorReviews[instructor] = [];
+        }
+        
+        professorReviews[instructor].push(reviewText);
+      });
+      
+      // For each professor, look for term patterns in their reviews
+      const updatedTerms = { ...professorTerms };
+      
+      Object.entries(professorReviews).forEach(([professor, reviewTexts]) => {
+        // Skip professors who already have terms
+        if (professorTerms[professor] && professorTerms[professor].length > 0) {
+          return;
+        }
+        
+        const terms = new Set();
+        
+        // Common term pattern words
+        const termWords = {
+          'winter': 'W',
+          'fall': 'F',
+          'spring': 'S',
+          'summer': 'X'
+        };
+        
+        // Check each review for each professor
+        reviewTexts.forEach(text => {
+          // Search for year patterns (20XX or 19XX)
+          const yearMatches = text.match(/(20|19)(\d{2})/g);
+          
+          if (yearMatches) {
+            yearMatches.forEach(yearMatch => {
+              const year = yearMatch.substring(2); // Get last two digits
+              
+              // Look for season words near the year
+              Object.entries(termWords).forEach(([word, code]) => {
+                if (text.toLowerCase().includes(word)) {
+                  terms.add(year + code);
+                }
+              });
+            });
+          }
+          
+          // Also look for explicit term codes like 19F, 20W, etc.
+          const termCodeMatches = text.match(/\b(0\d|1\d|2[0-4])[WSXF]\b/gi);
+          if (termCodeMatches) {
+            termCodeMatches.forEach(match => {
+              terms.add(match.toUpperCase());
+            });
+          }
+        });
+        
+        // Update the professor's terms if we found any
+        if (terms.size > 0) {
+          updatedTerms[professor] = Array.from(terms).sort(
+            (a, b) => getTermValue(b) - getTermValue(a)
+          );
+          console.log(`Manually extracted ${terms.size} terms for ${professor}`);
+        }
+      });
+      
+      // Update the state if we found new terms
+      if (JSON.stringify(updatedTerms) !== JSON.stringify(professorTerms)) {
+        console.log("Updating professor terms with manual extraction results");
+        setProfessorTerms(updatedTerms);
+      }
+    }
+  };
+  
+  // Call the analysis function when reviews or professorTerms change
+  useEffect(() => {
+    if (reviews.length > 0) {
+      analyzeReviewsForTerms();
+    }
+  }, [reviews, professorTerms]);
+
   return (
     <Box
   sx={{
@@ -2231,7 +2573,7 @@ useEffect(() => {
             backgroundColor: tableHeaderBgColor,
           }}
         >
-          Terms Teaching
+          Terms from Reviews
         </TableCell>
       </TableRow>
     </TableHead>
@@ -2298,7 +2640,27 @@ useEffect(() => {
                   fontWeight: isBothTerms ? 700 : 400,
                 }}
               >
-                {isBothTerms ? (
+                {professorTerms[professor] && professorTerms[professor].length > 0 ? (
+                  <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    {professorTerms[professor].slice(0, 3).map((termCode, idx) => (
+                      <React.Fragment key={idx}>
+                        {renderTermChip(termCode, darkMode)}
+                      </React.Fragment>
+                    ))}
+                    {professorTerms[professor].length > 3 && (
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontSize: '0.8rem', 
+                          color: darkMode ? '#A0A0A0' : '#6E6E6E',
+                          ml: 1 
+                        }}
+                      >
+                        +{professorTerms[professor].length - 3} more
+                      </Typography>
+                    )}
+                  </Box>
+                ) : isBothTerms ? (
                   <Box sx={{ display: 'flex', gap: '8px' }}>
                     <Box
                       sx={{
@@ -2318,7 +2680,7 @@ useEffect(() => {
                           color: darkMode ? '#B3E5FC' : '#0277BD',
                         }}
                       >
-                        W25
+                        25W
                       </Typography>
                     </Box>
                     <Box
@@ -2362,7 +2724,7 @@ useEffect(() => {
                         color: darkMode ? '#B3E5FC' : '#0277BD',
                       }}
                     >
-                      W25
+                      25W
                     </Typography>
                   </Box>
                 ) : isSpring ? (
@@ -2387,7 +2749,18 @@ useEffect(() => {
                       25X
                     </Typography>
                   </Box>
-                ) : ''}
+                ) : (
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      fontSize: '0.85rem', 
+                      color: darkMode ? '#888888' : '#999999',
+                      fontStyle: 'italic' 
+                    }}
+                  >
+                    No term data
+                  </Typography>
+                )}
               </TableCell>
             </TableRow>
           );
