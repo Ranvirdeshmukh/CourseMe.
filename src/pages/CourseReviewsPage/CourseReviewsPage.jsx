@@ -2322,7 +2322,7 @@ useEffect(() => {
           }
         }
         
-        // Map department codes to full department names as they appear in the URL
+          // Map department codes to full department names as they appear in the URL
         // These must EXACTLY match the paths in the ORC URLs
         const deptUrlMap = {
           'aaas': 'african-and-african-american-studies',
@@ -2338,7 +2338,7 @@ useEffect(() => {
           'chin': 'asian-societies-cultures-and-languages', // Chinese is under ASCL
           'clst': 'classics-classical-studies-greek-latin',
           'coco': 'college-courses',
-          'cogs': 'cognitive-science-program',
+          'cogs': 'cognitive-science', // Fixed: was 'cognitive-science-program'
           'colt': 'comparative-literature',
           'cosc': 'computer-science',
           'crwt': 'english-and-creative-writing',
@@ -2398,13 +2398,14 @@ useEffect(() => {
           'phys',
           'engs',
           'biol',
-          'psyc'
+          // Removing 'psyc' from this list as it doesn't use -undergraduate in that part of the URL
           // Add more as needed
         ];
         
         // List of departments that need "/en/" in the URL
         const enPathDepts = [
-          'arth'
+          'arth',
+          'grk' // Adding Greek to the departments that need /en/ in the URL
           // Add more as needed
         ];
         
@@ -2448,6 +2449,92 @@ useEffect(() => {
         
         // Construct URL with or without "-undergraduate" based on the department
         const deptSuffix = needsUndergraduateSuffix ? '-undergraduate' : '';
+        
+        // Special case for PSYC - it has a different URL structure
+        if (deptCode === 'psyc') {
+          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-psychological-and-brain-sciences/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${url}`);
+          return url;
+        }
+        
+        // Special case for GRK - it has a different URL structure
+        if (deptCode === 'grk') {
+          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-greek/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${url}`);
+          return url;
+        }
+        
+        // Special case for LAT - it has a different URL structure
+        if (deptCode === 'lat') {
+          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-latin/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${url}`);
+          return url;
+        }
+        
+        // Special case for COLT - it has a different URL structure and needs -undergraduate suffix
+        if (deptCode === 'colt') {
+          // For COLT, make sure we're using the correct format for the course number
+          // The real URLs use hyphenated format (e.g., 51-01 instead of 51.01)
+          let formattedCourseNum = courseNum;
+          if (courseNum.includes('.')) {
+            formattedCourseNum = courseNum.replace('.', '-');
+          }
+          
+          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-comparative-literature-undergraduate/${deptCode}-${formattedCourseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${url}`);
+          return url;
+        }
+        
+        // Special case for COGS - it has a different URL structure
+        if (deptCode === 'cogs') {
+          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-cognitive-science/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${url}`);
+          return url;
+        }
+        
+        // Special case for GOVT - it has different URL structures based on course number ranges
+        if (deptCode === 'govt') {
+          // Convert course number to number for range comparisons
+          // Handle decimal course numbers (e.g., 20.01)
+          const courseNumBase = courseNum.includes('.') ? 
+            parseInt(courseNum.split('.')[0]) : 
+            parseInt(courseNum);
+          
+          let subcategory = '';
+          
+          // Determine subcategory based on course number range
+          if (courseNumBase >= 1 && courseNumBase <= 9) {
+            subcategory = 'introductory-courses';
+          } else if (courseNumBase >= 10 && courseNumBase <= 19) {
+            subcategory = 'political-analysis';
+          } else if (courseNumBase >= 20 && courseNumBase <= 29) {
+            subcategory = 'upper-level-courses-that-cross-subfields';
+          } else if (courseNumBase >= 30 && courseNumBase <= 39) {
+            subcategory = 'american-government';
+          } else if (courseNumBase >= 40 && courseNumBase <= 49) {
+            subcategory = 'comparative-politics';
+          } else if (courseNumBase >= 50 && courseNumBase <= 59) {
+            subcategory = 'international-relations';
+          } else if (courseNumBase >= 60 && courseNumBase <= 69) {
+            subcategory = 'political-theory-and-public-law';
+          } else if (courseNumBase >= 80 && courseNumBase <= 99) {
+            subcategory = 'advanced-courses';
+          }
+          
+          // If we identified a valid subcategory, use it in the URL
+          if (subcategory) {
+            // Format course number for URL - convert decimal to hyphen if needed
+            let formattedCourseNum = courseNum;
+            if (courseNum.includes('.')) {
+              formattedCourseNum = courseNum.replace('.', '-');
+            }
+            
+            const govtUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-government/${subcategory}/${deptCode}-${formattedCourseNum}/`;
+            console.log(`Generated ORC link for ${courseId}: ${govtUrl}`);
+            return govtUrl;
+          }
+        }
+        
         const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-${deptNameInPath}${deptSuffix}/${deptCode}-${courseNum}/`;
         
         // Log for debugging
