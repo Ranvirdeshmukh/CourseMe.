@@ -882,7 +882,7 @@ useEffect(() => {
                     'Building',
                     'Instructor',
                     'Add to Calendar',
-                    'Notify When Available',
+                    'Notifications',
                     'Remove',
                   ].map((header, index) => (
                     <TableCell
@@ -1500,7 +1500,7 @@ useEffect(() => {
               'Building',
               'Instructor',
               'Add to Calendar',
-              'Notify When Available',
+              'Notifications',
               'Add',
             ].map((header, index) => (
               <TableCell
