@@ -1192,34 +1192,92 @@ const handleQualityVote = async (voteType) => {
         let instructors = [];
         if (deptCodeMatch && courseNumberMatch) {
           const deptCode = deptCodeMatch[0];
-          // Remove variable declaration to fix redeclaration error
           let courseNumValue = courseNumberMatch[0].replace(/^0+/, '');
           if (deptCode && courseNumValue) {
             console.log("Department:", deptCode, "Course Number:", courseNumValue);
-          }
-          else {
-            console.log("errorsdfasdf;c")
-          }
-          const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumValue}`);
-          console.log("deptCode:", deptCode, "courseNumber:", courseNumValue);
-          
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          
-          if (data.content) {
-            setCourseDescription(data.content);
-            setDescriptionError(null);
-            console.log("Fetched course description from Dartmouth website:", data.content);
+            console.log("fetching current instructors")
+            try {
+              // Check Winter Term
+              const winterTimetableRef = collection(db, 'winterTimetable');
+              console.log("deptCode:", deptCode, "courseNumber:", courseNumValue);
+              const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumValue));
+              const winterQuerySnapshot = await getDocs(winterQuery);
+              
+              let winterFound = false;
+              winterQuerySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.Instructor) {
+                  winterFound = true;
+                  if (!instructors.includes(data.Instructor)) {
+                    instructors.push(data.Instructor);
+                  }
+                }
+              });
+              
+              // Check Spring Term
+              const springTimetableRef = collection(db, 'springTimetable');
+              const springQuery = query(springTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumValue));
+              const springQuerySnapshot = await getDocs(springQuery);
+              
+              let springFound = false;
+              springQuerySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.Instructor) {
+                  springFound = true;
+                  if (!instructors.includes(data.Instructor)) {
+                    instructors.push(data.Instructor);
+                  }
+                }
+              });
+              
+              console.log("Matching instructors:", instructors);
 
-            // Save the fetched description to the 'courses' collection
-            await updateDoc(courseDocRef, { description: data.content });
-            console.log("Saved course description to Firestore in the 'courses' collection");
+              setIsTaughtCurrentTerm(winterFound);
+              setIsTaughtSpringTerm(springFound);
+              if (instructors.length > 0) {
+                setCurrentInstructors(instructors);
+              } else {
+                console.log("No instructors found for this course");
+              }
+            } catch (error) {
+              console.error("Error fetching documents:", error);
+            }
+          }
+          // If the description already exists in the document, use it
+          if (courseData.description) {
+            setCourseDescription(courseData.description);
+            setDescriptionError(null);
+            console.log("Course description found in Firestore:", courseData.description);
           } else {
-            throw new Error('No content in the response');
+            // If the description doesn't exist, fetch it from the Dartmouth website
+
+            if (deptCode && courseNumValue) {
+              console.log("Department:", deptCode, "Course Number:", courseNumValue);
+          
+              const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumValue}`);
+              console.log("deptCode:", deptCode, "courseNumber:", courseNumValue);
+              
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+              }
+              
+              const data = await response.json();
+              
+              if (data.content) {
+                setCourseDescription(data.content);
+                setDescriptionError(null);
+                console.log("Fetched course description from Dartmouth website:", data.content);
+
+                // Save the fetched description to the 'courses' collection
+                await updateDoc(courseDocRef, { description: data.content });
+                console.log("Saved course description to Firestore in the 'courses' collection");
+              } else {
+                throw new Error('No content in the response');
+              }
+            } else {
+              throw new Error('Course number or department code not found');
+            }
           }
         } else {
           throw new Error('Course number or department code not found');
@@ -2249,11 +2307,14 @@ useEffect(() => {
           courseNum = courseNum.replace(/^0+/, '');
         }
         
-        // Map department codes to full department names in the URL
+        // Map department codes to full department names as they appear in the URL
+        // These must EXACTLY match the paths in the ORC URLs
         const deptUrlMap = {
+          'aaas': 'african-and-african-american-studies', // Added AAAS mapping
           'anth': 'anthropology',
+          'arth': 'art-history', // Added Art History mapping
           'astr': 'astronomy',
-          'biol': 'biology',
+          'biol': 'biological-sciences', // Fixed: "biology" -> "biological-sciences"
           'chem': 'chemistry',
           'cosc': 'computer-science',
           'econ': 'economics',
@@ -2264,7 +2325,7 @@ useEffect(() => {
           'govt': 'government',
           'hist': 'history',
           'math': 'mathematics',
-          'phys': 'physics',
+          'phys': 'physics-and-astronomy', // Fixed to match actual URL
           'psyc': 'psychological-and-brain-sciences',
           'socy': 'sociology',
           // Add more mappings as needed for other departments
@@ -2279,6 +2340,12 @@ useEffect(() => {
           'engs',
           'biol',
           'psyc'
+          // Add more as needed
+        ];
+        
+        // List of departments that need "/en/" in the URL
+        const enPathDepts = [
+          'arth'
           // Add more as needed
         ];
         
@@ -2299,9 +2366,18 @@ useEffect(() => {
         // Check if this department needs the "-undergraduate" suffix
         const needsUndergraduateSuffix = undergraduateSuffixDepts.includes(deptCode);
         
+        // Get the department name for the file path segment
+        // Special case for AAAS which has a different pattern
+        let deptNameInPath = deptCode === 'aaas' 
+          ? 'african-and-african-american-studies' 
+          : deptUrlPath;
+        
+        // Determine if we need to add the "en" path segment
+        const enPath = enPathDepts.includes(deptCode) ? 'en/' : '';
+        
         // Construct URL with or without "-undergraduate" based on the department
         const deptSuffix = needsUndergraduateSuffix ? '-undergraduate' : '';
-        const url = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-${deptUrlPath}${deptSuffix}/${deptCode}-${courseNum}/`;
+        const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-${deptNameInPath}${deptSuffix}/${deptCode}-${courseNum}/`;
         
         // Log for debugging
         console.log(`Generated ORC link for ${courseId}: ${url}`);
