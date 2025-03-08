@@ -2913,6 +2913,13 @@ useEffect(() => {
               key={index}
               component={Link}
               to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
+              onClick={(e) => {
+                // Ensure link navigation works
+                if (!e.defaultPrevented) {
+                  e.preventDefault();
+                  window.location.href = `/departments/${department}/courses/${courseId}/professors/${professor}`;
+                }
+              }}
               sx={{
                 backgroundColor: isBothTerms
                   ? (darkMode ? '#2C2F73' : '#D0E0FF') // Highlighted color for both terms
