@@ -2471,6 +2471,20 @@ useEffect(() => {
           return url;
         }
         
+        // Special case for COLT - it has a different URL structure and needs -undergraduate suffix
+        if (deptCode === 'colt') {
+          // For COLT, make sure we're using the correct format for the course number
+          // The real URLs use hyphenated format (e.g., 51-01 instead of 51.01)
+          let formattedCourseNum = courseNum;
+          if (courseNum.includes('.')) {
+            formattedCourseNum = courseNum.replace('.', '-');
+          }
+          
+          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-comparative-literature-undergraduate/${deptCode}-${formattedCourseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${url}`);
+          return url;
+        }
+        
         const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-${deptNameInPath}${deptSuffix}/${deptCode}-${courseNum}/`;
         
         // Log for debugging
