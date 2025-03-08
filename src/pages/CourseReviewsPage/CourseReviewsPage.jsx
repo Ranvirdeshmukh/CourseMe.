@@ -3,9 +3,9 @@ import {
   Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip,
   MenuItem, Select, FormControl, InputLabel, CircularProgress, Card, Badge, Tabs, Tab, LinearProgress,
-  TextField, Autocomplete
+  TextField, Autocomplete, Link
 } from '@mui/material';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin, Description, Grade, Input } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
@@ -163,7 +163,8 @@ const CourseReviewsPage = ({ darkMode }) => {
   
     // Check if all parts of the shorter name are in the longer name
     const [shorter, longer] = parts1.length < parts2.length ? [parts1, parts2] : [parts2, parts1];
-    return shorter.every(part => longer.some(longPart => longPart.includes(part)));
+    
+    return shorter.every(part => longer.includes(part));
   };
 
   const handleProfessorChange = (event, newValue) => {
@@ -202,33 +203,87 @@ const CourseReviewsPage = ({ darkMode }) => {
       course.metrics.sentiment_score > 0 ||
       course.metrics.workload_score > 0
     );
+    
+    // Generate ORC link for the current course
+    const orcLink = generateORCLink(courseId);
   
     return (
       <Box sx={{ padding: '20px' }}>
-        {/* 1. Update Typography color for header */}
+        {/* Course Description header */}
         <Typography 
           variant="h6" 
           gutterBottom 
           sx={{ 
             fontWeight: 600, 
-            color: headerTextColor, // Changed from '#1D1D1F' to dynamic variable
+            color: headerTextColor,
           }}
         >
           College Description
         </Typography>
   
-        {/* 2. Update Typography color for description */}
+        {/* Course description content */}
         <Typography
           variant="body1"
           sx={{ 
             fontSize: '0.95rem', 
-            color: textColor,         // Changed from 'text.primary' to dynamic variable
+            color: textColor,
             textAlign: 'left', 
             lineHeight: '1.6',
-            marginBottom: '2rem'
+            marginBottom: '1rem'
           }}
           dangerouslySetInnerHTML={{ __html: courseDescription }}
         />
+        
+        {/* External Links section */}
+        {orcLink && (
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 0.5,
+              mb: 2,
+              mt: 1
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 600,
+                color: headerTextColor,
+              }}
+            >
+              External Links
+            </Typography>
+            
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 2,
+                flexWrap: 'wrap'
+              }}
+            >
+              <Link
+                href={orcLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  fontSize: '0.9rem',
+                  color: darkMode ? '#90caf9' : '#1976d2',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  }
+                }}
+              >
+                <Description fontSize="small" />
+                ORC Course Catalog
+              </Link>
+            </Box>
+          </Box>
+        )}
   
         <Box sx={{ 
           display: 'flex', 
@@ -236,12 +291,12 @@ const CourseReviewsPage = ({ darkMode }) => {
           gap: 2, 
           marginBottom: '1rem'
         }}>
-          {/* 3. Update Typography color for AI Summary header */}
+          {/* AI Summary header */}
           <Typography 
             variant="h6" 
             sx={{ 
               fontWeight: 600, 
-              color: headerTextColor, // Changed from '#1D1D1F' to dynamic variable
+              color: headerTextColor,
             }}
           >
             AI Summary of Reviews
@@ -1137,98 +1192,37 @@ const handleQualityVote = async (voteType) => {
         let instructors = [];
         if (deptCodeMatch && courseNumberMatch) {
           const deptCode = deptCodeMatch[0];
-          const courseNumber = courseNumberMatch[0].replace(/^0+/, '');
-          console.log("fetching current instructors")
-          try {
-            // Check Winter Term
-            const winterTimetableRef = collection(db, 'winterTimetable');
-            console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
-            const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
-            const winterQuerySnapshot = await getDocs(winterQuery);
-            
-            let winterFound = false;
-            winterQuerySnapshot.forEach((doc) => {
-              const data = doc.data();
-              if (data.Instructor) {
-                winterFound = true;
-                if (!instructors.includes(data.Instructor)) {
-                  instructors.push(data.Instructor);
-                }
-              }
-            });
-            
-            // Check Spring Term
-            const springTimetableRef = collection(db, 'springTimetable');
-            const springQuery = query(springTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
-            const springQuerySnapshot = await getDocs(springQuery);
-            
-            let springFound = false;
-            springQuerySnapshot.forEach((doc) => {
-              const data = doc.data();
-              if (data.Instructor) {
-                springFound = true;
-                if (!instructors.includes(data.Instructor)) {
-                  instructors.push(data.Instructor);
-                }
-              }
-            });
-            
-            console.log("Matching instructors:", instructors);
+          // Remove variable declaration to fix redeclaration error
+          let courseNumValue = courseNumberMatch[0].replace(/^0+/, '');
+          if (deptCode && courseNumValue) {
+            console.log("Department:", deptCode, "Course Number:", courseNumValue);
+          }
+          else {
+            console.log("errorsdfasdf;c")
+          }
+          const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumValue}`);
+          console.log("deptCode:", deptCode, "courseNumber:", courseNumValue);
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.content) {
+            setCourseDescription(data.content);
+            setDescriptionError(null);
+            console.log("Fetched course description from Dartmouth website:", data.content);
 
-            setIsTaughtCurrentTerm(winterFound);
-            setIsTaughtSpringTerm(springFound);
-            if (instructors.length > 0) {
-              setCurrentInstructors(instructors);
-            } else {
-              console.log("No instructors found for this course");
-            }
-          } catch (error) {
-            console.error("Error fetching documents:", error);
-          }
-        }
-        // If the description already exists in the document, use it
-        if (courseData.description) {
-          setCourseDescription(courseData.description);
-          setDescriptionError(null);
-          console.log("Course description found in Firestore:", courseData.description);
-        } else {
-          // If the description doesn't exist, fetch it from the Dartmouth website
-  
-          // Extract department code and course number from courseId
-  
-          if (deptCodeMatch && courseNumberMatch) {
-            const deptCode = deptCodeMatch[0];
-            const courseNumber = courseNumberMatch[0];
-            if (deptCode && courseNumber) {
-              console.log("Department:", deptCode, "Course Number:", courseNumber);
-            }
-            else {
-              console.log("errorsdfasdf;c")
-            }
-            const response = await fetch(`${API_URL}/fetch-text?subj=${deptCode}&numb=${courseNumber}`);
-            console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
-            
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.content) {
-              setCourseDescription(data.content);
-              setDescriptionError(null);
-              console.log("Fetched course description from Dartmouth website:", data.content);
-  
-              // Save the fetched description to the 'courses' collection
-              await updateDoc(courseDocRef, { description: data.content });
-              console.log("Saved course description to Firestore in the 'courses' collection");
-            } else {
-              throw new Error('No content in the response');
-            }
+            // Save the fetched description to the 'courses' collection
+            await updateDoc(courseDocRef, { description: data.content });
+            console.log("Saved course description to Firestore in the 'courses' collection");
           } else {
-            throw new Error('Course number or department code not found');
+            throw new Error('No content in the response');
           }
+        } else {
+          throw new Error('Course number or department code not found');
         }
       } else {
         throw new Error('Course not found in Firestore');
@@ -2236,6 +2230,90 @@ useEffect(() => {
       analyzeReviewsForTerms();
     }
   }, [reviews, professorTerms]);
+
+  // Function to generate ORC link for course catalog
+  const generateORCLink = (courseId) => {
+    try {
+      // Extract department code and course number from courseId
+      const courseIdParts = courseId.split('__');
+      const deptCodeMatch = courseIdParts[0].match(/([A-Z]+)/);
+      const courseNumMatch = courseIdParts[0].match(/(\d+)/);
+      
+      if (deptCodeMatch && courseNumMatch) {
+        const deptCode = deptCodeMatch[0].toLowerCase();
+        
+        // Process course number - handle different formats
+        let courseNum = courseNumMatch[0];
+        // Remove leading zeros but preserve single-digit course numbers
+        if (courseNum.length > 1) {
+          courseNum = courseNum.replace(/^0+/, '');
+        }
+        
+        // Map department codes to full department names in the URL
+        const deptUrlMap = {
+          'anth': 'anthropology',
+          'astr': 'astronomy',
+          'biol': 'biology',
+          'chem': 'chemistry',
+          'cosc': 'computer-science',
+          'econ': 'economics',
+          'engl': 'english',
+          'engs': 'engineering-sciences',
+          'envs': 'environmental-studies',
+          'geog': 'geography',
+          'govt': 'government',
+          'hist': 'history',
+          'math': 'mathematics',
+          'phys': 'physics',
+          'psyc': 'psychological-and-brain-sciences',
+          'socy': 'sociology',
+          // Add more mappings as needed for other departments
+        };
+        
+        // List of departments that use "-undergraduate" suffix in their URLs
+        const undergraduateSuffixDepts = [
+          'chem',
+          'cosc',
+          'math',
+          'phys',
+          'engs',
+          'biol',
+          'psyc'
+          // Add more as needed
+        ];
+        
+        // Special case handling for certain departments
+        let deptUrlPath = deptUrlMap[deptCode];
+        
+        // If mapping doesn't exist, handle special cases
+        if (!deptUrlPath) {
+          // For departments with numbers in them like QBS
+          if (deptCode.match(/[a-z]+\d+/i)) {
+            deptUrlPath = deptCode;
+          } else {
+            // Default fallback - just use the department code
+            deptUrlPath = deptCode;
+          }
+        }
+        
+        // Check if this department needs the "-undergraduate" suffix
+        const needsUndergraduateSuffix = undergraduateSuffixDepts.includes(deptCode);
+        
+        // Construct URL with or without "-undergraduate" based on the department
+        const deptSuffix = needsUndergraduateSuffix ? '-undergraduate' : '';
+        const url = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-${deptUrlPath}${deptSuffix}/${deptCode}-${courseNum}/`;
+        
+        // Log for debugging
+        console.log(`Generated ORC link for ${courseId}: ${url}`);
+        
+        return url;
+      }
+    } catch (error) {
+      console.error('Error generating ORC link:', error);
+    }
+    
+    return null;
+  };
 
   return (
     <Box
