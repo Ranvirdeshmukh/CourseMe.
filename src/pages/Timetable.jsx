@@ -23,34 +23,41 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useAuth } from '../contexts/AuthContext';
 
 
-const GoogleCalendarButton = styled(ButtonBase)(({ theme }) => ({
+const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: '#f2f2f2',
+  backgroundColor: darkMode ? '#3b3080' : '#f2f2f2',
   borderRadius: 6,
   height: '32px',
   padding: '0 12px',
-  color: '#1f1f1f',
+  color: darkMode ? '#ffffff' : '#1f1f1f',
   fontFamily: 'Roboto, arial, sans-serif',
   fontSize: '0.82rem',
   letterSpacing: '0.25px',
   textTransform: 'none',
-  boxShadow: '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
+  boxShadow: darkMode 
+    ? '0 1px 3px 0 rgba(0, 0, 0, .5), 0 1px 5px 1px rgba(0, 0, 0, .4)'
+    : '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
   transition: 'all 0.2s ease',
   cursor: 'pointer',
   minWidth: '140px',
+  border: darkMode ? '1px solid #6b46c1' : 'none',
   '&:hover': {
-    backgroundColor: '#e2e2e2',
-    boxShadow: '0 2px 4px rgba(60, 64, 67, .3), 0 3px 6px rgba(60, 64, 67, .15)',
+    backgroundColor: darkMode ? '#4b3da0' : '#e2e2e2',
+    boxShadow: darkMode 
+      ? '0 2px 5px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .4)'
+      : '0 2px 4px rgba(60, 64, 67, .3), 0 3px 6px rgba(60, 64, 67, .15)',
     transform: 'translateY(-1px)',
   },
   '&:active': {
-    backgroundColor: '#d2d2d2',
+    backgroundColor: darkMode ? '#322870' : '#d2d2d2',
     transform: 'translateY(0)',
   },
   '&:focus': {
-    boxShadow: '0 0 0 3px rgba(66, 133, 244, 0.3)',
+    boxShadow: darkMode 
+      ? '0 0 0 3px rgba(187, 134, 252, 0.5)'
+      : '0 0 0 3px rgba(66, 133, 244, 0.3)',
   },
   '& .icon': {
     marginRight: 8,
@@ -1037,13 +1044,14 @@ useEffect(() => {
                           color: darkMode ? '#FFFFFF' : '#1D1D1F',
                           padding: '10px',
                           fontWeight: 400,
+                          // Adds ellipsis (...) if text is too long
                           fontSize: '0.95rem',
                           textAlign: 'left',
                           transition: 'color 0.3s ease',
                           fontFamily: 'SF Pro Display, sans-serif',
                         }}
                       >
-                        {course.room}
+                        {course.room || 'N/A'}
                       </TableCell>
   
                       {/* Building */}
@@ -1052,14 +1060,16 @@ useEffect(() => {
                           color: darkMode ? '#FFFFFF' : '#1D1D1F',
                           padding: '10px',
                           fontWeight: 400,
+                          // Adds ellipsis (...) if text is too long
                           fontSize: '0.95rem',
                           textAlign: 'left',
                           transition: 'color 0.3s ease',
                           fontFamily: 'SF Pro Display, sans-serif',
                         }}
                       >
-                        {course.building}
+                        {course.building || 'N/A'}
                       </TableCell>
+  
   
                       {/* Instructor */}
                       <TableCell
@@ -1090,7 +1100,7 @@ useEffect(() => {
                         }}
                       >
                         {course.period !== 'ARR' && course.period !== 'FS' && (
-                          <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
+                          <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
                             <div className="icon">
                               <GoogleIcon />
                             </div>
@@ -1710,7 +1720,7 @@ useEffect(() => {
                   }}
                 >
                   {course.period !== 'ARR' && course.period !== 'FS' && (
-                    <GoogleCalendarButton onClick={() => handleAddToCalendar(course)}>
+                    <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
                       <div className="icon">
                         <GoogleIcon />
                       </div>
