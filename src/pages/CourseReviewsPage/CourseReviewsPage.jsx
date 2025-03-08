@@ -206,20 +206,66 @@ const CourseReviewsPage = ({ darkMode }) => {
     
     // Generate ORC link for the current course
     const orcLink = generateORCLink(courseId);
+    console.log("Generated ORC link:", orcLink); // Debug log
   
     return (
       <Box sx={{ padding: '20px' }}>
-        {/* Course Description header */}
-        <Typography 
-          variant="h6" 
-          gutterBottom 
-          sx={{ 
-            fontWeight: 600, 
-            color: headerTextColor,
-          }}
-        >
-          College Description
-        </Typography>
+        {/* Course title and ORC link in corner */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'flex-start', 
+          alignItems: 'center',
+          mb: 2,
+          gap: 2
+        }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 600, 
+              color: headerTextColor,
+            }}
+          >
+            College Description
+          </Typography>
+          
+          {orcLink && (
+            <Tooltip 
+              title="View the official information about the course released by college"
+              arrow
+              placement="top"
+              sx={{
+                fontSize: '0.85rem',
+              }}
+            >
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<Description sx={{ fontSize: '1rem' }} />}
+                component="a"
+                href={orcLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  color: darkMode ? '#90caf9' : '#571CE0',
+                  borderColor: darkMode ? 'rgba(144, 202, 249, 0.5)' : 'rgba(87, 28, 224, 0.3)',
+                  textTransform: 'none',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  letterSpacing: '0.02em',
+                  padding: '3px 10px',
+                  borderRadius: '4px',
+                  boxShadow: 'none',
+                  '&:hover': {
+                    borderColor: darkMode ? '#90caf9' : '#571CE0',
+                    backgroundColor: darkMode ? 'rgba(144, 202, 249, 0.08)' : 'rgba(87, 28, 224, 0.04)',
+                  }
+                }}
+              >
+                ORC Catalog
+              </Button>
+            </Tooltip>
+          )}
+        </Box>
   
         {/* Course description content */}
         <Typography
@@ -234,57 +280,6 @@ const CourseReviewsPage = ({ darkMode }) => {
           dangerouslySetInnerHTML={{ __html: courseDescription }}
         />
         
-        {/* External Links section */}
-        {orcLink && (
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: 0.5,
-              mb: 2,
-              mt: 1
-            }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: 600,
-                color: headerTextColor,
-              }}
-            >
-              External Links
-            </Typography>
-            
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 2,
-                flexWrap: 'wrap'
-              }}
-            >
-              <Link
-                href={orcLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  fontSize: '0.9rem',
-                  color: darkMode ? '#90caf9' : '#1976d2',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  textDecoration: 'none',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  }
-                }}
-              >
-                <Description fontSize="small" />
-                ORC Course Catalog
-              </Link>
-            </Box>
-          </Box>
-        )}
-  
         <Box sx={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -2295,7 +2290,7 @@ useEffect(() => {
       // Extract department code and course number from courseId
       const courseIdParts = courseId.split('__');
       const deptCodeMatch = courseIdParts[0].match(/([A-Z]+)/);
-      const courseNumMatch = courseIdParts[0].match(/(\d+)/);
+      const courseNumMatch = courseIdParts[0].match(/(\d+(?:\.\d+)?)/); // Modified to also match decimal numbers
       
       if (deptCodeMatch && courseNumMatch) {
         const deptCode = deptCodeMatch[0].toLowerCase();
@@ -2303,32 +2298,96 @@ useEffect(() => {
         // Process course number - handle different formats
         let courseNum = courseNumMatch[0];
         // Remove leading zeros but preserve single-digit course numbers
-        if (courseNum.length > 1) {
+        if (courseNum.length > 1 && !courseNum.includes('.')) {
           courseNum = courseNum.replace(/^0+/, '');
+        }
+        
+        // List of departments that use decimal-point course numbers
+        const decimalCourseNumDepts = [
+          'ascl',
+          'cosc',
+          'engs',
+          'psyc',
+          'wgss'
+          // Add more as needed
+        ];
+        
+        // Check if this course might need a decimal format
+        if (decimalCourseNumDepts.includes(deptCode) && !courseNum.includes('.')) {
+          // For ASCL and other departments with decimal course numbers
+          // If we have just the integer part, try to append ".01" which is common
+          if (deptCode === 'ascl') {
+            courseNum = `${courseNum}.01`;
+            console.log(`ASCL course detected, trying with decimal: ${courseNum}`);
+          }
         }
         
         // Map department codes to full department names as they appear in the URL
         // These must EXACTLY match the paths in the ORC URLs
         const deptUrlMap = {
-          'aaas': 'african-and-african-american-studies', // Added AAAS mapping
+          'aaas': 'african-and-african-american-studies',
+          'amel': 'asian-and-middle-eastern-languages-and-literatures',
+          'ames': 'asian-and-middle-eastern-studies',
           'anth': 'anthropology',
-          'arth': 'art-history', // Added Art History mapping
+          'arab': 'middle-eastern-studies', // Arabic is under MES
+          'arth': 'art-history',
+          'ascl': 'asian-societies-cultures-and-languages',
           'astr': 'astronomy',
-          'biol': 'biological-sciences', // Fixed: "biology" -> "biological-sciences"
+          'biol': 'biological-sciences',
           'chem': 'chemistry',
+          'chin': 'asian-societies-cultures-and-languages', // Chinese is under ASCL
+          'clst': 'classics-classical-studies-greek-latin',
+          'coco': 'college-courses',
+          'cogs': 'cognitive-science-program',
+          'colt': 'comparative-literature',
           'cosc': 'computer-science',
+          'crwt': 'english-and-creative-writing',
+          'ears': 'earth-sciences',
           'econ': 'economics',
-          'engl': 'english',
+          'educ': 'education',
+          'engl': 'english-and-creative-writing',
           'engs': 'engineering-sciences',
           'envs': 'environmental-studies',
+          'film': 'film-and-media-studies',
+          'fren': 'french-and-italian-languages-and-literatures',
+          'frit': 'french-and-italian-languages-and-literatures',
           'geog': 'geography',
+          'germ': 'german-studies',
           'govt': 'government',
+          'grk': 'classics-classical-studies-greek-latin',
+          'hebr': 'middle-eastern-studies',
           'hist': 'history',
+          'hum': 'humanities',
+          'ints': 'the-john-sloan-dickey-center-for-international-understanding',
+          'ital': 'french-and-italian-languages-and-literatures',
+          'japn': 'asian-societies-cultures-and-languages',
+          'jwst': 'jewish-studies',
+          'lacs': 'latin-american-latino-and-caribbean-studies',
+          'lat': 'classics-classical-studies-greek-latin',
+          'lats': 'latin-american-latino-and-caribbean-studies',
+          'ling': 'linguistics',
           'math': 'mathematics',
-          'phys': 'physics-and-astronomy', // Fixed to match actual URL
+          'mes': 'middle-eastern-studies',
+          'mus': 'music',
+          'nais': 'native-american-and-indigenous-studies',
+          'nas': 'native-american-and-indigenous-studies',
+          'pbpl': 'the-nelson-a-rockefeller-center-for-public-policy',
+          'phil': 'philosophy',
+          'phys': 'physics-and-astronomy',
+          'port': 'spanish-and-portuguese-languages-and-literatures',
           'psyc': 'psychological-and-brain-sciences',
+          'qss': 'quantitative-social-science',
+          'rel': 'religion',
+          'russ': 'east-european-eurasian-and-russian-studies',
+          'sart': 'studio-art',
           'socy': 'sociology',
-          // Add more mappings as needed for other departments
+          'span': 'spanish-and-portuguese-languages-and-literatures',
+          'spee': 'speech',
+          'ssoc': 'social-science',
+          'thea': 'theater',
+          'tuck': 'tuck-undergraduate',
+          'wgss': 'womens-gender-and-sexuality-studies-program',
+          'writ': 'institute-for-writing-and-rhetoric'
         };
         
         // List of departments that use "-undergraduate" suffix in their URLs
@@ -2368,9 +2427,21 @@ useEffect(() => {
         
         // Get the department name for the file path segment
         // Special case for AAAS which has a different pattern
-        let deptNameInPath = deptCode === 'aaas' 
-          ? 'african-and-african-american-studies' 
-          : deptUrlPath;
+        let deptNameInPath;
+        
+        if (deptCode === 'aaas') {
+          deptNameInPath = 'african-and-african-american-studies';
+        } else if (deptCode === 'wgss') {
+          deptNameInPath = 'womens-gender-and-sexuality-studies';
+        } else if (deptCode === 'nas' || deptCode === 'nais') {
+          deptNameInPath = 'native-american-studies';
+        } else if (deptCode === 'tuck') {
+          deptNameInPath = 'tuck-undergraduate';
+        } else if (deptCode === 'chin') {
+          deptNameInPath = 'chinese'; // Fix for Chinese courses
+        } else {
+          deptNameInPath = deptUrlPath;
+        }
         
         // Determine if we need to add the "en" path segment
         const enPath = enPathDepts.includes(deptCode) ? 'en/' : '';
