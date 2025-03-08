@@ -2322,7 +2322,7 @@ useEffect(() => {
           }
         }
         
-        // Map department codes to full department names as they appear in the URL
+          // Map department codes to full department names as they appear in the URL
         // These must EXACTLY match the paths in the ORC URLs
         const deptUrlMap = {
           'aaas': 'african-and-african-american-studies',
@@ -2398,13 +2398,14 @@ useEffect(() => {
           'phys',
           'engs',
           'biol',
-          'psyc'
+          // Removing 'psyc' from this list as it doesn't use -undergraduate in that part of the URL
           // Add more as needed
         ];
         
         // List of departments that need "/en/" in the URL
         const enPathDepts = [
-          'arth'
+          'arth',
+          'grk' // Adding Greek to the departments that need /en/ in the URL
           // Add more as needed
         ];
         
@@ -2448,6 +2449,21 @@ useEffect(() => {
         
         // Construct URL with or without "-undergraduate" based on the department
         const deptSuffix = needsUndergraduateSuffix ? '-undergraduate' : '';
+        
+        // Special case for PSYC - it has a different URL structure
+        if (deptCode === 'psyc') {
+          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-psychological-and-brain-sciences/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${url}`);
+          return url;
+        }
+        
+        // Special case for GRK - it has a different URL structure
+        if (deptCode === 'grk') {
+          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-greek/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${url}`);
+          return url;
+        }
+        
         const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-${deptNameInPath}${deptSuffix}/${deptCode}-${courseNum}/`;
         
         // Log for debugging
