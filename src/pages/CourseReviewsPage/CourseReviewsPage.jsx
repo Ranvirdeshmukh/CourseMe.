@@ -2347,7 +2347,7 @@ useEffect(() => {
           'educ': 'education',
           'engl': 'english-and-creative-writing',
           'engs': 'engineering-sciences',
-          'envs': 'environmental-studies-program', // Fixed: was likely 'environmental-studies'
+          'envs': 'environmental-studies',
           'film': 'film-and-media-studies',
           'fren': 'french-and-italian-languages-and-literatures',
           'frit': 'french-and-italian-languages-and-literatures',
@@ -2398,7 +2398,6 @@ useEffect(() => {
           'phys',
           'engs',
           'biol',
-          'ears', // Adding Earth Sciences to the list
           // Removing 'psyc' from this list as it doesn't use -undergraduate in that part of the URL
           // Add more as needed
         ];
@@ -2534,13 +2533,6 @@ useEffect(() => {
             console.log(`Generated ORC link for ${courseId}: ${govtUrl}`);
             return govtUrl;
           }
-        }
-        
-        // Special case for ENVS - ensure it uses the correct path
-        if (deptCode === 'envs') {
-          const envsUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/environmental-studies-program/envs-environmental-studies/${deptCode}-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${envsUrl}`);
-          return envsUrl;
         }
         
         const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-${deptNameInPath}${deptSuffix}/${deptCode}-${courseNum}/`;
@@ -2921,6 +2913,13 @@ useEffect(() => {
               key={index}
               component={Link}
               to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
+              onClick={(e) => {
+                // Ensure link navigation works
+                if (!e.defaultPrevented) {
+                  e.preventDefault();
+                  window.location.href = `/departments/${department}/courses/${courseId}/professors/${professor}`;
+                }
+              }}
               sx={{
                 backgroundColor: isBothTerms
                   ? (darkMode ? '#2C2F73' : '#D0E0FF') // Highlighted color for both terms
