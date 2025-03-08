@@ -2464,6 +2464,13 @@ useEffect(() => {
           return url;
         }
         
+        // Special case for LAT - it has a different URL structure
+        if (deptCode === 'lat') {
+          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-latin/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${url}`);
+          return url;
+        }
+        
         const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-${deptNameInPath}${deptSuffix}/${deptCode}-${courseNum}/`;
         
         // Log for debugging
