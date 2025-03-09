@@ -2386,7 +2386,7 @@ useEffect(() => {
           'ssoc': 'social-science',
           'thea': 'theater',
           'tuck': 'tuck-undergraduate',
-          'wgss': 'womens-gender-and-sexuality-studies-program',
+          'wgss': 'womens-gender-and-sexualities-studies-program',
           'writ': 'institute-for-writing-and-rhetoric'
         };
         
@@ -2435,7 +2435,7 @@ useEffect(() => {
         if (deptCode === 'aaas') {
           deptNameInPath = 'african-and-african-american-studies';
         } else if (deptCode === 'wgss') {
-          deptNameInPath = 'womens-gender-and-sexuality-studies';
+          deptNameInPath = 'womens-gender-and-sexualities-studies';
         } else if (deptCode === 'nas' || deptCode === 'nais') {
           deptNameInPath = 'native-american-studies';
         } else if (deptCode === 'tuck') {
@@ -2615,6 +2615,13 @@ useEffect(() => {
           const fritUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/french-and-italian-languages-and-literatures/${deptCode}-french-and-italian-in-translation/${deptCode}-${formattedCourseNum}/`;
           console.log(`Generated ORC link for ${courseId}: ${fritUrl}`);
           return fritUrl;
+        }
+        
+        // Special case for PBPL - Public Policy courses
+        if (deptCode === 'pbpl') {
+          const pbplUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/the-nelson-a-rockefeller-center-for-public-policy/public-policy-minor/pbpl-public-policy/pbpl-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${pbplUrl}`);
+          return pbplUrl;
         }
         
         // Special case for GOVT - it has different URL structures based on course number ranges
