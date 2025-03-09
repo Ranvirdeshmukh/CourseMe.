@@ -2492,6 +2492,13 @@ useEffect(() => {
           return url;
         }
         
+        // Special case for CLST - it has a different URL structure
+        if (deptCode === 'clst') {
+          const clstUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/clst-classical-studies/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${clstUrl}`);
+          return clstUrl;
+        }
+        
         // Special case for GOVT - it has different URL structures based on course number ranges
         if (deptCode === 'govt') {
           // Convert course number to number for range comparisons
