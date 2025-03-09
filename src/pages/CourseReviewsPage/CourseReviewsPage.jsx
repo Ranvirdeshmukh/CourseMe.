@@ -2347,7 +2347,7 @@ useEffect(() => {
           'educ': 'education',
           'engl': 'english-and-creative-writing',
           'engs': 'engineering-sciences',
-          'envs': 'environmental-studies',
+          'envs': 'environmental-studies-program', // Updated path for Environmental Studies
           'film': 'film-and-media-studies',
           'fren': 'french-and-italian-languages-and-literatures',
           'frit': 'french-and-italian-languages-and-literatures',
@@ -2405,7 +2405,9 @@ useEffect(() => {
         // List of departments that need "/en/" in the URL
         const enPathDepts = [
           'arth',
-          'grk' // Adding Greek to the departments that need /en/ in the URL
+          'grk', // Adding Greek to the departments that need /en/ in the URL
+          'span', // Adding Spanish to the departments that need /en/ in the URL
+          'envs', // Adding Environmental Studies to the departments that need /en/ in the URL
           // Add more as needed
         ];
         
@@ -2440,6 +2442,8 @@ useEffect(() => {
           deptNameInPath = 'tuck-undergraduate';
         } else if (deptCode === 'chin') {
           deptNameInPath = 'chinese'; // Fix for Chinese courses
+        } else if (deptCode === 'span') {
+          deptNameInPath = 'spanish'; // Fix for Spanish courses
         } else {
           deptNameInPath = deptUrlPath;
         }
@@ -2504,6 +2508,74 @@ useEffect(() => {
           const astrUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/physics-and-astronomy/astr-astronomy-undergraduate/${deptCode}-${courseNum}/`;
           console.log(`Generated ORC link for ${courseId}: ${astrUrl}`);
           return astrUrl;
+        }
+        
+        // Special case for SPAN - it has a different URL structure than PORT
+        if (deptCode === 'span') {
+          // Format course number - convert decimal to hyphen
+          let formattedCourseNum = courseNum;
+          if (courseNum.includes('.')) {
+            formattedCourseNum = courseNum.replace('.', '-');
+          }
+          
+          const spanUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/spanish-and-portuguese-languages-and-literatures/${deptCode}-spanish/${deptCode}-${formattedCourseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${spanUrl}`);
+          return spanUrl;
+        }
+        
+        // Special case for PORT - add this if needed
+        if (deptCode === 'port') {
+          const portUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/spanish-and-portuguese-languages-and-literatures/${deptCode}-portuguese/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${portUrl}`);
+          return portUrl;
+        }
+        
+        // Special case for ENVS - it has a different URL structure
+        if (deptCode === 'envs') {
+          const envsUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/environmental-studies-program/${deptCode}-environmental-studies/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${envsUrl}`);
+          return envsUrl;
+        }
+        
+        // Special case for MUS - it has a different URL structure with course ranges
+        if (deptCode === 'mus') {
+          // Convert course number to number for range comparisons
+          // Handle decimal course numbers (e.g., 3.02)
+          const courseNumBase = courseNum.includes('.') ? 
+            parseInt(courseNum.split('.')[0]) : 
+            parseInt(courseNum);
+          
+          let rangeSegment = '';
+          
+          // Determine range segment based on course number
+          if (courseNumBase >= 1 && courseNumBase <= 19) {
+            rangeSegment = 'mus-1-mus-19';
+          } else if (courseNumBase >= 20 && courseNumBase <= 39) {
+            rangeSegment = 'mus-20-mus-39';
+          } else if (courseNumBase >= 40 && courseNumBase <= 49) {
+            rangeSegment = 'mus-40-mus-49';
+          } else if (courseNumBase >= 50 && courseNumBase <= 52) {
+            rangeSegment = 'mus-50-mus-52';
+          } else if (courseNumBase >= 53 && courseNumBase <= 69) {
+            rangeSegment = 'mus-53-mus-69';
+          } else if (courseNumBase >= 70 && courseNumBase <= 79) {
+            rangeSegment = 'mus-70-mus-79-foreign-study-courses';
+          } else if (courseNumBase >= 80 && courseNumBase <= 99) {
+            rangeSegment = 'mus-80-mus-99';
+          }
+          
+          // Format course number for URL
+          let formattedCourseNum = courseNum;
+          if (courseNum.includes('.')) {
+            formattedCourseNum = courseNum.replace('.', '-');
+          }
+          
+          // If we identified a valid range, use it in the URL
+          if (rangeSegment) {
+            const musUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/music/${deptCode}-music-undergraduate-courses/${rangeSegment}/${deptCode}-${formattedCourseNum}/`;
+            console.log(`Generated ORC link for ${courseId}: ${musUrl}`);
+            return musUrl;
+          }
         }
         
         // Special case for GOVT - it has different URL structures based on course number ranges
