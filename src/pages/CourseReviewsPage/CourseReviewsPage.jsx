@@ -2322,7 +2322,7 @@ useEffect(() => {
           }
         }
         
-          // Map department codes to full department names as they appear in the URL
+        // Map department codes to full department names as they appear in the URL
         // These must EXACTLY match the paths in the ORC URLs
         const deptUrlMap = {
           'aaas': 'african-and-african-american-studies',
@@ -2386,7 +2386,7 @@ useEffect(() => {
           'ssoc': 'social-science',
           'thea': 'theater',
           'tuck': 'tuck-undergraduate',
-          'wgss': 'womens-gender-and-sexuality-studies-program',
+          'wgss': 'womens-gender-and-sexualities-studies-program',
           'writ': 'institute-for-writing-and-rhetoric'
         };
         
@@ -2398,6 +2398,7 @@ useEffect(() => {
           'phys',
           'engs',
           'biol',
+          'ears',
           // Removing 'psyc' from this list as it doesn't use -undergraduate in that part of the URL
           // Add more as needed
         ];
@@ -2435,7 +2436,7 @@ useEffect(() => {
         if (deptCode === 'aaas') {
           deptNameInPath = 'african-and-african-american-studies';
         } else if (deptCode === 'wgss') {
-          deptNameInPath = 'womens-gender-and-sexuality-studies';
+          deptNameInPath = 'womens-gender-and-sexualities-studies';
         } else if (deptCode === 'nas' || deptCode === 'nais') {
           deptNameInPath = 'native-american-studies';
         } else if (deptCode === 'tuck') {
@@ -2617,6 +2618,43 @@ useEffect(() => {
           return fritUrl;
         }
         
+        // Special case for PBPL - Public Policy courses
+        if (deptCode === 'pbpl') {
+          const pbplUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/the-nelson-a-rockefeller-center-for-public-policy/public-policy-minor/pbpl-public-policy/pbpl-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${pbplUrl}`);
+          return pbplUrl;
+        }
+        
+        // Special case for HEBR - Hebrew courses
+        if (deptCode === 'hebr') {
+          const hebrUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/middle-eastern-studies/hebr-hebrew/hebr-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${hebrUrl}`);
+          return hebrUrl;
+        }
+        
+        // Special case for ARAB - Arabic courses
+        if (deptCode === 'arab') {
+          const arabUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/middle-eastern-studies/arab-arabic/arab-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${arabUrl}`);
+          return arabUrl;
+        }
+        
+        // Special case for MES - Middle Eastern Studies courses
+        if (deptCode === 'mes') {
+          // Format course number for URL - MES courses use decimal format
+          let formattedCourseNum = courseNum;
+          // If the course number doesn't already have a decimal point, add ".01"
+          if (!formattedCourseNum.includes('.')) {
+            formattedCourseNum += '.01';
+          }
+          // Convert decimal point to hyphen for URL format
+          formattedCourseNum = formattedCourseNum.replace('.', '-');
+          
+          const mesUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/middle-eastern-studies/mes-middle-eastern-studies/mes-${formattedCourseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${mesUrl}`);
+          return mesUrl;
+        }
+        
         // Special case for GOVT - it has different URL structures based on course number ranges
         if (deptCode === 'govt') {
           // Convert course number to number for range comparisons
@@ -2667,11 +2705,11 @@ useEffect(() => {
         
         return url;
       }
+      return null;
     } catch (error) {
       console.error('Error generating ORC link:', error);
+      return null;
     }
-    
-    return null;
   };
 
   return (
