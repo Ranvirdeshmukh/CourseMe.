@@ -2537,6 +2537,47 @@ useEffect(() => {
           return envsUrl;
         }
         
+        // Special case for MUS - it has a different URL structure with course ranges
+        if (deptCode === 'mus') {
+          // Convert course number to number for range comparisons
+          // Handle decimal course numbers (e.g., 3.02)
+          const courseNumBase = courseNum.includes('.') ? 
+            parseInt(courseNum.split('.')[0]) : 
+            parseInt(courseNum);
+          
+          let rangeSegment = '';
+          
+          // Determine range segment based on course number
+          if (courseNumBase >= 1 && courseNumBase <= 19) {
+            rangeSegment = 'mus-1-mus-19';
+          } else if (courseNumBase >= 20 && courseNumBase <= 39) {
+            rangeSegment = 'mus-20-mus-39';
+          } else if (courseNumBase >= 40 && courseNumBase <= 49) {
+            rangeSegment = 'mus-40-mus-49';
+          } else if (courseNumBase >= 50 && courseNumBase <= 52) {
+            rangeSegment = 'mus-50-mus-52';
+          } else if (courseNumBase >= 53 && courseNumBase <= 69) {
+            rangeSegment = 'mus-53-mus-69';
+          } else if (courseNumBase >= 70 && courseNumBase <= 79) {
+            rangeSegment = 'mus-70-mus-79-foreign-study-courses';
+          } else if (courseNumBase >= 80 && courseNumBase <= 99) {
+            rangeSegment = 'mus-80-mus-99';
+          }
+          
+          // Format course number for URL
+          let formattedCourseNum = courseNum;
+          if (courseNum.includes('.')) {
+            formattedCourseNum = courseNum.replace('.', '-');
+          }
+          
+          // If we identified a valid range, use it in the URL
+          if (rangeSegment) {
+            const musUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/music/${deptCode}-music-undergraduate-courses/${rangeSegment}/${deptCode}-${formattedCourseNum}/`;
+            console.log(`Generated ORC link for ${courseId}: ${musUrl}`);
+            return musUrl;
+          }
+        }
+        
         // Special case for GOVT - it has different URL structures based on course number ranges
         if (deptCode === 'govt') {
           // Convert course number to number for range comparisons
