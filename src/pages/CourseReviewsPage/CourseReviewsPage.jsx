@@ -2405,7 +2405,8 @@ useEffect(() => {
         // List of departments that need "/en/" in the URL
         const enPathDepts = [
           'arth',
-          'grk' // Adding Greek to the departments that need /en/ in the URL
+          'grk', // Adding Greek to the departments that need /en/ in the URL
+          'span', // Adding Spanish to the departments that need /en/ in the URL
           // Add more as needed
         ];
         
@@ -2440,6 +2441,8 @@ useEffect(() => {
           deptNameInPath = 'tuck-undergraduate';
         } else if (deptCode === 'chin') {
           deptNameInPath = 'chinese'; // Fix for Chinese courses
+        } else if (deptCode === 'span') {
+          deptNameInPath = 'spanish'; // Fix for Spanish courses
         } else {
           deptNameInPath = deptUrlPath;
         }
@@ -2504,6 +2507,26 @@ useEffect(() => {
           const astrUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/physics-and-astronomy/astr-astronomy-undergraduate/${deptCode}-${courseNum}/`;
           console.log(`Generated ORC link for ${courseId}: ${astrUrl}`);
           return astrUrl;
+        }
+        
+        // Special case for SPAN - it has a different URL structure than PORT
+        if (deptCode === 'span') {
+          // Format course number - convert decimal to hyphen
+          let formattedCourseNum = courseNum;
+          if (courseNum.includes('.')) {
+            formattedCourseNum = courseNum.replace('.', '-');
+          }
+          
+          const spanUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/spanish-and-portuguese-languages-and-literatures/${deptCode}-spanish/${deptCode}-${formattedCourseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${spanUrl}`);
+          return spanUrl;
+        }
+        
+        // Special case for PORT - add this if needed
+        if (deptCode === 'port') {
+          const portUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/spanish-and-portuguese-languages-and-literatures/${deptCode}-portuguese/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${portUrl}`);
+          return portUrl;
         }
         
         // Special case for GOVT - it has different URL structures based on course number ranges
