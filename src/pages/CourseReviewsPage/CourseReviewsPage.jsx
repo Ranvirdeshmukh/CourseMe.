@@ -2578,6 +2578,45 @@ useEffect(() => {
           }
         }
         
+        // Special case for ITAL - it has a different URL structure
+        if (deptCode === 'ital') {
+          // Format course number for URL
+          let formattedCourseNum = courseNum;
+          if (courseNum.includes('.')) {
+            formattedCourseNum = courseNum.replace('.', '-');
+          }
+          
+          const italUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/french-and-italian-languages-and-literatures/${deptCode}-italian/${deptCode}-${formattedCourseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${italUrl}`);
+          return italUrl;
+        }
+        
+        // Special case for FREN - add French handling similar to Italian
+        if (deptCode === 'fren') {
+          // Format course number for URL
+          let formattedCourseNum = courseNum;
+          if (courseNum.includes('.')) {
+            formattedCourseNum = courseNum.replace('.', '-');
+          }
+          
+          const frenUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/french-and-italian-languages-and-literatures/${deptCode}-french/${deptCode}-${formattedCourseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${frenUrl}`);
+          return frenUrl;
+        }
+        
+        // Special case for FRIT - French and Italian in Translation
+        if (deptCode === 'frit') {
+          // Format course number for URL
+          let formattedCourseNum = courseNum;
+          if (courseNum.includes('.')) {
+            formattedCourseNum = courseNum.replace('.', '-');
+          }
+          
+          const fritUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/french-and-italian-languages-and-literatures/${deptCode}-french-and-italian-in-translation/${deptCode}-${formattedCourseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${fritUrl}`);
+          return fritUrl;
+        }
+        
         // Special case for GOVT - it has different URL structures based on course number ranges
         if (deptCode === 'govt') {
           // Convert course number to number for range comparisons
