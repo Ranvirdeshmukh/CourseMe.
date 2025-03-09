@@ -2332,7 +2332,7 @@ useEffect(() => {
           'arab': 'middle-eastern-studies', // Arabic is under MES
           'arth': 'art-history',
           'ascl': 'asian-societies-cultures-and-languages',
-          'astr': 'astronomy',
+          'astr': 'physics-and-astronomy', // Updated from 'astronomy' to 'physics-and-astronomy'
           'biol': 'biological-sciences',
           'chem': 'chemistry',
           'chin': 'asian-societies-cultures-and-languages', // Chinese is under ASCL
@@ -2497,6 +2497,13 @@ useEffect(() => {
           const clstUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/clst-classical-studies/${deptCode}-${courseNum}/`;
           console.log(`Generated ORC link for ${courseId}: ${clstUrl}`);
           return clstUrl;
+        }
+        
+        // Special case for ASTR - it has a different URL structure
+        if (deptCode === 'astr') {
+          const astrUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/physics-and-astronomy/astr-astronomy-undergraduate/${deptCode}-${courseNum}/`;
+          console.log(`Generated ORC link for ${courseId}: ${astrUrl}`);
+          return astrUrl;
         }
         
         // Special case for GOVT - it has different URL structures based on course number ranges
