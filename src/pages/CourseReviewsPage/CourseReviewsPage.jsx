@@ -3,9 +3,9 @@ import {
   Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, List, ListItem, ListItemText, Button, ButtonGroup, IconButton, Tooltip,
   MenuItem, Select, FormControl, InputLabel, CircularProgress, Card, Badge, Tabs, Tab, LinearProgress,
-  TextField, Autocomplete, Link
+  TextField, Autocomplete, Link as MuiLink
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin, Description, Grade, Input } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
@@ -2912,13 +2912,10 @@ useEffect(() => {
             <TableRow
               key={index}
               component={Link}
-              to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
-              onClick={(e) => {
-                // Ensure link navigation works
-                if (!e.defaultPrevented) {
-                  e.preventDefault();
-                  window.location.href = `/departments/${department}/courses/${courseId}/professors/${professor}`;
-                }
+              to={`/departments/${department}/courses/${courseId}/professors/${encodeURIComponent(professor)}`}
+              onClick={() => {
+                // Only smooth scroll to top for better UX
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               sx={{
                 backgroundColor: isBothTerms
