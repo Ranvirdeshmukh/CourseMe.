@@ -2914,11 +2914,8 @@ useEffect(() => {
               component={Link}
               to={`/departments/${department}/courses/${courseId}/professors/${professor}`}
               onClick={(e) => {
-                // Ensure link navigation works
-                if (!e.defaultPrevented) {
-                  e.preventDefault();
-                  window.location.href = `/departments/${department}/courses/${courseId}/professors/${professor}`;
-                }
+                // Remove the manual navigation and let Link component handle it naturally
+                // This prevents full page reload and should eliminate the lag
               }}
               sx={{
                 backgroundColor: isBothTerms
