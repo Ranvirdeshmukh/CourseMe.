@@ -2398,6 +2398,7 @@ useEffect(() => {
           'phys',
           'engs',
           'biol',
+          'ears',
           // Removing 'psyc' from this list as it doesn't use -undergraduate in that part of the URL
           // Add more as needed
         ];
