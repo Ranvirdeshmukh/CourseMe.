@@ -727,39 +727,7 @@ const LandingPage = ({ darkMode }) => {
           </ButtonBase>
 
           {/* CORA 1.0 Beta */}
-          <ButtonBase
-            onClick={() => (currentUser ? navigate('/major-tracker') : handleLoginRedirect())}
-            sx={{
-              position: 'relative',
-              width: { xs: '140px', sm: '160px', md: '200px' },
-              height: { xs: '150px', sm: '170px', md: '180px' },
-              backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-              backgroundImage: darkMode
-                ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
-                : 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '12px',
-              boxShadow: darkMode
-                ? '0 8px 16px rgba(87, 28, 224, 0.2)'
-                : '0 8px 16px rgba(0, 0, 0, 0.1)',
-              padding: '10px',
-              transition:
-                'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
-              '&:hover': {
-                backgroundColor: darkMode ? 'transparent' : '#ececec',
-                backgroundImage: darkMode
-                  ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
-                  : 'none',
-                boxShadow: darkMode
-                  ? '0 12px 24px rgba(87, 28, 224, 0.3)'
-                  : '0 12px 24px rgba(0, 0, 0, 0.2)',
-                transform: 'translateY(-5px)',
-              },
-            }}
-          >
+          <Box sx={{ position: 'relative', display: 'inline-block' }}>
             {/* Ribbon */}
             <Box
               sx={{
@@ -793,144 +761,176 @@ const LandingPage = ({ darkMode }) => {
               New
             </Box>
 
-            <Typography
-              variant="h3"
+            <ButtonBase
+              onClick={() => (currentUser ? navigate('/major-tracker') : handleLoginRedirect())}
               sx={{
-                fontSize: '1.5rem',
-                mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
+                width: { xs: '140px', sm: '160px', md: '200px' },
+                height: { xs: '150px', sm: '170px', md: '180px' },
+                backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+                backgroundImage: darkMode
+                  ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+                  : 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: '12px',
+                boxShadow: darkMode
+                  ? '0 8px 16px rgba(87, 28, 224, 0.2)'
+                  : '0 8px 16px rgba(0, 0, 0, 0.1)',
+                padding: '10px',
+                transition:
+                  'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
+                '&:hover': {
+                  backgroundColor: darkMode ? 'transparent' : '#ececec',
+                  backgroundImage: darkMode
+                    ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
+                    : 'none',
+                  boxShadow: darkMode
+                    ? '0 12px 24px rgba(87, 28, 224, 0.3)'
+                    : '0 12px 24px rgba(0, 0, 0, 0.2)',
+                  transform: 'translateY(-5px)',
+                },
               }}
             >
-              🤖
-            </Typography>
-            <Typography
-              variant="h6"
+              <Typography
+                variant="h3"
+                sx={{
+                  fontSize: '1.5rem',
+                  mb: '8px',
+                  color: darkMode ? '#FFFFFF' : '#000000',
+                }}
+              >
+                🤖
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  color: darkMode ? '#FFFFFF' : '#000000',
+                }}
+              >
+                CORA 1.0
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                  color: darkMode ? '#CCCCCC' : '#666666',
+                  mt: '4px',
+                  textAlign: 'center',
+                }}
+              >
+                Your AI college advisor and major planning tool<span style={{ color: '#F26655' }}>.</span>
+              </Typography>
+            </ButtonBase>
+          </Box>
+
+          {/* Notifications Button */}
+          <Box sx={{ position: 'relative', display: 'inline-block' }}>
+            {/* Trending Ribbon */}
+            <Box
               sx={{
-                fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
-                fontWeight: '600',
+                position: 'absolute',
+                top: { xs: '12px', sm: '20px' },
+                left: { xs: '-5px', sm: '-10px' },
+                transform: 'rotate(-45deg)',
+                bgcolor: darkMode ? '#FF5722' : '#00693E',
+                color: '#fff',
+                px: 1,
+                py: 0.5,
+                borderRadius: '4px',
+                fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                fontWeight: 'bold',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                zIndex: 1,
+                animation: 'pulse 2s infinite',
+                '@keyframes pulse': {
+                  '0%': { transform: 'rotate(-45deg) scale(1)' },
+                  '50%': { transform: 'rotate(-45deg) scale(1.1)' },
+                  '100%': { transform: 'rotate(-45deg) scale(1)' },
+                },
+                width: { xs: '70px', sm: '80px' },
+                height: { xs: '18px', sm: '20px' },
                 textAlign: 'center',
-                color: darkMode ? '#FFFFFF' : '#000000',
               }}
             >
-              CORA 1.0
-            </Typography>
-            <Typography
-              variant="body2"
+              Trending
+            </Box>
+
+            <ButtonBase
+              onClick={() => (currentUser ? navigate('/timetable') : handleLoginRedirect())}
               sx={{
-                fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                color: darkMode ? '#CCCCCC' : '#666666',
-                mt: '4px',
-                textAlign: 'center',
+                width: { xs: '140px', sm: '160px', md: '200px' },
+                height: { xs: '150px', sm: '170px', md: '180px' },
+                backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
+                backgroundImage: darkMode
+                  ? 'linear-gradient(135deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
+                  : 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: '12px',
+                boxShadow: darkMode
+                  ? '0 8px 16px rgba(87, 28, 224, 0.2)'
+                  : '0 8px 16px rgba(0, 0, 0, 0.1)',
+                padding: '10px',
+                transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
+                '&:hover': {
+                  backgroundColor: darkMode ? 'transparent' : '#ececec',
+                  backgroundImage: darkMode
+                    ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
+                    : 'none',
+                  boxShadow: darkMode
+                    ? '0 12px 24px rgba(87, 28, 224, 0.3)'
+                    : '0 12px 24px rgba(0, 0, 0, 0.2)',
+                  transform: 'translateY(-5px)',
+                },
               }}
             >
-              Your AI college advisor and major planning tool<span style={{ color: '#F26655' }}>.</span>
-            </Typography>
-          </ButtonBase>
+              {/* Icon */}
+              <Typography
+                variant="h3"
+                sx={{
+                  fontSize: '1.5rem',
+                  mb: '8px',
+                  color: darkMode ? '#FFFFFF' : '#000000',
+                }}
+              >
+                🔔
+              </Typography>
 
+              {/* Title */}
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  color: darkMode ? '#FFFFFF' : '#000000',
+                }}
+              >
+                Notifications
+              </Typography>
 
- <Box sx={{ position: 'relative', display: 'inline-block' }}>
-  {/* Trending Ribbon */}
-   <Box
-    sx={{
-      position: 'absolute',
-      top: { xs: '12px', sm: '20px' }, // Adjust ribbon's top position for smaller screens
-      left: { xs: '-5px', sm: '-10px' }, // Adjust ribbon's left position for smaller screens
-      transform: 'rotate(-45deg)', // Keep ribbon rotation
-      bgcolor: darkMode ? '#FF5722' : '#00693E', // Change color based on dark mode
-      color: '#fff',
-      px: 1,
-      py: 0.5,
-      borderRadius: '4px',
-      fontSize: { xs: '0.65rem', sm: '0.75rem' }, // Smaller font size for mobile
-      fontWeight: 'bold',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-      zIndex: 1,
-      animation: 'pulse 2s infinite',
-      '@keyframes pulse': {
-        '0%': { transform: 'rotate(-45deg) scale(1)' },
-        '50%': { transform: 'rotate(-45deg) scale(1.1)' },
-        '100%': { transform: 'rotate(-45deg) scale(1)' },
-      },
-      width: { xs: '70px', sm: '80px' }, // Adjust width for mobile
-      height: { xs: '18px', sm: '20px' }, // Adjust height for mobile
-      textAlign: 'center',
-    }}
-  >
-    Trending
-  </Box>
-
-  {/* Notifications Button */}
-  <ButtonBase
-    onClick={() => (currentUser ? navigate('/timetable') : handleLoginRedirect())}
-    sx={{
-      width: { xs: '140px', sm: '160px', md: '200px' },
-      height: { xs: '150px', sm: '170px', md: '180px' },
-      backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-      backgroundImage: darkMode
-        ? 'linear-gradient(135deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
-        : 'none',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: '12px',
-      boxShadow: darkMode
-        ? '0 8px 16px rgba(87, 28, 224, 0.2)'
-        : '0 8px 16px rgba(0, 0, 0, 0.1)',
-      padding: '10px',
-      transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
-      '&:hover': {
-        backgroundColor: darkMode ? 'transparent' : '#ececec',
-        backgroundImage: darkMode
-          ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
-          : 'none',
-        boxShadow: darkMode
-          ? '0 12px 24px rgba(87, 28, 224, 0.3)'
-          : '0 12px 24px rgba(0, 0, 0, 0.2)',
-        transform: 'translateY(-5px)',
-      },
-    }}
-  >
-    {/* Icon */}
-    <Typography
-      variant="h3"
-      sx={{
-        fontSize: '1.5rem',
-        mb: '8px',
-        color: darkMode ? '#FFFFFF' : '#000000',
-      }}
-    >
-      🔔
-    </Typography>
-
-    {/* Title */}
-    <Typography
-      variant="h6"
-      sx={{
-        fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
-        fontWeight: '600',
-        textAlign: 'center',
-        color: darkMode ? '#FFFFFF' : '#000000',
-      }}
-    >
-      Notifications
-    </Typography>
-
-    {/* Description */}
-    <Typography
-      variant="body2"
-      sx={{
-        fontSize: { xs: '0.75rem', sm: '0.85rem' },
-        color: darkMode ? '#CCCCCC' : '#666666',
-        mt: '4px',
-        textAlign: 'center',
-      }}
-    >
-      Get notified for add/drop starting 8:00 AM Feb 28th for spring 2025
-      <span style={{ color: '#F26655' }}>.</span>
-    </Typography>
-  </ButtonBase>
-</Box>
+              {/* Description */}
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                  color: darkMode ? '#CCCCCC' : '#666666',
+                  mt: '4px',
+                  textAlign: 'center',
+                }}
+              >
+                Get notified for add/drop starting 8:00 AM Feb 28th for spring 2025
+                <span style={{ color: '#F26655' }}>.</span>
+              </Typography>
+            </ButtonBase>
+          </Box>
 
           {/* Profile */}
           <ButtonBase
