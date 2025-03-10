@@ -876,6 +876,7 @@ const CourseReviewsPage = ({ darkMode }) => {
   // Extract term codes from reviews for each professor
   const extractProfessorTerms = (reviews) => {
     const professorTerms = {};
+    console.log("Extracting professor terms from", reviews.length, "reviews");
     
     reviews.forEach(review => {
       const { instructor, review: reviewText } = review;
@@ -886,7 +887,11 @@ const CourseReviewsPage = ({ darkMode }) => {
         /^(\d{2}[WSXF])\s+with/i,  // "21W with"
         /^(\d{2}[WSXF]):/i,        // "21W:"
         /^([WSXF]\d{2})\s+with/i,  // "W21 with"
-        /^(\d{2}[WSXF])/i          // Just "21W" at start
+        /^(\d{2}[WSXF])/i,         // Just "21W" at start
+        /\b(\d{2}[WSXF])\b/i,      // Any "21W" in the text surrounded by word boundaries
+        /\b([WSXF]\d{2})\b/i,      // Any "W21" in the text surrounded by word boundaries
+        /\b(winter|spring|summer|fall)[\s\-]*(20|19)(\d{2})\b/i, // "Winter 2021" or "Fall 2019"
+        /\b(20|19)(\d{2})[\s\-]*(winter|spring|summer|fall)\b/i  // "2021 Winter" or "2019 Fall"
       ];
       
       let termCode = null;
@@ -895,14 +900,29 @@ const CourseReviewsPage = ({ darkMode }) => {
       for (const pattern of termPatterns) {
         const match = reviewText.match(pattern);
         if (match && match[1]) {
-          // Standardize format to YYT (e.g., 21W)
-          if (match[1].match(/^[WSXF]\d{2}/)) {
-            // If format is T21, convert to 21T
-            const term = match[1].charAt(0);
-            const year = match[1].substring(1);
-            termCode = year + term;
+          // Check if it's a term word like "winter" or "spring"
+          if (match[1].toLowerCase().match(/winter|spring|summer|fall/i)) {
+            const season = match[1].toLowerCase();
+            let seasonCode;
+            switch(season) {
+              case 'winter': seasonCode = 'W'; break;
+              case 'spring': seasonCode = 'S'; break;
+              case 'summer': seasonCode = 'X'; break;
+              case 'fall': seasonCode = 'F'; break;
+              default: seasonCode = '';
+            }
+            // Extract year from the match - position depends on the pattern
+            const year = match[3] || match[2];
+            termCode = year + seasonCode;
           } else {
-            termCode = match[1];
+            // If format is T21, convert to 21T
+            if (match[1].match(/^[WSXF]\d{2}/)) {
+              const term = match[1].charAt(0);
+              const year = match[1].substring(1);
+              termCode = year + term;
+            } else {
+              termCode = match[1];
+            }
           }
           break;
         }
@@ -936,7 +956,9 @@ const CourseReviewsPage = ({ darkMode }) => {
         professorTerms[instructor].add(termCode);
         
         // Log successful extraction for debugging
-        console.log(`Extracted term ${termCode} for professor ${instructor}`);
+        console.log(`Extracted term ${termCode} for professor ${instructor} from review: "${reviewText.substring(0, 50)}..."`);
+      } else {
+        console.log(`Failed to extract term for professor ${instructor} from review starting with: "${reviewText.substring(0, 50)}..."`);
       }
     });
     
@@ -952,6 +974,7 @@ const CourseReviewsPage = ({ darkMode }) => {
     
     // Add current term data from winterInstructors and springInstructors
     const currentYear = new Date().getFullYear().toString().substring(2);
+    console.log("Current year for term codes:", currentYear);
     
     winterInstructors.forEach(instructor => {
       if (!professorTerms[instructor]) {
@@ -961,6 +984,7 @@ const CourseReviewsPage = ({ darkMode }) => {
       const winterTerm = currentYear + 'W';
       if (!professorTerms[instructor].includes(winterTerm)) {
         professorTerms[instructor].unshift(winterTerm);
+        console.log(`Added current Winter term ${winterTerm} for professor ${instructor}`);
       }
     });
     
@@ -972,9 +996,11 @@ const CourseReviewsPage = ({ darkMode }) => {
       const springTerm = currentYear + 'S';
       if (!professorTerms[instructor].includes(springTerm)) {
         professorTerms[instructor].unshift(springTerm);
+        console.log(`Added current Spring term ${springTerm} for professor ${instructor}`);
       }
     });
     
+    console.log("Final professorTerms:", professorTerms);
     return professorTerms;
   };
 
@@ -1015,6 +1041,33 @@ const CourseReviewsPage = ({ darkMode }) => {
   
   // Render term chip with appropriate styling based on term
   const renderTermChip = (termCode, darkMode) => {
+    // If no term code provided, return default styling
+    if (!termCode) {
+      return (
+        <Box
+          sx={{
+            backgroundColor: darkMode ? '#424242' : '#F5F5F5',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            border: darkMode ? '1px solid #616161' : '1px solid #E0E0E0',
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: '0.8rem',
+              fontWeight: 500,
+              color: darkMode ? '#E0E0E0' : '#616161',
+            }}
+          >
+            Unknown
+          </Typography>
+        </Box>
+      );
+    }
+    
     // Extract the term letter (W, S, X, F)
     let term = '';
     
@@ -1027,8 +1080,9 @@ const CourseReviewsPage = ({ darkMode }) => {
     } else if (tyTermRegex.test(termCode)) {
       term = termCode.charAt(0).toUpperCase();
     } else {
-      // Default to no specific styling if format is unknown
+      // Default to unknown specific styling if format is unknown
       term = 'U'; // Unknown
+      console.log(`Unknown term format: ${termCode}`);
     }
     
     // Define color schemes for each term
@@ -2197,8 +2251,10 @@ useEffect(() => {
     const hasTerms = Object.values(professorTerms).filter(terms => terms.length > 0).length;
     const totalProfessors = Object.keys(professorTerms).length;
     
+    console.log(`Term extraction stats: ${hasTerms}/${totalProfessors} professors have terms`);
+    
     // If less than 50% of professors have terms, try manual extraction
-    if (hasTerms / totalProfessors < 0.5 && reviews.length > 0) {
+    if (totalProfessors > 0 && (hasTerms / totalProfessors < 0.5 || hasTerms === 0) && reviews.length > 0) {
       console.log("Starting manual term extraction for professors...");
       
       // Group reviews by professor
@@ -2242,10 +2298,18 @@ useEffect(() => {
             yearMatches.forEach(yearMatch => {
               const year = yearMatch.substring(2); // Get last two digits
               
-              // Look for season words near the year
+              // Look for season words near the year (within 20 characters)
               Object.entries(termWords).forEach(([word, code]) => {
-                if (text.toLowerCase().includes(word)) {
-                  terms.add(year + code);
+                // Check if the word is within 20 characters of the year
+                const yearIndex = text.indexOf(yearMatch);
+                const searchStart = Math.max(0, yearIndex - 20);
+                const searchEnd = Math.min(text.length, yearIndex + 20);
+                const searchSection = text.substring(searchStart, searchEnd).toLowerCase();
+                
+                if (searchSection.includes(word)) {
+                  const termCode = year + code;
+                  terms.add(termCode);
+                  console.log(`Manual extraction: Found ${word} near ${yearMatch} in review for ${professor}, adding term ${termCode}`);
                 }
               });
             });
@@ -2255,22 +2319,64 @@ useEffect(() => {
           const termCodeMatches = text.match(/\b(0\d|1\d|2[0-4])[WSXF]\b/gi);
           if (termCodeMatches) {
             termCodeMatches.forEach(match => {
-              terms.add(match.toUpperCase());
+              const termCode = match.toUpperCase();
+              terms.add(termCode);
+              console.log(`Manual extraction: Found explicit term code ${termCode} in review for ${professor}`);
+            });
+          }
+          
+          // Look for reverse format codes like W19, F20, etc.
+          const reverseTermMatches = text.match(/\b[WSXF](0\d|1\d|2[0-4])\b/gi);
+          if (reverseTermMatches) {
+            reverseTermMatches.forEach(match => {
+              const term = match.charAt(0).toUpperCase();
+              const year = match.substring(1);
+              const termCode = year + term;
+              terms.add(termCode);
+              console.log(`Manual extraction: Found reverse term code ${match} in review for ${professor}, converted to ${termCode}`);
             });
           }
         });
+        
+        // If we still don't have terms for this professor, use the current year as fallback
+        if (terms.size === 0) {
+          const currentYear = new Date().getFullYear().toString().substring(2);
+          
+          // Check if professor is in winter or spring instructors
+          if (winterInstructors.includes(professor)) {
+            const winterTerm = currentYear + 'W';
+            terms.add(winterTerm);
+            console.log(`Manual extraction: No terms found for ${professor}, adding current winter term ${winterTerm}`);
+          }
+          
+          if (springInstructors.includes(professor)) {
+            const springTerm = currentYear + 'S';
+            terms.add(springTerm);
+            console.log(`Manual extraction: No terms found for ${professor}, adding current spring term ${springTerm}`);
+          }
+        }
         
         // Update the professor's terms if we found any
         if (terms.size > 0) {
           updatedTerms[professor] = Array.from(terms).sort(
             (a, b) => getTermValue(b) - getTermValue(a)
           );
-          console.log(`Manually extracted ${terms.size} terms for ${professor}`);
+          console.log(`Manually extracted ${terms.size} terms for ${professor}: ${Array.from(terms).join(', ')}`);
         }
       });
       
       // Update the state if we found new terms
-      if (JSON.stringify(updatedTerms) !== JSON.stringify(professorTerms)) {
+      let hasNewTerms = false;
+      
+      // Check if any professors have new or changed terms
+      Object.keys(updatedTerms).forEach(professor => {
+        if (!professorTerms[professor] || 
+            JSON.stringify(updatedTerms[professor]) !== JSON.stringify(professorTerms[professor])) {
+          hasNewTerms = true;
+        }
+      });
+      
+      if (hasNewTerms) {
         console.log("Updating professor terms with manual extraction results");
         setProfessorTerms(updatedTerms);
       }
