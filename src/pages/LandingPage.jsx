@@ -363,6 +363,45 @@ const LandingPage = ({ darkMode }) => {
     setSnackbarOpen(false);
   };
 
+  // Create a common button style object
+  const buttonBaseStyle = {
+    width: { xs: '140px', sm: '160px', md: '200px' },
+    height: { xs: '150px', sm: '170px', md: '180px' },
+    backgroundColor: darkMode ? 'rgba(28, 9, 63, 0.6)' : '#f9f9f9',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '16px',
+    border: darkMode ? '1px solid rgba(87, 28, 224, 0.2)' : 'none',
+    padding: '10px',
+    overflow: 'hidden',
+    position: 'relative',
+    boxShadow: darkMode 
+      ? '0 8px 20px rgba(0, 0, 0, 0.3)' 
+      : '0 8px 16px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.25s ease',
+    '&:hover': {
+      backgroundColor: darkMode ? 'rgba(44, 25, 79, 0.7)' : '#f1f1f1',
+      transform: 'translateY(-5px)',
+      boxShadow: darkMode 
+        ? '0 12px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(87, 28, 224, 0.3)' 
+        : '0 12px 24px rgba(0, 0, 0, 0.15)',
+      '& .button-icon': {
+        transform: 'scale(1.1)',
+      },
+      '& .button-glow': {
+        opacity: 0.7,
+      }
+    },
+    '&:active': {
+      transform: 'translateY(-2px)',
+      boxShadow: darkMode 
+        ? '0 6px 16px rgba(0, 0, 0, 0.35)' 
+        : '0 6px 12px rgba(0, 0, 0, 0.1)',
+    },
+  };
+
   // --------------------------------------------------------------------------------
   // 14) Return the UI
   // --------------------------------------------------------------------------------
@@ -526,42 +565,30 @@ const LandingPage = ({ darkMode }) => {
           {/* Layups */}
           <ButtonBase
             onClick={() => (currentUser ? navigate('/layups') : handleLoginRedirect())}
-            sx={{
-              width: { xs: '140px', sm: '160px', md: '200px' },
-              height: { xs: '150px', sm: '170px', md: '180px' },
-              backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-              backgroundImage: darkMode
-                ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
-                : 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '12px',
-              boxShadow: darkMode
-                ? '0 8px 16px rgba(87, 28, 224, 0.2)'
-                : '0 8px 16px rgba(0, 0, 0, 0.1)',
-              padding: '10px',
-              transition:
-                'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
-              '&:hover': {
-                backgroundColor: darkMode ? 'transparent' : '#ececec',
-                backgroundImage: darkMode
-                  ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
-                  : 'none',
-                boxShadow: darkMode
-                  ? '0 12px 24px rgba(87, 28, 224, 0.3)'
-                  : '0 12px 24px rgba(0, 0, 0, 0.2)',
-                transform: 'translateY(-5px)',
-              },
-            }}
+            sx={buttonBaseStyle}
           >
+            <Box 
+              className="button-glow" 
+              sx={{ 
+                position: 'absolute', 
+                width: '150%', 
+                height: '150%', 
+                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                top: '-25%', 
+                left: '-25%',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                pointerEvents: 'none',
+              }} 
+            />
             <Typography
               variant="h3"
+              className="button-icon"
               sx={{
                 fontSize: '1.5rem',
                 mb: '8px',
                 color: darkMode ? '#FFFFFF' : '#000000',
+                transition: 'transform 0.3s ease',
               }}
             >
               🎯
@@ -581,7 +608,7 @@ const LandingPage = ({ darkMode }) => {
               variant="body2"
               sx={{
                 fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                color: darkMode ? '#CCCCCC' : '#666666',
+                color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666',
                 mt: '4px',
                 textAlign: 'center',
               }}
@@ -593,42 +620,30 @@ const LandingPage = ({ darkMode }) => {
           {/* Professors */}
           <ButtonBase
             onClick={() => (currentUser ? navigate('/professors') : handleLoginRedirect())}
-            sx={{
-              width: { xs: '140px', sm: '160px', md: '200px' },
-              height: { xs: '150px', sm: '170px', md: '180px' },
-              backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-              backgroundImage: darkMode
-                ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
-                : 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '12px',
-              boxShadow: darkMode
-                ? '0 8px 16px rgba(87, 28, 224, 0.2)'
-                : '0 8px 16px rgba(0, 0, 0, 0.1)',
-              padding: '10px',
-              transition:
-                'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
-              '&:hover': {
-                backgroundColor: darkMode ? 'transparent' : '#ececec',
-                backgroundImage: darkMode
-                  ? 'linear-gradient(45deg, #2C194F 0%, #571CE0 50%, #1C1F43 100%)'
-                  : 'none',
-                boxShadow: darkMode
-                  ? '0 12px 24px rgba(87, 28, 224, 0.3)'
-                  : '0 12px 24px rgba(0, 0, 0, 0.2)',
-                transform: 'translateY(-5px)',
-              },
-            }}
+            sx={buttonBaseStyle}
           >
+            <Box 
+              className="button-glow" 
+              sx={{ 
+                position: 'absolute', 
+                width: '150%', 
+                height: '150%', 
+                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                top: '-25%', 
+                left: '-25%',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                pointerEvents: 'none',
+              }} 
+            />
             <Typography
               variant="h3"
+              className="button-icon"
               sx={{
                 fontSize: '1.5rem',
                 mb: '8px',
                 color: darkMode ? '#FFFFFF' : '#000000',
+                transition: 'transform 0.3s ease',
               }}
             >
               👨‍🏫
@@ -648,7 +663,7 @@ const LandingPage = ({ darkMode }) => {
               variant="body2"
               sx={{
                 fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                color: darkMode ? '#CCCCCC' : '#666666',
+                color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666',
                 mt: '4px',
                 textAlign: 'center',
               }}
@@ -661,42 +676,30 @@ const LandingPage = ({ darkMode }) => {
           {/* Timetable */}
           <ButtonBase
             onClick={() => (currentUser ? navigate('/timetable') : handleLoginRedirect())}
-            sx={{
-              width: { xs: '140px', sm: '160px', md: '200px' },
-              height: { xs: '150px', sm: '170px', md: '180px' },
-              backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-              backgroundImage: darkMode
-                ? 'linear-gradient(135deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
-                : 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '12px',
-              boxShadow: darkMode
-                ? '0 8px 16px rgba(87, 28, 224, 0.2)'
-                : '0 8px 16px rgba(0, 0, 0, 0.1)',
-              padding: '10px',
-              transition:
-                'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
-              '&:hover': {
-                backgroundColor: darkMode ? 'transparent' : '#ececec',
-                backgroundImage: darkMode
-                  ? 'linear-gradient(135deg, #2C194F 0%, #571CE0 50%, #1C1F43 100%)'
-                  : 'none',
-                boxShadow: darkMode
-                  ? '0 12px 24px rgba(87, 28, 224, 0.3)'
-                  : '0 12px 24px rgba(0, 0, 0, 0.2)',
-                transform: 'translateY(-5px)',
-              },
-            }}
+            sx={buttonBaseStyle}
           >
+            <Box 
+              className="button-glow" 
+              sx={{ 
+                position: 'absolute', 
+                width: '150%', 
+                height: '150%', 
+                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                top: '-25%', 
+                left: '-25%',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                pointerEvents: 'none',
+              }} 
+            />
             <Typography
               variant="h3"
+              className="button-icon"
               sx={{
                 fontSize: '1.5rem',
                 mb: '8px',
                 color: darkMode ? '#FFFFFF' : '#000000',
+                transition: 'transform 0.3s ease',
               }}
             >
               🗓️
@@ -716,7 +719,7 @@ const LandingPage = ({ darkMode }) => {
               variant="body2"
               sx={{
                 fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                color: darkMode ? '#CCCCCC' : '#666666',
+                color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666',
                 mt: '4px',
                 textAlign: 'center',
               }}
@@ -763,42 +766,30 @@ const LandingPage = ({ darkMode }) => {
 
             <ButtonBase
               onClick={() => (currentUser ? navigate('/major-tracker') : handleLoginRedirect())}
-              sx={{
-                width: { xs: '140px', sm: '160px', md: '200px' },
-                height: { xs: '150px', sm: '170px', md: '180px' },
-                backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-                backgroundImage: darkMode
-                  ? 'linear-gradient(45deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
-                  : 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: '12px',
-                boxShadow: darkMode
-                  ? '0 8px 16px rgba(87, 28, 224, 0.2)'
-                  : '0 8px 16px rgba(0, 0, 0, 0.1)',
-                padding: '10px',
-                transition:
-                  'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
-                '&:hover': {
-                  backgroundColor: darkMode ? 'transparent' : '#ececec',
-                  backgroundImage: darkMode
-                    ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
-                    : 'none',
-                  boxShadow: darkMode
-                    ? '0 12px 24px rgba(87, 28, 224, 0.3)'
-                    : '0 12px 24px rgba(0, 0, 0, 0.2)',
-                  transform: 'translateY(-5px)',
-                },
-              }}
+              sx={buttonBaseStyle}
             >
+              <Box 
+                className="button-glow" 
+                sx={{ 
+                  position: 'absolute', 
+                  width: '150%', 
+                  height: '150%', 
+                  background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                  top: '-25%', 
+                  left: '-25%',
+                  opacity: 0,
+                  transition: 'opacity 0.3s ease',
+                  pointerEvents: 'none',
+                }} 
+              />
               <Typography
                 variant="h3"
+                className="button-icon"
                 sx={{
                   fontSize: '1.5rem',
                   mb: '8px',
                   color: darkMode ? '#FFFFFF' : '#000000',
+                  transition: 'transform 0.3s ease',
                 }}
               >
                 🤖
@@ -818,7 +809,7 @@ const LandingPage = ({ darkMode }) => {
                 variant="body2"
                 sx={{
                   fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                  color: darkMode ? '#CCCCCC' : '#666666',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666',
                   mt: '4px',
                   textAlign: 'center',
                 }}
@@ -862,42 +853,30 @@ const LandingPage = ({ darkMode }) => {
 
             <ButtonBase
               onClick={() => (currentUser ? navigate('/timetable') : handleLoginRedirect())}
-              sx={{
-                width: { xs: '140px', sm: '160px', md: '200px' },
-                height: { xs: '150px', sm: '170px', md: '180px' },
-                backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-                backgroundImage: darkMode
-                  ? 'linear-gradient(135deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
-                  : 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: '12px',
-                boxShadow: darkMode
-                  ? '0 8px 16px rgba(87, 28, 224, 0.2)'
-                  : '0 8px 16px rgba(0, 0, 0, 0.1)',
-                padding: '10px',
-                transition: 'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
-                '&:hover': {
-                  backgroundColor: darkMode ? 'transparent' : '#ececec',
-                  backgroundImage: darkMode
-                    ? 'linear-gradient(135deg, #2C194F 0%, #6A1DE0 50%, #1C1F43 100%)'
-                    : 'none',
-                  boxShadow: darkMode
-                    ? '0 12px 24px rgba(87, 28, 224, 0.3)'
-                    : '0 12px 24px rgba(0, 0, 0, 0.2)',
-                  transform: 'translateY(-5px)',
-                },
-              }}
+              sx={buttonBaseStyle}
             >
-              {/* Icon */}
+              <Box 
+                className="button-glow" 
+                sx={{ 
+                  position: 'absolute', 
+                  width: '150%', 
+                  height: '150%', 
+                  background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                  top: '-25%', 
+                  left: '-25%',
+                  opacity: 0,
+                  transition: 'opacity 0.3s ease',
+                  pointerEvents: 'none',
+                }} 
+              />
               <Typography
                 variant="h3"
+                className="button-icon"
                 sx={{
                   fontSize: '1.5rem',
                   mb: '8px',
                   color: darkMode ? '#FFFFFF' : '#000000',
+                  transition: 'transform 0.3s ease',
                 }}
               >
                 🔔
@@ -921,12 +900,12 @@ const LandingPage = ({ darkMode }) => {
                 variant="body2"
                 sx={{
                   fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                  color: darkMode ? '#CCCCCC' : '#666666',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666',
                   mt: '4px',
                   textAlign: 'center',
                 }}
               >
-                Get notified for add/drop starting 8:00 AM Feb 28th for spring 2025
+                Get notified for add/drop starting 8:00 AM Feb 28th
                 <span style={{ color: '#F26655' }}>.</span>
               </Typography>
             </ButtonBase>
@@ -935,99 +914,57 @@ const LandingPage = ({ darkMode }) => {
           {/* Profile */}
           <ButtonBase
             onClick={() => (currentUser ? navigate('/profile') : handleLoginRedirect())}
-            sx={{
-              width: { xs: '140px', sm: '160px', md: '200px' },
-              height: { xs: '150px', sm: '170px', md: '180px' },
-              backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-              backgroundImage: darkMode
-                ? 'linear-gradient(140deg, rgba(28, 9, 63, 0.9) 0%, rgba(87, 28, 224, 0.8) 50%, rgba(12, 15, 51, 0.9) 100%)'
-                : 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '12px',
-              border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
-              backdropFilter: darkMode ? 'blur(10px)' : 'none',
-              boxShadow: darkMode
-                ? '0 8px 32px rgba(87, 28, 224, 0.3), 0 0 0 1px rgba(87, 28, 224, 0.2) inset'
-                : '0 8px 16px rgba(0, 0, 0, 0.1)',
-              padding: '10px',
-              position: 'relative',
-              overflow: 'hidden',
-              transition:
-                'transform 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67), box-shadow 0.3s ease, border 0.3s ease',
-              '&::before': darkMode ? {
-                content: '""',
-                position: 'absolute',
-                top: '-50%',
-                left: '-50%',
-                width: '200%',
-                height: '200%',
-                background: 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%)',
+            sx={buttonBaseStyle}
+          >
+            <Box 
+              className="button-glow" 
+              sx={{ 
+                position: 'absolute', 
+                width: '150%', 
+                height: '150%', 
+                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                top: '-25%', 
+                left: '-25%',
                 opacity: 0,
                 transition: 'opacity 0.3s ease',
-                zIndex: 0,
-              } : {},
-              '&:hover': {
-                backgroundColor: darkMode ? 'transparent' : '#ececec',
-                backgroundImage: darkMode
-                  ? 'linear-gradient(140deg, rgba(44, 25, 79, 0.9) 0%, rgba(106, 29, 224, 0.8) 50%, rgba(28, 31, 67, 0.9) 100%)'
-                  : 'none',
-                boxShadow: darkMode
-                  ? '0 12px 40px rgba(87, 28, 224, 0.4), 0 0 0 2px rgba(106, 29, 224, 0.4) inset'
-                  : '0 12px 24px rgba(0, 0, 0, 0.2)',
-                transform: 'translateY(-5px) scale(1.03)',
-                border: darkMode ? '1px solid rgba(255, 255, 255, 0.15)' : 'none',
-                '&::before': darkMode ? {
-                  opacity: 1,
-                } : {},
-              },
-              '&:active': {
-                transform: 'translateY(-2px) scale(1.01)',
-                boxShadow: darkMode
-                  ? '0 8px 20px rgba(87, 28, 224, 0.3), 0 0 0 1px rgba(87, 28, 224, 0.3) inset'
-                  : '0 8px 16px rgba(0, 0, 0, 0.1)',
-              },
-            }}
-          >
-            <Box sx={{ position: 'relative', zIndex: 1 }}>
-              <Typography
-                variant="h3"
-                sx={{ 
-                  fontSize: '1.5rem', 
-                  mb: '8px', 
-                  color: darkMode ? '#FFFFFF' : '#000000',
-                  textShadow: darkMode ? '0 0 10px rgba(255, 255, 255, 0.3)' : 'none',
-                }}
-              >
-                👤
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
-                  fontWeight: '600',
-                  textAlign: 'center',
-                  color: darkMode ? '#FFFFFF' : '#000000',
-                  textShadow: darkMode ? '0 0 8px rgba(255, 255, 255, 0.2)' : 'none',
-                }}
-              >
-                Profile
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                  color: darkMode ? 'rgba(255, 255, 255, 0.8)' : '#666666',
-                  mt: '4px',
-                  textAlign: 'center',
-                }}
-              >
-                Organize everything here
-                <span style={{ color: '#F26655' }}>.</span>
-              </Typography>
-            </Box>
+                pointerEvents: 'none',
+              }} 
+            />
+            <Typography
+              variant="h3"
+              className="button-icon"
+              sx={{
+                fontSize: '1.5rem',
+                mb: '8px',
+                color: darkMode ? '#FFFFFF' : '#000000',
+                transition: 'transform 0.3s ease',
+              }}
+            >
+              👤
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                fontSize: { xs: '0.85rem', sm: '1rem', md: '1.2rem' },
+                fontWeight: '600',
+                textAlign: 'center',
+                color: darkMode ? '#FFFFFF' : '#000000',
+              }}
+            >
+              Profile
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666',
+                mt: '4px',
+                textAlign: 'center',
+              }}
+            >
+              Organize everything here
+              <span style={{ color: '#F26655' }}>.</span>
+            </Typography>
           </ButtonBase>
         </Box>
 
