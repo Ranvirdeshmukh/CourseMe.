@@ -499,40 +499,31 @@ const LandingPage = ({ darkMode }) => {
           {/* Classes */}
           <ButtonBase
             onClick={() => (currentUser ? navigate('/classes') : handleLoginRedirect())}
-            sx={{
-              width: { xs: '140px', sm: '160px', md: '200px' },
-              height: { xs: '150px', sm: '170px', md: '180px' },
-              margin: '18px 0',
-              backgroundColor: darkMode ? 'transparent' : '#f9f9f9',
-              backgroundImage: darkMode
-                ? 'linear-gradient(135deg, #1C093F 10%, #571CE0 50%, #0C0F33 100%)'
-                : 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '12px',
-              boxShadow: darkMode
-                ? '0 8px 16px rgba(87, 28, 224, 0.2)'
-                : '0 8px 16px rgba(0, 0, 0, 0.1)',
-              padding: '10px',
-              transition:
-                'transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
-              '&:hover': {
-                backgroundColor: darkMode ? 'transparent' : '#ececec',
-                backgroundImage: darkMode
-                  ? 'linear-gradient(135deg, #2C194F 0%, #571CE0 50%, #1C1F43 100%)'
-                  : 'none',
-                boxShadow: darkMode
-                  ? '0 12px 24px rgba(87, 28, 224, 0.3)'
-                  : '0 12px 24px rgba(0, 0, 0, 0.2)',
-                transform: 'translateY(-5px)',
-              },
-            }}
+            sx={buttonBaseStyle}
           >
+            <Box 
+              className="button-glow" 
+              sx={{ 
+                position: 'absolute', 
+                width: '150%', 
+                height: '150%', 
+                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                top: '-25%', 
+                left: '-25%',
+                opacity: 0,
+                transition: 'opacity 0.3s ease',
+                pointerEvents: 'none',
+              }} 
+            />
             <Typography
               variant="h3"
-              sx={{ fontSize: '1.5rem', mb: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}
+              className="button-icon"
+              sx={{
+                fontSize: '1.5rem',
+                mb: '8px',
+                color: darkMode ? '#FFFFFF' : '#000000',
+                transition: 'transform 0.3s ease',
+              }}
             >
               📚
             </Typography>
@@ -551,7 +542,7 @@ const LandingPage = ({ darkMode }) => {
               variant="body2"
               sx={{
                 fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                color: darkMode ? '#CCCCCC' : '#666666',
+                color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666',
                 mt: '4px',
                 textAlign: 'center',
               }}
