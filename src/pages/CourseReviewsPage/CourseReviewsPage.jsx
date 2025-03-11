@@ -602,7 +602,49 @@ const CourseReviewsPage = ({ darkMode }) => {
         // Sort by termValue in descending order (latest first)
         reviewsArray.sort((a, b) => b.termValue - a.termValue);
   
-        setReviews(reviewsArray);
+        // Optimize review ordering to prioritize professors who taught most recently
+        const optimizeReviewDisplay = (reviews) => {
+          // Step 1: Group reviews by professor
+          const professorReviewMap = {};
+          reviews.forEach(review => {
+            if (!professorReviewMap[review.instructor]) {
+              professorReviewMap[review.instructor] = [];
+            }
+            professorReviewMap[review.instructor].push(review);
+          });
+        
+          // Step 2: Find latest term per professor
+          const professorLatestTerm = {};
+          Object.keys(professorReviewMap).forEach(professor => {
+            const professorReviews = professorReviewMap[professor];
+            // Find the review with the highest termValue
+            const latestReview = professorReviews.reduce((latest, current) => 
+              (current.termValue > latest.termValue) ? current : latest, 
+              professorReviews[0]);
+            professorLatestTerm[professor] = latestReview.termValue;
+          });
+        
+          // Step 3: Sort professors by latest term (descending)
+          const sortedProfessors = Object.keys(professorLatestTerm).sort((a, b) => 
+            professorLatestTerm[b] - professorLatestTerm[a]);
+        
+          // Step 4: Create new ordered array of reviews
+          const optimizedReviews = [];
+          sortedProfessors.forEach(professor => {
+            // For each professor, add their reviews (already sorted by term)
+            optimizedReviews.push(...professorReviewMap[professor].sort(
+              (a, b) => b.termValue - a.termValue
+            ));
+          });
+        
+          return optimizedReviews;
+        };
+        
+        // Apply the optimization
+        const optimizedReviewsArray = optimizeReviewDisplay(reviewsArray);
+  
+        // Use the optimized array instead of the original one
+        setReviews(optimizedReviewsArray);
         setAllProfessors(Array.from(professorsSet));
         
         // Extract and set professor terms
