@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Lock } from '@mui/icons-material'; // (Optional) If you need the lock icon
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import MobileNavigation from '../components/MobileNavigation';
 
 import { 
   Container, Box, Typography, TextField, Button, 
@@ -485,10 +486,10 @@ const LandingPage = ({ darkMode }) => {
           />
         </Typography>
 
-        {/* Quick Nav Buttons */}
+        {/* DESKTOP ONLY - Traditional Quick Nav Buttons - hidden on mobile screens */}
         <Box
           sx={{
-            display: 'flex',
+            display: { xs: 'none', sm: 'flex' }, // Hide on mobile, show on sm and up
             flexDirection: 'row',
             gap: { xs: 1, md: 2 },
             width: '100%',
@@ -988,6 +989,14 @@ const LandingPage = ({ darkMode }) => {
             </Typography>
           </ButtonBase>
         </Box>
+
+        {/* MOBILE ONLY - Mobile Navigation Component */}
+        <MobileNavigation 
+          darkMode={darkMode} 
+          currentUser={currentUser} 
+          navigate={navigate} 
+          handleLoginRedirect={handleLoginRedirect} 
+        />
 
         {/* Search bar */}
         <Box
