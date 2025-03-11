@@ -373,33 +373,36 @@ const LandingPage = ({ darkMode }) => {
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: '16px',
-    border: darkMode ? '1px solid rgba(87, 28, 224, 0.2)' : 'none',
+    border: darkMode 
+      ? '1px solid rgba(87, 28, 224, 0.2)' 
+      : '1px solid rgba(0, 0, 0, 0.05)',
     padding: '10px',
     overflow: 'hidden',
     position: 'relative',
     boxShadow: darkMode 
-      ? '0 8px 20px rgba(0, 0, 0, 0.3)' 
-      : '0 8px 16px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.25s ease',
+      ? '0 8px 20px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(87, 28, 224, 0.08)' 
+      : '0 8px 16px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02)',
+    background: darkMode 
+      ? 'linear-gradient(145deg, rgba(44, 25, 79, 0.55), rgba(28, 9, 63, 0.55))' 
+      : 'linear-gradient(145deg, #ffffff, #f7f7f7)',
+    transition: 'all 0.3s ease',
     '&:hover': {
       backgroundColor: darkMode ? 'rgba(44, 25, 79, 0.7)' : '#f1f1f1',
-      transform: 'translateY(-5px)',
+      transform: 'scale(1.02)',
       boxShadow: darkMode 
-        ? '0 12px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(87, 28, 224, 0.3)' 
-        : '0 12px 24px rgba(0, 0, 0, 0.15)',
+        ? '0 10px 25px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(87, 28, 224, 0.25)' 
+        : '0 10px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+      border: darkMode 
+        ? '1px solid rgba(87, 28, 224, 0.35)' 
+        : '1px solid rgba(0, 0, 0, 0.08)',
       '& .button-icon': {
-        transform: 'scale(1.1)',
+        transform: 'scale(1.05)',
       },
       '& .button-glow': {
-        opacity: 0.7,
+        opacity: darkMode ? 0.8 : 0.6,
+        transform: 'scale(1.02)',
       }
-    },
-    '&:active': {
-      transform: 'translateY(-2px)',
-      boxShadow: darkMode 
-        ? '0 6px 16px rgba(0, 0, 0, 0.35)' 
-        : '0 6px 12px rgba(0, 0, 0, 0.1)',
-    },
+    }
   };
 
   // --------------------------------------------------------------------------------
@@ -493,7 +496,13 @@ const LandingPage = ({ darkMode }) => {
             alignItems: 'center',
             mb: 4,
             overflowX: 'auto',
-            padding: { xs: '10px 0', md: 0 },
+            padding: { xs: '16px 0', md: '16px 0' },
+            marginTop: '16px',
+            '&::-webkit-scrollbar': {
+              display: 'none', // Hide scrollbar for Chrome, Safari, and newer Edge
+            },
+            msOverflowStyle: 'none', // Hide scrollbar for IE and older Edge
+            scrollbarWidth: 'none', // Hide scrollbar for Firefox
           }}
         >
           {/* Classes */}
@@ -507,12 +516,15 @@ const LandingPage = ({ darkMode }) => {
                 position: 'absolute', 
                 width: '150%', 
                 height: '150%', 
-                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(87, 28, 224, 0.18) 0%, rgba(0, 0, 0, 0) 70%)'
+                  : 'radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 70%)', 
                 top: '-25%', 
                 left: '-25%',
                 opacity: 0,
-                transition: 'opacity 0.3s ease',
+                transition: 'opacity 0.3s ease, transform 0.4s ease',
                 pointerEvents: 'none',
+                filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
             <Typography
@@ -564,12 +576,15 @@ const LandingPage = ({ darkMode }) => {
                 position: 'absolute', 
                 width: '150%', 
                 height: '150%', 
-                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(87, 28, 224, 0.18) 0%, rgba(0, 0, 0, 0) 70%)'
+                  : 'radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 70%)', 
                 top: '-25%', 
                 left: '-25%',
                 opacity: 0,
-                transition: 'opacity 0.3s ease',
+                transition: 'opacity 0.3s ease, transform 0.4s ease',
                 pointerEvents: 'none',
+                filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
             <Typography
@@ -619,12 +634,15 @@ const LandingPage = ({ darkMode }) => {
                 position: 'absolute', 
                 width: '150%', 
                 height: '150%', 
-                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(87, 28, 224, 0.18) 0%, rgba(0, 0, 0, 0) 70%)'
+                  : 'radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 70%)', 
                 top: '-25%', 
                 left: '-25%',
                 opacity: 0,
-                transition: 'opacity 0.3s ease',
+                transition: 'opacity 0.3s ease, transform 0.4s ease',
                 pointerEvents: 'none',
+                filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
             <Typography
@@ -675,12 +693,15 @@ const LandingPage = ({ darkMode }) => {
                 position: 'absolute', 
                 width: '150%', 
                 height: '150%', 
-                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(87, 28, 224, 0.18) 0%, rgba(0, 0, 0, 0) 70%)'
+                  : 'radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 70%)', 
                 top: '-25%', 
                 left: '-25%',
                 opacity: 0,
-                transition: 'opacity 0.3s ease',
+                transition: 'opacity 0.3s ease, transform 0.4s ease',
                 pointerEvents: 'none',
+                filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
             <Typography
@@ -765,12 +786,15 @@ const LandingPage = ({ darkMode }) => {
                   position: 'absolute', 
                   width: '150%', 
                   height: '150%', 
-                  background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                  background: darkMode
+                    ? 'radial-gradient(circle, rgba(87, 28, 224, 0.18) 0%, rgba(0, 0, 0, 0) 70%)'
+                    : 'radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 70%)', 
                   top: '-25%', 
                   left: '-25%',
                   opacity: 0,
-                  transition: 'opacity 0.3s ease',
+                  transition: 'opacity 0.3s ease, transform 0.4s ease',
                   pointerEvents: 'none',
+                  filter: darkMode ? 'blur(8px)' : 'blur(12px)',
                 }} 
               />
               <Typography
@@ -852,12 +876,15 @@ const LandingPage = ({ darkMode }) => {
                   position: 'absolute', 
                   width: '150%', 
                   height: '150%', 
-                  background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                  background: darkMode
+                    ? 'radial-gradient(circle, rgba(87, 28, 224, 0.18) 0%, rgba(0, 0, 0, 0) 70%)'
+                    : 'radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 70%)', 
                   top: '-25%', 
                   left: '-25%',
                   opacity: 0,
-                  transition: 'opacity 0.3s ease',
+                  transition: 'opacity 0.3s ease, transform 0.4s ease',
                   pointerEvents: 'none',
+                  filter: darkMode ? 'blur(8px)' : 'blur(12px)',
                 }} 
               />
               <Typography
@@ -913,12 +940,15 @@ const LandingPage = ({ darkMode }) => {
                 position: 'absolute', 
                 width: '150%', 
                 height: '150%', 
-                background: 'radial-gradient(circle, rgba(87, 28, 224, 0.2) 0%, rgba(0, 0, 0, 0) 70%)', 
+                background: darkMode
+                  ? 'radial-gradient(circle, rgba(87, 28, 224, 0.18) 0%, rgba(0, 0, 0, 0) 70%)'
+                  : 'radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 70%)', 
                 top: '-25%', 
                 left: '-25%',
                 opacity: 0,
-                transition: 'opacity 0.3s ease',
+                transition: 'opacity 0.3s ease, transform 0.4s ease',
                 pointerEvents: 'none',
+                filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
             <Typography
