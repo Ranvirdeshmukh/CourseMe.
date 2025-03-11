@@ -11,7 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Lock } from '@mui/icons-material'; // (Optional) If you need the lock icon
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import MobileNavigation from '../components/MobileNavigation';
+import MobileNavigation from '../Mobileversion/MobileNavigation';
 
 import { 
   Container, Box, Typography, TextField, Button, 
