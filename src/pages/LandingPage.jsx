@@ -365,7 +365,8 @@ const LandingPage = ({ darkMode }) => {
 
   // Create a common button style object
   const buttonBaseStyle = {
-    width: { xs: '140px', sm: '160px', md: '200px' },
+    width: { xs: '180px', sm: '160px', md: '200px' },
+    minWidth: { xs: '180px', sm: '160px', md: '200px' },
     height: { xs: '150px', sm: '170px', md: '180px' },
     backgroundColor: darkMode ? 'rgba(28, 9, 63, 0.6)' : '#f9f9f9',
     display: 'flex',
@@ -386,6 +387,7 @@ const LandingPage = ({ darkMode }) => {
       ? 'linear-gradient(145deg, rgba(44, 25, 79, 0.55), rgba(28, 9, 63, 0.55))' 
       : 'linear-gradient(145deg, #ffffff, #f7f7f7)',
     transition: 'all 0.3s ease',
+    margin: { xs: '0 4px', sm: 0 },
     '&:hover': {
       backgroundColor: darkMode ? 'rgba(44, 25, 79, 0.7)' : '#f1f1f1',
       transform: 'scale(1.02)',
@@ -490,19 +492,24 @@ const LandingPage = ({ darkMode }) => {
           sx={{
             display: 'flex',
             flexDirection: 'row',
-            gap: { xs: 1, md: 2 },
+            gap: { xs: 1.5, md: 2 },
             width: '100%',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             alignItems: 'center',
             mb: 4,
             overflowX: 'auto',
-            padding: { xs: '16px 0', md: '16px 0' },
+            padding: { xs: '20px 10px', md: '16px 0' },
             marginTop: '16px',
             '&::-webkit-scrollbar': {
-              display: 'none', // Hide scrollbar for Chrome, Safari, and newer Edge
+              display: 'none',
             },
-            msOverflowStyle: 'none', // Hide scrollbar for IE and older Edge
-            scrollbarWidth: 'none', // Hide scrollbar for Firefox
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none',
+            '@media (max-width: 600px)': {
+              paddingLeft: '10px',
+              paddingRight: '10px',
+              justifyContent: 'flex-start',
+            }
           }}
         >
           {/* Classes */}
