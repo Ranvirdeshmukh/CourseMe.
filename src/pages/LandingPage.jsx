@@ -12,6 +12,7 @@ import { Lock } from '@mui/icons-material'; // (Optional) If you need the lock i
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MobileNavigation from '../Mobileversion/MobileNavigation';
+import MobileLandingPage from '../Mobileversion/MobileLandingPage';
 
 import { 
   Container, Box, Typography, TextField, Button, 
@@ -429,9 +430,34 @@ const LandingPage = ({ darkMode }) => {
         transition: 'padding-bottom 0.3s ease',
       }}
     >
+      {/* For mobile devices - show the mobile landing page component */}
+      <Box sx={{ display: { xs: 'block', sm: 'none' }, width: '100%' }}>
+        <MobileLandingPage 
+          darkMode={darkMode}
+          handleSearch={handleSearch}
+          question={question}
+          setQuestion={setQuestion}
+          loading={loading}
+          answer={answer}
+          department={department}
+          courseNumber={courseNumber}
+          documentName={documentName}
+          showScrollMessage={showScrollMessage}
+          scrollProgress={scrollProgress}
+          difficulty={difficulty}
+          sentiment={sentiment}
+          getDifficultyLevel={getDifficultyLevel}
+          getSentimentLevel={getSentimentLevel}
+          getColor={getColor}
+          currentUser={currentUser}
+          handleLoginRedirect={handleLoginRedirect}
+        />
+      </Box>
+
+      {/* For tablets and larger - show the desktop version */}
       <Container
         sx={{
-          display: 'flex',
+          display: { xs: 'none', sm: 'flex' }, // Hide on mobile, show on sm and up
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
@@ -897,14 +923,6 @@ const LandingPage = ({ darkMode }) => {
           </ButtonBase>
         </Box>
 
-        {/* MOBILE ONLY - Mobile Navigation Component */}
-        <MobileNavigation 
-          darkMode={darkMode} 
-          currentUser={currentUser} 
-          navigate={navigate} 
-          handleLoginRedirect={handleLoginRedirect} 
-        />
-
         {/* Search bar */}
         <Box
           component="form"
@@ -1341,8 +1359,8 @@ const LandingPage = ({ darkMode }) => {
         </DialogContent>
       </Dialog>
 
-      {/* Footer Section */}
-      <Box sx={{ mt: 4, textAlign: 'center' }}>
+      {/* Footer Section - Desktop Only */}
+      <Box sx={{ mt: 4, textAlign: 'center', display: { xs: 'none', sm: 'block' } }}>
         <Typography
           variant="body2"
           sx={{
