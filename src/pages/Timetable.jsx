@@ -685,26 +685,47 @@ useEffect(() => {
     const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;
 
     const events = getEventTiming(course.period, course.title);
+    
+    if (events.length === 0) {
+      alert('No valid meeting times found for this course.');
+      return;
+    }
 
-    let popupBlocked = false;
-
-    events.forEach((event) => {
+    // Display a message to the user about allowing popups
+    if (events.length > 1) {
+      // Show a message that we're adding multiple events
+      setSnackbarOpen(true);
+      setTimeout(() => setSnackbarOpen(false), 7000);
+    }
+    
+    // Function to open window with delay
+    const openCalendarWindow = (index) => {
+      if (index >= events.length) return;
+      
+      const event = events[index];
       const text = `&text=${encodeURIComponent(event.title)}`;
       const startDateTime = `&dates=${event.startDateTime}/${event.endDateTime}`;
       const recur = event.recurrence ? `&recur=${event.recurrence}` : ''; 
 
       const url = `${baseUrl}${text}${details}${location}${startDateTime}${recur}&sf=true&output=xml`;
-
-      const newWindow = window.open(url, '_blank');
-
-      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        popupBlocked = true;
-      }
-    });
-
-    if (popupBlocked) {
-      setPopupMessageOpen(true);
-    }
+      
+      // Use a user interaction (setTimeout) to help bypass popup blockers
+      setTimeout(() => {
+        const newWindow = window.open(url, '_blank');
+        
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+          setPopupMessageOpen(true);
+          // Stop trying if blocked
+          return;
+        }
+        
+        // Continue with next event after a delay
+        setTimeout(() => openCalendarWindow(index + 1), 1500);
+      }, 100);
+    };
+    
+    // Start the sequential opening process
+    openCalendarWindow(0);
   };
 
   const getEventTiming = (periodCode, courseTitle) => {
@@ -1593,7 +1614,6 @@ useEffect(() => {
                   borderBottom: '2px solid #E0E0E0',
                   borderColor: darkMode ? '#444444' : '#E0E0E0',
                   backgroundColor: darkMode ? '#333333' : '#F8F8F8',
-                  // Box shadow for the first header cell, if desired
                   boxShadow:
                     index === 0
                       ? darkMode
