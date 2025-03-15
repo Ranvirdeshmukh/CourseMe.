@@ -21,6 +21,7 @@ import moment from 'moment-timezone';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useAuth } from '../contexts/AuthContext';
+import { periodCodeToTiming, addToGoogleCalendar } from './timetablepages/googleCalendarLogic';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
@@ -163,61 +164,38 @@ const accentHoverBg = darkMode
     });
   }, [sortConfig]);
 
-  const periodCodeToTiming = {
-    "11": "MWF 11:30-12:35, Tu 12:15-1:05",
-    "10": "MWF 10:10-11:15, Th 12:15-1:05",
-    "2": "MWF 2:10-3:15, Th 1:20-2:10",
-    "3A": "MW 3:30-5:20, M 5:30-6:20",
-    "12": "MWF 12:50-1:55, Tu 1:20-2:10",
-    "2A": "TuTh 2:25-4:15, W 5:30-6:20",
-    "10A": "TuTh 10:10-12, F 3:30-4:20",
-    "FS": "FSP; Foreign Study Program",
-    "ARR": "Arrange",
-    "9L": "MWF 8:50-9:55, Th 9:05-9:55",
-    "9S": "MTuWThF 9:05-9:55",
-    "OT": "Th 2:00 PM-4:00 PM",
-    "3B": "TuTh 4:30-6:20, F 4:35-5:25",
-    "6A": "MTh 6:30-8:20, Tu 6:30-7:20",
-    "6B": "W 6:30-9:30, Tu 7:30-8:20",
-    "8S": "MTThF 7:45-8:35, Wed 7:45-8:35",
-    "LSA": "Language Study Abroad",
-  };
+  const applyFilters = useCallback(() => {
+    let filtered = [...courses];
 
-  // Move this up before any useEffects
-const applyFilters = useCallback(() => {
-  let filtered = [...courses];
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (course) =>
+          (course.title?.toLowerCase()?.includes(searchLower) ?? false) ||
+          (course.subj?.toLowerCase()?.includes(searchLower) ?? false) ||
+          (course.instructor?.toLowerCase()?.includes(searchLower) ?? false)
+      );
+    }
 
-  if (searchTerm) {
-    const searchLower = searchTerm.toLowerCase();
-    filtered = filtered.filter(
-      (course) =>
-        (course.title?.toLowerCase()?.includes(searchLower) ?? false) ||
-        (course.subj?.toLowerCase()?.includes(searchLower) ?? false) ||
-        (course.instructor?.toLowerCase()?.includes(searchLower) ?? false)
-    );
-  }
+    if (selectedSubject) {
+      filtered = filtered.filter((course) => course.subj === selectedSubject);
+    }
 
-  if (selectedSubject) {
-    filtered = filtered.filter((course) => course.subj === selectedSubject);
-  }
+    setFilteredCourses(filtered);
+    setCurrentPage(1);
+  }, [courses, searchTerm, selectedSubject]);
 
-  setFilteredCourses(filtered);
-  setCurrentPage(1);
-}, [courses, searchTerm, selectedSubject]);
+  const debouncedApplyFilters = useMemo(
+    () => debounce(applyFilters, 300),
+    [applyFilters]
+  );
 
-// Then create debouncedApplyFilters after applyFilters is defined
-const debouncedApplyFilters = useMemo(
-  () => debounce(applyFilters, 300),
-  [applyFilters]
-);
-
-// Now your useEffects can use these functions
-useEffect(() => {
-  debouncedApplyFilters();
-  return () => {
-    debouncedApplyFilters.cancel();
-  };
-}, [debouncedApplyFilters]);
+  useEffect(() => {
+    debouncedApplyFilters();
+    return () => {
+      debouncedApplyFilters.cancel();
+    };
+  }, [debouncedApplyFilters]);
 
   useEffect(() => {
     fetchFirestoreCourses();
@@ -316,7 +294,6 @@ useEffect(() => {
     }
   };
 
-  // Replace your existing fetchFirestoreCourses function with this updated version
   const fetchFirestoreCourses = async () => {
     try {
       // First check if we have cached data
@@ -583,29 +560,6 @@ useEffect(() => {
     }
   };
   
-  // // Helper function to remove notification (can be used when needed)
-  // const removeNotification = async (requestId) => {
-  //   try {
-  //     const userRef = doc(db, 'users', currentUser.uid);
-  //     const userDoc = await getDoc(userRef);
-      
-  //     if (userDoc.exists()) {
-  //       const notifications = userDoc.data().notifications || [];
-  //       const updatedNotifications = notifications.filter(
-  //         notification => notification.requestId !== requestId
-  //       );
-        
-  //       await updateDoc(userRef, {
-  //         notifications: updatedNotifications
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error('Error removing notification:', error);
-  //     throw error;
-  //   }
-  // };
-
-
   const extractSubjects = (courses) => {
     const subjectsSet = new Set(courses.map((course) => course.subj));
     setSubjects([...subjectsSet]);
@@ -680,206 +634,13 @@ useEffect(() => {
   };
 
   const handleAddToCalendar = (course) => {
-    const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
-    const details = `&details=${encodeURIComponent(`Instructor: ${course.instructor}`)}`;
-    const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;
-
-    const events = getEventTiming(course.period, course.title);
-    
-    if (events.length === 0) {
-      alert('No valid meeting times found for this course.');
-      return;
-    }
-
-    // Display a message to the user about allowing popups
-    if (events.length > 1) {
-      // Show a message that we're adding multiple events
-      setSnackbarOpen(true);
-      setTimeout(() => setSnackbarOpen(false), 7000);
-    }
-    
-    // Function to open window with delay
-    const openCalendarWindow = (index) => {
-      if (index >= events.length) return;
-      
-      const event = events[index];
-      const text = `&text=${encodeURIComponent(event.title)}`;
-      const startDateTime = `&dates=${event.startDateTime}/${event.endDateTime}`;
-      const recur = event.recurrence ? `&recur=${event.recurrence}` : ''; 
-
-      const url = `${baseUrl}${text}${details}${location}${startDateTime}${recur}&sf=true&output=xml`;
-      
-      // Use a user interaction (setTimeout) to help bypass popup blockers
-      setTimeout(() => {
-        const newWindow = window.open(url, '_blank');
-        
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-          setPopupMessageOpen(true);
-          // Stop trying if blocked
-          return;
-        }
-        
-        // Continue with next event after a delay
-        setTimeout(() => openCalendarWindow(index + 1), 1500);
-      }, 100);
-    };
-    
-    // Start the sequential opening process
-    openCalendarWindow(0);
-  };
-
-  const getEventTiming = (periodCode, courseTitle) => {
-    const timing = periodCodeToTiming[periodCode];
-    if (!timing) return [];
-
-    const eventStartDate = '20250331'; // March 31, 2025 (Monday)
-    const eventEndDate = '20250609'; // June 9, 2025
-    const timezone = 'America/New_York';
-    const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);
-    
-    // Split by comma to handle different meeting patterns (regular vs. X-hour)
-    const timingParts = timing.split(', ');
-    const events = [];
-
-    // Process each meeting pattern separately (regular meeting vs. X-hour)
-    timingParts.forEach((part, index) => {
-      const [days, times] = part.trim().split(' '); 
-      const [startTime, endTime] = times.split('-');
-      
-      // Check if this is an X-hour (typically the second part and contains "Tu" or "Th")
-      const isXHour = index > 0;
-      
-      if (isXHour) {
-        // Special handling for X-hours to ensure they're on the correct day
-        // Extract day pattern for X-hour (typically Tu or Th)
-        const dayPattern = /(Th|Tu|Su|M|W|F|S)/g;
-        const matchedDays = days.match(dayPattern);
-        
-        if (!matchedDays) {
-          console.error('Invalid day format for X-hour:', days);
-          return;
-        }
-        
-        // Map day codes to moment.js day numbers (0=Sunday, 1=Monday, etc.)
-        const dayToMomentDay = {
-          'M': 1, 'Tu': 2, 'W': 3, 'Th': 4, 'F': 5, 'S': 6, 'Su': 0
-        };
-        
-        // For each day in the X-hour pattern, create a separate event
-        matchedDays.forEach(day => {
-          // Get the moment.js day number
-          const targetDayNum = dayToMomentDay[day];
-          
-          if (targetDayNum === undefined) {
-            console.error('Unknown day format:', day);
-            return;
-          }
-          
-          // Calculate the correct start date for this X-hour
-          const correctStartDate = baseStartDate.clone();
-          const baseDayNum = correctStartDate.day(); // 0-6, Sunday-Saturday
-          
-          // Calculate days to add to get from Monday to the target day
-          const daysToAdd = (targetDayNum - baseDayNum + 7) % 7;
-          correctStartDate.add(daysToAdd, 'days');
-          
-          // Format date for this specific day
-          const xHourStartDate = correctStartDate.format('YYYYMMDD');
-          
-          // Parse times with the correct date
-          const startMoment = parseTime(xHourStartDate, startTime, timezone);
-          const endMoment = parseTime(xHourStartDate, endTime, timezone);
-          
-          const startDateTime = startMoment.format('YYYYMMDDTHHmmssZ');
-          const endDateTime = endMoment.format('YYYYMMDDTHHmmssZ');
-          
-          // X-hour recurrence rule (just for this specific day)
-          const recurrence = `RRULE:FREQ=WEEKLY;BYDAY=${dayToRruleDay(day)};UNTIL=${eventEndDate}T235959Z`;
-          
-          // Special title for X-hour
-          const eventTitle = `${courseTitle} (X-hour: ${day} ${startTime}-${endTime})`;
-          
-          events.push({
-            startDateTime,
-            endDateTime,
-            recurrence,
-            title: eventTitle,
-          });
-        });
-      } else {
-        // Original code for regular meeting patterns
-        const startMoment = parseTime(eventStartDate, startTime, timezone);
-        const endMoment = parseTime(eventStartDate, endTime, timezone);
-        
-        const startDateTime = startMoment.format('YYYYMMDDTHHmmssZ');
-        const endDateTime = endMoment.format('YYYYMMDDTHHmmssZ');
-        
-        const recurrence = createRecurrenceRule(days, eventEndDate);
-        
-        const eventTitle = `${courseTitle} (${days} ${startTime}-${endTime})`;
-        
-        events.push({
-          startDateTime,
-          endDateTime,
-          recurrence,
-          title: eventTitle,
-        });
-      }
-    });
-
-    return events;
-  };
-  
-  // Helper function to convert day format to RRULE day format
-  const dayToRruleDay = (day) => {
-    const mapping = {
-      'M': 'MO',
-      'Tu': 'TU',
-      'W': 'WE',
-      'Th': 'TH',
-      'F': 'FR',
-      'S': 'SA',
-      'Su': 'SU',
-    };
-    return mapping[day] || '';
-  };
-
-  const parseTime = (date, timeStr, timezone) => {
-    let [hour, minute] = timeStr.split(':').map(Number);
-
-    if (hour >= 1 && hour <= 6) {
-      hour += 12;
-    }
-
-    if (hour === 12 && timeStr.includes('12:')) {
-      hour = 12;
-    }
-
-    return moment.tz(`${date} ${hour}:${minute}`, 'YYYYMMDD HH:mm', timezone);
-  };
-
-  const createRecurrenceRule = (days, endDate) => {
-    const dayMap = {
-      M: 'MO',
-      T: 'TU',
-      W: 'WE',
-      Th: 'TH',
-      F: 'FR',
-      S: 'SA',
-      Su: 'SU',
-    };
-
-    const dayPattern = /(Th|Su|M|T|W|F|S)/g;
-    const matchedDays = days.match(dayPattern);
-
-    if (!matchedDays) {
-      console.error('Invalid day format:', days);
-      return '';
-    }
-
-    const dayList = matchedDays.map((day) => dayMap[day]).join(',');
-
-    return `RRULE:FREQ=WEEKLY;BYDAY=${dayList};UNTIL=${endDate}T235959Z`;
+    // Use the imported function
+    addToGoogleCalendar(
+      course, 
+      () => setSnackbarOpen(true),
+      () => setPopupMessageOpen(true),
+      setTimeout
+    );
   };
 
   const paginatedCourses = useMemo(() => {
