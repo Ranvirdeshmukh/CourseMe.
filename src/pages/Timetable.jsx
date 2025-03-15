@@ -709,41 +709,120 @@ useEffect(() => {
 
   const getEventTiming = (periodCode, courseTitle) => {
     const timing = periodCodeToTiming[periodCode];
-
     if (!timing) return [];
 
-    const eventStartDate = '20250331'; 
-    const eventEndDate = '20250609'; 
+    const eventStartDate = '20250331'; // March 31, 2025 (Monday)
+    const eventEndDate = '20250609'; // June 9, 2025
     const timezone = 'America/New_York';
-
+    const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);
+    
+    // Split by comma to handle different meeting patterns (regular vs. X-hour)
     const timingParts = timing.split(', ');
     const events = [];
 
-    timingParts.forEach((part) => {
+    // Process each meeting pattern separately (regular meeting vs. X-hour)
+    timingParts.forEach((part, index) => {
       const [days, times] = part.trim().split(' '); 
       const [startTime, endTime] = times.split('-');
-
-      const startMoment = parseTime(eventStartDate, startTime, timezone);
-      const endMoment = parseTime(eventStartDate, endTime, timezone);
-
-      const startDateTime = startMoment.format('YYYYMMDDTHHmmssZ');
-      const endDateTime = endMoment.format('YYYYMMDDTHHmmssZ');
-
-      const recurrence = createRecurrenceRule(days, eventEndDate);
-
-      const eventTitle = `${courseTitle} (${days} ${startTime}-${endTime})`;
-
-      events.push({
-        startDateTime,
-        endDateTime,
-        recurrence,
-        title: eventTitle,
-      });
+      
+      // Check if this is an X-hour (typically the second part and contains "Tu" or "Th")
+      const isXHour = index > 0;
+      
+      if (isXHour) {
+        // Special handling for X-hours to ensure they're on the correct day
+        // Extract day pattern for X-hour (typically Tu or Th)
+        const dayPattern = /(Th|Tu|Su|M|W|F|S)/g;
+        const matchedDays = days.match(dayPattern);
+        
+        if (!matchedDays) {
+          console.error('Invalid day format for X-hour:', days);
+          return;
+        }
+        
+        // Map day codes to moment.js day numbers (0=Sunday, 1=Monday, etc.)
+        const dayToMomentDay = {
+          'M': 1, 'Tu': 2, 'W': 3, 'Th': 4, 'F': 5, 'S': 6, 'Su': 0
+        };
+        
+        // For each day in the X-hour pattern, create a separate event
+        matchedDays.forEach(day => {
+          // Get the moment.js day number
+          const targetDayNum = dayToMomentDay[day];
+          
+          if (targetDayNum === undefined) {
+            console.error('Unknown day format:', day);
+            return;
+          }
+          
+          // Calculate the correct start date for this X-hour
+          const correctStartDate = baseStartDate.clone();
+          const baseDayNum = correctStartDate.day(); // 0-6, Sunday-Saturday
+          
+          // Calculate days to add to get from Monday to the target day
+          const daysToAdd = (targetDayNum - baseDayNum + 7) % 7;
+          correctStartDate.add(daysToAdd, 'days');
+          
+          // Format date for this specific day
+          const xHourStartDate = correctStartDate.format('YYYYMMDD');
+          
+          // Parse times with the correct date
+          const startMoment = parseTime(xHourStartDate, startTime, timezone);
+          const endMoment = parseTime(xHourStartDate, endTime, timezone);
+          
+          const startDateTime = startMoment.format('YYYYMMDDTHHmmssZ');
+          const endDateTime = endMoment.format('YYYYMMDDTHHmmssZ');
+          
+          // X-hour recurrence rule (just for this specific day)
+          const recurrence = `RRULE:FREQ=WEEKLY;BYDAY=${dayToRruleDay(day)};UNTIL=${eventEndDate}T235959Z`;
+          
+          // Special title for X-hour
+          const eventTitle = `${courseTitle} (X-hour: ${day} ${startTime}-${endTime})`;
+          
+          events.push({
+            startDateTime,
+            endDateTime,
+            recurrence,
+            title: eventTitle,
+          });
+        });
+      } else {
+        // Original code for regular meeting patterns
+        const startMoment = parseTime(eventStartDate, startTime, timezone);
+        const endMoment = parseTime(eventStartDate, endTime, timezone);
+        
+        const startDateTime = startMoment.format('YYYYMMDDTHHmmssZ');
+        const endDateTime = endMoment.format('YYYYMMDDTHHmmssZ');
+        
+        const recurrence = createRecurrenceRule(days, eventEndDate);
+        
+        const eventTitle = `${courseTitle} (${days} ${startTime}-${endTime})`;
+        
+        events.push({
+          startDateTime,
+          endDateTime,
+          recurrence,
+          title: eventTitle,
+        });
+      }
     });
 
     return events;
   };
   
+  // Helper function to convert day format to RRULE day format
+  const dayToRruleDay = (day) => {
+    const mapping = {
+      'M': 'MO',
+      'Tu': 'TU',
+      'W': 'WE',
+      'Th': 'TH',
+      'F': 'FR',
+      'S': 'SA',
+      'Su': 'SU',
+    };
+    return mapping[day] || '';
+  };
+
   const parseTime = (date, timeStr, timezone) => {
     let [hour, minute] = timeStr.split(':').map(Number);
 

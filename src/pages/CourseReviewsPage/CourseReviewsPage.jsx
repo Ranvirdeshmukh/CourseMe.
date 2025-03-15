@@ -2956,7 +2956,7 @@ useEffect(() => {
             )}
             
             {isTaughtSpringTerm && (
-              <Tooltip title="This course is offered in X25" arrow placement="top">
+              <Tooltip title="This course is offered in 25X" arrow placement="top">
                 <Box
                   sx={{
                     backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9', // Spring green color
