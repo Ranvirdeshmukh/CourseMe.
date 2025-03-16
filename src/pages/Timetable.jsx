@@ -22,6 +22,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useAuth } from '../contexts/AuthContext';
 import { periodCodeToTiming, addToGoogleCalendar } from './timetablepages/googleCalendarLogic';
+import { addToAppleCalendar } from './timetablepages/appleCalendarLogic';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
@@ -42,7 +43,7 @@ const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
     : '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
   transition: 'all 0.2s ease',
   cursor: 'pointer',
-  minWidth: '140px',
+  minWidth: '120px',
   border: darkMode ? '1px solid #6b46c1' : 'none',
   '&:hover': {
     backgroundColor: darkMode ? '#4b3da0' : '#e2e2e2',
@@ -59,6 +60,55 @@ const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
     boxShadow: darkMode 
       ? '0 0 0 3px rgba(187, 134, 252, 0.5)'
       : '0 0 0 3px rgba(66, 133, 244, 0.3)',
+  },
+  '& .icon': {
+    marginRight: 8,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  '& .text': {
+    whiteSpace: 'nowrap',
+    fontWeight: 500,
+  },
+}));
+
+// Update Apple Calendar Button style to match Google's elegant styling but be more compact
+const AppleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: darkMode ? '#2d2d2d' : '#ffffff',
+  borderRadius: 6,
+  height: '32px',
+  padding: '0 12px',
+  color: darkMode ? '#ffffff' : '#000000',
+  fontFamily: 'SF Pro Display, Roboto, arial, sans-serif',
+  fontSize: '0.82rem',
+  letterSpacing: '0.25px',
+  textTransform: 'none',
+  boxShadow: darkMode 
+    ? '0 1px 3px 0 rgba(0, 0, 0, .5), 0 1px 5px 1px rgba(0, 0, 0, .4)'
+    : '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
+  transition: 'all 0.2s ease',
+  cursor: 'pointer',
+  minWidth: '120px',
+  border: darkMode ? '1px solid #444' : '1px solid #ddd',
+  '&:hover': {
+    backgroundColor: darkMode ? '#444444' : '#f5f5f5',
+    boxShadow: darkMode 
+      ? '0 2px 5px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .4)'
+      : '0 2px 4px rgba(60, 64, 67, .3), 0 3px 6px rgba(60, 64, 67, .15)',
+    transform: 'translateY(-1px)',
+  },
+  '&:active': {
+    backgroundColor: darkMode ? '#222222' : '#e1e1e1',
+    transform: 'translateY(0)',
+  },
+  '&:focus': {
+    boxShadow: darkMode 
+      ? '0 0 0 3px rgba(255, 255, 255, 0.5)'
+      : '0 0 0 3px rgba(0, 0, 0, 0.2)',
   },
   '& .icon': {
     marginRight: 8,
@@ -96,6 +146,21 @@ const GoogleIcon = () => (
       d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
     />
     <path fill="none" d="M0 0h48v48H0z" />
+  </svg>
+);
+
+// Add Apple icon component
+const AppleIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
+      fill="currentColor"
+    />
   </svg>
 );
 
@@ -643,6 +708,11 @@ const accentHoverBg = darkMode
     );
   };
 
+  // Add handler for Apple Calendar
+  const handleAddToAppleCalendar = (course) => {
+    addToAppleCalendar(course);
+  };
+
   const paginatedCourses = useMemo(() => {
     const sortedCourses = getSortedCourses(filteredCourses);
     const startIndex = (currentPage - 1) * classesPerPage;
@@ -957,16 +1027,29 @@ const accentHoverBg = darkMode
                           textAlign: 'left',
                           height: '48px',
                           verticalAlign: 'middle',
-                          width: '160px', // Add fixed width
+                          width: '160px',
                         }}
                       >
                         {course.period !== 'ARR' && course.period !== 'FS' && (
-                          <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
-                            <div className="icon">
-                              <GoogleIcon />
-                            </div>
-                            <span className="text">Add to Calendar</span>
-                          </GoogleCalendarButton>
+                          <Box sx={{ 
+                            display: 'flex', 
+                            gap: '8px',
+                            '& > button': { flex: 1 }
+                          }}>
+                            <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
+                              <div className="icon">
+                                <GoogleIcon />
+                              </div>
+                              <span className="text">Google</span>
+                            </GoogleCalendarButton>
+                            
+                            <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
+                              <div className="icon">
+                                <AppleIcon />
+                              </div>
+                              <span className="text">Apple</span>
+                            </AppleCalendarButton>
+                          </Box>
                         )}
                       </TableCell>
   
@@ -1576,16 +1659,29 @@ const accentHoverBg = darkMode
                     textAlign: 'left',
                     height: '48px',
                     verticalAlign: 'middle',
-                    width: '160px', // Add fixed width
+                    width: '160px',
                   }}
                 >
                   {course.period !== 'ARR' && course.period !== 'FS' && (
-                    <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
-                      <div className="icon">
-                        <GoogleIcon />
-                      </div>
-                      <span className="text">Add to Calendar</span>
-                    </GoogleCalendarButton>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      gap: '8px',
+                      '& > button': { flex: 1 }
+                    }}>
+                      <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
+                        <div className="icon">
+                          <GoogleIcon />
+                        </div>
+                        <span className="text">Google</span>
+                      </GoogleCalendarButton>
+                      
+                      <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
+                        <div className="icon">
+                          <AppleIcon />
+                        </div>
+                        <span className="text">Apple</span>
+                      </AppleCalendarButton>
+                    </Box>
                   )}
                 </TableCell>
 
