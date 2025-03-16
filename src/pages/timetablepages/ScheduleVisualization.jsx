@@ -273,28 +273,42 @@ const ScheduleVisualization = ({ selectedCourses, darkMode }) => {
           const courseId = `${item.course.subj}${item.course.num}-${item.day}-${item.startSlot}`;
           const hasConflict = conflicts.has(courseId);
           
+          // Extract the timing info from the periodCodeToTiming for display in tooltip
+          const timingInfo = periodCodeToTiming[item.course.period] || "No timing information";
+          
           return (
             <Tooltip
               key={`course-${index}`}
               title={
-                <Box>
-                  <Typography sx={{ fontWeight: 'bold' }}>
+                <Box sx={{ p: 1 }}>
+                  <Typography sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
                     {item.course.subj} {item.course.num} - {item.course.sec}
                   </Typography>
-                  <Typography>
+                  <Typography sx={{ fontSize: '0.9rem', mb: 0.5 }}>
                     {item.course.title}
                   </Typography>
-                  <Typography>
-                    {item.isXHour ? 'X-Hour' : 'Regular Meeting'}
+                  <Typography sx={{ fontSize: '0.9rem', color: '#FFB74D', fontWeight: 'bold' }}>
+                    {days[item.day]} {item.isXHour ? '(X-Hour)' : ''}
                   </Typography>
-                  <Typography>
+                  <Typography sx={{ 
+                    fontSize: '0.9rem', 
+                    mb: 1, 
+                    backgroundColor: 'rgba(0,0,0,0.1)', 
+                    padding: '2px 5px', 
+                    borderRadius: '4px',
+                    fontFamily: 'monospace',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Period {item.course.period}: {timingInfo}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.85rem' }}>
                     Instructor: {item.course.instructor || 'TBD'}
                   </Typography>
-                  <Typography>
+                  <Typography sx={{ fontSize: '0.85rem' }}>
                     Location: {item.course.building || 'TBD'} {item.course.room || ''}
                   </Typography>
                   {hasConflict && (
-                    <Typography sx={{ color: '#FF3B30', fontWeight: 'bold' }}>
+                    <Typography sx={{ color: '#FF3B30', fontWeight: 'bold', mt: 1, fontSize: '0.9rem' }}>
                       ⚠️ Time conflict with another course
                     </Typography>
                   )}
@@ -302,6 +316,21 @@ const ScheduleVisualization = ({ selectedCourses, darkMode }) => {
               }
               placement="top"
               arrow
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    bgcolor: darkMode ? 'rgba(38, 41, 73, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                    color: darkMode ? '#FFFFFF' : '#000000',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                    maxWidth: 'none',
+                    borderRadius: '8px',
+                    p: 0,
+                    '& .MuiTooltip-arrow': {
+                      color: darkMode ? 'rgba(38, 41, 73, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                    }
+                  }
+                }
+              }}
             >
               <Box
                 sx={{
@@ -334,9 +363,16 @@ const ScheduleVisualization = ({ selectedCourses, darkMode }) => {
                 <Typography sx={{ fontSize: '0.8rem', fontWeight: 700 }}>
                   {item.course.subj} {item.course.num}
                 </Typography>
-                <Typography sx={{ fontSize: '0.7rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {item.isXHour ? 'X-Hour' : item.course.title}
-                </Typography>
+                {item.duration > 1 && (
+                  <>
+                    <Typography sx={{ fontSize: '0.7rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {item.isXHour ? 'X-Hour' : item.course.title}
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.65rem', mt: 'auto', opacity: 0.85 }}>
+                      {hourSlots[item.startSlot].split(' ')[0]} - {hourSlots[item.endSlot-1].split(' ')[0]} {hourSlots[item.startSlot].split(' ')[1]}
+                    </Typography>
+                  </>
+                )}
               </Box>
             </Tooltip>
           );

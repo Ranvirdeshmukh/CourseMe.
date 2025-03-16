@@ -37,6 +37,7 @@ import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import Slide from '@mui/material/Slide';
 import Divider from '@mui/material/Divider';
+import AddIcon from '@mui/icons-material/Add';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
@@ -202,6 +203,9 @@ const Timetable = ({darkMode}) => {
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
   const [miniScheduleOpen, setMiniScheduleOpen] = useState(false);
   const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(false);
+  const [openPopupMessage, setOpenPopupMessage] = useState(false);
+  const [popupMessage, setPopupMessage] = useState({ message: '', type: 'info' });
+  const db = getFirestore();
   
   var courseNameLong = ""
    // Add this near your other state declarations
@@ -620,32 +624,68 @@ const accentHoverBg = darkMode
   };
 
   const handleAddCourse = async (course) => {
-    if (navigator.vibrate) {
-      navigator.vibrate(200);
-    }
-  
-    // Check if the course is already added (using a unique property such as title)
-    if (selectedCourses.some((c) => c.title === course.title)) {
-      alert('This course is already added.');
+    // Check if the course is already in the timetable
+    const alreadyAdded = selectedCourses.some(
+      (c) => c.subj === course.subj && c.num === course.num && c.sec === course.sec
+    );
+
+    if (alreadyAdded) {
+      setPopupMessage({
+        message: `${course.subj} ${course.num} is already in your timetable.`,
+        type: 'warning',
+      });
+      setOpenPopupMessage(true);
       return;
     }
-  
-    if (selectedCourses.length >= 3) {
-      alert('You can only select up to 3 courses.');
-      return;
+
+    // Ensure we have the period and location information
+    const courseToAdd = { 
+      ...course,
+      period: course.period || "ARR",  // Default to "ARR" if period is missing
+    };
+
+    // If period is missing, try to fetch it from the database
+    if (!course.period) {
+      try {
+        const courseDoc = await getDoc(doc(db, 'courses', `${course.subj}${course.num}`));
+        if (courseDoc.exists()) {
+          const courseData = courseDoc.data();
+          // Find the section data for this specific section
+          const sectionData = courseData.sections?.find(s => s.sec === course.sec);
+          if (sectionData?.period) {
+            courseToAdd.period = sectionData.period;
+          }
+          if (sectionData?.building) {
+            courseToAdd.building = sectionData.building;
+          }
+          if (sectionData?.room) {
+            courseToAdd.room = sectionData.room;
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching course period:", error);
+      }
     }
-  
-    try {
-      const db = getFirestore();
-      // Get a reference to the subcollection "springCoursestaken" under the current user
-      const springCoursesRef = collection(db, 'users', currentUser.uid, 'springCoursestaken');
-      // Add the new course to the subcollection
-      const docRef = await addDoc(springCoursesRef, course);
-      // Update the state to include the newly added course (with its new document id)
-      setSelectedCourses([...selectedCourses, { id: docRef.id, ...course }]);
-    } catch (error) {
-      console.error('Error saving spring course:', error);
+
+    setSelectedCourses([...selectedCourses, courseToAdd]);
+
+    // Add to Firestore
+    const userEmail = localStorage.getItem('userEmail');
+    if (userEmail) {
+      try {
+        await updateDoc(doc(db, 'users', userEmail), {
+          selectedCourses: arrayUnion(courseToAdd),
+        });
+      } catch (error) {
+        console.error('Error updating Firestore:', error);
+      }
     }
+    
+    setPopupMessage({
+      message: `${course.subj} ${course.num} has been added to your timetable.`,
+      type: 'success',
+    });
+    setOpenPopupMessage(true);
   };
   
 
@@ -790,10 +830,25 @@ const accentHoverBg = darkMode
         sx={{
           padding: '0 20px',
           margin: '0 auto',
-          maxWidth: '1600px', // Keep this fixed regardless of panel state
+          maxWidth: '1600px',
           transition: 'all 0.3s ease',
+          paddingRight: miniScheduleOpen ? {xs: '20px', md: miniScheduleExpanded ? '52%' : '370px'} : '20px',
         }}
       >
+        {/* Add more visual help text when panel is open */}
+        {miniScheduleOpen && courses.length > 0 && (
+          <Alert
+            severity="info"
+            sx={{
+              mb: 2,
+              backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(33, 150, 243, 0.1)',
+              color: darkMode ? '#BB86FC' : '#1976d2'
+            }}
+          >
+            Click "Add" next to courses to see them appear in your weekly schedule →
+          </Alert>
+        )}
+
         {/* "Your Spring 2025 Classes" Section */}
         {showSelectedCourses && (
           <Typography
@@ -1982,8 +2037,8 @@ const accentHoverBg = darkMode
             top: 0,
             right: 0,
             height: '100vh',
-            width: miniScheduleExpanded ? '50%' : '350px',
-            bgcolor: darkMode ? 'rgba(28, 31, 67, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+            width: miniScheduleExpanded ? '50%' : '320px', // Slightly narrower
+            bgcolor: darkMode ? 'rgba(28, 31, 67, 0.97)' : 'rgba(255, 255, 255, 0.97)',
             backdropFilter: 'blur(10px)',
             borderLeft: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
             zIndex: 1200,
@@ -2118,9 +2173,103 @@ const accentHoverBg = darkMode
               </Box>
             </>
           )}
+          
+          {/* Quick Add Section */}
+          <Divider sx={{ borderColor: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }} />
+          <Box sx={{ p: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, color: darkMode ? '#BB86FC' : '#00693E', fontWeight: 600 }}>
+              Quick Add Courses:
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <TextField
+                size="small"
+                placeholder="Course Code (e.g., COSC 1)"
+                variant="outlined"
+                fullWidth
+                value={searchTerm}
+                onChange={handleSearch}
+                InputProps={{
+                  sx: {
+                    bgcolor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+                    color: darkMode ? '#FFFFFF' : '#000000',
+                    fontSize: '0.9rem',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: darkMode ? '#BB86FC' : '#00693E',
+                    },
+                  }
+                }}
+              />
+            </Box>
+            
+            <Box sx={{ maxHeight: '150px', overflowY: 'auto' }}>
+              {courses.slice(0, 5).map((course, index) => (
+                <Box 
+                  key={`quick-${course.subj}${course.num}-${index}`}
+                  sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    py: 0.5,
+                    borderBottom: index < Math.min(courses.length, 5) - 1 ? 
+                      (darkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)') : 'none'
+                  }}
+                >
+                  <Typography variant="body2" sx={{ color: darkMode ? '#FFFFFF' : '#000000', fontSize: '0.85rem' }}>
+                    {course.subj} {course.num}: {course.title?.length > 15 ? `${course.title.substring(0, 15)}...` : course.title}
+                  </Typography>
+                  <IconButton 
+                    size="small" 
+                    onClick={() => handleAddCourse(course)}
+                    sx={{ 
+                      color: darkMode ? '#BB86FC' : '#00693E',
+                      backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.1)',
+                      '&:hover': {
+                        backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.2)',
+                      }
+                    }}
+                  >
+                    <AddIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ))}
+              {courses.length > 5 && (
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    display: 'block', 
+                    textAlign: 'center', 
+                    mt: 1, 
+                    color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)',
+                    fontStyle: 'italic'
+                  }}
+                >
+                  + {courses.length - 5} more courses available
+                </Typography>
+              )}
+              {courses.length === 0 && (
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    py: 2,
+                    color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)',
+                    textAlign: 'center',
+                    fontStyle: 'italic'
+                  }}
+                >
+                  Type to search for courses
+                </Typography>
+              )}
+            </Box>
+          </Box>
         </Paper>
       </Slide>
-      
+
       {/* Snackbars */}
       {/* Notification Snackbar */}
 <Snackbar
