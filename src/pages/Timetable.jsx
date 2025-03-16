@@ -10,6 +10,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PrintIcon from '@mui/icons-material/Print';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import CloseIcon from '@mui/icons-material/Close';
+import Fab from '@mui/material/Fab';
+import Modal from '@mui/material/Modal';
+import Zoom from '@mui/material/Zoom';
 import {
     Alert, Box, Button, ButtonBase, CircularProgress, Collapse, Container,
     FormControl, IconButton, InputAdornment, InputLabel, MenuItem, Paper,
@@ -191,6 +195,7 @@ const Timetable = ({darkMode}) => {
   const [professorNames, setProfessorNames] = useState([]);
   const [professorMap, setProfessorMap] = useState(new Map());
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
+  const [miniScheduleOpen, setMiniScheduleOpen] = useState(false);
   
   var courseNameLong = ""
    // Add this near your other state declarations
@@ -748,6 +753,14 @@ const accentHoverBg = darkMode
     }, 500);
   };
 
+  const handleOpenMiniSchedule = () => {
+    setMiniScheduleOpen(true);
+  };
+  
+  const handleCloseMiniSchedule = () => {
+    setMiniScheduleOpen(false);
+  };
+
   return (
     <Box
       sx={{
@@ -759,6 +772,7 @@ const accentHoverBg = darkMode
         transition: 'background-color 0.3s ease, color 0.3s ease',
         padding: '40px 20px',
         fontFamily: 'SF Pro Display, sans-serif',
+        position: 'relative', // Add this for floating button positioning
       }}
     >
       <Container
@@ -1906,10 +1920,118 @@ const accentHoverBg = darkMode
   </Typography>
 )}
 
+        {/* Add this note near the top when there are no courses selected */}
+        {!showSelectedCourses || selectedCourses.length === 0 ? (
+          <Alert 
+            severity="info" 
+            sx={{ 
+              marginBottom: '20px', 
+              backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(33, 150, 243, 0.1)',
+              color: darkMode ? '#BB86FC' : '#1976d2',
+              '& .MuiAlert-icon': {
+                color: darkMode ? '#BB86FC' : '#1976d2',
+              }
+            }}
+          >
+            Press the <strong>Add</strong> button next to courses to build your schedule. Use the Quick Calendar Preview in the bottom right to check for time conflicts.
+          </Alert>
+        ) : null}
       </Container>
 
+      {/* Floating Action Button for Mini Schedule */}
+      <Zoom in={true}>
+        <Fab
+          color="primary"
+          aria-label="quick schedule"
+          sx={{
+            position: 'fixed',
+            bottom: 32,
+            right: 32,
+            backgroundColor: darkMode ? '#BB86FC' : '#00693E',
+            color: darkMode ? '#000000' : '#FFFFFF',
+            '&:hover': {
+              backgroundColor: darkMode ? '#9A66EA' : '#00522F',
+            },
+            zIndex: 1000,
+          }}
+          onClick={handleOpenMiniSchedule}
+        >
+          <CalendarMonthIcon />
+        </Fab>
+      </Zoom>
+      
+      {/* Mini Schedule Modal */}
+      <Modal
+        open={miniScheduleOpen}
+        onClose={handleCloseMiniSchedule}
+        aria-labelledby="mini-schedule-title"
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'flex-end',
+          justifyContent: 'flex-end',
+        }}
+        BackdropProps={{
+          sx: { backgroundColor: 'rgba(0, 0, 0, 0.2)' }
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 90,
+            right: 30,
+            width: {xs: '90%', sm: '500px', md: '600px'},
+            maxHeight: '80vh',
+            bgcolor: darkMode ? '#1C1F43' : '#FFFFFF',
+            borderRadius: '12px',
+            boxShadow: darkMode
+              ? '0 10px 30px rgba(0, 0, 0, 0.5)'
+              : '0 10px 30px rgba(0, 0, 0, 0.1)',
+            p: 3,
+            overflow: 'auto',
+            border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                color: darkMode ? '#FFFFFF' : '#000000',
+                fontWeight: 600,
+              }}
+            >
+              Quick Calendar Preview
+            </Typography>
+            <IconButton onClick={handleCloseMiniSchedule} sx={{ color: darkMode ? '#FFFFFF' : '#000000' }}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          
+          {selectedCourses.length > 0 ? (
+            <Box sx={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>
+              <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
+            </Box>
+          ) : (
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              py: 6 
+            }}>
+              <CalendarMonthIcon sx={{ fontSize: 60, color: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', mb: 2 }} />
+              <Typography sx={{ color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', textAlign: 'center' }}>
+                No courses added yet.
+              </Typography>
+              <Typography sx={{ color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', textAlign: 'center', mt: 1 }}>
+                Click the "Add" button next to courses in the table below to visualize your schedule.
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Modal>
+      
       {/* Snackbars */}
-{/* Notification Snackbar */}
+      {/* Notification Snackbar */}
 <Snackbar
   open={snackbarOpen}
   autoHideDuration={6000}
