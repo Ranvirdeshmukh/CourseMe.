@@ -31,6 +31,7 @@ import Timetable from './pages/Timetable';
 import TranscriptParser from './pages/TranscriptParser';
 import ProfessorDetails from './pages/ProfessorDetails';
 import ProfessorDirectory from './pages/ProfessorDirectory';
+import WeeklySchedule from './pages/WeeklySchedule';
 import CORA from './pages/MajorTracking/CORA';
 import BetaSignup from './pages/BetaSignup';
 
@@ -125,6 +126,7 @@ const AppContent = () => {
         />
         <Route path="/departments/:department" element={<DepartmentCoursesWithPriorities darkMode={effectiveDarkMode} />} />
         <Route path="/timetable" element={<Timetable darkMode={effectiveDarkMode} />} />
+        <Route path="/weekly-schedule" element={<WeeklySchedule darkMode={effectiveDarkMode} />} />
         <Route path="/upload-unique-transcript" element={<TranscriptParser darkMode={effectiveDarkMode} />} />
         <Route path="/professors/:professorId" element={<ProfessorDetails darkMode={effectiveDarkMode} />} />
         <Route path="/professors" element={<ProfessorDirectory darkMode={effectiveDarkMode} />} />

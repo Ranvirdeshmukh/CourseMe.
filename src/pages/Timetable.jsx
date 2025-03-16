@@ -7,6 +7,13 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import LockIcon from '@mui/icons-material/Lock';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import SearchIcon from '@mui/icons-material/Search';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import PrintIcon from '@mui/icons-material/Print';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import CloseIcon from '@mui/icons-material/Close';
+import Fab from '@mui/material/Fab';
+import Modal from '@mui/material/Modal';
+import Zoom from '@mui/material/Zoom';
 import {
     Alert, Box, Button, ButtonBase, CircularProgress, Collapse, Container,
     FormControl, IconButton, InputAdornment, InputLabel, MenuItem, Paper,
@@ -22,6 +29,9 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useAuth } from '../contexts/AuthContext';
 import { periodCodeToTiming, addToGoogleCalendar } from './timetablepages/googleCalendarLogic';
+import { addToAppleCalendar } from './timetablepages/appleCalendarLogic';
+import { ProfessorCell } from './ProfessorCell';
+import ScheduleVisualization from './timetablepages/ScheduleVisualization';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
@@ -42,7 +52,7 @@ const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
     : '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
   transition: 'all 0.2s ease',
   cursor: 'pointer',
-  minWidth: '140px',
+  minWidth: '120px',
   border: darkMode ? '1px solid #6b46c1' : 'none',
   '&:hover': {
     backgroundColor: darkMode ? '#4b3da0' : '#e2e2e2',
@@ -59,6 +69,55 @@ const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
     boxShadow: darkMode 
       ? '0 0 0 3px rgba(187, 134, 252, 0.5)'
       : '0 0 0 3px rgba(66, 133, 244, 0.3)',
+  },
+  '& .icon': {
+    marginRight: 8,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  '& .text': {
+    whiteSpace: 'nowrap',
+    fontWeight: 500,
+  },
+}));
+
+// Update Apple Calendar Button style to match Google's elegant styling but be more compact
+const AppleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: darkMode ? '#2d2d2d' : '#ffffff',
+  borderRadius: 6,
+  height: '32px',
+  padding: '0 12px',
+  color: darkMode ? '#ffffff' : '#000000',
+  fontFamily: 'SF Pro Display, Roboto, arial, sans-serif',
+  fontSize: '0.82rem',
+  letterSpacing: '0.25px',
+  textTransform: 'none',
+  boxShadow: darkMode 
+    ? '0 1px 3px 0 rgba(0, 0, 0, .5), 0 1px 5px 1px rgba(0, 0, 0, .4)'
+    : '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
+  transition: 'all 0.2s ease',
+  cursor: 'pointer',
+  minWidth: '120px',
+  border: darkMode ? '1px solid #444' : '1px solid #ddd',
+  '&:hover': {
+    backgroundColor: darkMode ? '#444444' : '#f5f5f5',
+    boxShadow: darkMode 
+      ? '0 2px 5px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .4)'
+      : '0 2px 4px rgba(60, 64, 67, .3), 0 3px 6px rgba(60, 64, 67, .15)',
+    transform: 'translateY(-1px)',
+  },
+  '&:active': {
+    backgroundColor: darkMode ? '#222222' : '#e1e1e1',
+    transform: 'translateY(0)',
+  },
+  '&:focus': {
+    boxShadow: darkMode 
+      ? '0 0 0 3px rgba(255, 255, 255, 0.5)'
+      : '0 0 0 3px rgba(0, 0, 0, 0.2)',
   },
   '& .icon': {
     marginRight: 8,
@@ -99,6 +158,21 @@ const GoogleIcon = () => (
   </svg>
 );
 
+// Add Apple icon component
+const AppleIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 const Timetable = ({darkMode}) => {
   const [courses, setCourses] = useState([]); 
   const [filteredCourses, setFilteredCourses] = useState([]); 
@@ -120,8 +194,9 @@ const Timetable = ({darkMode}) => {
   const [professorMappings, setProfessorMappings] = useState({});
   const [professorNames, setProfessorNames] = useState([]);
   const [professorMap, setProfessorMap] = useState(new Map());
-  // const debouncedApplyFilters = useMemo(() => debounce(applyFilters, 300), [applyFilters]);
-
+  const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
+  const [miniScheduleOpen, setMiniScheduleOpen] = useState(false);
+  
   var courseNameLong = ""
    // Add this near your other state declarations
    const CACHE_VERSION = 'springV1';
@@ -209,45 +284,6 @@ const accentHoverBg = darkMode
   useEffect(() => {
     fetchProfessorData();
   }, []);
-
-  const ProfessorCell = memo(({ instructor }) => {
-    const navigate = useNavigate();
-    const professorId = instructor ? instructor.split(',')[0].trim().replace(/\s+/g, '_') : null;
-  
-    const handleClick = useCallback((e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (professorId) {
-        navigate(`/professors/${professorId}`);
-        window.scrollTo(0, 0);
-      }
-    }, [professorId, navigate]);
-  
-    return (
-      <Box
-        onClick={handleClick}
-        sx={{
-          // Always remove underline by default
-          textDecoration: 'none',
-          // If clickable, use brand color; otherwise normal text
-          color: professorId
-            ? (darkMode ? '#007AFF' : '#571ce0')
-            : (darkMode ? '#FFFFFF' : '#1D1D1F'),
-          fontWeight: 400,
-          fontSize: '0.81rem',
-          cursor: professorId ? 'pointer' : 'default',
-          lineHeight: '1.2',
-          transition: 'color 0.3s ease, text-decoration 0.3s ease',
-          // Only underline on hover if there's a valid professorId
-          '&:hover': professorId
-            ? { textDecoration: 'underline' }
-            : {},
-        }}
-      >
-        {instructor}
-      </Box>
-    );
-  });
 
   const fetchProfessorData = async () => {
     try {
@@ -643,6 +679,11 @@ const accentHoverBg = darkMode
     );
   };
 
+  // Add handler for Apple Calendar
+  const handleAddToAppleCalendar = (course) => {
+    addToAppleCalendar(course);
+  };
+
   const paginatedCourses = useMemo(() => {
     const sortedCourses = getSortedCourses(filteredCourses);
     const startIndex = (currentPage - 1) * classesPerPage;
@@ -662,18 +703,76 @@ const accentHoverBg = darkMode
     }
   };
 
+  // Add print handler for weekly schedule
+  const handlePrint = () => {
+    const printContent = document.getElementById('schedule-to-print');
+    if (!printContent) return;
+    
+    const printCSS = `
+      <style>
+        @media print {
+          body { background-color: white; }
+          .schedule-print-container { padding: 20px; }
+          .schedule-title { 
+            font-size: 24px; 
+            font-weight: bold; 
+            margin-bottom: 20px;
+            text-align: center;
+          }
+          .schedule-subtitle {
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-align: center;
+          }
+        }
+      </style>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Spring 2025 Schedule</title>
+          ${printCSS}
+        </head>
+        <body>
+          <div class="schedule-print-container">
+            <div class="schedule-title">Spring 2025 Weekly Schedule</div>
+            <div class="schedule-subtitle">Dartmouth College</div>
+            ${printContent.innerHTML}
+          </div>
+        </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+  };
+
+  const handleOpenMiniSchedule = () => {
+    setMiniScheduleOpen(true);
+  };
+  
+  const handleCloseMiniSchedule = () => {
+    setMiniScheduleOpen(false);
+  };
+
   return (
     <Box
       sx={{
         minHeight: '100vh',
-        // Use the same gradient or background color logic as AllClassesPage
         backgroundColor: darkMode
           ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)'
           : '#F9F9F9',
-        color: darkMode ? '#FFFFFF' : '#333333', // A global text color
+        color: darkMode ? '#FFFFFF' : '#333333',
         transition: 'background-color 0.3s ease, color 0.3s ease',
         padding: '40px 20px',
         fontFamily: 'SF Pro Display, sans-serif',
+        position: 'relative', // Add this for floating button positioning
       }}
     >
       <Container
@@ -684,7 +783,7 @@ const accentHoverBg = darkMode
           maxWidth: '1600px',
         }}
       >
-        {/* "Your Winter 2025 Classes" Section */}
+        {/* "Your Spring 2025 Classes" Section */}
         {showSelectedCourses && (
           <Typography
             variant="h2"
@@ -692,7 +791,6 @@ const accentHoverBg = darkMode
             sx={{
               fontWeight: 700,
               fontSize: '2.5rem',
-              // Header text can conditionally be your "headerTextColor"
               color: darkMode ? '#FFFFFF' : '#34495e',
               marginBottom: '8px',
               marginTop: '10px',
@@ -707,308 +805,438 @@ const accentHoverBg = darkMode
         )}
   
         {showSelectedCourses && selectedCourses.length > 0 && (
-          <TableContainer
-            component={Paper}
-            sx={{
-              // Paper background
-              backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
-              marginTop: '10px',
-              boxShadow: darkMode
-                ? '0 6px 16px rgba(255, 255, 255, 0.1)'
-                : '0 4px 12px rgba(0, 0, 0, 0.1)',
-              borderRadius: '12px',
-              overflowX: 'auto',
-              maxWidth: '100%',
-              transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
-            }}
-          >
-            <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
-              <TableHead
+          <>
+            {/* View Toggle */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2
+            }}>
+              <Box sx={{
+                display: 'flex',
+                bgcolor: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
+                borderRadius: '12px',
+                p: '4px',
+                mb: 2,
+              }}>
+                <Button
+                  startIcon={<TableChartIcon />}
+                  onClick={() => setViewMode('table')}
+                  sx={{
+                    backgroundColor: viewMode === 'table' 
+                      ? (darkMode ? '#BB86FC' : '#00693E') 
+                      : 'transparent',
+                    color: viewMode === 'table'
+                      ? (darkMode ? '#000000' : '#FFFFFF')
+                      : (darkMode ? '#FFFFFF' : '#000000'),
+                    fontWeight: 600,
+                    mr: 1,
+                    p: '8px 16px',
+                    borderRadius: '8px',
+                    '&:hover': {
+                      backgroundColor: viewMode === 'table'
+                        ? (darkMode ? '#9A66EA' : '#00522F')
+                        : (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                    }
+                  }}
+                >
+                  List View
+                </Button>
+                <Button
+                  startIcon={<CalendarMonthIcon />}
+                  onClick={() => setViewMode('calendar')}
+                  sx={{
+                    backgroundColor: viewMode === 'calendar' 
+                      ? (darkMode ? '#BB86FC' : '#00693E') 
+                      : 'transparent',
+                    color: viewMode === 'calendar'
+                      ? (darkMode ? '#000000' : '#FFFFFF')
+                      : (darkMode ? '#FFFFFF' : '#000000'),
+                    fontWeight: 600,
+                    p: '8px 16px',
+                    borderRadius: '8px',
+                    '&:hover': {
+                      backgroundColor: viewMode === 'calendar'
+                        ? (darkMode ? '#9A66EA' : '#00522F')
+                        : (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                    }
+                  }}
+                >
+                  Calendar View
+                </Button>
+              </Box>
+              
+              {viewMode === 'calendar' && (
+                <Button
+                  variant="outlined"
+                  startIcon={<PrintIcon />}
+                  onClick={handlePrint}
+                  sx={{
+                    color: darkMode ? '#BB86FC' : '#00693E',
+                    borderColor: darkMode ? '#BB86FC' : '#00693E',
+                    mb: 2,
+                    '&:hover': {
+                      backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.08)' : 'rgba(0, 105, 62, 0.08)',
+                      borderColor: darkMode ? '#9A66EA' : '#00522F',
+                    },
+                  }}
+                >
+                  Print Schedule
+                </Button>
+              )}
+            </Box>
+
+            {/* Table View */}
+            {viewMode === 'table' && (
+              <TableContainer
+                component={Paper}
                 sx={{
-                  backgroundColor: darkMode ? '#333333' : '#F8F8F8',
-                  position: 'sticky',
-                  top: 0,
-                  zIndex: 1,
-                  transition: 'background-color 0.3s ease',
+                  backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+                  marginTop: '10px',
+                  boxShadow: darkMode
+                    ? '0 6px 16px rgba(255, 255, 255, 0.1)'
+                    : '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  borderRadius: '12px',
+                  overflowX: 'auto',
+                  maxWidth: '100%',
+                  transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
                 }}
               >
-                <TableRow>
-                  {[
-                    'Subject',
-                    'Number',
-                    'Title',
-                    'Section',
-                    'Timing',
-                    'Room',
-                    'Building',
-                    'Instructor',
-                    'Add to Calendar',
-                    'Notifications',
-                    'Remove',
-                  ].map((header, index) => (
-                    <TableCell
-                      key={index}
-                      sx={{
-                        color: darkMode ? '#FFFFFF' : '#333333',
-                        textAlign: 'left',
-                        fontWeight: 700,
-                        fontSize: '1rem',
-                        padding: '16px 12px',
-                        borderBottom: '2px solid #E0E0E0',
-                        // If you want a different border color in dark mode:
-                        borderColor: darkMode ? '#444444' : '#E0E0E0',
-                        backgroundColor: darkMode ? '#333333' : '#F8F8F8',
-                        boxShadow:
-                          index === 0
-                            ? darkMode
-                              ? '0 2px 4px rgba(255, 255, 255, 0.05)'
-                              : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                            : 'none',
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        transition: 'background-color 0.3s ease, color 0.3s ease',
-                      }}
-                    >
-                      {header}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-  
-              <TableBody>
-                {selectedCourses.map((course, index) => {
-                  const rowBackground =
-                    index % 2 === 0
-                      ? darkMode
-                        ? '#1C1F43'
-                        : '#FFFFFF'
-                      : darkMode
-                      ? '#24273c'
-                      : '#F9F9F9';
-  
-                  return (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        backgroundColor: rowBackground,
-                        transition: 'background-color 0.3s ease',
-                        '&:hover': {
-                          backgroundColor: darkMode ? '#2a2a2a' : '#E5E5EA',
-                        },
-                        cursor: 'default',
-                      }}
-                    >
-                      {/* Subject */}
-                      <TableCell
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCourseClick(course);
-                        }}
-                        sx={{
-                          color: darkMode ? '#BB86FC' : '#571ce0', // or keep your custom highlight
-                          padding: '10px',
-                          fontWeight: 500,
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          textDecoration: 'none',
-                          transition: 'color 0.3s ease',
-                          '&:hover': {
-                            textDecoration: 'underline',
-                          },
-                          fontFamily: 'SF Pro Display, sans-serif',
-                        }}
-                      >
-                        {course.subj}
-                      </TableCell>
-  
-                      {/* Number */}
-                      <TableCell
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCourseClick(course);
-                        }}
-                        sx={{
-                          color: darkMode ? '#BB86FC' : '#571ce0',
-                          padding: '10px',
-                          fontWeight: 500,
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          textDecoration: 'none',
-                          transition: 'color 0.3s ease',
-                          '&:hover': {
-                            textDecoration: 'underline',
-                          },
-                          fontFamily: 'SF Pro Display, sans-serif',
-                        }}
-                      >
-                        {course.num}
-                      </TableCell>
-  
-                      {/* Title */}
-                      <TableCell
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCourseClick(course);
-                        }}
-                        sx={{
-                          color: darkMode ? '#BB86FC' : '#571ce0',
-                          padding: '10px',
-                          fontWeight: 500,
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          textDecoration: 'none',
-                          transition: 'color 0.3s ease',
-                          '&:hover': {
-                            textDecoration: 'underline',
-                          },
-                          fontFamily: 'SF Pro Display, sans-serif',
-                        }}
-                      >
-                        {course.title}
-                      </TableCell>
-  
-                      {/* Section */}
-                      <TableCell
-                        sx={{
-                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                          padding: '10px',
-                          fontWeight: 400,
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          transition: 'color 0.3s ease',
-                          fontFamily: 'SF Pro Display, sans-serif',
-                        }}
-                      >
-                        {course.sec}
-                      </TableCell>
-  
-                      {/* Timing */}
-                      <TableCell
-                        sx={{
-                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                          padding: '10px',
-                          fontWeight: 400,
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          transition: 'color 0.3s ease',
-                          fontFamily: 'SF Pro Display, sans-serif',
-                        }}
-                      >
-                        {course.timing}
-                      </TableCell>
-  
-                      {/* Room */}
-                      <TableCell
-                        sx={{
-                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                          padding: '10px',
-                          fontWeight: 400,
-                          // Adds ellipsis (...) if text is too long
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          transition: 'color 0.3s ease',
-                          fontFamily: 'SF Pro Display, sans-serif',
-                        }}
-                      >
-                        {course.room || 'N/A'}
-                      </TableCell>
-  
-                      {/* Building */}
-                      <TableCell
-                        sx={{
-                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                          padding: '10px',
-                          fontWeight: 400,
-                          // Adds ellipsis (...) if text is too long
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          transition: 'color 0.3s ease',
-                          fontFamily: 'SF Pro Display, sans-serif',
-                        }}
-                      >
-                        {course.building || 'N/A'}
-                      </TableCell>
-  
-  
-                      {/* Instructor */}
-                      <TableCell
-                        sx={{
-                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                          padding: '10px',
-                          fontWeight: 400,
-                          fontSize: '0.95rem',
-                          textAlign: 'left',
-                          transition: 'color 0.3s ease',
-                          fontFamily: 'SF Pro Display, sans-serif',
-                          width: '150px', // Add fixed width
-                          maxWidth: '150px', // Add max width
-                          whiteSpace: 'normal', // Allow text wrapping
-                        }}
-                      >
-                        <ProfessorCell instructor={course.instructor} />
-                      </TableCell>
-  
-                      {/* Add to Calendar Button */}
-                      <TableCell
-                        sx={{
-                          padding: '8px 12px',
-                          textAlign: 'left',
-                          height: '48px',
-                          verticalAlign: 'middle',
-                          width: '160px', // Add fixed width
-                        }}
-                      >
-                        {course.period !== 'ARR' && course.period !== 'FS' && (
-                          <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
-                            <div className="icon">
-                              <GoogleIcon />
-                            </div>
-                            <span className="text">Add to Calendar</span>
-                          </GoogleCalendarButton>
-                        )}
-                      </TableCell>
-  
-                      {/* Notify when Available Button */}
-                      <TableCell
-                        sx={{
-                          padding: '12px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        {isFallAddDropClosed ? (
-                          <Tooltip title="Spring Add/Drop notification: 8:00 AM Mon, Mar 31 to 11:59 PM Sun, Apr 13">
-                            <IconButton>
-                              <LockIcon color="disabled" />
-                            </IconButton>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip title="Notify me if someone drops this class">
-                            <IconButton onClick={() => handleNotifyDrop(course)}>
-                              <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </TableCell>
-  
-                      {/* Remove Button */}
-                      <TableCell
-                        sx={{
-                          padding: '12px',
-                          textAlign: 'left',
-                        }}
-                      >
-                        <IconButton onClick={() => handleRemoveCourse(course)}>
-                          <DeleteIcon sx={{ color: '#FF3B30' }} />
-                        </IconButton>
-                      </TableCell>
+                <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
+                  <TableHead
+                    sx={{
+                      backgroundColor: darkMode ? '#333333' : '#F8F8F8',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1,
+                      transition: 'background-color 0.3s ease',
+                    }}
+                  >
+                    <TableRow>
+                      {[
+                        'Subject',
+                        'Number',
+                        'Title',
+                        'Section',
+                        'Timing',
+                        'Room',
+                        'Building',
+                        'Instructor',
+                        'Add to Calendar',
+                        'Notifications',
+                        'Remove',
+                      ].map((header, index) => (
+                        <TableCell
+                          key={index}
+                          sx={{
+                            color: darkMode ? '#FFFFFF' : '#333333',
+                            textAlign: 'left',
+                            fontWeight: 700,
+                            fontSize: '1rem',
+                            padding: '16px 12px',
+                            borderBottom: '2px solid #E0E0E0',
+                            borderColor: darkMode ? '#444444' : '#E0E0E0',
+                            backgroundColor: darkMode ? '#333333' : '#F8F8F8',
+                            boxShadow:
+                              index === 0
+                                ? darkMode
+                                  ? '0 2px 4px rgba(255, 255, 255, 0.05)'
+                                  : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                                : 'none',
+                            fontFamily: 'SF Pro Display, sans-serif',
+                            transition: 'background-color 0.3s ease, color 0.3s ease',
+                          }}
+                        >
+                          {header}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                  </TableHead>
+  
+                  <TableBody>
+                    {selectedCourses.map((course, index) => {
+                      const rowBackground =
+                        index % 2 === 0
+                          ? darkMode
+                            ? '#1C1F43'
+                            : '#FFFFFF'
+                          : darkMode
+                          ? '#24273c'
+                          : '#F9F9F9';
+  
+                      return (
+                        <TableRow
+                          key={index}
+                          sx={{
+                            backgroundColor: rowBackground,
+                            transition: 'background-color 0.3s ease',
+                            '&:hover': {
+                              backgroundColor: darkMode ? '#2a2a2a' : '#E5E5EA',
+                            },
+                            cursor: 'default',
+                          }}
+                        >
+                          {/* Subject */}
+                          <TableCell
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCourseClick(course);
+                            }}
+                            sx={{
+                              color: darkMode ? '#BB86FC' : '#571ce0',
+                              padding: '10px',
+                              fontWeight: 500,
+                              fontSize: '0.95rem',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              textDecoration: 'none',
+                              transition: 'color 0.3s ease',
+                              '&:hover': {
+                                textDecoration: 'underline',
+                              },
+                              fontFamily: 'SF Pro Display, sans-serif',
+                            }}
+                          >
+                            {course.subj}
+                          </TableCell>
+  
+                          {/* Number */}
+                          <TableCell
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCourseClick(course);
+                            }}
+                            sx={{
+                              color: darkMode ? '#BB86FC' : '#571ce0',
+                              padding: '10px',
+                              fontWeight: 500,
+                              fontSize: '0.95rem',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              textDecoration: 'none',
+                              transition: 'color 0.3s ease',
+                              '&:hover': {
+                                textDecoration: 'underline',
+                              },
+                              fontFamily: 'SF Pro Display, sans-serif',
+                            }}
+                          >
+                            {course.num}
+                          </TableCell>
+  
+                          {/* Title */}
+                          <TableCell
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCourseClick(course);
+                            }}
+                            sx={{
+                              color: darkMode ? '#BB86FC' : '#571ce0',
+                              padding: '10px',
+                              fontWeight: 500,
+                              fontSize: '0.95rem',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              textDecoration: 'none',
+                              transition: 'color 0.3s ease',
+                              '&:hover': {
+                                textDecoration: 'underline',
+                              },
+                              fontFamily: 'SF Pro Display, sans-serif',
+                            }}
+                          >
+                            {course.title}
+                          </TableCell>
+  
+                          {/* Section */}
+                          <TableCell
+                            sx={{
+                              color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                              padding: '10px',
+                              fontWeight: 400,
+                              fontSize: '0.95rem',
+                              textAlign: 'left',
+                              transition: 'color 0.3s ease',
+                              fontFamily: 'SF Pro Display, sans-serif',
+                            }}
+                          >
+                            {course.sec}
+                          </TableCell>
+  
+                          {/* Timing */}
+                          <TableCell
+                            sx={{
+                              color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                              padding: '10px',
+                              fontWeight: 400,
+                              fontSize: '0.95rem',
+                              textAlign: 'left',
+                              transition: 'color 0.3s ease',
+                              fontFamily: 'SF Pro Display, sans-serif',
+                            }}
+                          >
+                            {course.timing}
+                          </TableCell>
+  
+                          {/* Room */}
+                          <TableCell
+                            sx={{
+                              color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                              padding: '10px',
+                              fontWeight: 400,
+                              // Adds ellipsis (...) if text is too long
+                              fontSize: '0.95rem',
+                              textAlign: 'left',
+                              transition: 'color 0.3s ease',
+                              fontFamily: 'SF Pro Display, sans-serif',
+                            }}
+                          >
+                            {course.room || 'N/A'}
+                          </TableCell>
+  
+                          {/* Building */}
+                          <TableCell
+                            sx={{
+                              color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                              padding: '10px',
+                              fontWeight: 400,
+                              // Adds ellipsis (...) if text is too long
+                              fontSize: '0.95rem',
+                              textAlign: 'left',
+                              transition: 'color 0.3s ease',
+                              fontFamily: 'SF Pro Display, sans-serif',
+                            }}
+                          >
+                            {course.building || 'N/A'}
+                          </TableCell>
+  
+  
+                          {/* Instructor */}
+                          <TableCell
+                            sx={{
+                              color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                              padding: '10px',
+                              fontWeight: 400,
+                              fontSize: '0.95rem',
+                              textAlign: 'left',
+                              transition: 'color 0.3s ease',
+                              fontFamily: 'SF Pro Display, sans-serif',
+                              width: '150px', // Add fixed width
+                              maxWidth: '150px', // Add max width
+                              whiteSpace: 'normal', // Allow text wrapping
+                            }}
+                          >
+                            <ProfessorCell instructor={course.instructor} darkMode={darkMode} />
+                          </TableCell>
+  
+                          {/* Add to Calendar Button */}
+                          <TableCell
+                            sx={{
+                              padding: '8px 12px',
+                              textAlign: 'left',
+                              height: '48px',
+                              verticalAlign: 'middle',
+                              width: '160px',
+                            }}
+                          >
+                            {course.period !== 'ARR' && course.period !== 'FS' && (
+                              <Box sx={{ 
+                                display: 'flex', 
+                                gap: '8px',
+                                '& > button': { flex: 1 }
+                              }}>
+                                <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
+                                  <div className="icon">
+                                    <GoogleIcon />
+                                  </div>
+                                  <span className="text">Google</span>
+                                </GoogleCalendarButton>
+                                
+                                <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
+                                  <div className="icon">
+                                    <AppleIcon />
+                                  </div>
+                                  <span className="text">Apple</span>
+                                </AppleCalendarButton>
+                              </Box>
+                            )}
+                          </TableCell>
+  
+                          {/* Notify When Available Button */}
+                          <TableCell
+                            sx={{
+                              padding: '12px',
+                              textAlign: 'left',
+                            }}
+                          >
+                            {isFallAddDropClosed ? (
+                              <Tooltip title="Spring add/drop notifications will open on  8:00 AM Mon, Mar 31">
+                                <IconButton>
+                                  <LockIcon color="disabled" />
+                                </IconButton>
+                              </Tooltip>
+                            ) : (
+                              <Tooltip title="Notify me if someone drops this class">
+                                <IconButton onClick={() => handleNotifyDrop(course)}>
+                                  <NotificationsActiveIcon sx={{ color: '#007AFF' }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                          </TableCell>
+  
+                          {/* Remove Button */}
+                          <TableCell
+                            sx={{
+                              padding: '12px',
+                              textAlign: 'left',
+                            }}
+                          >
+                            <IconButton onClick={() => handleRemoveCourse(course)}>
+                              <DeleteIcon sx={{ color: '#FF3B30' }} />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+            
+            {/* Calendar View */}
+            {viewMode === 'calendar' && (
+              <Box id="schedule-to-print">
+                <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
+                
+                <Box sx={{ marginTop: '32px' }}>
+                  <Typography variant="h6" sx={{ color: darkMode ? '#FFFFFF' : '#000000', marginBottom: '16px' }}>
+                    Understanding Your Schedule
+                  </Typography>
+                  <Paper
+                    sx={{
+                      backgroundColor: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                      padding: '16px',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <Typography variant="body1" sx={{ marginBottom: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}>
+                      • Regular class meetings are shown in solid colors
+                    </Typography>
+                    <Typography variant="body1" sx={{ marginBottom: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}>
+                      • X-Hours are displayed with reduced opacity
+                    </Typography>
+                    <Typography variant="body1" sx={{ marginBottom: '8px', color: darkMode ? '#FFFFFF' : '#000000' }}>
+                      • Time conflicts are highlighted with red borders
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }}>
+                      • Hover over any course block to see detailed information
+                    </Typography>
+                  </Paper>
+                </Box>
+              </Box>
+            )}
+          </>
         )}
   
         {showSelectedCourses && selectedCourses.length === 0 && (
@@ -1017,7 +1245,6 @@ const accentHoverBg = darkMode
           </Typography>
         )}
      
-  
        {/* Filters and Controls */}
 <Box
   sx={{
@@ -1034,7 +1261,6 @@ const accentHoverBg = darkMode
     align="left"
     sx={{
       fontWeight: 600,
-      // Conditionally set text color
       color: darkMode ? '#FFFFFF' : '#000000',
       marginBottom: '20px',
       marginTop: '30px',
@@ -1054,7 +1280,6 @@ const accentHoverBg = darkMode
       width: isMobile ? '100%' : '300px',
       height: '40px',
       borderRadius: '20px',
-      // Adjust shadow for dark/light if desired
       boxShadow: darkMode
         ? '0px 4px 12px rgba(255, 255, 255, 0.1)'
         : '0px 4px 10px rgba(0, 0, 0, 0.1)',
@@ -1062,7 +1287,6 @@ const accentHoverBg = darkMode
       transition: 'box-shadow 0.3s ease, background-color 0.3s ease',
       '& .MuiOutlinedInput-root': {
         '& fieldset': {
-          // Keep brand color for focus ring or adjust if desired
           borderColor: '#00693E',
         },
         '&:hover fieldset': {
@@ -1084,7 +1308,7 @@ const accentHoverBg = darkMode
         </InputAdornment>
       ),
       style: {
-        color: darkMode ? '#FFFFFF' : '#000000', // Text color inside the input
+        color: darkMode ? '#FFFFFF' : '#000000',
       },
     }}
   />
@@ -1098,7 +1322,6 @@ const accentHoverBg = darkMode
   >
     <InputLabel
       sx={{
-        // Label color (dark/light)
         color: darkMode ? '#FFFFFF' : '#000000',
         '&.Mui-focused': {
           color: '#00693E', 
@@ -1120,7 +1343,6 @@ const accentHoverBg = darkMode
         borderRadius: '20px',
         height: '40px',
         backgroundColor: darkMode ? '#0C0F33' : 'transparent',
-        // Keep brand or adjust for dark mode
         color: darkMode ? '#FFFFFF' : '#000000',
         fontWeight: '600',
         fontSize: '16px',
@@ -1133,7 +1355,6 @@ const accentHoverBg = darkMode
         transition: 'background-color 0.3s ease, color 0.3s ease',
         '& .MuiOutlinedInput-root': {
           '& fieldset': {
-            // If you want the border color to remain brand or adapt to dark mode, adjust here
             borderColor: darkMode ? '#FFFFFF' : '#000000',
           },
           '&:hover fieldset': {
@@ -1152,7 +1373,7 @@ const accentHoverBg = darkMode
           alignItems: 'center',
         },
         '& .MuiSelect-icon': {
-          color: '#00693E', // Keep brand color for dropdown icon
+          color: '#00693E',
         },
         '&:hover': {
           backgroundColor: darkMode
@@ -1185,7 +1406,6 @@ const accentHoverBg = darkMode
       padding: '10px 20px',
       borderRadius: '20px',
       height: '40px',
-      // Keep brand color usage or adapt if needed
       backgroundColor: darkMode ? 'transparent' : 'transparent',
       color: '#00693E',
       fontWeight: '600',
@@ -1225,12 +1445,10 @@ const accentHoverBg = darkMode
       marginBottom: '16px',
       marginTop: '24px',
       padding: '12px 16px',
-      // Background for dark/light
       backgroundColor: darkMode
         ? 'rgba(255, 255, 255, 0.06)'
         : 'rgba(0, 105, 62, 0.04)',
       borderRadius: '8px',
-      // Border can remain brand or adapt
       border: darkMode
         ? '1px solid rgba(255, 255, 255, 0.2)'
         : '1px solid rgba(0, 105, 62, 0.1)',
@@ -1247,7 +1465,6 @@ const accentHoverBg = darkMode
       variant="h6"
       sx={{
         fontFamily: 'SF Pro Display, sans-serif',
-        // Keep brand color #00693E or adapt if you prefer a different color in dark mode
         color: '#00693E',
         fontWeight: 600,
         fontSize: '1.1rem',
@@ -1272,7 +1489,6 @@ const accentHoverBg = darkMode
         margin: '0',
         paddingLeft: '20px',
         marginBottom: '20px',
-        // Ternary text color
         color: darkMode ? '#FFFFFF' : '#1D1D1F',
         fontFamily: 'SF Pro Display, sans-serif',
         transition: 'color 0.3s ease',
@@ -1319,7 +1535,6 @@ const accentHoverBg = darkMode
     <TableContainer
       component={Paper}
       sx={{
-        // Match the design you liked
         backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
         marginTop: '10px',
         boxShadow: darkMode
@@ -1355,7 +1570,6 @@ const accentHoverBg = darkMode
               'Number',
               'Title',
               'Section',
-              // Removed "Period"
               'Timing',
               'Room',
               'Building',
@@ -1393,7 +1607,6 @@ const accentHoverBg = darkMode
 
         <TableBody>
           {paginatedCourses.map((course, index) => {
-            // Even/odd row background
             const rowBackground =
               index % 2 === 0
                 ? darkMode
@@ -1565,7 +1778,7 @@ const accentHoverBg = darkMode
                     whiteSpace: 'normal', // Allow text wrapping
                   }}
                 >
-                  <ProfessorCell instructor={course.instructor} />
+                  <ProfessorCell instructor={course.instructor} darkMode={darkMode} />
                 </TableCell>
                
 
@@ -1576,16 +1789,29 @@ const accentHoverBg = darkMode
                     textAlign: 'left',
                     height: '48px',
                     verticalAlign: 'middle',
-                    width: '160px', // Add fixed width
+                    width: '160px',
                   }}
                 >
                   {course.period !== 'ARR' && course.period !== 'FS' && (
-                    <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
-                      <div className="icon">
-                        <GoogleIcon />
-                      </div>
-                      <span className="text">Add to Calendar</span>
-                    </GoogleCalendarButton>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      gap: '8px',
+                      '& > button': { flex: 1 }
+                    }}>
+                      <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
+                        <div className="icon">
+                          <GoogleIcon />
+                        </div>
+                        <span className="text">Google</span>
+                      </GoogleCalendarButton>
+                      
+                      <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
+                        <div className="icon">
+                          <AppleIcon />
+                        </div>
+                        <span className="text">Apple</span>
+                      </AppleCalendarButton>
+                    </Box>
                   )}
                 </TableCell>
 
@@ -1694,10 +1920,118 @@ const accentHoverBg = darkMode
   </Typography>
 )}
 
+        {/* Add this note near the top when there are no courses selected */}
+        {!showSelectedCourses || selectedCourses.length === 0 ? (
+          <Alert 
+            severity="info" 
+            sx={{ 
+              marginBottom: '20px', 
+              backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(33, 150, 243, 0.1)',
+              color: darkMode ? '#BB86FC' : '#1976d2',
+              '& .MuiAlert-icon': {
+                color: darkMode ? '#BB86FC' : '#1976d2',
+              }
+            }}
+          >
+            Press the <strong>Add</strong> button next to courses to build your schedule. Use the Quick Calendar Preview in the bottom right to check for time conflicts.
+          </Alert>
+        ) : null}
       </Container>
 
+      {/* Floating Action Button for Mini Schedule */}
+      <Zoom in={true}>
+        <Fab
+          color="primary"
+          aria-label="quick schedule"
+          sx={{
+            position: 'fixed',
+            bottom: 32,
+            right: 32,
+            backgroundColor: darkMode ? '#BB86FC' : '#00693E',
+            color: darkMode ? '#000000' : '#FFFFFF',
+            '&:hover': {
+              backgroundColor: darkMode ? '#9A66EA' : '#00522F',
+            },
+            zIndex: 1000,
+          }}
+          onClick={handleOpenMiniSchedule}
+        >
+          <CalendarMonthIcon />
+        </Fab>
+      </Zoom>
+      
+      {/* Mini Schedule Modal */}
+      <Modal
+        open={miniScheduleOpen}
+        onClose={handleCloseMiniSchedule}
+        aria-labelledby="mini-schedule-title"
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'flex-end',
+          justifyContent: 'flex-end',
+        }}
+        BackdropProps={{
+          sx: { backgroundColor: 'rgba(0, 0, 0, 0.2)' }
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 90,
+            right: 30,
+            width: {xs: '90%', sm: '500px', md: '600px'},
+            maxHeight: '80vh',
+            bgcolor: darkMode ? '#1C1F43' : '#FFFFFF',
+            borderRadius: '12px',
+            boxShadow: darkMode
+              ? '0 10px 30px rgba(0, 0, 0, 0.5)'
+              : '0 10px 30px rgba(0, 0, 0, 0.1)',
+            p: 3,
+            overflow: 'auto',
+            border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                color: darkMode ? '#FFFFFF' : '#000000',
+                fontWeight: 600,
+              }}
+            >
+              Quick Calendar Preview
+            </Typography>
+            <IconButton onClick={handleCloseMiniSchedule} sx={{ color: darkMode ? '#FFFFFF' : '#000000' }}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          
+          {selectedCourses.length > 0 ? (
+            <Box sx={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>
+              <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
+            </Box>
+          ) : (
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              py: 6 
+            }}>
+              <CalendarMonthIcon sx={{ fontSize: 60, color: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', mb: 2 }} />
+              <Typography sx={{ color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', textAlign: 'center' }}>
+                No courses added yet.
+              </Typography>
+              <Typography sx={{ color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', textAlign: 'center', mt: 1 }}>
+                Click the "Add" button next to courses in the table below to visualize your schedule.
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Modal>
+      
       {/* Snackbars */}
-{/* Notification Snackbar */}
+      {/* Notification Snackbar */}
 <Snackbar
   open={snackbarOpen}
   autoHideDuration={6000}
