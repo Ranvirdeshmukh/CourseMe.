@@ -32,6 +32,11 @@ import { periodCodeToTiming, addToGoogleCalendar } from './timetablepages/google
 import { addToAppleCalendar } from './timetablepages/appleCalendarLogic';
 import { ProfessorCell } from './ProfessorCell';
 import ScheduleVisualization from './timetablepages/ScheduleVisualization';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import Slide from '@mui/material/Slide';
+import Divider from '@mui/material/Divider';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
@@ -196,6 +201,7 @@ const Timetable = ({darkMode}) => {
   const [professorMap, setProfessorMap] = useState(new Map());
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
   const [miniScheduleOpen, setMiniScheduleOpen] = useState(false);
+  const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(false);
   
   var courseNameLong = ""
    // Add this near your other state declarations
@@ -760,6 +766,10 @@ const accentHoverBg = darkMode
   const handleCloseMiniSchedule = () => {
     setMiniScheduleOpen(false);
   };
+  
+  const toggleMiniScheduleSize = () => {
+    setMiniScheduleExpanded(!miniScheduleExpanded);
+  };
 
   return (
     <Box
@@ -772,7 +782,7 @@ const accentHoverBg = darkMode
         transition: 'background-color 0.3s ease, color 0.3s ease',
         padding: '40px 20px',
         fontFamily: 'SF Pro Display, sans-serif',
-        position: 'relative', // Add this for floating button positioning
+        position: 'relative', // For floating button positioning
       }}
     >
       <Container
@@ -780,7 +790,8 @@ const accentHoverBg = darkMode
         sx={{
           padding: '0 20px',
           margin: '0 auto',
-          maxWidth: '1600px',
+          maxWidth: '1600px', // Keep this fixed regardless of panel state
+          transition: 'all 0.3s ease',
         }}
       >
         {/* "Your Spring 2025 Classes" Section */}
@@ -1939,96 +1950,176 @@ const accentHoverBg = darkMode
       </Container>
 
       {/* Floating Action Button for Mini Schedule */}
-      <Zoom in={true}>
-        <Fab
-          color="primary"
-          aria-label="quick schedule"
+      {!miniScheduleOpen && (
+        <Zoom in={true}>
+          <Fab
+            color="primary"
+            aria-label="quick schedule"
+            sx={{
+              position: 'fixed',
+              bottom: 32,
+              right: 32,
+              backgroundColor: darkMode ? '#BB86FC' : '#00693E',
+              color: darkMode ? '#000000' : '#FFFFFF',
+              '&:hover': {
+                backgroundColor: darkMode ? '#9A66EA' : '#00522F',
+              },
+              zIndex: 1000,
+            }}
+            onClick={handleOpenMiniSchedule}
+          >
+            <CalendarMonthIcon />
+          </Fab>
+        </Zoom>
+      )}
+      
+      {/* Mini Schedule Overlay (replaces Modal) */}
+      <Slide direction="left" in={miniScheduleOpen} mountOnEnter unmountOnExit>
+        <Paper
+          elevation={6}
           sx={{
             position: 'fixed',
-            bottom: 32,
-            right: 32,
-            backgroundColor: darkMode ? '#BB86FC' : '#00693E',
-            color: darkMode ? '#000000' : '#FFFFFF',
-            '&:hover': {
-              backgroundColor: darkMode ? '#9A66EA' : '#00522F',
-            },
-            zIndex: 1000,
-          }}
-          onClick={handleOpenMiniSchedule}
-        >
-          <CalendarMonthIcon />
-        </Fab>
-      </Zoom>
-      
-      {/* Mini Schedule Modal */}
-      <Modal
-        open={miniScheduleOpen}
-        onClose={handleCloseMiniSchedule}
-        aria-labelledby="mini-schedule-title"
-        sx={{ 
-          display: 'flex', 
-          alignItems: 'flex-end',
-          justifyContent: 'flex-end',
-        }}
-        BackdropProps={{
-          sx: { backgroundColor: 'rgba(0, 0, 0, 0.2)' }
-        }}
-      >
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 90,
-            right: 30,
-            width: {xs: '90%', sm: '500px', md: '600px'},
-            maxHeight: '80vh',
-            bgcolor: darkMode ? '#1C1F43' : '#FFFFFF',
-            borderRadius: '12px',
-            boxShadow: darkMode
-              ? '0 10px 30px rgba(0, 0, 0, 0.5)'
-              : '0 10px 30px rgba(0, 0, 0, 0.1)',
-            p: 3,
-            overflow: 'auto',
-            border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+            top: 0,
+            right: 0,
+            height: '100vh',
+            width: miniScheduleExpanded ? '50%' : '350px',
+            bgcolor: darkMode ? 'rgba(28, 31, 67, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderLeft: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+            zIndex: 1200,
+            display: 'flex',
+            flexDirection: 'column',
+            transition: 'width 0.3s ease',
+            overflow: 'hidden',
+            boxShadow: '-5px 0px 25px rgba(0, 0, 0, 0.15)',
           }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ 
+            p: 2, 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            borderBottom: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+          }}>
             <Typography 
               variant="h6" 
               sx={{ 
                 color: darkMode ? '#FFFFFF' : '#000000',
                 fontWeight: 600,
+                fontSize: '1rem',
               }}
             >
-              Quick Calendar Preview
+              Weekly Schedule
             </Typography>
-            <IconButton onClick={handleCloseMiniSchedule} sx={{ color: darkMode ? '#FFFFFF' : '#000000' }}>
-              <CloseIcon />
-            </IconButton>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {selectedCourses.length > 0 && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    setViewMode('calendar');
+                    handleCloseMiniSchedule();
+                  }}
+                  startIcon={<FullscreenIcon />}
+                  sx={{
+                    color: darkMode ? '#BB86FC' : '#00693E',
+                    borderColor: darkMode ? '#BB86FC' : '#00693E',
+                    '&:hover': {
+                      borderColor: darkMode ? '#9A66EA' : '#00522F',
+                      backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.08)' : 'rgba(0, 105, 62, 0.08)',
+                    },
+                    fontSize: '0.8rem',
+                    py: 0.5,
+                  }}
+                >
+                  Full View
+                </Button>
+              )}
+              <IconButton 
+                onClick={toggleMiniScheduleSize} 
+                size="small"
+                sx={{ color: darkMode ? '#FFFFFF' : '#000000' }}
+              >
+                {miniScheduleExpanded ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
+              </IconButton>
+              <IconButton 
+                onClick={handleCloseMiniSchedule} 
+                size="small"
+                sx={{ color: darkMode ? '#FFFFFF' : '#000000' }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
           </Box>
           
-          {selectedCourses.length > 0 ? (
-            <Box sx={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>
-              <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
-            </Box>
-          ) : (
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              py: 6 
-            }}>
-              <CalendarMonthIcon sx={{ fontSize: 60, color: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', mb: 2 }} />
-              <Typography sx={{ color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', textAlign: 'center' }}>
-                No courses added yet.
-              </Typography>
-              <Typography sx={{ color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', textAlign: 'center', mt: 1 }}>
-                Click the "Add" button next to courses in the table below to visualize your schedule.
-              </Typography>
-            </Box>
+          <Box sx={{ 
+            flexGrow: 1, 
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+          }}>
+            {selectedCourses.length > 0 ? (
+              <Box sx={{ p: 2, flexGrow: 1 }}>
+                <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
+              </Box>
+            ) : (
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                p: 4,
+                flexGrow: 1,
+              }}>
+                <CalendarMonthIcon sx={{ fontSize: 60, color: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', mb: 2 }} />
+                <Typography sx={{ color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', textAlign: 'center' }}>
+                  No courses added yet
+                </Typography>
+                <Typography sx={{ color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)', textAlign: 'center', mt: 1 }}>
+                  Press the "Add" button next to courses in the table
+                </Typography>
+              </Box>
+            )}
+          </Box>
+          
+          {selectedCourses.length > 0 && (
+            <>
+              <Divider sx={{ borderColor: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }} />
+              <Box sx={{ p: 2 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1, color: darkMode ? '#BB86FC' : '#00693E', fontWeight: 600 }}>
+                  Your Selected Courses:
+                </Typography>
+                <Box sx={{ maxHeight: '180px', overflowY: 'auto' }}>
+                  {selectedCourses.map((course, index) => (
+                    <Box 
+                      key={`${course.subj}${course.num}-${index}`}
+                      sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        py: 0.5,
+                        borderBottom: index < selectedCourses.length - 1 ? 
+                          (darkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)') : 'none'
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }}>
+                        {course.subj} {course.num}: {course.title.length > 20 ? `${course.title.substring(0, 20)}...` : course.title}
+                      </Typography>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleRemoveCourse(course)}
+                        sx={{ color: darkMode ? '#FF5252' : '#D32F2F' }}
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </>
           )}
-        </Box>
-      </Modal>
+        </Paper>
+      </Slide>
       
       {/* Snackbars */}
       {/* Notification Snackbar */}
