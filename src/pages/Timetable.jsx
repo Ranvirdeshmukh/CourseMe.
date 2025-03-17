@@ -46,8 +46,8 @@ const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
   justifyContent: 'center',
   backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.12)' : 'rgba(255, 255, 255, 0.8)',
   borderRadius: '50%',
-  height: '36px',
-  width: '36px',
+  height: '44px',
+  width: '44px',
   padding: 0,
   color: darkMode ? '#8ab4f8' : '#4285F4',
   fontFamily: 'Google Sans, Roboto, arial, sans-serif',
@@ -90,8 +90,8 @@ const AppleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
   justifyContent: 'center',
   backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.03)',
   borderRadius: '50%',
-  height: '36px',
-  width: '36px',
+  height: '44px',
+  width: '44px',
   padding: 0,
   color: darkMode ? '#ffffff' : '#1d1d1f',
   fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
@@ -125,35 +125,36 @@ const AppleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
 
 const GoogleIcon = () => (
   <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
+    width="24"
+    height="24"
+    viewBox="0 0 48 48"
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      d="M15.577 8.20277C15.577 7.66077 15.5299 7.13477 15.4413 6.62689H8V9.54727H12.2412C12.0821 10.5253 11.5262 11.3667 10.6712 11.9215V13.8528H13.2254C14.7066 12.4933 15.577 10.5297 15.577 8.20277Z"
-      fill="#4285F4"
-    />
-    <path
-      d="M8 15.9998C10.16 15.9998 11.9694 15.2911 13.2254 13.8527L10.6712 11.9214C9.95688 12.3911 9.05987 12.6669 8 12.6669C5.91937 12.6669 4.15762 11.2593 3.5223 9.36621H0.882812V11.3612C2.12975 14.0953 4.87812 15.9998 8 15.9998Z"
-      fill="#34A853"
-    />
-    <path
-      d="M3.52231 9.36627C3.37769 8.89627 3.29715 8.39515 3.29715 7.88002C3.29715 7.36489 3.37769 6.86377 3.52231 6.39377V4.39877H0.882816C0.3206 5.47252 0 6.6764 0 7.88002C0 9.08365 0.3206 10.2875 0.882816 11.3613L3.52231 9.36627Z"
-      fill="#FBBC05"
-    />
-    <path
-      d="M8 3.09288C9.1685 3.09288 10.2303 3.51063 11.0564 4.30375L13.3105 2.04963C11.9683 0.797258 10.1588 0 8 0C4.87812 0 2.12975 1.90463 0.882812 4.63875L3.5223 6.63375C4.15762 4.74063 5.91937 3.09288 8 3.09288Z"
       fill="#EA4335"
+      d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
     />
+    <path
+      fill="#4285F4"
+      d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+    />
+    <path
+      fill="#FBBC05"
+      d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+    />
+    <path
+      fill="#34A853"
+      d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+    />
+    <path fill="none" d="M0 0h48v48H0z" />
   </svg>
 );
 
 // Add Apple icon component
 const AppleIcon = () => (
   <svg 
-    width="20" 
-    height="20" 
+    width="24" 
+    height="24" 
     viewBox="0 0 24 24" 
     fill="currentColor" 
     xmlns="http://www.w3.org/2000/svg"
