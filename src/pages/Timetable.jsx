@@ -44,47 +44,42 @@ const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: darkMode ? '#3b3080' : '#f2f2f2',
-  borderRadius: 6,
-  height: '32px',
-  padding: '0 12px',
-  color: darkMode ? '#ffffff' : '#1f1f1f',
-  fontFamily: 'Roboto, arial, sans-serif',
-  fontSize: '0.82rem',
-  letterSpacing: '0.25px',
-  textTransform: 'none',
+  backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.12)' : 'rgba(255, 255, 255, 0.8)',
+  borderRadius: '50%',
+  height: '36px',
+  width: '36px',
+  padding: 0,
+  color: darkMode ? '#8ab4f8' : '#4285F4',
+  fontFamily: 'Google Sans, Roboto, arial, sans-serif',
+  fontSize: '0.85rem',
+  fontWeight: 500,
   boxShadow: darkMode 
-    ? '0 1px 3px 0 rgba(0, 0, 0, .5), 0 1px 5px 1px rgba(0, 0, 0, .4)'
-    : '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
+    ? '0 1px 2px rgba(0, 0, 0, 0.2)'
+    : '0 1px 2px rgba(60, 64, 67, 0.1)',
   transition: 'all 0.2s ease',
   cursor: 'pointer',
-  minWidth: '120px',
-  border: darkMode ? '1px solid #6b46c1' : 'none',
+  border: darkMode ? '1px solid rgba(66, 133, 244, 0.3)' : '1px solid rgba(218, 220, 224, 0.8)',
   '&:hover': {
-    backgroundColor: darkMode ? '#4b3da0' : '#e2e2e2',
+    backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.2)' : 'rgba(66, 133, 244, 0.08)',
     boxShadow: darkMode 
-      ? '0 2px 5px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .4)'
-      : '0 2px 4px rgba(60, 64, 67, .3), 0 3px 6px rgba(60, 64, 67, .15)',
+      ? '0 2px 4px rgba(0, 0, 0, 0.3)'
+      : '0 1px 3px rgba(60, 64, 67, 0.2)',
     transform: 'translateY(-1px)',
   },
   '&:active': {
-    backgroundColor: darkMode ? '#322870' : '#d2d2d2',
+    backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.3)' : 'rgba(66, 133, 244, 0.12)',
     transform: 'translateY(0)',
   },
   '&:focus': {
+    outline: 'none',
     boxShadow: darkMode 
-      ? '0 0 0 3px rgba(187, 134, 252, 0.5)'
-      : '0 0 0 3px rgba(66, 133, 244, 0.3)',
+      ? '0 0 0 2px rgba(138, 180, 248, 0.5)'
+      : '0 0 0 2px rgba(66, 133, 244, 0.3)',
   },
   '& .icon': {
-    marginRight: 8,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  '& .text': {
-    whiteSpace: 'nowrap',
-    fontWeight: 500,
   },
 }));
 
@@ -93,89 +88,77 @@ const AppleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: darkMode ? '#2d2d2d' : '#ffffff',
-  borderRadius: 6,
-  height: '32px',
-  padding: '0 12px',
-  color: darkMode ? '#ffffff' : '#000000',
-  fontFamily: 'SF Pro Display, Roboto, arial, sans-serif',
-  fontSize: '0.82rem',
-  letterSpacing: '0.25px',
-  textTransform: 'none',
-  boxShadow: darkMode 
-    ? '0 1px 3px 0 rgba(0, 0, 0, .5), 0 1px 5px 1px rgba(0, 0, 0, .4)'
-    : '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
+  backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.03)',
+  borderRadius: '50%',
+  height: '36px',
+  width: '36px',
+  padding: 0,
+  color: darkMode ? '#ffffff' : '#1d1d1f',
+  fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+  fontSize: '0.85rem',
+  boxShadow: 'none',
   transition: 'all 0.2s ease',
   cursor: 'pointer',
-  minWidth: '120px',
-  border: darkMode ? '1px solid #444' : '1px solid #ddd',
+  border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.06)',
+  backdropFilter: darkMode ? 'blur(20px)' : 'none',
   '&:hover': {
-    backgroundColor: darkMode ? '#444444' : '#f5f5f5',
-    boxShadow: darkMode 
-      ? '0 2px 5px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .4)'
-      : '0 2px 4px rgba(60, 64, 67, .3), 0 3px 6px rgba(60, 64, 67, .15)',
-    transform: 'translateY(-1px)',
+    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)',
+    transform: 'scale(1.02)',
   },
   '&:active': {
-    backgroundColor: darkMode ? '#222222' : '#e1e1e1',
-    transform: 'translateY(0)',
+    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)',
+    transform: 'scale(0.98)',
   },
   '&:focus': {
+    outline: 'none',
     boxShadow: darkMode 
-      ? '0 0 0 3px rgba(255, 255, 255, 0.5)'
-      : '0 0 0 3px rgba(0, 0, 0, 0.2)',
+      ? '0 0 0 2px rgba(255, 255, 255, 0.3)'
+      : '0 0 0 2px rgba(0, 0, 0, 0.06)',
   },
   '& .icon': {
-    marginRight: 8,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  '& .text': {
-    whiteSpace: 'nowrap',
-    fontWeight: 500,
+    opacity: darkMode ? 1 : 0.9,
   },
 }));
 
 const GoogleIcon = () => (
   <svg
-    width="18"
-    height="18"
-    viewBox="0 0 48 48"
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      fill="#EA4335"
-      d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-    />
-    <path
+      d="M15.577 8.20277C15.577 7.66077 15.5299 7.13477 15.4413 6.62689H8V9.54727H12.2412C12.0821 10.5253 11.5262 11.3667 10.6712 11.9215V13.8528H13.2254C14.7066 12.4933 15.577 10.5297 15.577 8.20277Z"
       fill="#4285F4"
-      d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
     />
     <path
-      fill="#FBBC05"
-      d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-    />
-    <path
+      d="M8 15.9998C10.16 15.9998 11.9694 15.2911 13.2254 13.8527L10.6712 11.9214C9.95688 12.3911 9.05987 12.6669 8 12.6669C5.91937 12.6669 4.15762 11.2593 3.5223 9.36621H0.882812V11.3612C2.12975 14.0953 4.87812 15.9998 8 15.9998Z"
       fill="#34A853"
-      d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
     />
-    <path fill="none" d="M0 0h48v48H0z" />
+    <path
+      d="M3.52231 9.36627C3.37769 8.89627 3.29715 8.39515 3.29715 7.88002C3.29715 7.36489 3.37769 6.86377 3.52231 6.39377V4.39877H0.882816C0.3206 5.47252 0 6.6764 0 7.88002C0 9.08365 0.3206 10.2875 0.882816 11.3613L3.52231 9.36627Z"
+      fill="#FBBC05"
+    />
+    <path
+      d="M8 3.09288C9.1685 3.09288 10.2303 3.51063 11.0564 4.30375L13.3105 2.04963C11.9683 0.797258 10.1588 0 8 0C4.87812 0 2.12975 1.90463 0.882812 4.63875L3.5223 6.63375C4.15762 4.74063 5.91937 3.09288 8 3.09288Z"
+      fill="#EA4335"
+    />
   </svg>
 );
 
 // Add Apple icon component
 const AppleIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
+  <svg 
+    width="20" 
+    height="20" 
+    viewBox="0 0 24 24" 
+    fill="currentColor" 
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
-      fill="currentColor"
-    />
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
   </svg>
 );
 
@@ -1209,22 +1192,25 @@ const accentHoverBg = darkMode
                             {course.period !== 'ARR' && course.period !== 'FS' && (
                               <Box sx={{ 
                                 display: 'flex', 
-                                gap: '8px',
-                                '& > button': { flex: 1 }
+                                gap: '12px',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                               }}>
-                                <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
-                                  <div className="icon">
-                                    <GoogleIcon />
-                                  </div>
-                                  <span className="text">Google</span>
-                                </GoogleCalendarButton>
+                                <Tooltip title="Add to Google Calendar" arrow placement="top">
+                                  <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
+                                    <div className="icon">
+                                      <GoogleIcon />
+                                    </div>
+                                  </GoogleCalendarButton>
+                                </Tooltip>
                                 
-                                <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
-                                  <div className="icon">
-                                    <AppleIcon />
-                                  </div>
-                                  <span className="text">Apple</span>
-                                </AppleCalendarButton>
+                                <Tooltip title="Add to Apple Calendar" arrow placement="top">
+                                  <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
+                                    <div className="icon">
+                                      <AppleIcon />
+                                    </div>
+                                  </AppleCalendarButton>
+                                </Tooltip>
                               </Box>
                             )}
                           </TableCell>
@@ -1865,22 +1851,25 @@ const accentHoverBg = darkMode
                   {course.period !== 'ARR' && course.period !== 'FS' && (
                     <Box sx={{ 
                       display: 'flex', 
-                      gap: '8px',
-                      '& > button': { flex: 1 }
+                      gap: '12px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}>
-                      <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
-                        <div className="icon">
-                          <GoogleIcon />
-                        </div>
-                        <span className="text">Google</span>
-                      </GoogleCalendarButton>
+                      <Tooltip title="Add to Google Calendar" arrow placement="top">
+                        <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
+                          <div className="icon">
+                            <GoogleIcon />
+                          </div>
+                        </GoogleCalendarButton>
+                      </Tooltip>
                       
-                      <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
-                        <div className="icon">
-                          <AppleIcon />
-                        </div>
-                        <span className="text">Apple</span>
-                      </AppleCalendarButton>
+                      <Tooltip title="Add to Apple Calendar" arrow placement="top">
+                        <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
+                          <div className="icon">
+                            <AppleIcon />
+                          </div>
+                        </AppleCalendarButton>
+                      </Tooltip>
                     </Box>
                   )}
                 </TableCell>
