@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, Paper, Tooltip } from '@mui/material';
+import { Box, Typography, Paper, Tooltip, IconButton } from '@mui/material';
 import { periodCodeToTiming } from './googleCalendarLogic';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 // Calendar schedule visualization component
-const ScheduleVisualization = ({ selectedCourses, darkMode }) => {
+const ScheduleVisualization = ({ selectedCourses, darkMode, onRemoveCourse }) => {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const hourSlots = [];
   
@@ -311,6 +312,29 @@ const ScheduleVisualization = ({ selectedCourses, darkMode }) => {
                     <Typography sx={{ color: '#FF3B30', fontWeight: 'bold', mt: 1, fontSize: '0.9rem' }}>
                       ⚠️ Time conflict with another course
                     </Typography>
+                  )}
+                  
+                  {onRemoveCourse && (
+                    <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                      <IconButton 
+                        size="small" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemoveCourse(item.course);
+                        }}
+                        sx={{ 
+                          color: darkMode ? '#FF5252' : '#D32F2F',
+                          backgroundColor: darkMode ? 'rgba(255, 82, 82, 0.1)' : 'rgba(211, 47, 47, 0.1)',
+                          '&:hover': {
+                            backgroundColor: darkMode ? 'rgba(255, 82, 82, 0.2)' : 'rgba(211, 47, 47, 0.2)',
+                          },
+                          fontSize: '0.75rem',
+                          padding: '4px',
+                        }}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
                   )}
                 </Box>
               }

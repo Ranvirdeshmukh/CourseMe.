@@ -202,7 +202,7 @@ const Timetable = ({darkMode}) => {
   const [professorMap, setProfessorMap] = useState(new Map());
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
   const [miniScheduleOpen, setMiniScheduleOpen] = useState(false);
-  const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(false);
+  const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(true);
   const [openPopupMessage, setOpenPopupMessage] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', type: 'info' });
   const db = getFirestore();
@@ -1273,7 +1273,11 @@ const accentHoverBg = darkMode
             {/* Calendar View */}
             {viewMode === 'calendar' && (
               <Box id="schedule-to-print">
-                <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
+                <ScheduleVisualization 
+                  selectedCourses={selectedCourses} 
+                  darkMode={darkMode} 
+                  onRemoveCourse={handleRemoveCourse}
+                />
                 
                 <Box sx={{ marginTop: '32px' }}>
                   <Typography variant="h6" sx={{ color: darkMode ? '#FFFFFF' : '#000000', marginBottom: '16px' }}>
@@ -1911,8 +1915,15 @@ const accentHoverBg = darkMode
                   }}
                 >
                   <IconButton
-                    onClick={() => handleAddCourse(course)}
-                    disabled={selectedCourses.length >= 3}
+                    onClick={() => {
+                      const isAlreadyAdded = selectedCourses.some((c) => c.title === course.title);
+                      if (isAlreadyAdded) {
+                        handleRemoveCourse(course);
+                      } else {
+                        handleAddCourse(course);
+                      }
+                    }}
+                    disabled={selectedCourses.length >= 3 && !selectedCourses.some((c) => c.title === course.title)}
                   >
                     {selectedCourses.some((c) => c.title === course.title) ? (
                       <CheckCircleIcon sx={{ color: '#34C759' }} />
@@ -2064,7 +2075,7 @@ const accentHoverBg = darkMode
                 fontSize: '1rem',
               }}
             >
-              Weekly Schedule
+              Weekly Schedule Planner
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               {selectedCourses.length > 0 && (
@@ -2115,7 +2126,11 @@ const accentHoverBg = darkMode
           }}>
             {selectedCourses.length > 0 ? (
               <Box sx={{ p: 2, flexGrow: 1 }}>
-                <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
+                <ScheduleVisualization 
+                  selectedCourses={selectedCourses} 
+                  darkMode={darkMode} 
+                  onRemoveCourse={handleRemoveCourse}
+                />
               </Box>
             ) : (
               <Box sx={{ 

@@ -4,7 +4,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { collection, getDocs, getFirestore } from 'firebase/firestore';
+import { collection, getDocs, getFirestore, doc, deleteDoc } from 'firebase/firestore';
 import ScheduleVisualization from './timetablepages/ScheduleVisualization';
 
 const WeeklySchedule = ({ darkMode }) => {
@@ -100,6 +100,24 @@ const WeeklySchedule = ({ darkMode }) => {
     }
   };
 
+  const handleRemoveCourse = async (course) => {
+    const updatedCourses = selectedCourses.filter(c => 
+      !(c.subj === course.subj && c.num === course.num && c.sec === course.sec)
+    );
+    setSelectedCourses(updatedCourses);
+
+    // If we have currentUser and course has an ID, remove from Firebase
+    if (currentUser && course.id) {
+      try {
+        const db = getFirestore();
+        const courseDocRef = doc(db, 'users', currentUser.uid, 'springCoursestaken', course.id);
+        await deleteDoc(courseDocRef);
+      } catch (error) {
+        console.error('Error removing course from Firestore:', error);
+      }
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -168,7 +186,11 @@ const WeeklySchedule = ({ darkMode }) => {
               <Typography>Loading your schedule...</Typography>
             </Box>
           ) : selectedCourses.length > 0 ? (
-            <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
+            <ScheduleVisualization 
+              selectedCourses={selectedCourses} 
+              darkMode={darkMode}
+              onRemoveCourse={handleRemoveCourse} 
+            />
           ) : (
             <Paper
               elevation={3}
@@ -197,7 +219,7 @@ const WeeklySchedule = ({ darkMode }) => {
                   padding: '10px 24px',
                   borderRadius: '8px',
                   textTransform: 'none',
-                  fontWeight: 500,
+                  fontWeight: 500, 
                 }}
               >
                 Go to Timetable
