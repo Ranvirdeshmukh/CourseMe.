@@ -44,47 +44,42 @@ const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: darkMode ? '#3b3080' : '#f2f2f2',
-  borderRadius: 6,
-  height: '32px',
-  padding: '0 12px',
-  color: darkMode ? '#ffffff' : '#1f1f1f',
-  fontFamily: 'Roboto, arial, sans-serif',
-  fontSize: '0.82rem',
-  letterSpacing: '0.25px',
-  textTransform: 'none',
+  backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.12)' : 'rgba(255, 255, 255, 0.8)',
+  borderRadius: '50%',
+  height: '44px',
+  width: '44px',
+  padding: 0,
+  color: darkMode ? '#8ab4f8' : '#4285F4',
+  fontFamily: 'Google Sans, Roboto, arial, sans-serif',
+  fontSize: '0.85rem',
+  fontWeight: 500,
   boxShadow: darkMode 
-    ? '0 1px 3px 0 rgba(0, 0, 0, .5), 0 1px 5px 1px rgba(0, 0, 0, .4)'
-    : '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
+    ? '0 1px 2px rgba(0, 0, 0, 0.2)'
+    : '0 1px 2px rgba(60, 64, 67, 0.1)',
   transition: 'all 0.2s ease',
   cursor: 'pointer',
-  minWidth: '120px',
-  border: darkMode ? '1px solid #6b46c1' : 'none',
+  border: darkMode ? '1px solid rgba(66, 133, 244, 0.3)' : '1px solid rgba(218, 220, 224, 0.8)',
   '&:hover': {
-    backgroundColor: darkMode ? '#4b3da0' : '#e2e2e2',
+    backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.2)' : 'rgba(66, 133, 244, 0.08)',
     boxShadow: darkMode 
-      ? '0 2px 5px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .4)'
-      : '0 2px 4px rgba(60, 64, 67, .3), 0 3px 6px rgba(60, 64, 67, .15)',
+      ? '0 2px 4px rgba(0, 0, 0, 0.3)'
+      : '0 1px 3px rgba(60, 64, 67, 0.2)',
     transform: 'translateY(-1px)',
   },
   '&:active': {
-    backgroundColor: darkMode ? '#322870' : '#d2d2d2',
+    backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.3)' : 'rgba(66, 133, 244, 0.12)',
     transform: 'translateY(0)',
   },
   '&:focus': {
+    outline: 'none',
     boxShadow: darkMode 
-      ? '0 0 0 3px rgba(187, 134, 252, 0.5)'
-      : '0 0 0 3px rgba(66, 133, 244, 0.3)',
+      ? '0 0 0 2px rgba(138, 180, 248, 0.5)'
+      : '0 0 0 2px rgba(66, 133, 244, 0.3)',
   },
   '& .icon': {
-    marginRight: 8,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  '& .text': {
-    whiteSpace: 'nowrap',
-    fontWeight: 500,
   },
 }));
 
@@ -93,54 +88,45 @@ const AppleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: darkMode ? '#2d2d2d' : '#ffffff',
-  borderRadius: 6,
-  height: '32px',
-  padding: '0 12px',
-  color: darkMode ? '#ffffff' : '#000000',
-  fontFamily: 'SF Pro Display, Roboto, arial, sans-serif',
-  fontSize: '0.82rem',
-  letterSpacing: '0.25px',
-  textTransform: 'none',
-  boxShadow: darkMode 
-    ? '0 1px 3px 0 rgba(0, 0, 0, .5), 0 1px 5px 1px rgba(0, 0, 0, .4)'
-    : '0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15)',
+  backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.03)',
+  borderRadius: '50%',
+  height: '44px',
+  width: '44px',
+  padding: 0,
+  color: darkMode ? '#ffffff' : '#1d1d1f',
+  fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+  fontSize: '0.85rem',
+  boxShadow: 'none',
   transition: 'all 0.2s ease',
   cursor: 'pointer',
-  minWidth: '120px',
-  border: darkMode ? '1px solid #444' : '1px solid #ddd',
+  border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.06)',
+  backdropFilter: darkMode ? 'blur(20px)' : 'none',
   '&:hover': {
-    backgroundColor: darkMode ? '#444444' : '#f5f5f5',
-    boxShadow: darkMode 
-      ? '0 2px 5px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .4)'
-      : '0 2px 4px rgba(60, 64, 67, .3), 0 3px 6px rgba(60, 64, 67, .15)',
-    transform: 'translateY(-1px)',
+    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)',
+    transform: 'scale(1.02)',
   },
   '&:active': {
-    backgroundColor: darkMode ? '#222222' : '#e1e1e1',
-    transform: 'translateY(0)',
+    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)',
+    transform: 'scale(0.98)',
   },
   '&:focus': {
+    outline: 'none',
     boxShadow: darkMode 
-      ? '0 0 0 3px rgba(255, 255, 255, 0.5)'
-      : '0 0 0 3px rgba(0, 0, 0, 0.2)',
+      ? '0 0 0 2px rgba(255, 255, 255, 0.3)'
+      : '0 0 0 2px rgba(0, 0, 0, 0.06)',
   },
   '& .icon': {
-    marginRight: 8,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  '& .text': {
-    whiteSpace: 'nowrap',
-    fontWeight: 500,
+    opacity: darkMode ? 1 : 0.9,
   },
 }));
 
 const GoogleIcon = () => (
   <svg
-    width="18"
-    height="18"
+    width="24"
+    height="24"
     viewBox="0 0 48 48"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -166,16 +152,14 @@ const GoogleIcon = () => (
 
 // Add Apple icon component
 const AppleIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
+  <svg 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="currentColor" 
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
-      fill="currentColor"
-    />
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
   </svg>
 );
 
@@ -202,7 +186,7 @@ const Timetable = ({darkMode}) => {
   const [professorMap, setProfessorMap] = useState(new Map());
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
   const [miniScheduleOpen, setMiniScheduleOpen] = useState(false);
-  const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(false);
+  const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(true);
   const [openPopupMessage, setOpenPopupMessage] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', type: 'info' });
   const db = getFirestore();
@@ -1209,22 +1193,25 @@ const accentHoverBg = darkMode
                             {course.period !== 'ARR' && course.period !== 'FS' && (
                               <Box sx={{ 
                                 display: 'flex', 
-                                gap: '8px',
-                                '& > button': { flex: 1 }
+                                gap: '12px',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                               }}>
-                                <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
-                                  <div className="icon">
-                                    <GoogleIcon />
-                                  </div>
-                                  <span className="text">Google</span>
-                                </GoogleCalendarButton>
+                                <Tooltip title="Add to Google Calendar" arrow placement="top">
+                                  <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
+                                    <div className="icon">
+                                      <GoogleIcon />
+                                    </div>
+                                  </GoogleCalendarButton>
+                                </Tooltip>
                                 
-                                <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
-                                  <div className="icon">
-                                    <AppleIcon />
-                                  </div>
-                                  <span className="text">Apple</span>
-                                </AppleCalendarButton>
+                                <Tooltip title="Add to Apple Calendar" arrow placement="top">
+                                  <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
+                                    <div className="icon">
+                                      <AppleIcon />
+                                    </div>
+                                  </AppleCalendarButton>
+                                </Tooltip>
                               </Box>
                             )}
                           </TableCell>
@@ -1273,7 +1260,11 @@ const accentHoverBg = darkMode
             {/* Calendar View */}
             {viewMode === 'calendar' && (
               <Box id="schedule-to-print">
-                <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
+                <ScheduleVisualization 
+                  selectedCourses={selectedCourses} 
+                  darkMode={darkMode} 
+                  onRemoveCourse={handleRemoveCourse}
+                />
                 
                 <Box sx={{ marginTop: '32px' }}>
                   <Typography variant="h6" sx={{ color: darkMode ? '#FFFFFF' : '#000000', marginBottom: '16px' }}>
@@ -1861,22 +1852,25 @@ const accentHoverBg = darkMode
                   {course.period !== 'ARR' && course.period !== 'FS' && (
                     <Box sx={{ 
                       display: 'flex', 
-                      gap: '8px',
-                      '& > button': { flex: 1 }
+                      gap: '12px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}>
-                      <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
-                        <div className="icon">
-                          <GoogleIcon />
-                        </div>
-                        <span className="text">Google</span>
-                      </GoogleCalendarButton>
+                      <Tooltip title="Add to Google Calendar" arrow placement="top">
+                        <GoogleCalendarButton darkMode={darkMode} onClick={() => handleAddToCalendar(course)}>
+                          <div className="icon">
+                            <GoogleIcon />
+                          </div>
+                        </GoogleCalendarButton>
+                      </Tooltip>
                       
-                      <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
-                        <div className="icon">
-                          <AppleIcon />
-                        </div>
-                        <span className="text">Apple</span>
-                      </AppleCalendarButton>
+                      <Tooltip title="Add to Apple Calendar" arrow placement="top">
+                        <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
+                          <div className="icon">
+                            <AppleIcon />
+                          </div>
+                        </AppleCalendarButton>
+                      </Tooltip>
                     </Box>
                   )}
                 </TableCell>
@@ -1911,8 +1905,15 @@ const accentHoverBg = darkMode
                   }}
                 >
                   <IconButton
-                    onClick={() => handleAddCourse(course)}
-                    disabled={selectedCourses.length >= 3}
+                    onClick={() => {
+                      const isAlreadyAdded = selectedCourses.some((c) => c.title === course.title);
+                      if (isAlreadyAdded) {
+                        handleRemoveCourse(course);
+                      } else {
+                        handleAddCourse(course);
+                      }
+                    }}
+                    disabled={selectedCourses.length >= 3 && !selectedCourses.some((c) => c.title === course.title)}
                   >
                     {selectedCourses.some((c) => c.title === course.title) ? (
                       <CheckCircleIcon sx={{ color: '#34C759' }} />
@@ -2064,7 +2065,7 @@ const accentHoverBg = darkMode
                 fontSize: '1rem',
               }}
             >
-              Weekly Schedule
+              Weekly Schedule Planner
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               {selectedCourses.length > 0 && (
@@ -2115,7 +2116,11 @@ const accentHoverBg = darkMode
           }}>
             {selectedCourses.length > 0 ? (
               <Box sx={{ p: 2, flexGrow: 1 }}>
-                <ScheduleVisualization selectedCourses={selectedCourses} darkMode={darkMode} />
+                <ScheduleVisualization 
+                  selectedCourses={selectedCourses} 
+                  darkMode={darkMode} 
+                  onRemoveCourse={handleRemoveCourse}
+                />
               </Box>
             ) : (
               <Box sx={{ 
