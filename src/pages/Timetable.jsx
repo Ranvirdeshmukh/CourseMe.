@@ -21,7 +21,7 @@ import {
     TableRow, TextField, Tooltip, Typography, useMediaQuery,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, deleteDoc } from 'firebase/firestore';
+import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where, deleteDoc, orderBy, limit, startAfter } from 'firebase/firestore';
 import localforage from 'localforage';
 import debounce from 'lodash/debounce';
 import moment from 'moment-timezone';
@@ -189,6 +189,9 @@ const Timetable = ({darkMode}) => {
   const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(true);
   const [openPopupMessage, setOpenPopupMessage] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', type: 'info' });
+  const [totalCourseCount, setTotalCourseCount] = useState(0); // New state for total count
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // Loading state for pagination
+  const [lastVisibleDoc, setLastVisibleDoc] = useState(null); // For Firestore pagination
   const db = getFirestore();
   
   var courseNameLong = ""
@@ -197,7 +200,7 @@ const Timetable = ({darkMode}) => {
 
   const isMobile = useMediaQuery('(max-width:600px)');
 
-  const totalPages = Math.ceil(filteredCourses.length / classesPerPage); // Total number of pages
+  const totalPages = Math.ceil(totalCourseCount / classesPerPage); // Calculate from total count
   const navigate = useNavigate();
 
   const [sortConfig] = useState({ key: null, direction: 'ascending' });
@@ -233,26 +236,197 @@ const accentHoverBg = darkMode
     });
   }, [sortConfig]);
 
-  const applyFilters = useCallback(() => {
-    let filtered = [...courses];
-
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (course) =>
-          (course.title?.toLowerCase()?.includes(searchLower) ?? false) ||
-          (course.subj?.toLowerCase()?.includes(searchLower) ?? false) ||
-          (course.instructor?.toLowerCase()?.includes(searchLower) ?? false)
+  // Revised to fetch subjects only, not all courses
+  const fetchSubjects = useCallback(async () => {
+    try {
+      // First check if we have cached subjects
+      const cachedSubjects = await localforage.getItem('cachedSubjects');
+      const cacheTimestamp = await localforage.getItem('subjectsCacheTimestamp');
+      const cachedVersion = await localforage.getItem('subjectsCacheVersion');
+      const now = Date.now();
+      
+      const isCacheValid = 
+        cachedSubjects && 
+        cacheTimestamp && 
+        cachedVersion === CACHE_VERSION && 
+        (now - cacheTimestamp) < 5184000000;
+      
+      if (isCacheValid) {
+        setSubjects(cachedSubjects);
+        return;
+      }
+      
+      // If cache is invalid, fetch subjects from Firestore
+      const db = getFirestore();
+      const subjectsQuery = query(
+        collection(db, 'springTimetable'),
+        orderBy('Subj'),
+        limit(1000) // Reasonable limit for subjects
       );
+      
+      const querySnapshot = await getDocs(subjectsQuery);
+      const uniqueSubjects = new Set();
+      
+      querySnapshot.forEach((doc) => {
+        uniqueSubjects.add(doc.data().Subj);
+      });
+      
+      const subjectsArray = Array.from(uniqueSubjects);
+      
+      // Cache the subjects
+      await Promise.all([
+        localforage.setItem('cachedSubjects', subjectsArray),
+        localforage.setItem('subjectsCacheTimestamp', now),
+        localforage.setItem('subjectsCacheVersion', CACHE_VERSION)
+      ]);
+      
+      setSubjects(subjectsArray);
+    } catch (error) {
+      console.error('Error fetching subjects:', error);
+      setError(error);
     }
+  }, []);
 
-    if (selectedSubject) {
-      filtered = filtered.filter((course) => course.subj === selectedSubject);
+  // Get total count of courses (for pagination)
+  const fetchCoursesCount = useCallback(async () => {
+    try {
+      const cachedCount = await localforage.getItem('cachedCoursesCount');
+      const countCacheTimestamp = await localforage.getItem('coursesCountTimestamp');
+      const now = Date.now();
+      
+      if (cachedCount && countCacheTimestamp && (now - countCacheTimestamp) < 5184000000) {
+        setTotalCourseCount(cachedCount);
+        return;
+      }
+      
+      // This is a simplified approach - in production, you'd use a more efficient method
+      // like a dedicated counter document or Cloud Functions
+      const coursesSnapshot = await getDocs(collection(db, 'springTimetable'));
+      const count = coursesSnapshot.size;
+      
+      await Promise.all([
+        localforage.setItem('cachedCoursesCount', count),
+        localforage.setItem('coursesCountTimestamp', now)
+      ]);
+      
+      setTotalCourseCount(count);
+    } catch (error) {
+      console.error('Error getting courses count:', error);
     }
+  }, [db]);
 
+  // New function for paginated and filtered data fetching
+  const fetchFirestoreCoursesPaginated = useCallback(async (reset = false) => {
+    try {
+      setIsLoadingMore(true);
+      
+      // Build query with filters
+      let coursesQuery = query(collection(db, 'springTimetable'), limit(classesPerPage));
+      
+      // Add filters
+      if (selectedSubject) {
+        coursesQuery = query(coursesQuery, where('Subj', '==', selectedSubject));
+      }
+      
+      // Add search term filter if applicable
+      if (searchTerm) {
+        // For simple search cases that map directly to fields
+        if (searchTerm.includes(' ')) {
+          // If there's a space, might be searching for "SUBJ NUM"
+          const [subjPart, numPart] = searchTerm.split(' ');
+          if (numPart) {
+            coursesQuery = query(
+              coursesQuery, 
+              where('Subj', '==', subjPart.toUpperCase()),
+              where('Num', '==', numPart)
+            );
+          }
+        } else {
+          // Try matching by subject code
+          coursesQuery = query(coursesQuery, where('Subj', '==', searchTerm.toUpperCase()));
+        }
+      }
+      
+      // Add pagination using lastVisibleDoc
+      if (!reset && lastVisibleDoc) {
+        coursesQuery = query(coursesQuery, startAfter(lastVisibleDoc));
+      }
+      
+      const coursesSnapshot = await getDocs(coursesQuery);
+      
+      // Get the last document for pagination
+      const lastVisible = coursesSnapshot.docs[coursesSnapshot.docs.length - 1];
+      setLastVisibleDoc(lastVisible);
+      
+      const coursesData = coursesSnapshot.docs.map((doc) => {
+        const periodCode = doc.data()['Period Code'];
+        return {
+          documentName: doc.id,
+          subj: doc.data().Subj,
+          num: doc.data().Num,
+          sec: doc.data().Section,
+          title: doc.data().Title,
+          period: periodCode,
+          timing: periodCodeToTiming[periodCode] || 'Unknown Timing',
+          room: doc.data().Room,
+          building: doc.data().Building,
+          instructor: doc.data().Instructor,
+        };
+      });
+      
+      // If resetting, replace courses; otherwise append
+      if (reset) {
+        setCourses(coursesData);
+        setFilteredCourses(coursesData);
+        setCurrentPage(1);
+      } else {
+        setCourses(prev => [...prev, ...coursesData]);
+        setFilteredCourses(prev => [...prev, ...coursesData]);
+      }
+      
+      setLoading(false);
+      setIsLoadingMore(false);
+      
+      // Cache only this page of data with the filters applied
+      const cacheKey = `courses_p${currentPage}_s${selectedSubject || 'all'}_q${searchTerm || 'none'}`;
+      await localforage.setItem(cacheKey, coursesData);
+      
+    } catch (error) {
+      console.error('Error fetching Firestore courses:', error);
+      setError(error);
+      setLoading(false);
+      setIsLoadingMore(false);
+    }
+  }, [db, currentPage, classesPerPage, selectedSubject, searchTerm, lastVisibleDoc]);
+
+  // Handle client-side search for complex queries that can't be done in Firestore
+  const handleComplexSearch = useCallback((searchTerm) => {
+    // Only run this if there's a search term that couldn't be handled by Firestore
+    if (!searchTerm) return;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const filtered = courses.filter(
+      (course) =>
+        (course.title?.toLowerCase()?.includes(searchLower) ?? false) ||
+        (course.subj?.toLowerCase()?.includes(searchLower) ?? false) ||
+        (course.instructor?.toLowerCase()?.includes(searchLower) ?? false)
+    );
+    
     setFilteredCourses(filtered);
-    setCurrentPage(1);
-  }, [courses, searchTerm, selectedSubject]);
+  }, [courses]);
+
+  // Combined function to handle both server and client-side filtering
+  const applyFilters = useCallback(() => {
+    // Reset pagination and fetch new data with filters
+    setLastVisibleDoc(null);
+    fetchFirestoreCoursesPaginated(true);
+    
+    // After server fetch, handle any complex filtering that Firestore can't do
+    // This runs after fetchFirestoreCoursesPaginated completes
+    if (searchTerm && !searchTerm.includes(' ') && searchTerm.length > 2) {
+      handleComplexSearch(searchTerm);
+    }
+  }, [fetchFirestoreCoursesPaginated, searchTerm, handleComplexSearch]);
 
   const debouncedApplyFilters = useMemo(
     () => debounce(applyFilters, 300),
@@ -264,16 +438,15 @@ const accentHoverBg = darkMode
     return () => {
       debouncedApplyFilters.cancel();
     };
-  }, [debouncedApplyFilters]);
+  }, [debouncedApplyFilters, searchTerm, selectedSubject]);
 
   useEffect(() => {
-    fetchFirestoreCourses();
+    // Initial data loading
+    fetchCoursesCount();
+    fetchSubjects();
+    fetchFirestoreCoursesPaginated(true);
     fetchUserTimetable(); 
-  }, [currentUser]); 
-
-  useEffect(() => {
-    applyFilters(); 
-  }, [searchTerm, selectedSubject]);
+  }, [fetchCoursesCount, fetchSubjects, fetchFirestoreCoursesPaginated, currentUser]); 
 
   useEffect(() => {
     fetchProfessorData();
@@ -321,84 +494,6 @@ const accentHoverBg = darkMode
       setProfessorMap(mapping);
     } catch (error) {
       console.error('Error fetching professor data:', error);
-    }
-  };
-
-  const fetchFirestoreCourses = async () => {
-    try {
-      // First check if we have cached data
-      const cachedCourses = await localforage.getItem('cachedCourses');
-      const cacheTimestamp = await localforage.getItem('cacheTimestamp');
-      const cachedVersion = await localforage.getItem('cacheVersion');
-      const now = Date.now();
-  
-      console.log('Cache status:', {
-        hasCachedCourses: !!cachedCourses,
-        cacheTimestamp,
-        cachedVersion,
-        currentVersion: CACHE_VERSION
-      });
-  
-      // Check if cache is valid
-      const isCacheValid = 
-        cachedCourses && 
-        cacheTimestamp && 
-        cachedVersion === CACHE_VERSION && 
-        (now - cacheTimestamp) < 5184000000;
-  
-      if (isCacheValid) {
-        console.log('Using cached data');
-        setCourses(cachedCourses);
-        setFilteredCourses(cachedCourses);
-        extractSubjects(cachedCourses);
-        setLoading(false);
-        return;
-      }
-  
-      console.log('Cache invalid or expired, fetching new data');
-  
-      // If cache version doesn't match, clear everything
-      if (cachedVersion !== CACHE_VERSION) {
-        console.log('Version mismatch, clearing cache');
-        await localforage.clear();
-      }
-  
-      // Fetch new data
-      const db = getFirestore();
-      const coursesSnapshot = await getDocs(collection(db, 'springTimetable'));
-      const coursesData = coursesSnapshot.docs.map((doc) => {
-        const periodCode = doc.data()['Period Code'];
-        return {
-          documentName: doc.id,
-          subj: doc.data().Subj,
-          num: doc.data().Num,
-          sec: doc.data().Section,
-          title: doc.data().Title,
-          period: periodCode,
-          timing: periodCodeToTiming[periodCode] || 'Unknown Timing',
-          room: doc.data().Room,
-          building: doc.data().Building,
-          instructor: doc.data().Instructor,
-        };
-      });
-  
-      // Store the new data in cache
-      await Promise.all([
-        localforage.setItem('cachedCourses', coursesData),
-        localforage.setItem('cacheTimestamp', now),
-        localforage.setItem('cacheVersion', CACHE_VERSION)
-      ]);
-  
-      console.log('New data cached');
-      setCourses(coursesData);
-      setFilteredCourses(coursesData);
-      extractSubjects(coursesData);
-      setLoading(false);
-  
-    } catch (error) {
-      console.error('Error fetching Firestore courses:', error);
-      setError(error);
-      setLoading(false);
     }
   };
 
@@ -714,22 +809,22 @@ const accentHoverBg = darkMode
     addToAppleCalendar(course);
   };
 
-  const paginatedCourses = useMemo(() => {
-    const sortedCourses = getSortedCourses(filteredCourses);
-    const startIndex = (currentPage - 1) * classesPerPage;
-    const endIndex = startIndex + classesPerPage;
-    return sortedCourses.slice(startIndex, endIndex);
-  }, [filteredCourses, currentPage, getSortedCourses]);
-
+  // Modified pagination handlers to use the new server-side pagination
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
+      fetchFirestoreCoursesPaginated();
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
+      // For previous page, we need a different approach since Firestore doesn't have a "previous" query
+      // One way is to cache pages and re-fetch when going back
       setCurrentPage((prevPage) => prevPage - 1);
+      // This is a simplified approach - in a real app you'd need to track pagination state better
+      setLastVisibleDoc(null); // Reset and re-fetch from start
+      fetchFirestoreCoursesPaginated(true);
     }
   };
 
@@ -1005,7 +1100,7 @@ const accentHoverBg = darkMode
                   </TableHead>
   
                   <TableBody>
-                    {selectedCourses.map((course, index) => {
+                    {filteredCourses.map((course, index) => {
                       const rowBackground =
                         index % 2 === 0
                           ? darkMode
@@ -1252,6 +1347,15 @@ const accentHoverBg = darkMode
                         </TableRow>
                       );
                     })}
+                    
+                    {/* Add loading indicator for pagination */}
+                    {isLoadingMore && (
+                      <TableRow>
+                        <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
+                          <CircularProgress size={30} sx={{ color: darkMode ? '#BB86FC' : '#00693E' }} />
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -1663,7 +1767,7 @@ const accentHoverBg = darkMode
         </TableHead>
 
         <TableBody>
-          {paginatedCourses.map((course, index) => {
+          {filteredCourses.map((course, index) => {
             const rowBackground =
               index % 2 === 0
                 ? darkMode
@@ -1929,6 +2033,15 @@ const accentHoverBg = darkMode
               </TableRow>
             );
           })}
+          
+          {/* Add loading indicator for pagination */}
+          {isLoadingMore && (
+            <TableRow>
+              <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
+                <CircularProgress size={30} sx={{ color: darkMode ? '#BB86FC' : '#00693E' }} />
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </TableContainer>
@@ -1944,7 +2057,7 @@ const accentHoverBg = darkMode
     >
       <IconButton
         onClick={handlePreviousPage}
-        disabled={currentPage === 1}
+        disabled={currentPage === 1 || loading}
         sx={{
           marginRight: '10px',
           color: '#007AFF',
@@ -1963,12 +2076,12 @@ const accentHoverBg = darkMode
           transition: 'color 0.3s ease',
         }}
       >
-        Page {currentPage} of {totalPages}
+        Page {currentPage} of {totalPages > 0 ? totalPages : '...'}
       </Typography>
 
       <IconButton
         onClick={handleNextPage}
-        disabled={currentPage === totalPages}
+        disabled={currentPage === totalPages || loading || filteredCourses.length < classesPerPage}
         sx={{
           marginLeft: '10px',
           color: '#007AFF',
