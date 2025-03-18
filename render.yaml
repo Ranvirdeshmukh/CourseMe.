@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: college-course-review
+    env: static
+    buildCommand: npm install --legacy-peer-deps && npm run build
+    staticPublishPath: ./build
+    envVars:
+      - key: NODE_VERSION
+        value: 16
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html 
