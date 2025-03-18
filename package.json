@@ -7,7 +7,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.20",
-    "@mui/lab": "^6.0.0-beta.30",
+    "@mui/lab": "^5.0.0-alpha.169",
     "@mui/material": "^5.15.20",
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-progress": "^1.1.0",
@@ -60,7 +60,8 @@
     "build": "NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "start:prod": "serve -s build",
     "test": "NODE_OPTIONS=--openssl-legacy-provider react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "render-postbuild": "echo 'Build completed'"
   },
   "eslintConfig": {
     "extends": [
