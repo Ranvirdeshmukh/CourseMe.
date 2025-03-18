@@ -38,6 +38,9 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import Slide from '@mui/material/Slide';
 import Divider from '@mui/material/Divider';
 import AddIcon from '@mui/icons-material/Add';
+// Add these imports for the feature notification
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
@@ -793,6 +796,46 @@ const accentHoverBg = darkMode
   
   const toggleMiniScheduleSize = () => {
     setMiniScheduleExpanded(!miniScheduleExpanded);
+  };
+
+  // Add new state for feature discovery tooltip
+  const [showFeatureHighlight, setShowFeatureHighlight] = useState(false);
+
+  // Add useEffect to check if user has seen the feature highlight before
+  useEffect(() => {
+    const checkFeatureHighlight = async () => {
+      try {
+        // Get current visit count
+        const featureVisitCount = localStorage.getItem('weeklyScheduleFeatureVisits');
+        const visitCount = featureVisitCount ? parseInt(featureVisitCount) : 0;
+        
+        // Show feature if we haven't reached 5 visits yet
+        if (visitCount < 9) {
+          // Increment and save the visit count
+          localStorage.setItem('weeklyScheduleFeatureVisits', (visitCount + 1).toString());
+          
+          // Wait a bit before showing the highlight so other elements can load
+          setTimeout(() => {
+            setShowFeatureHighlight(true);
+          }, 1500);
+        }
+      } catch (error) {
+        console.error('Error checking feature highlight status:', error);
+      }
+    };
+
+    checkFeatureHighlight();
+  }, []);
+
+  // Add function to dismiss feature highlight
+  const handleFeatureHighlightClose = () => {
+    setShowFeatureHighlight(false);
+    try {
+      // When user explicitly closes it, set count to 5 to stop showing it
+      localStorage.setItem('weeklyScheduleFeatureVisits', '5');
+    } catch (error) {
+      console.error('Error saving feature highlight status:', error);
+    }
   };
 
   return (
@@ -2008,24 +2051,179 @@ const accentHoverBg = darkMode
       {/* Floating Action Button for Mini Schedule */}
       {!miniScheduleOpen && (
         <Zoom in={true}>
-          <Fab
-            color="primary"
-            aria-label="quick schedule"
-            sx={{
-              position: 'fixed',
-              bottom: 32,
-              right: 32,
-              backgroundColor: darkMode ? '#BB86FC' : '#00693E',
-              color: darkMode ? '#000000' : '#FFFFFF',
-              '&:hover': {
-                backgroundColor: darkMode ? '#9A66EA' : '#00522F',
-              },
-              zIndex: 1000,
-            }}
-            onClick={handleOpenMiniSchedule}
-          >
-            <CalendarMonthIcon />
-          </Fab>
+          <Box sx={{ position: 'fixed', bottom: 32, right: 32, zIndex: 1000 }}>
+            {/* Feature discovery tooltip */}
+            {showFeatureHighlight && (
+              <ClickAwayListener onClickAway={handleFeatureHighlightClose}>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: 76,
+                    right: 0,
+                    width: 280,
+                    padding: '16px',
+                    borderRadius: '14px',
+                    backgroundColor: darkMode 
+                      ? 'rgba(60, 60, 80, 0.95)' 
+                      : 'rgba(255, 255, 255, 0.98)',
+                    color: darkMode ? '#FFFFFF' : '#000000',
+                    boxShadow: darkMode 
+                      ? '0 10px 25px rgba(0, 0, 0, 0.5)' 
+                      : '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
+                    backdropFilter: 'blur(20px)',
+                    border: darkMode 
+                      ? '1px solid rgba(255, 255, 255, 0.1)' 
+                      : '1px solid rgba(0, 0, 0, 0.05)',
+                    zIndex: 1001,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    fontSize: '14px',
+                    fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+                    transform: 'translateX(-40px)',
+                    opacity: 1,
+                    animation: 'fadeSlideIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                    '@keyframes fadeSlideIn': {
+                      from: {
+                        opacity: 0,
+                        transform: 'translateX(-20px) translateY(10px)'
+                      },
+                      to: {
+                        opacity: 1,
+                        transform: 'translateX(-40px) translateY(0)'
+                      }
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <CalendarMonthIcon 
+                      sx={{ 
+                        color: darkMode ? '#FFFFFF' : '#007AFF',
+                        mr: 1.5,
+                        fontSize: 22
+                      }} 
+                    />
+                    <Typography sx={{ 
+                      fontWeight: 600, 
+                      fontSize: '16px',
+                      color: darkMode ? '#FFFFFF' : '#000000'
+                    }}>
+                      New! Weekly Schedule
+                    </Typography>
+                    <Box sx={{ flexGrow: 1 }} />
+                    <IconButton 
+                      size="small" 
+                      onClick={handleFeatureHighlightClose}
+                      sx={{ 
+                        padding: '4px',
+                        color: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.4)'
+                      }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  
+                  <Typography sx={{ mb: 1.5, lineHeight: 1.4 }}>
+                    Visualize your class schedule by day and time with our new weekly planner.
+                  </Typography>
+                  
+                  <Button
+                    variant="text"
+                    onClick={() => {
+                      handleFeatureHighlightClose();
+                      handleOpenMiniSchedule();
+                    }}
+                    endIcon={<ArrowRightAltIcon />}
+                    sx={{
+                      alignSelf: 'flex-start',
+                      color: darkMode ? '#BB86FC' : '#007AFF',
+                      fontWeight: 500,
+                      padding: '4px 8px',
+                      textTransform: 'none',
+                      '&:hover': {
+                        backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.08)' : 'rgba(0, 122, 255, 0.08)', 
+                      }
+                    }}
+                  >
+                    Try it now
+                  </Button>
+                  
+                  <Box sx={{ 
+                    position: 'absolute',
+                    bottom: -10,
+                    right: 30,
+                    width: 0,
+                    height: 0,
+                    borderLeft: '10px solid transparent',
+                    borderRight: '10px solid transparent',
+                    borderTop: darkMode
+                      ? '10px solid rgba(60, 60, 80, 0.95)'
+                      : '10px solid rgba(255, 255, 255, 0.98)',
+                    zIndex: 1002,
+                  }} />
+                </Box>
+              </ClickAwayListener>
+            )}
+            
+            <Fab
+              color="primary"
+              aria-label="quick schedule"
+              sx={{
+                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.9)',
+                color: darkMode ? '#FFFFFF' : '#000000',
+                width: 64,
+                height: 64,
+                backdropFilter: 'blur(10px)', // Frosted glass effect for iOS feel
+                border: darkMode ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.05)',
+                boxShadow: darkMode 
+                  ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
+                  : '0 10px 30px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.05)',
+                '&:hover': {
+                  backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 1)',
+                  boxShadow: darkMode 
+                    ? '0 12px 40px rgba(0, 0, 0, 0.5)' 
+                    : '0 14px 40px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08)',
+                },
+                transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                zIndex: 1000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                // Add subtle pulse animation when tooltip is visible
+                animation: showFeatureHighlight 
+                  ? 'pulse 2s infinite cubic-bezier(0.455, 0.03, 0.515, 0.955)'
+                  : 'none',
+                '@keyframes pulse': {
+                  '0%': {
+                    boxShadow: darkMode 
+                      ? '0 0 0 0 rgba(255, 255, 255, 0.4)' 
+                      : '0 0 0 0 rgba(0, 122, 255, 0.4)'
+                  },
+                  '70%': {
+                    boxShadow: darkMode 
+                      ? '0 0 0 10px rgba(255, 255, 255, 0)' 
+                      : '0 0 0 10px rgba(0, 122, 255, 0)'
+                  },
+                  '100%': {
+                    boxShadow: darkMode 
+                      ? '0 0 0 0 rgba(255, 255, 255, 0)' 
+                      : '0 0 0 0 rgba(0, 122, 255, 0)'
+                  }
+                }
+              }}
+              onClick={handleOpenMiniSchedule}
+            >
+              <CalendarMonthIcon sx={{ 
+                fontSize: 28,
+                color: darkMode 
+                  ? '#FFFFFF' 
+                  : '#000000',
+                transition: 'transform 0.2s ease',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                }
+              }} />
+            </Fab>
+          </Box>
         </Zoom>
       )}
       
