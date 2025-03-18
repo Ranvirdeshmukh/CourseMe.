@@ -2015,16 +2015,39 @@ const accentHoverBg = darkMode
               position: 'fixed',
               bottom: 32,
               right: 32,
-              backgroundColor: darkMode ? '#BB86FC' : '#00693E',
-              color: darkMode ? '#000000' : '#FFFFFF',
+              backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.9)',
+              color: darkMode ? '#FFFFFF' : '#000000',
+              width: 64,
+              height: 64,
+              backdropFilter: 'blur(10px)', // Frosted glass effect for iOS feel
+              border: darkMode ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.05)',
+              boxShadow: darkMode 
+                ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
+                : '0 10px 30px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.05)',
               '&:hover': {
-                backgroundColor: darkMode ? '#9A66EA' : '#00522F',
+                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 1)',
+                boxShadow: darkMode 
+                  ? '0 12px 40px rgba(0, 0, 0, 0.5)' 
+                  : '0 14px 40px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08)',
               },
+              transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
               zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
             onClick={handleOpenMiniSchedule}
           >
-            <CalendarMonthIcon />
+            <CalendarMonthIcon sx={{ 
+              fontSize: 28,
+              color: darkMode 
+                ? '#FFFFFF' 
+                : '#000000',
+              transition: 'transform 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.05)',
+              }
+            }} />
           </Fab>
         </Zoom>
       )}
