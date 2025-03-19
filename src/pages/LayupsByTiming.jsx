@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Typography,
@@ -17,7 +17,7 @@ import {
   MenuItem,
   Alert,
 } from '@mui/material';
-import { collection, query, getDocs, where } from 'firebase/firestore';
+import { collection, query, getDocs, where, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useMediaQuery } from '@mui/material';
 import localforage from 'localforage';
@@ -26,6 +26,7 @@ import localforage from 'localforage';
 const CACHE_KEY = 'winter_layups_cache';
 const CACHE_VERSION = 'v1';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const MAX_COURSES_TO_DISPLAY = 15; // Extracted constant for maintainability
 
 const LayupsByTiming = ({darkMode}) => {
   const [timeSlotCourses, setTimeSlotCourses] = useState([]);
@@ -33,7 +34,10 @@ const LayupsByTiming = ({darkMode}) => {
   const [error, setError] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState("11"); // Changed initial value
   const isMobile = useMediaQuery('(max-width:600px)');
-  const periodCodeToTiming = {
+  const [courseIndex, setCourseIndex] = useState(null); // To store the course index for efficient lookups
+  
+  // Moved this to useMemo to prevent recreation on every render
+  const periodCodeToTiming = useMemo(() => ({
     "11": "MWF 11:30-12:35, Tu 12:15-1:05",
     "10": "MWF 10:10-11:15, Th 12:15-1:05",
     "2": "MWF 2:10-3:15, Th 1:20-2:10",
@@ -46,146 +50,179 @@ const LayupsByTiming = ({darkMode}) => {
     "6A": "MTh 6:30-8:20, Tu 6:30-7:20",
     "6B": "W 6:30-9:30, Tu 7:30-8:20",
     "8S": "MTThF 7:45-8:35, Wed 7:45-8:35",
-  };
+  }), []); // Empty dependency array as this shouldn't change
   
 
   // Helper function to normalize course numbers
-  const normalizeCourseNumber = (number) => {
+  const normalizeCourseNumber = useCallback((number) => {
     if (typeof number === 'string' && number.includes('.')) {
       const [integerPart, decimalPart] = number.split('.');
       return `${integerPart.padStart(3, '0')}.${decimalPart}`;
     }
     return typeof number === 'string' ? number.padStart(3, '0') : String(number).padStart(3, '0');
-  };
+  }, []);
 
   // Helper function to generate course ID
-  const generateCourseId = (dept, courseNum) => {
+  const generateCourseId = useCallback((dept, courseNum) => {
     // Format: DEPT_DEPTXXX_Title
     return `${dept}_${dept}${normalizeCourseNumber(courseNum)}`;
-  };
-  // Add this after your state declarations
-useEffect(() => {
-  // Fetch period 11 data when component mounts
-  fetchCoursesByPeriod("11");
-}, []); // Empty dependency array means this runs once on mount
-useEffect(() => {
-  // Preload common periods
-  const preloadPeriods = async () => {
-    const commonPeriods = [ '10', '2'];
-    await Promise.all(
-      commonPeriods.map(period => fetchCoursesByPeriod(period))
-    );
-  };
+  }, [normalizeCourseNumber]);
   
-  preloadPeriods();
-}, []);
-
-const fetchCoursesByPeriod = useCallback(async (periodCode) => {
-  try {
-    setLoading(true);
-    setError(null);
-
-    // Check cache first
-    const cacheKey = `${CACHE_KEY}_${periodCode}`;
-    const cachedData = await localforage.getItem(cacheKey);
-    const cacheTimestamp = await localforage.getItem(`${cacheKey}_timestamp`);
-    const cacheVersion = await localforage.getItem(`${cacheKey}_version`);
-
-    // Use cache if valid
-    if (
-      cachedData && 
-      cacheTimestamp && 
-      Date.now() - cacheTimestamp < CACHE_DURATION &&
-      cacheVersion === CACHE_VERSION
-    ) {
-      setTimeSlotCourses(cachedData);
-      setLoading(false);
-      return;
-    }
-
-    // Create indexes for faster lookups
-    const coursesIndex = new Map();
-    const coursesSnapshot = await getDocs(collection(db, 'courses'));
-    coursesSnapshot.docs.forEach(doc => {
-      const data = doc.data();
-      if (data.department && data.course_number) {
-        const key = `${data.department}_${normalizeCourseNumber(data.course_number)}`;
-        coursesIndex.set(key, {
-          layup: data.layup || 0,
-          id: doc.id,
-          name: data.name || '',
-          numOfReviews: data.numOfReviews || 0,
+  // Initialize course index only once
+  useEffect(() => {
+    const initializeCourseIndex = async () => {
+      try {
+        // Check if we have a cached index
+        const cachedIndex = await localforage.getItem('course_index_cache');
+        const cacheTimestamp = await localforage.getItem('course_index_timestamp');
+        
+        if (cachedIndex && cacheTimestamp && Date.now() - cacheTimestamp < CACHE_DURATION) {
+          setCourseIndex(cachedIndex);
+          return;
+        }
+        
+        const coursesIndex = new Map();
+        const coursesSnapshot = await getDocs(collection(db, 'courses'));
+        coursesSnapshot.docs.forEach(doc => {
+          const data = doc.data();
+          if (data.department && data.course_number) {
+            const key = `${data.department}_${normalizeCourseNumber(data.course_number)}`;
+            coursesIndex.set(key, {
+              layup: data.layup || 0,
+              id: doc.id,
+              name: data.name || '',
+              numOfReviews: data.numOfReviews || 0,
+            });
+          }
         });
+        
+        // Save to state and cache
+        setCourseIndex(coursesIndex);
+        await localforage.setItem('course_index_cache', coursesIndex);
+        await localforage.setItem('course_index_timestamp', Date.now());
+      } catch (err) {
+        console.error('Error initializing course index:', err);
       }
-    });
-
-    // Fetch spring timetable data
-const springQuery = query(
-  collection(db, 'springTimetable'),
-  where('Period Code', '==', periodCode)
-);
-const springSnapshot = await getDocs(springQuery);
-
+    };
     
-    // Process data in batches
-const batchSize = 50;
-const springCourses = [];  // Declare springCourses here
-for (let i = 0; i < springSnapshot.docs.length; i += batchSize) {
-  const batch = springSnapshot.docs.slice(i, i + batchSize);
-  const batchResults = batch.map(doc => {
-    const data = doc.data();
-    const lookupKey = `${data.Subj}_${normalizeCourseNumber(data.Num)}`;
-    const courseInfo = coursesIndex.get(lookupKey) || { 
-      layup: 0, 
-      id: null,
-      name: '',
-      numOfReviews: 0
+    initializeCourseIndex();
+  }, [normalizeCourseNumber]);
+
+  // Add this after your state declarations
+  useEffect(() => {
+    // Fetch period 11 data when component mounts
+    fetchCoursesByPeriod("11");
+  }, [courseIndex]); // Depends on courseIndex being loaded
+  
+  useEffect(() => {
+    // Preload common periods
+    const preloadPeriods = async () => {
+      if (!courseIndex) return; // Wait for course index to be ready
+      
+      const commonPeriods = ['10', '2'];
+      await Promise.all(
+        commonPeriods.map(period => fetchCoursesByPeriod(period, false)) // false = don't set loading state for preloads
+      );
     };
+    
+    preloadPeriods();
+  }, [courseIndex]);
 
-    return {
-      id: doc.id,
-      subj: data.Subj,
-      num: data.Num,
-      title: data.Title,
-      section: data.Section,
-      period: data['Period Code'],
-      instructor: data.Instructor,
-      timing: periodCodeToTiming[data['Period Code']] || 'Unknown Timing',
-      layup: courseInfo.layup,
-      courseId: courseInfo.id,
-      numOfReviews: courseInfo.numOfReviews
-    };
-  });
-  springCourses.push(...batchResults);
-}
+  const fetchCoursesByPeriod = useCallback(async (periodCode, updateLoadingState = true) => {
+    // Skip if course index isn't loaded yet
+    if (!courseIndex) return;
+    
+    try {
+      if (updateLoadingState) {
+        setLoading(true);
+        setError(null);
+      }
 
+      // Check cache first
+      const cacheKey = `${CACHE_KEY}_${periodCode}`;
+      const cachedData = await localforage.getItem(cacheKey);
+      const cacheTimestamp = await localforage.getItem(`${cacheKey}_timestamp`);
+      const cacheVersion = await localforage.getItem(`${cacheKey}_version`);
 
-const sortedCourses = springCourses
-.filter(course => course.layup > 0)
-.sort((a, b) => b.layup - a.layup)
-.slice(0, 15);
+      // Use cache if valid
+      if (
+        cachedData && 
+        cacheTimestamp && 
+        Date.now() - cacheTimestamp < CACHE_DURATION &&
+        cacheVersion === CACHE_VERSION
+      ) {
+        if (updateLoadingState) {
+          setTimeSlotCourses(cachedData);
+          setLoading(false);
+        }
+        return;
+      }
 
-// Cache the results
-await Promise.all([
-localforage.setItem(cacheKey, sortedCourses),
-localforage.setItem(`${cacheKey}_timestamp`, Date.now()),
-localforage.setItem(`${cacheKey}_version`, CACHE_VERSION)
-]);
+      // Fetch spring timetable data with limit to improve performance
+      const springQuery = query(
+        collection(db, 'springTimetable'),
+        where('Period Code', '==', periodCode),
+        limit(100) // Add reasonable limit to query
+      );
+      const springSnapshot = await getDocs(springQuery);
+      
+      // Process data efficiently
+      const springCourses = springSnapshot.docs.map(doc => {
+        const data = doc.data();
+        const lookupKey = `${data.Subj}_${normalizeCourseNumber(data.Num)}`;
+        const courseInfo = courseIndex.get(lookupKey) || { 
+          layup: 0, 
+          id: null,
+          name: '',
+          numOfReviews: 0
+        };
 
-setTimeSlotCourses(sortedCourses);
+        return {
+          id: doc.id,
+          subj: data.Subj,
+          num: data.Num,
+          title: data.Title,
+          section: data.Section,
+          period: data['Period Code'],
+          instructor: data.Instructor,
+          timing: periodCodeToTiming[data['Period Code']] || 'Unknown Timing',
+          layup: courseInfo.layup,
+          courseId: courseInfo.id,
+          numOfReviews: courseInfo.numOfReviews
+        };
+      });
 
+      const sortedCourses = springCourses
+        .filter(course => course.layup > 0)
+        .sort((a, b) => b.layup - a.layup)
+        .slice(0, MAX_COURSES_TO_DISPLAY);
 
+      // Cache the results
+      try {
+        await Promise.all([
+          localforage.setItem(cacheKey, sortedCourses),
+          localforage.setItem(`${cacheKey}_timestamp`, Date.now()),
+          localforage.setItem(`${cacheKey}_version`, CACHE_VERSION)
+        ]);
+      } catch (cacheError) {
+        console.warn('Cache write failed:', cacheError);
+        // Non-critical error, continue without failing the main operation
+      }
 
-    setTimeSlotCourses(sortedCourses);
-  } catch (error) {
-    console.error('Error fetching courses:', error);
-    setError('Failed to fetch courses.');
-  } finally {
-    setLoading(false);
-  }
-}, []);
+      if (updateLoadingState) {
+        setTimeSlotCourses(sortedCourses);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      if (updateLoadingState) {
+        setError('Failed to fetch courses.');
+        setLoading(false);
+      }
+    }
+  }, [courseIndex, normalizeCourseNumber, periodCodeToTiming]);
 
-  const handlePeriodChange = (event) => {
+  const handlePeriodChange = useCallback((event) => {
     const period = event.target.value;
     setSelectedPeriod(period);
     if (period) {
@@ -193,7 +230,7 @@ setTimeSlotCourses(sortedCourses);
     } else {
       setTimeSlotCourses([]);
     }
-  };
+  }, [fetchCoursesByPeriod]);
 
   
 
