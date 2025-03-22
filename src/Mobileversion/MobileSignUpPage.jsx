@@ -185,7 +185,7 @@ const MobileSignUpPage = ({ darkMode }) => {
             align="center"
             sx={{
               fontFamily: 'SF Pro Display, sans-serif',
-              fontWeight: 400,
+              fontWeight: 500,
               color: theme.palette.text.primary,
               opacity: 1,
               animation: 'fadeIn 1.5s ease-out',
@@ -210,7 +210,7 @@ const MobileSignUpPage = ({ darkMode }) => {
               component="span"
               sx={{
                 fontFamily: 'SF Pro Display, sans-serif',
-                fontWeight: 600,
+                fontWeight: 500,
                 color: '#00693e', // Dartmouth green
                 display: 'inline-block',
                 position: 'relative',
@@ -235,10 +235,11 @@ const MobileSignUpPage = ({ darkMode }) => {
               component="span"
               variant="h6"
               sx={{
+                fontFamily: 'SF Pro Display, sans-serif',
                 color: '#F26655',
                 display: 'inline-block',
                 position: 'relative',
-                fontWeight: 'bold',
+                fontWeight: 500,
                 animation: 'pulseDot 3s ease-in-out infinite',
                 '@keyframes pulseDot': {
                   '0%, 100%': {
