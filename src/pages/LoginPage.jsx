@@ -11,6 +11,7 @@ import {
   IconButton,
   Snackbar,
   Alert,
+  useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { signInWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
@@ -22,18 +23,26 @@ import LockIcon from '@mui/icons-material/Lock';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import ReactTypingEffect from 'react-typing-effect'; // Import the typing effect
+import MobileLoginPage from '../Mobileversion/MobileLoginPage'; // Import the mobile version
 
-const LoginPage = () => {
+const LoginPage = ({ darkMode }) => {
+  // All hooks must be at the top level of the component
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const emailRef = useRef();
   const passwordRef = useRef();
   const navigate = useNavigate();
-  const theme = useTheme(); // Access the current theme
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
+  // If it's a mobile device, render the mobile version
+  if (isMobile) {
+    return <MobileLoginPage darkMode={darkMode} />;
+  }
+  
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
   const handleSubmit = async (e) => {
