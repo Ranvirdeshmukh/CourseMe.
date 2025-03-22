@@ -11,6 +11,7 @@ import {
   Button,
   Snackbar,
   Alert,
+  useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
@@ -23,10 +24,12 @@ import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import ReactTypingEffect from 'react-typing-effect';
+import MobileSignUpPage from '../Mobileversion/MobileSignUpPage';
 
-const SignUpPage = () => {
+const SignUpPage = ({ darkMode }) => {
   const navigate = useNavigate();
   const theme = useTheme(); // Access the current theme
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if device is mobile
   const firstNameRef = useRef();
   const lastNameRef = useRef();
   const emailRef = useRef();
@@ -39,6 +42,11 @@ const SignUpPage = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false); // If needed
 
+  // If it's a mobile device, render the mobile version
+  if (isMobile) {
+    return <MobileSignUpPage darkMode={darkMode} />;
+  }
+  
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleClickShowConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword);
 
