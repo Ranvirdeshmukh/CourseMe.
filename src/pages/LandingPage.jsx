@@ -77,11 +77,45 @@ const LandingPage = ({ darkMode }) => {
   // --------------------------------------------------------------------------------
   // 4) UI constants
   // --------------------------------------------------------------------------------
-  const typingMessages = [
+  const [typingMessages, setTypingMessages] = useState([
     "Unlock Your Academic Edge.",
     "Find Easy Courses in Seconds.",
     "Plan Your Perfect Schedule Today."
-  ];
+  ]);
+
+  // Update the typing messages when user logs in
+  useEffect(() => {
+    const defaultMessages = [
+      "Unlock Your Academic Edge.",
+      "Find Easy Courses in Seconds.", 
+      "Plan Your Perfect Schedule Today."
+    ];
+
+    if (currentUser) {
+      // Get user's first name
+      let firstName = '';
+      if (currentUser.displayName) {
+        firstName = currentUser.displayName.split(' ')[0];
+      }
+
+      // Set personalized first message if we have a name
+      if (firstName) {
+        setTypingMessages([
+          `Welcome back, ${firstName}.`,
+          ...defaultMessages
+        ]);
+      } else {
+        // Use email if no display name is available
+        setTypingMessages([
+          "Welcome back.",
+          ...defaultMessages
+        ]);
+      }
+    } else {
+      // Reset to default messages if no user
+      setTypingMessages(defaultMessages);
+    }
+  }, [currentUser]);
 
   // Color scheme based on darkMode (just as reference if needed)
   const navBoxBgColor = darkMode ? '#333333' : '#f9f9f9';
@@ -451,6 +485,7 @@ const LandingPage = ({ darkMode }) => {
           getColor={getColor}
           currentUser={currentUser}
           handleLoginRedirect={handleLoginRedirect}
+          typingMessages={typingMessages}
         />
       </Box>
 
@@ -482,14 +517,19 @@ const LandingPage = ({ darkMode }) => {
             typingDelay={1000}
             speed={100}
             eraseSpeed={50}
-            eraseDelay={3000}
+            eraseDelay={currentUser ? 2000 : 3000}
             displayTextRenderer={(text, i) => {
-              const isSecondSentence = i === 1;
+              const isWelcomeMessage = currentUser && i === 0;
+              const isSecondSentence = !currentUser ? i === 1 : i === 1;
+              
               const sentenceColor = darkMode
-                ? '#FFFFFF' // White in dark mode
+                ? '#FFFFFF'
+                : isWelcomeMessage
+                ? '#00693e'
                 : isSecondSentence
-                ? '#571ce0' // Purple for the second sentence in light mode
-                : '#000000'; // Black for other sentences
+                ? '#571ce0'
+                : '#000000';
+              
               const hasFullStop = text.endsWith('.');
               const textWithoutStop = hasFullStop ? text.slice(0, -1) : text;
               const fullStop = hasFullStop ? '.' : '';

@@ -20,6 +20,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useNavigate } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
+import ReactTypingEffect from 'react-typing-effect';
 
 const MobileLandingPage = ({ 
   darkMode, 
@@ -39,7 +40,8 @@ const MobileLandingPage = ({
   getSentimentLevel,
   getColor,
   currentUser,
-  handleLoginRedirect
+  handleLoginRedirect,
+  typingMessages
 }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
   const navigate = useNavigate();
@@ -246,7 +248,58 @@ const MobileLandingPage = ({
       {/* Heading and Mobile Navigation */}
       <Box sx={{ pt: 4, pb: 2 }}>
         {/* Mobile Heading */}
-        
+        <Typography
+          variant="h4"
+          sx={{
+            fontFamily: 'SF Pro Display, sans-serif',
+            fontWeight: 600,
+            fontSize: '1.75rem',
+            color: darkMode ? '#FFFFFF' : '#000000',
+            mb: '20px',
+            letterSpacing: '0.03rem',
+            textAlign: 'center',
+            px: 2,
+          }}
+        >
+          <ReactTypingEffect
+            text={typingMessages}
+            typingDelay={1000}
+            speed={80}
+            eraseSpeed={50}
+            eraseDelay={currentUser ? 2000 : 3000}
+            displayTextRenderer={(text, i) => {
+              const isWelcomeMessage = currentUser && i === 0;
+              const isSecondSentence = !currentUser ? i === 1 : i === 1;
+              
+              const sentenceColor = darkMode
+                ? '#FFFFFF'
+                : isWelcomeMessage
+                ? '#00693e'
+                : isSecondSentence
+                ? '#571ce0'
+                : '#000000';
+              
+              const hasFullStop = text.endsWith('.');
+              const textWithoutStop = hasFullStop ? text.slice(0, -1) : text;
+              const fullStop = hasFullStop ? '.' : '';
+  
+              return (
+                <span>
+                  <span
+                    style={{
+                      color: sentenceColor,
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontWeight: '600',
+                    }}
+                  >
+                    {textWithoutStop}
+                  </span>
+                  {fullStop && <span style={{ color: '#F26655' }}>{fullStop}</span>}
+                </span>
+              );
+            }}
+          />
+        </Typography>
         
         {/* Include the MobileNavigation component */}
         <MobileNavigation 
