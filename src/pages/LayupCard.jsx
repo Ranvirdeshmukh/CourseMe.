@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getFirestore, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { Alert } from '@mui/material'; // or use your own alert if you want
-import { Search } from 'lucide-react'; // if you want icons
-// import your tailwind classes or config, etc.
+import { getTopLayups } from '../services/courseDataService';
 
 const LayupCard = ({ course, darkMode, onClick }) => {
   // Example: If we had a difficulty or layup metric,
   // we could add a "MetricBadge" from your existing logic.
-  // For simplicity, we’ll just show a “Layup Score”.
+  // For simplicity, we'll just show a "Layup Score".
   
   // If you want to replicate the "MetricBadge" approach exactly,
   // you can copy that from your professor snippet as well.
@@ -82,45 +80,25 @@ const TopLayupsScroller = ({ darkMode }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const navigate = useNavigate();
-  const db = getFirestore();
 
-  // Example: fetch top 12 or 15 courses, sorted by layup desc
+  // Fetch top layups using the centralized data service
   useEffect(() => {
     const fetchTopLayups = async () => {
       try {
-        const q = query(
-          collection(db, 'courses'),
-          orderBy('layup', 'desc'),
-          limit(15)
-        );
-        const snap = await getDocs(q);
-        const data = snap.docs.map(doc => {
-          const docData = doc.data();
-          return {
-            id: doc.id,
-            name: docData.name || 'Untitled',
-            // If your "distribs" is stored as a comma-separated string,
-            // convert it to an array:
-            distribs: docData.distribs
-              ? docData.distribs.split(',').map((d) => d.trim())
-              : [],
-            layup: docData.layup ?? 0,
-            numOfReviews: docData.numOfReviews ?? 0,
-          };
-        });
+        setLoading(true);
+        const data = await getTopLayups(15); // Get top 15 layups
         setCourses(data);
+        setLoading(false);
       } catch (err) {
         console.error('Error fetching top layups:', err);
         setError('Failed to load layups');
-      } finally {
         setLoading(false);
       }
     };
 
     fetchTopLayups();
-  }, [db]);
+  }, []);
 
   const handleCardClick = (courseId) => {
     // Navigate to the course details route

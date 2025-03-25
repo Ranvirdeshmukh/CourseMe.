@@ -10,14 +10,28 @@ import {
   Tooltip,
   Container,
 } from '@mui/material';
-import { collection, query, getDocs, doc, updateDoc, increment, setDoc, getDoc, runTransaction, onSnapshot } from 'firebase/firestore';
+import { collection, doc, updateDoc, increment, setDoc, runTransaction, onSnapshot } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { db } from '../firebase';
-import { initializeHiddenLayups, getUserVotes } from './initializeHiddenLayups';
+import { hiddenLayupCourseIds } from '../constants/hiddenLayupConstants';
 import CourseRecommendationDialog from '../components/CourseRecommendationDialog';
 import AdminRecommendations from '../components/AdminRecommendations';
-import { hiddenLayupCourseIds } from '../constants/hiddenLayupConstants';
 import FilterControls from '../components/filtercontrols';
+import { getHiddenLayupsStaticData, subscribeToHiddenLayupsVotes, getUserVotesForHiddenLayups } from '../services/courseDataService';
+
+// Helper functions and constants defined outside component to prevent recreation on renders
+
+// Ensure each hidden layup course has a Firestore document
+const ensureHiddenLayupDocsExist = async () => {
+  for (const courseId of hiddenLayupCourseIds) {
+    const docRef = doc(db, 'hidden_layups', courseId);
+    try {
+      await setDoc(docRef, { yes_count: 0, no_count: 0 }, { merge: true });
+    } catch (err) {
+      console.error(`Error ensuring document for ${courseId}:`, err);
+    }
+  }
+};
 
 const HiddenLayups = ({darkMode}) => {
   const [hiddenLayups, setHiddenLayups] = useState([]);
@@ -34,6 +48,12 @@ const HiddenLayups = ({darkMode}) => {
   const [departments, setDepartments] = useState([]);
   const [allDistribs, setAllDistribs] = useState([]);
   const [visibleCount, setVisibleCount] = useState(6);
+  
+  // Calculate percentage helper function
+  const calculatePercentage = (yes, no) => {
+    const total = yes + no;
+    return total > 0 ? (yes / total) * 100 : 50;
+  };
 
   // Data fetching logic
   useEffect(() => {
@@ -67,64 +87,43 @@ const HiddenLayups = ({darkMode}) => {
         unsubscribeVotes();
       }
     };
-  }, []);
+  }, []);  // We're not adding initializeAndFetch to deps because it would cause infinite loops
 
   const initializeAndFetch = async (currentUser) => {
     setLoading(true);
     setError(null);
     try {
-      // Get initial data
-      const initialData = await initializeHiddenLayups();
+      // Get initial static data using the service
+      const staticData = await getHiddenLayupsStaticData(hiddenLayupCourseIds);
       
-      // Set up real-time listener for vote changes
-      const unsubscribe = onSnapshot(
-        collection(db, 'hidden_layups'),
-        async (snapshot) => {
-          try {
-            // Get current vote counts
-            const voteCounts = {};
-            snapshot.docs.forEach(doc => {
-              if (hiddenLayupCourseIds.includes(doc.id)) {
-                voteCounts[doc.id] = {
-                  yes_count: doc.data().yes_count || 0,
-                  no_count: doc.data().no_count || 0
-                };
-              }
-            });
+      // Ensure hidden layup documents exist in Firestore
+      await ensureHiddenLayupDocsExist();
+      
+      // Set up real-time listener for vote changes using the service
+      const unsubscribe = subscribeToHiddenLayupsVotes(hiddenLayupCourseIds, async (voteCounts) => {
+        try {
+          // Get user votes in parallel using the service
+          const userVotes = await getUserVotesForHiddenLayups(hiddenLayupCourseIds, currentUser.uid);
+          
+          // Combine static data with dynamic vote data
+          const combinedData = hiddenLayupCourseIds
+            .map(id => staticData[id])
+            .filter(Boolean)
+            .map(course => ({
+              ...course,
+              yes_count: voteCounts[course.id]?.yes_count || 0,
+              no_count: voteCounts[course.id]?.no_count || 0,
+              userVote: userVotes[course.id] || null
+            }));
 
-            // Get user votes in parallel
-            const userVotesPromises = hiddenLayupCourseIds.map(async courseId => {
-              const vote = await getUserVotes(courseId, currentUser.uid);
-              return [courseId, vote];
-            });
-            
-            const userVotes = await Promise.all(userVotesPromises);
-            const userVotesMap = Object.fromEntries(userVotes);
-
-            // Combine all data
-            const combinedData = hiddenLayupCourseIds
-              .map(id => initialData[id])
-              .filter(Boolean)
-              .map(course => ({
-                ...course,
-                yes_count: voteCounts[course.id]?.yes_count || 0,
-                no_count: voteCounts[course.id]?.no_count || 0,
-                userVote: userVotesMap[course.id] || null
-              }));
-
-            setHiddenLayups(combinedData);
-            setLoading(false);
-          } catch (err) {
-            console.error('Error processing snapshot:', err);
-            setError('Error updating votes. Please refresh the page.');
-          }
-        },
-        (error) => {
-          console.error('Error in vote subscription:', error);
-          setError('Failed to get real-time updates. Please refresh the page.');
+          setHiddenLayups(combinedData);
+          setLoading(false);
+        } catch (err) {
+          console.error('Error processing votes data:', err);
+          setError('Error updating votes. Please refresh the page.');
           setLoading(false);
         }
-      );
+      });
 
       return unsubscribe;
     } catch (err) {
@@ -214,11 +213,6 @@ const HiddenLayups = ({darkMode}) => {
       console.error('Error voting:', err);
       setError('Failed to submit vote. Please try again.');
     }
-  };
-
-  const calculatePercentage = (yes, no) => {
-    const total = yes + no;
-    return total > 0 ? (yes / total) * 100 : 50;
   };
 
   // Handle showing more courses

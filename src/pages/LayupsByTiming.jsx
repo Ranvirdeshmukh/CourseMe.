@@ -17,27 +17,15 @@ import {
   MenuItem,
   Alert,
 } from '@mui/material';
-import { collection, query, getDocs, where, limit } from 'firebase/firestore';
-import { db } from '../firebase';
 import { useMediaQuery } from '@mui/material';
-import localforage from 'localforage';
-
-// Add these constants at the top
-const CACHE_KEY = 'winter_layups_cache';
-const CACHE_VERSION = 'v2'; // Increment version when data structure changes
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for full cache expiry
-const CACHE_REFRESH_THRESHOLD = 60 * 60 * 1000; // 1 hour threshold for background refresh
-const MAX_COURSES_TO_DISPLAY = 15; // Extracted constant for maintainability
-const MAX_RETRY_ATTEMPTS = 3; // Maximum cache operation retry attempts
+import { getCoursesByPeriod } from '../services/courseDataService';
 
 const LayupsByTiming = ({darkMode}) => {
   const [timeSlotCourses, setTimeSlotCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState("11"); // Changed initial value
+  const [selectedPeriod, setSelectedPeriod] = useState("11");
   const isMobile = useMediaQuery('(max-width:600px)');
-  const [courseIndex, setCourseIndex] = useState(null); // To store the course index for efficient lookups
-  const [isBackgroundRefreshing, setIsBackgroundRefreshing] = useState(false); // Track background refreshes
   
   // Moved this to useMemo to prevent recreation on every render
   const periodCodeToTiming = useMemo(() => ({
@@ -53,224 +41,18 @@ const LayupsByTiming = ({darkMode}) => {
     "6A": "MTh 6:30-8:20, Tu 6:30-7:20",
     "6B": "W 6:30-9:30, Tu 7:30-8:20",
     "8S": "MTThF 7:45-8:35, Wed 7:45-8:35",
-  }), []); // Empty dependency array as this shouldn't change
-  
-  // Cache operation helper functions
-  const cacheRead = useCallback(async (key, defaultValue = null) => {
-    let attempts = 0;
-    while (attempts < MAX_RETRY_ATTEMPTS) {
-      try {
-        const value = await localforage.getItem(key);
-        return value !== null ? value : defaultValue;
-      } catch (err) {
-        attempts++;
-        if (attempts >= MAX_RETRY_ATTEMPTS) {
-          console.error(`Cache read failed after ${MAX_RETRY_ATTEMPTS} attempts:`, err);
-          return defaultValue;
-        }
-        // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, attempts)));
-      }
-    }
-    return defaultValue;
-  }, []);
-
-  const cacheWrite = useCallback(async (key, value) => {
-    let attempts = 0;
-    while (attempts < MAX_RETRY_ATTEMPTS) {
-      try {
-        await localforage.setItem(key, value);
-        return true;
-      } catch (err) {
-        attempts++;
-        if (attempts >= MAX_RETRY_ATTEMPTS) {
-          console.error(`Cache write failed after ${MAX_RETRY_ATTEMPTS} attempts:`, err);
-          return false;
-        }
-        // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, attempts)));
-      }
-    }
-    return false;
-  }, []);
-
-  // Helper function to normalize course numbers
-  const normalizeCourseNumber = useCallback((number) => {
-    if (typeof number === 'string' && number.includes('.')) {
-      const [integerPart, decimalPart] = number.split('.');
-      return `${integerPart.padStart(3, '0')}.${decimalPart}`;
-    }
-    return typeof number === 'string' ? number.padStart(3, '0') : String(number).padStart(3, '0');
-  }, []);
-
-  // Helper function to generate course ID
-  const generateCourseId = useCallback((dept, courseNum) => {
-    // Format: DEPT_DEPTXXX_Title
-    return `${dept}_${dept}${normalizeCourseNumber(courseNum)}`;
-  }, [normalizeCourseNumber]);
-
-  // Check if cache needs background refresh
-  const shouldRefreshCache = useCallback((timestamp) => {
-    if (!timestamp) return true;
-    const age = Date.now() - timestamp;
-    return age > CACHE_REFRESH_THRESHOLD;
-  }, []);
-  
-  // Initialize course index only once
-  useEffect(() => {
-    const initializeCourseIndex = async () => {
-      try {
-        // Check if we have a cached index
-        const cachedIndex = await cacheRead('course_index_cache');
-        const cacheTimestamp = await cacheRead('course_index_timestamp', 0);
-        const cacheVersion = await cacheRead('course_index_version', '');
-        
-        // Use valid cache but refresh in background if stale
-        if (cachedIndex && cacheVersion === CACHE_VERSION && Date.now() - cacheTimestamp < CACHE_DURATION) {
-          setCourseIndex(cachedIndex);
-          
-          // If cache is older than refresh threshold, refresh in background
-          if (shouldRefreshCache(cacheTimestamp)) {
-            refreshCourseIndexInBackground(cachedIndex);
-          }
-          return;
-        }
-        
-        await fetchAndCacheCourseIndex();
-      } catch (err) {
-        console.error('Error initializing course index:', err);
-        // Try to recover with a fresh fetch if cache fails
-        await fetchAndCacheCourseIndex();
-      }
-    };
-    
-    initializeCourseIndex();
-  }, [normalizeCourseNumber, cacheRead, cacheWrite, shouldRefreshCache]);
-
-  // Function to fetch course index and cache it
-  const fetchAndCacheCourseIndex = useCallback(async () => {
-    try {
-      const coursesIndex = new Map();
-      const coursesSnapshot = await getDocs(collection(db, 'courses'));
-      coursesSnapshot.docs.forEach(doc => {
-        const data = doc.data();
-        if (data.department && data.course_number) {
-          const key = `${data.department}_${normalizeCourseNumber(data.course_number)}`;
-          coursesIndex.set(key, {
-            layup: data.layup || 0,
-            id: doc.id,
-            name: data.name || '',
-            numOfReviews: data.numOfReviews || 0,
-          });
-        }
-      });
-      
-      // Save to state and cache
-      setCourseIndex(coursesIndex);
-      await Promise.all([
-        cacheWrite('course_index_cache', coursesIndex),
-        cacheWrite('course_index_timestamp', Date.now()),
-        cacheWrite('course_index_version', CACHE_VERSION)
-      ]);
-      return coursesIndex;
-    } catch (err) {
-      console.error('Error fetching course index:', err);
-      throw err;
-    }
-  }, [normalizeCourseNumber, cacheWrite]);
-
-  // Background refresh of course index
-  const refreshCourseIndexInBackground = useCallback(async (existingIndex) => {
-    try {
-      // Only refresh if we're not already doing so
-      if (isBackgroundRefreshing) return;
-      
-      setIsBackgroundRefreshing(true);
-      const updatedIndex = await fetchAndCacheCourseIndex();
-      setIsBackgroundRefreshing(false);
-      
-      // If the data has changed significantly, we might want to trigger a UI update
-      if (updatedIndex && updatedIndex.size !== existingIndex.size) {
-        // Optionally refetch current period to reflect latest data
-        fetchCoursesByPeriod(selectedPeriod, false);
-      }
-    } catch (err) {
-      setIsBackgroundRefreshing(false);
-      console.error('Background refresh failed:', err);
-      // Non-critical error, we can continue with cached data
-    }
-  }, [fetchAndCacheCourseIndex, isBackgroundRefreshing, selectedPeriod]);
-
-  // Add this after your state declarations
-  useEffect(() => {
-    // Fetch period 11 data when component mounts
-    if (courseIndex) {
-      fetchCoursesByPeriod("11");
-    }
-  }, [courseIndex]); // Depends on courseIndex being loaded
-  
-  useEffect(() => {
-    // Preload common periods
-    const preloadPeriods = async () => {
-      if (!courseIndex) return; // Wait for course index to be ready
-      
-      const commonPeriods = ['10', '2'];
-      await Promise.all(
-        commonPeriods.map(period => fetchCoursesByPeriod(period, false)) // false = don't set loading state for preloads
-      );
-    };
-    
-    preloadPeriods();
-  }, [courseIndex]);
+  }), []);
 
   const fetchCoursesByPeriod = useCallback(async (periodCode, updateLoadingState = true) => {
-    // Skip if course index isn't loaded yet
-    if (!courseIndex) return;
-    
     try {
       if (updateLoadingState) {
         setLoading(true);
         setError(null);
       }
 
-      // Generate cache keys
-      const cacheKey = `${CACHE_KEY}_${periodCode}`;
-      const timestampKey = `${cacheKey}_timestamp`;
-      const versionKey = `${cacheKey}_version`;
+      // Using the centralized data service instead of direct Firestore calls
+      const data = await getCoursesByPeriod(periodCode, periodCodeToTiming);
       
-      // Check cache first
-      const cachedData = await cacheRead(cacheKey);
-      const cacheTimestamp = await cacheRead(timestampKey, 0);
-      const cacheVersion = await cacheRead(versionKey, '');
-
-      // Use cache if valid and not expired
-      const isCacheValid = cachedData && 
-                           cacheVersion === CACHE_VERSION && 
-                           Date.now() - cacheTimestamp < CACHE_DURATION;
-                           
-      if (isCacheValid) {
-        if (updateLoadingState) {
-          setTimeSlotCourses(cachedData);
-          setLoading(false);
-        }
-        
-        // If cache is stale but not expired, refresh in background
-        if (shouldRefreshCache(cacheTimestamp)) {
-          refreshDataInBackground(periodCode, cacheKey, timestampKey, versionKey);
-        }
-        return;
-      }
-
-      // Cache miss or invalid - fetch fresh data
-      const data = await fetchPeriodCoursesFromFirestore(periodCode);
-      
-      // Cache the results
-      await Promise.all([
-        cacheWrite(cacheKey, data),
-        cacheWrite(timestampKey, Date.now()),
-        cacheWrite(versionKey, CACHE_VERSION)
-      ]);
-
       if (updateLoadingState) {
         setTimeSlotCourses(data);
         setLoading(false);
@@ -278,92 +60,30 @@ const LayupsByTiming = ({darkMode}) => {
     } catch (error) {
       console.error('Error fetching courses:', error);
       
-      // Try to recover from cache in case of network failure
-      try {
-        const fallbackData = await cacheRead(`${CACHE_KEY}_${periodCode}`);
-        if (fallbackData && updateLoadingState) {
-          console.log('Recovered data from cache after fetch failure');
-          setTimeSlotCourses(fallbackData);
-          setLoading(false);
-          // Show a softer error message instead of complete failure
-          setError('Using cached data. Latest data could not be loaded.');
-          return;
-        }
-      } catch (cacheError) {
-        console.error('Cache recovery also failed:', cacheError);
-      }
-      
       if (updateLoadingState) {
         setError('Failed to fetch courses. Please try again later.');
         setLoading(false);
       }
     }
-  }, [courseIndex, normalizeCourseNumber, periodCodeToTiming, cacheRead, cacheWrite, shouldRefreshCache]);
+  }, [periodCodeToTiming]);
 
-  // Extract the Firestore query logic
-  const fetchPeriodCoursesFromFirestore = useCallback(async (periodCode) => {
-    // Fetch spring timetable data with limit to improve performance
-    const springQuery = query(
-      collection(db, 'springTimetable'),
-      where('Period Code', '==', periodCode),
-      limit(100) // Add reasonable limit to query
-    );
-    const springSnapshot = await getDocs(springQuery);
+  // Add this after your state declarations
+  useEffect(() => {
+    // Fetch period 11 data when component mounts
+    fetchCoursesByPeriod("11");
+  }, [fetchCoursesByPeriod]); 
+  
+  useEffect(() => {
+    // Preload common periods
+    const preloadPeriods = async () => {
+      const commonPeriods = ['10', '2'];
+      await Promise.all(
+        commonPeriods.map(period => fetchCoursesByPeriod(period, false))
+      );
+    };
     
-    // Process data efficiently
-    const springCourses = springSnapshot.docs.map(doc => {
-      const data = doc.data();
-      const lookupKey = `${data.Subj}_${normalizeCourseNumber(data.Num)}`;
-      const courseInfo = courseIndex.get(lookupKey) || { 
-        layup: 0, 
-        id: null,
-        name: '',
-        numOfReviews: 0
-      };
-
-      return {
-        id: doc.id,
-        subj: data.Subj,
-        num: data.Num,
-        title: data.Title,
-        section: data.Section,
-        period: data['Period Code'],
-        instructor: data.Instructor,
-        timing: periodCodeToTiming[data['Period Code']] || 'Unknown Timing',
-        layup: courseInfo.layup,
-        courseId: courseInfo.id,
-        numOfReviews: courseInfo.numOfReviews
-      };
-    });
-
-    return springCourses
-      .filter(course => course.layup > 0)
-      .sort((a, b) => b.layup - a.layup)
-      .slice(0, MAX_COURSES_TO_DISPLAY);
-  }, [courseIndex, normalizeCourseNumber, periodCodeToTiming]);
-
-  // Background refresh without disrupting UI
-  const refreshDataInBackground = useCallback(async (periodCode, cacheKey, timestampKey, versionKey) => {
-    try {
-      console.log(`Background refreshing data for period ${periodCode}`);
-      const freshData = await fetchPeriodCoursesFromFirestore(periodCode);
-      
-      // Update cache silently
-      await Promise.all([
-        cacheWrite(cacheKey, freshData),
-        cacheWrite(timestampKey, Date.now()),
-        cacheWrite(versionKey, CACHE_VERSION)
-      ]);
-      
-      // If this is the currently displayed period, update the UI
-      if (selectedPeriod === periodCode) {
-        setTimeSlotCourses(freshData);
-      }
-    } catch (err) {
-      console.error('Background refresh failed:', err);
-      // Non-critical error, can continue with cached data
-    }
-  }, [fetchPeriodCoursesFromFirestore, cacheWrite, selectedPeriod]);
+    preloadPeriods();
+  }, [fetchCoursesByPeriod]);
 
   const handlePeriodChange = useCallback((event) => {
     const period = event.target.value;
@@ -377,26 +97,6 @@ const LayupsByTiming = ({darkMode}) => {
 
   return (
     <>
-      {/* <Typography
-        variant="h4"
-        align="left"
-        gutterBottom
-        sx={{
-          fontWeight: 600,
-          marginBottom: '25px',
-          color: '#34495E',
-          padding: '8px 16px',
-          backgroundColor: '#F0F4FF',
-          borderRadius: '6px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          borderLeft: '4px solid #00693E',
-          fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
-          fontFamily: 'SF Pro Display, sans-serif',
-        }}
-      >
-        Winter 2025 Layups by Period
-      </Typography> */}
-
 <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
   <FormControl sx={{ minWidth: 200 }}>
     <InputLabel
