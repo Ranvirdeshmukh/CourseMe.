@@ -313,26 +313,37 @@ export async function getHiddenLayupsStaticData(hiddenLayupCourseIds) {
 
 // Set up real-time listener for hidden layups vote data
 export function subscribeToHiddenLayupsVotes(hiddenLayupCourseIds, callback) {
+  console.log('[Service Debug] Setting up vote subscription for:', hiddenLayupCourseIds);
+  
   // This returns real-time data, so we don't cache it
-  return onSnapshot(
-    collection(db, 'hidden_layups'),
-    (snapshot) => {
-      const voteCounts = {};
-      snapshot.docs.forEach(doc => {
-        if (hiddenLayupCourseIds.includes(doc.id)) {
-          voteCounts[doc.id] = {
-            yes_count: doc.data().yes_count || 0,
-            no_count: doc.data().no_count || 0
-          };
-        }
-      });
-      callback(voteCounts);
-    },
-    (error) => {
-      console.error('Error in vote subscription:', error);
-      throw error;
-    }
-  );
+  try {
+    return onSnapshot(
+      collection(db, 'hidden_layups'),
+      (snapshot) => {
+        const voteCounts = {};
+        snapshot.docs.forEach(doc => {
+          console.log(`[Service Debug] Processing vote doc: ${doc.id}, exists in hidden layups: ${hiddenLayupCourseIds.includes(doc.id)}`);
+          if (hiddenLayupCourseIds.includes(doc.id)) {
+            voteCounts[doc.id] = {
+              yes_count: doc.data().yes_count || 0,
+              no_count: doc.data().no_count || 0
+            };
+          }
+        });
+        console.log('[Service Debug] Vote counts collected:', voteCounts);
+        callback(voteCounts);
+      },
+      (error) => {
+        console.error('[Service Debug] Error in vote subscription:', error);
+        // Don't throw here, just log it - throwing in onSnapshot callbacks can cause issues
+        callback({}); // Call with empty data instead of throwing
+      }
+    );
+  } catch (error) {
+    console.error('[Service Debug] Failed to set up vote subscription:', error);
+    // Return a dummy unsubscribe function to prevent crashes
+    return () => {};
+  }
 }
 
 // Get user votes for hidden layups
