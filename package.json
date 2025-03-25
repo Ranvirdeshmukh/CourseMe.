@@ -60,6 +60,7 @@
     "build": "NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "start:prod": "serve -s build",
     "test": "NODE_OPTIONS=--openssl-legacy-provider react-scripts test",
+    "test:services": "NODE_OPTIONS=--openssl-legacy-provider node --experimental-modules src/tests/runTests.js",
     "eject": "react-scripts eject",
     "render-postbuild": "echo 'Build completed'"
   },
