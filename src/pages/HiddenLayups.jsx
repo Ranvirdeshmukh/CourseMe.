@@ -10,7 +10,7 @@ import {
   Tooltip,
   Container,
 } from '@mui/material';
-import { collection, doc, updateDoc, increment, setDoc, runTransaction, onSnapshot } from 'firebase/firestore';
+import { collection, doc, updateDoc, increment, setDoc, runTransaction, onSnapshot, getDoc } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { db } from '../firebase';
 import { hiddenLayupCourseIds } from '../constants/hiddenLayupConstants';
@@ -23,14 +23,34 @@ import { getHiddenLayupsStaticData, subscribeToHiddenLayupsVotes, getUserVotesFo
 
 // Ensure each hidden layup course has a Firestore document
 const ensureHiddenLayupDocsExist = async () => {
+  console.log('[Layups Debug] Ensuring hidden layup documents exist for:', hiddenLayupCourseIds);
+  
+  let created = 0;
+  let existing = 0;
+  let failed = 0;
+  
   for (const courseId of hiddenLayupCourseIds) {
     const docRef = doc(db, 'hidden_layups', courseId);
     try {
-      await setDoc(docRef, { yes_count: 0, no_count: 0 }, { merge: true });
+      // First check if the document exists
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        console.log(`[Layups Debug] Document already exists for ${courseId}: ${JSON.stringify(docSnap.data())}`);
+        existing++;
+      } else {
+        // Create the document with initial vote counts
+        await setDoc(docRef, { yes_count: 0, no_count: 0 }, { merge: true });
+        console.log(`[Layups Debug] Created new document for ${courseId}`);
+        created++;
+      }
     } catch (err) {
-      console.error(`Error ensuring document for ${courseId}:`, err);
+      console.error(`[Layups Debug] Error ensuring document for ${courseId}:`, err);
+      failed++;
     }
   }
+  
+  console.log(`[Layups Debug] Document check complete: ${existing} existing, ${created} created, ${failed} failed`);
 };
 
 const HiddenLayups = ({darkMode}) => {
@@ -93,17 +113,24 @@ const HiddenLayups = ({darkMode}) => {
     setLoading(true);
     setError(null);
     try {
+      console.log('[Layups Debug] Starting initialization with course IDs:', hiddenLayupCourseIds);
+      
       // Get initial static data using the service
       const staticData = await getHiddenLayupsStaticData(hiddenLayupCourseIds);
+      console.log('[Layups Debug] Static data loaded:', Object.keys(staticData).length, 'courses');
       
       // Ensure hidden layup documents exist in Firestore
       await ensureHiddenLayupDocsExist();
+      console.log('[Layups Debug] Ensured hidden layup documents exist');
       
       // Set up real-time listener for vote changes using the service
       const unsubscribe = subscribeToHiddenLayupsVotes(hiddenLayupCourseIds, async (voteCounts) => {
         try {
+          console.log('[Layups Debug] Received vote counts:', voteCounts);
+          
           // Get user votes in parallel using the service
           const userVotes = await getUserVotesForHiddenLayups(hiddenLayupCourseIds, currentUser.uid);
+          console.log('[Layups Debug] Received user votes:', userVotes);
           
           // Combine static data with dynamic vote data
           const combinedData = hiddenLayupCourseIds
@@ -116,18 +143,20 @@ const HiddenLayups = ({darkMode}) => {
               userVote: userVotes[course.id] || null
             }));
 
+          console.log('[Layups Debug] Combined data prepared:', combinedData.length, 'courses');
           setHiddenLayups(combinedData);
           setLoading(false);
         } catch (err) {
-          console.error('Error processing votes data:', err);
+          console.error('[Layups Debug] Error processing votes data:', err);
           setError('Error updating votes. Please refresh the page.');
           setLoading(false);
         }
       });
 
+      console.log('[Layups Debug] Initialization complete');
       return unsubscribe;
     } catch (err) {
-      console.error('Error initializing hidden layups:', err);
+      console.error('[Layups Debug] Error initializing hidden layups:', err);
       setError('Failed to load hidden layups. Please try refreshing the page.');
       setLoading(false);
       return () => {};
@@ -141,6 +170,7 @@ const HiddenLayups = ({darkMode}) => {
       return;
     }
 
+    console.log(`[Vote Debug] Starting vote: courseId=${id}, voteType=${voteType}, userId=${user.uid}`);
     setError(null);
     try {
       await runTransaction(db, async (transaction) => {
@@ -151,41 +181,62 @@ const HiddenLayups = ({darkMode}) => {
         const userVoteDoc = await transaction.get(userVoteRef);
 
         if (!layupDoc.exists()) {
+          console.error(`[Vote Debug] Hidden layup document does not exist: ${id}`);
           throw new Error("Hidden layup document does not exist!");
         }
 
         const previousVote = userVoteDoc.exists() ? userVoteDoc.data().vote : null;
+        console.log(`[Vote Debug] Previous vote: ${previousVote}, new vote: ${voteType === 'yes'}`);
+        
         let updates = {};
 
         if (previousVote === null) {
+          // Case 1: First vote - increment the respective counter
           updates[`${voteType}_count`] = increment(1);
+          console.log(`[Vote Debug] First vote: incrementing ${voteType}_count`);
+          
+          // Set the user vote document
+          transaction.set(userVoteRef, {
+            vote: voteType === 'yes',
+            userName: user.displayName || user.email || user.uid,
+            timestamp: new Date()
+          });
         } else if (previousVote !== (voteType === 'yes')) {
+          // Case 2: Changing vote - increment one counter and decrement the other
           updates[`${voteType}_count`] = increment(1);
           updates[`${previousVote ? 'yes' : 'no'}_count`] = increment(-1);
+          console.log(`[Vote Debug] Changing vote: incrementing ${voteType}_count, decrementing ${previousVote ? 'yes' : 'no'}_count`);
+          
+          // Update the user vote document
+          transaction.set(userVoteRef, {
+            vote: voteType === 'yes',
+            userName: user.displayName || user.email || user.uid,
+            timestamp: new Date()
+          });
         } else {
+          // Case 3: Removing vote - decrement the counter and delete the vote doc
           updates[`${voteType}_count`] = increment(-1);
+          console.log(`[Vote Debug] Removing vote: decrementing ${voteType}_count and deleting vote doc`);
           transaction.delete(userVoteRef);
-          transaction.update(layupRef, updates);
-          return;
         }
 
+        // Apply the updates to the layup document in all cases
         transaction.update(layupRef, updates);
-        transaction.set(userVoteRef, {
-          vote: voteType === 'yes',
-          userName: user.displayName || user.email || user.uid,
-          timestamp: new Date()
-        });
+        console.log(`[Vote Debug] Updates applied:`, updates);
       });
 
+      console.log(`[Vote Debug] Transaction completed successfully`);
+
       // Update local state
-      setHiddenLayups(prevLayups => 
-        prevLayups.map(layup => {
+      setHiddenLayups(prevLayups => {
+        const updatedLayups = prevLayups.map(layup => {
           if (layup.id === id) {
             let newYesCount = layup.yes_count || 0;
             let newNoCount = layup.no_count || 0;
             
             if (layup.userVote === null) {
               voteType === 'yes' ? newYesCount++ : newNoCount++;
+              console.log(`[Vote Debug] Updating UI - first vote: ${voteType}, new counts: yes=${newYesCount}, no=${newNoCount}`);
             } else if (layup.userVote !== (voteType === 'yes')) {
               if (voteType === 'yes') {
                 newYesCount++;
@@ -194,8 +245,10 @@ const HiddenLayups = ({darkMode}) => {
                 newYesCount--;
                 newNoCount++;
               }
+              console.log(`[Vote Debug] Updating UI - changing vote: ${voteType}, new counts: yes=${newYesCount}, no=${newNoCount}`);
             } else {
               voteType === 'yes' ? newYesCount-- : newNoCount--;
+              console.log(`[Vote Debug] Updating UI - removing vote: ${voteType}, new counts: yes=${newYesCount}, no=${newNoCount}`);
               return { ...layup, yes_count: newYesCount, no_count: newNoCount, userVote: null };
             }
             
@@ -207,10 +260,13 @@ const HiddenLayups = ({darkMode}) => {
             };
           }
           return layup;
-        })
-      );
+        });
+
+        console.log(`[Vote Debug] UI state updated`);
+        return updatedLayups;
+      });
     } catch (err) {
-      console.error('Error voting:', err);
+      console.error('[Vote Debug] Error during voting transaction:', err);
       setError('Failed to submit vote. Please try again.');
     }
   };
