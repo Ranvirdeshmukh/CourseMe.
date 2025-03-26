@@ -269,19 +269,39 @@ const MobileLandingPage = ({
             eraseDelay={currentUser ? 2000 : 3000}
             displayTextRenderer={(text, i) => {
               const isWelcomeMessage = currentUser && i === 0;
-              const isSecondSentence = !currentUser ? i === 1 : i === 1;
+              const isSecondWelcomeMessage = currentUser && i === 1 && text.startsWith('Excited to have you join us');
+              const isFirstLogin = localStorage.getItem(`hasLoggedIn_${currentUser?.uid}`) === 'true' && 
+                                  !localStorage.getItem(`hasSeenWelcome_${currentUser?.uid}`);
+              const isJoinPrompt = !currentUser && i === 0 && text.includes('Join them');
+              const isSecondSentence = !currentUser ? i === 1 : i === 1 && !isSecondWelcomeMessage;
               
+              // Set a slightly different color for first-time welcome message
               const sentenceColor = darkMode
                 ? '#FFFFFF'
+                : isJoinPrompt
+                ? '#e91e63' // Hot pink for "Join them?" prompt
+                : isWelcomeMessage && isFirstLogin
+                ? '#ff5722' // Exciting orange for first-time users
+                : isSecondWelcomeMessage
+                ? '#8e24aa' // Purple for second welcome message
                 : isWelcomeMessage
-                ? '#00693e'
+                ? '#00693e' // Green for returning users
                 : isSecondSentence
-                ? '#571ce0'
-                : '#000000';
+                ? '#571ce0' // Purple for second sentence
+                : '#000000'; // Black for other sentences
               
               const hasFullStop = text.endsWith('.');
-              const textWithoutStop = hasFullStop ? text.slice(0, -1) : text;
-              const fullStop = hasFullStop ? '.' : '';
+              const hasExclamation = text.endsWith('!');
+              const hasQuestion = text.endsWith('?');
+              const hasEmoji = text.includes('🎉');
+              const textWithoutEnding = hasFullStop ? text.slice(0, -1) : 
+                                         hasExclamation ? text.slice(0, -1) : 
+                                         hasQuestion ? text.slice(0, -1) :
+                                         hasEmoji ? text.slice(0, text.indexOf('🎉')) : text;
+              const ending = hasFullStop ? '.' : 
+                             hasExclamation ? '!' : 
+                             hasQuestion ? '?' : '';
+              const emoji = hasEmoji ? '🎉' : '';
   
               return (
                 <span>
@@ -292,9 +312,10 @@ const MobileLandingPage = ({
                       fontWeight: '600',
                     }}
                   >
-                    {textWithoutStop}
+                    {textWithoutEnding}
                   </span>
-                  {fullStop && <span style={{ color: '#F26655' }}>{fullStop}</span>}
+                  {ending && <span style={{ color: ending === '?' ? '#e91e63' : '#F26655' }}>{ending}</span>}
+                  {emoji && <span>{emoji}</span>}
                 </span>
               );
             }}

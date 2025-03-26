@@ -86,6 +86,7 @@ const LandingPage = ({ darkMode }) => {
   // Update the typing messages when user logs in
   useEffect(() => {
     const defaultMessages = [
+      "All of Dartmouth uses it, Don't you?",
       "Unlock Your Academic Edge.",
       "Find Easy Courses in Seconds.", 
       "Plan Your Perfect Schedule Today."
@@ -98,18 +99,40 @@ const LandingPage = ({ darkMode }) => {
         firstName = currentUser.displayName.split(' ')[0];
       }
 
-      // Set personalized first message if we have a name
-      if (firstName) {
-        setTypingMessages([
-          `Welcome back, ${firstName}.`,
-          ...defaultMessages
-        ]);
+      // Check if this is the first login for the user
+      const isFirstLogin = !localStorage.getItem(`hasLoggedIn_${currentUser.uid}`);
+      if (isFirstLogin) {
+        // Set a flag for this user to track that they've logged in before
+        localStorage.setItem(`hasLoggedIn_${currentUser.uid}`, 'true');
+        
+        // Set first-time welcome message
+        if (firstName) {
+          setTypingMessages([
+            `Welcome aboard, ${firstName}! 🎉`,
+            `Excited to have you join us, ${firstName}!`,
+            ...defaultMessages.slice(1) // Skip the first message for logged-in users
+          ]);
+        } else {
+          setTypingMessages([
+            "Welcome aboard! 🎉",
+            "Excited to have you join us!",
+            ...defaultMessages.slice(1) // Skip the first message for logged-in users
+          ]);
+        }
       } else {
-        // Use email if no display name is available
-        setTypingMessages([
-          "Welcome back.",
-          ...defaultMessages
-        ]);
+        // Regular welcome back message for returning users
+        if (firstName) {
+          setTypingMessages([
+            `Welcome back, ${firstName}.`,
+            ...defaultMessages.slice(1) // Skip the first message for logged-in users
+          ]);
+        } else {
+          // Use email if no display name is available
+          setTypingMessages([
+            "Welcome back.",
+            ...defaultMessages.slice(1) // Skip the first message for logged-in users
+          ]);
+        }
       }
     } else {
       // Reset to default messages if no user
@@ -520,19 +543,44 @@ const LandingPage = ({ darkMode }) => {
             eraseDelay={currentUser ? 2000 : 3000}
             displayTextRenderer={(text, i) => {
               const isWelcomeMessage = currentUser && i === 0;
-              const isSecondSentence = !currentUser ? i === 1 : i === 1;
+              const isSecondWelcomeMessage = currentUser && i === 1 && text.startsWith('Excited to have you join us');
+              const isFirstLogin = localStorage.getItem(`hasLoggedIn_${currentUser?.uid}`) === 'true' && 
+                                  !localStorage.getItem(`hasSeenWelcome_${currentUser?.uid}`);
+              const isJoinPrompt = !currentUser && i === 0 && text.includes('Join them');
+              const isSecondSentence = !currentUser ? i === 1 : i === 1 && !isSecondWelcomeMessage;
               
+              // Set a slightly different color for first-time welcome message
               const sentenceColor = darkMode
                 ? '#FFFFFF'
+                : isJoinPrompt
+                ? '#e91e63' // Hot pink for "Join them?" prompt
+                : isWelcomeMessage && isFirstLogin
+                ? '#ff5722' // Exciting orange for first-time users
+                : isSecondWelcomeMessage
+                ? '#8e24aa' // Purple for second welcome message
                 : isWelcomeMessage
-                ? '#00693e'
+                ? '#00693e' // Green for returning users
                 : isSecondSentence
-                ? '#571ce0'
-                : '#000000';
+                ? '#571ce0' // Purple for second sentence
+                : '#000000'; // Black for other sentences
+              
+              // After displaying the welcome message, mark that the user has seen it
+              if (currentUser && isWelcomeMessage && isFirstLogin && !localStorage.getItem(`hasSeenWelcome_${currentUser.uid}`)) {
+                localStorage.setItem(`hasSeenWelcome_${currentUser.uid}`, 'true');
+              }
               
               const hasFullStop = text.endsWith('.');
-              const textWithoutStop = hasFullStop ? text.slice(0, -1) : text;
-              const fullStop = hasFullStop ? '.' : '';
+              const hasExclamation = text.endsWith('!');
+              const hasQuestion = text.endsWith('?');
+              const hasEmoji = text.includes('🎉');
+              const textWithoutEnding = hasFullStop ? text.slice(0, -1) : 
+                                         hasExclamation ? text.slice(0, -1) : 
+                                         hasQuestion ? text.slice(0, -1) :
+                                         hasEmoji ? text.slice(0, text.indexOf('🎉')) : text;
+              const ending = hasFullStop ? '.' : 
+                             hasExclamation ? '!' : 
+                             hasQuestion ? '?' : '';
+              const emoji = hasEmoji ? '🎉' : '';
   
               return (
                 <span>
@@ -543,9 +591,10 @@ const LandingPage = ({ darkMode }) => {
                       fontWeight: '600',
                     }}
                   >
-                    {textWithoutStop}
+                    {textWithoutEnding}
                   </span>
-                  {fullStop && <span style={{ color: '#F26655' }}>{fullStop}</span>}
+                  {ending && <span style={{ color: ending === '?' ? '#F26655' : '#F26655' }}>{ending}</span>}
+                  {emoji && <span>{emoji}</span>}
                 </span>
               );
             }}
