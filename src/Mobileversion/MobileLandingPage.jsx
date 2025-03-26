@@ -21,6 +21,7 @@ import remarkGfm from 'remark-gfm';
 import { useNavigate } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
 import ReactTypingEffect from 'react-typing-effect';
+import { doc, getDoc } from 'firebase/firestore';
 
 const MobileLandingPage = ({ 
   darkMode, 
@@ -269,21 +270,18 @@ const MobileLandingPage = ({
             eraseDelay={currentUser ? 2000 : 3000}
             displayTextRenderer={(text, i) => {
               const isWelcomeMessage = currentUser && i === 0;
-              const isSecondWelcomeMessage = currentUser && i === 1 && text.startsWith('Excited to have you join us');
               const isFirstLogin = localStorage.getItem(`hasLoggedIn_${currentUser?.uid}`) === 'true' && 
                                   !localStorage.getItem(`hasSeenWelcome_${currentUser?.uid}`);
               const isJoinPrompt = !currentUser && i === 0 && text.includes('Join them');
-              const isSecondSentence = !currentUser ? i === 1 : i === 1 && !isSecondWelcomeMessage;
+              const isSecondSentence = !currentUser ? i === 1 : i === 1;
               
-              // Set a slightly different color for first-time welcome message
+              // Set color based on message type
               const sentenceColor = darkMode
                 ? '#FFFFFF'
                 : isJoinPrompt
                 ? '#e91e63' // Hot pink for "Join them?" prompt
                 : isWelcomeMessage && isFirstLogin
                 ? '#ff5722' // Exciting orange for first-time users
-                : isSecondWelcomeMessage
-                ? '#8e24aa' // Purple for second welcome message
                 : isWelcomeMessage
                 ? '#00693e' // Green for returning users
                 : isSecondSentence
@@ -293,15 +291,12 @@ const MobileLandingPage = ({
               const hasFullStop = text.endsWith('.');
               const hasExclamation = text.endsWith('!');
               const hasQuestion = text.endsWith('?');
-              const hasEmoji = text.includes('🎉');
               const textWithoutEnding = hasFullStop ? text.slice(0, -1) : 
                                          hasExclamation ? text.slice(0, -1) : 
-                                         hasQuestion ? text.slice(0, -1) :
-                                         hasEmoji ? text.slice(0, text.indexOf('🎉')) : text;
+                                         hasQuestion ? text.slice(0, -1) : text;
               const ending = hasFullStop ? '.' : 
                              hasExclamation ? '!' : 
                              hasQuestion ? '?' : '';
-              const emoji = hasEmoji ? '🎉' : '';
   
               return (
                 <span>
@@ -315,7 +310,6 @@ const MobileLandingPage = ({
                     {textWithoutEnding}
                   </span>
                   {ending && <span style={{ color: ending === '?' ? '#e91e63' : '#F26655' }}>{ending}</span>}
-                  {emoji && <span>{emoji}</span>}
                 </span>
               );
             }}

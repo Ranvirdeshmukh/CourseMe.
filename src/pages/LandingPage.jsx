@@ -3,13 +3,12 @@ import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc } from 'firebase/firestore';
 import ReactTypingEffect from 'react-typing-effect';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
 import { Lock } from '@mui/icons-material'; // (Optional) If you need the lock icon
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MobileNavigation from '../Mobileversion/MobileNavigation';
 import MobileLandingPage from '../Mobileversion/MobileLandingPage';
@@ -86,19 +85,42 @@ const LandingPage = ({ darkMode }) => {
   // Update the typing messages when user logs in
   useEffect(() => {
     const defaultMessages = [
-      "All of Dartmouth uses it, Don't you?",
+      "All of Dartmouth uses it, don't you?",
       "Unlock Your Academic Edge.",
       "Find Easy Courses in Seconds.", 
       "Plan Your Perfect Schedule Today."
     ];
 
-    if (currentUser) {
-      // Get user's first name
-      let firstName = '';
-      if (currentUser.displayName) {
-        firstName = currentUser.displayName.split(' ')[0];
+    const fetchUserName = async () => {
+      if (currentUser) {
+        let firstName = '';
+        // First try to get name from Auth profile
+        if (currentUser.displayName) {
+          firstName = currentUser.displayName.split(' ')[0];
+          updateTypingMessages(firstName);
+        } else {
+          // If not available, try to get it from Firestore
+          try {
+            const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+            if (userDoc.exists() && userDoc.data().firstName) {
+              firstName = userDoc.data().firstName;
+              updateTypingMessages(firstName);
+            } else {
+              // Fallback to just "Welcome" without name
+              updateTypingMessages('');
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+            updateTypingMessages('');
+          }
+        }
+      } else {
+        // Reset to default messages if no user
+        setTypingMessages(defaultMessages);
       }
+    };
 
+    const updateTypingMessages = (firstName) => {
       // Check if this is the first login for the user
       const isFirstLogin = !localStorage.getItem(`hasLoggedIn_${currentUser.uid}`);
       if (isFirstLogin) {
@@ -108,14 +130,12 @@ const LandingPage = ({ darkMode }) => {
         // Set first-time welcome message
         if (firstName) {
           setTypingMessages([
-            `Welcome aboard, ${firstName}! 🎉`,
-            `Excited to have you join us, ${firstName}!`,
+            `Welcome aboard, ${firstName}!`,
             ...defaultMessages.slice(1) // Skip the first message for logged-in users
           ]);
         } else {
           setTypingMessages([
-            "Welcome aboard! 🎉",
-            "Excited to have you join us!",
+            "Welcome aboard!",
             ...defaultMessages.slice(1) // Skip the first message for logged-in users
           ]);
         }
@@ -127,17 +147,16 @@ const LandingPage = ({ darkMode }) => {
             ...defaultMessages.slice(1) // Skip the first message for logged-in users
           ]);
         } else {
-          // Use email if no display name is available
+          // Use generic welcome if no name is available
           setTypingMessages([
             "Welcome back.",
             ...defaultMessages.slice(1) // Skip the first message for logged-in users
           ]);
         }
       }
-    } else {
-      // Reset to default messages if no user
-      setTypingMessages(defaultMessages);
-    }
+    };
+
+    fetchUserName();
   }, [currentUser]);
 
   // Color scheme based on darkMode (just as reference if needed)
@@ -543,21 +562,18 @@ const LandingPage = ({ darkMode }) => {
             eraseDelay={currentUser ? 2000 : 3000}
             displayTextRenderer={(text, i) => {
               const isWelcomeMessage = currentUser && i === 0;
-              const isSecondWelcomeMessage = currentUser && i === 1 && text.startsWith('Excited to have you join us');
               const isFirstLogin = localStorage.getItem(`hasLoggedIn_${currentUser?.uid}`) === 'true' && 
                                   !localStorage.getItem(`hasSeenWelcome_${currentUser?.uid}`);
               const isJoinPrompt = !currentUser && i === 0 && text.includes('Join them');
-              const isSecondSentence = !currentUser ? i === 1 : i === 1 && !isSecondWelcomeMessage;
+              const isSecondSentence = !currentUser ? i === 1 : i === 1;
               
-              // Set a slightly different color for first-time welcome message
+              // Set color based on message type
               const sentenceColor = darkMode
                 ? '#FFFFFF'
                 : isJoinPrompt
                 ? '#e91e63' // Hot pink for "Join them?" prompt
                 : isWelcomeMessage && isFirstLogin
                 ? '#ff5722' // Exciting orange for first-time users
-                : isSecondWelcomeMessage
-                ? '#8e24aa' // Purple for second welcome message
                 : isWelcomeMessage
                 ? '#00693e' // Green for returning users
                 : isSecondSentence
@@ -572,15 +588,12 @@ const LandingPage = ({ darkMode }) => {
               const hasFullStop = text.endsWith('.');
               const hasExclamation = text.endsWith('!');
               const hasQuestion = text.endsWith('?');
-              const hasEmoji = text.includes('🎉');
               const textWithoutEnding = hasFullStop ? text.slice(0, -1) : 
                                          hasExclamation ? text.slice(0, -1) : 
-                                         hasQuestion ? text.slice(0, -1) :
-                                         hasEmoji ? text.slice(0, text.indexOf('🎉')) : text;
+                                         hasQuestion ? text.slice(0, -1) : text;
               const ending = hasFullStop ? '.' : 
                              hasExclamation ? '!' : 
                              hasQuestion ? '?' : '';
-              const emoji = hasEmoji ? '🎉' : '';
   
               return (
                 <span>
@@ -593,8 +606,7 @@ const LandingPage = ({ darkMode }) => {
                   >
                     {textWithoutEnding}
                   </span>
-                  {ending && <span style={{ color: ending === '?' ? '#F26655' : '#F26655' }}>{ending}</span>}
-                  {emoji && <span>{emoji}</span>}
+                  {ending && <span style={{ color: ending === '?' ? '#e91e63' : '#F26655' }}>{ending}</span>}
                 </span>
               );
             }}
