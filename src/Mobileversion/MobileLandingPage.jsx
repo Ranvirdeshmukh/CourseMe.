@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useNavigate } from 'react-router-dom';
@@ -42,13 +43,75 @@ const MobileLandingPage = ({
   getColor,
   currentUser,
   handleLoginRedirect,
-  typingMessages
+  typingMessages,
+  currentTime,
+  formatTime,
+  formatDate,
+  weatherData
 }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
   const navigate = useNavigate();
 
   const toggleSearch = () => {
     setSearchExpanded(!searchExpanded);
+  };
+
+  // Handle weather click to open detailed weather information
+  const handleWeatherClick = () => {
+    if (!weatherData?.lat || !weatherData?.lon) return;
+    
+    // Get detailed user agent info to determine device
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    
+    // Check if the user is on an iOS device specifically (iPhone, iPad)
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    
+    if (isIOS) {
+      // For iOS devices, try to use the weather URL scheme (might work on some versions)
+      // But since deep linking is unreliable, provide a reliable fallback immediately
+      try {
+        // First try Apple Maps with weather display
+        window.location.href = `maps://weathercallout?lat=${weatherData.lat}&lon=${weatherData.lon}`;
+        
+        // Set a short timeout to redirect to Weather web search if the deep link doesn't work
+        setTimeout(() => {
+          const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
+          window.open(
+            `https://www.google.com/search?q=weather+${cityName ? 'in+' + cityName : weatherData.lat + ',' + weatherData.lon}`, 
+            '_blank'
+          );
+        }, 300);
+      } catch (e) {
+        // If there's any error, use Google Weather search
+        const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
+        window.open(
+          `https://www.google.com/search?q=weather+${cityName ? 'in+' + cityName : weatherData.lat + ',' + weatherData.lon}`, 
+          '_blank'
+        );
+      }
+    } else {
+      // For all other devices (Android, desktop, etc.), use Google Weather
+      const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
+      const searchQuery = cityName 
+        ? `weather in ${cityName}`
+        : `weather ${weatherData.lat},${weatherData.lon}`;
+      
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`, '_blank');
+    }
+  };
+
+  // Style with CSS keyframes for time pulse animation - mobile version
+  const mobileStyles = {
+    '@keyframes mobileTimePulse': {
+      '0%': { opacity: 1 },
+      '50%': { opacity: 0.8 },
+      '100%': { opacity: 1 }
+    },
+    '@keyframes mobileSubtleFade': {
+      '0%': { opacity: 0.7 },
+      '50%': { opacity: 1 },
+      '100%': { opacity: 0.7 }
+    }
   };
 
   // Mobile-specific ScaleMeter component
@@ -146,7 +209,7 @@ const MobileLandingPage = ({
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', ...mobileStyles }}>
       {/* Mobile Search Bar */}
       <Box sx={{ 
         position: 'fixed',
@@ -248,6 +311,163 @@ const MobileLandingPage = ({
 
       {/* Heading and Mobile Navigation */}
       <Box sx={{ pt: 4, pb: 2 }}>
+        {/* Mobile Time Display - Centered */}
+        <Box
+          sx={{
+            position: 'fixed',
+            top: '10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9,
+            display: { xs: 'flex', sm: 'none' },
+            flexDirection: 'column',
+            alignItems: 'center',
+            bgcolor: darkMode ? 'rgba(28, 9, 63, 0.7)' : 'rgba(255, 255, 255, 0.8)',
+            padding: '6px 12px',
+            borderRadius: '10px',
+            boxShadow: darkMode 
+              ? '0 2px 8px rgba(0, 0, 0, 0.3)' 
+              : '0 2px 8px rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'blur(5px)',
+            border: darkMode 
+              ? '1px solid rgba(87, 28, 224, 0.2)' 
+              : '1px solid rgba(0, 0, 0, 0.05)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              transform: 'translateX(-50%) translateY(-2px)',
+              boxShadow: darkMode 
+                ? '0 4px 12px rgba(0, 0, 0, 0.35)' 
+                : '0 4px 12px rgba(0, 0, 0, 0.15)',
+            }
+          }}
+        >
+          {/* Time and Weather Row */}
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            gap: 1.5,
+            width: '100%'
+          }}>
+            {/* Time Display */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontFamily: 'SF Pro Display, monospace',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  color: darkMode ? '#FFFFFF' : '#000000',
+                  letterSpacing: '0.03rem',
+                  animation: 'mobileTimePulse 2s infinite',
+                  display: 'flex',
+                  alignItems: 'center',
+                  '& .colon': {
+                    display: 'inline-block',
+                    animation: 'mobileSubtleFade 1s infinite',
+                    opacity: 0.8,
+                    mx: 0.3,
+                  }
+                }}
+              >
+                {formatTime(currentTime).split(' ').map((part, index) => {
+                  if (index === 0) {
+                    // Format the time parts with subtle colons
+                    const [hours, minutes] = part.split(':');
+                    return (
+                      <React.Fragment key={index}>
+                        {hours}
+                        <span className="colon">:</span>
+                        {minutes}
+                      </React.Fragment>
+                    );
+                  }
+                  return (
+                    <span key={index} style={{ marginLeft: '4px', fontSize: '0.7rem', opacity: 0.8 }}>
+                      {part}
+                    </span>
+                  );
+                })}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontFamily: 'SF Pro Display, sans-serif',
+                  fontSize: '0.65rem',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                  letterSpacing: '0.01rem',
+                }}
+              >
+                {formatDate(currentTime)}
+              </Typography>
+            </Box>
+            
+            {/* Weather Section - Mobile */}
+            {weatherData?.temp && (
+              <Tooltip 
+                title="Tap for detailed weather" 
+                placement="bottom" 
+                arrow
+                enterDelay={500}
+              >
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  borderLeft: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+                  pl: 1.5,
+                  ml: 0.5,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  '&:active': {
+                    transform: 'scale(0.95)'
+                  }
+                }}
+                onClick={handleWeatherClick}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <img 
+                      src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
+                      alt={weatherData.desc}
+                      style={{ width: '24px', height: '24px' }}
+                    />
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        fontWeight: 600,
+                        fontSize: '0.9rem',
+                        color: darkMode ? '#FFFFFF' : '#000000',
+                      }}
+                    >
+                      {weatherData.temp}°F
+                    </Typography>
+                    <OpenInNewIcon 
+                      sx={{ 
+                        fontSize: '0.7rem', 
+                        ml: 0.5, 
+                        opacity: 0.7,
+                        color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)'
+                      }} 
+                    />
+                  </Box>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontSize: '0.6rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {weatherData.city || weatherData.desc}
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )}
+          </Box>
+        </Box>
+
         {/* Mobile Heading */}
         <Typography
           variant="h4"

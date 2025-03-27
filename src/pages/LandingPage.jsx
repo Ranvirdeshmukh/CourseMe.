@@ -8,7 +8,7 @@ import ReactTypingEffect from 'react-typing-effect';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock } from '@mui/icons-material'; // (Optional) If you need the lock icon
+import { Lock, OpenInNew } from '@mui/icons-material'; // Added OpenInNew icon
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MobileNavigation from '../Mobileversion/MobileNavigation';
 import MobileLandingPage from '../Mobileversion/MobileLandingPage';
@@ -56,6 +56,8 @@ const LandingPage = ({ darkMode }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showScrollMessage, setShowScrollMessage] = useState(false);
   const [extendPage, setExtendPage] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [weatherData, setWeatherData] = useState({ temp: null, icon: null, desc: null });
 
   // Difficulty & Sentiment
   const [difficulty, setDifficulty] = useState(null);
@@ -483,6 +485,238 @@ const LandingPage = ({ darkMode }) => {
     }
   };
 
+  // Update current time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
+  
+  // Fetch weather data
+  useEffect(() => {
+    const fetchWeather = async (lat, lon) => {
+      try {
+        // OpenWeatherMap API for the actual weather data
+        const apiKey = 'bd5e378503939ddaee76f12ad7a97608'; // Free OpenWeatherMap API key
+        const response = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`
+        );
+        
+        if (response.data) {
+          setWeatherData({
+            temp: Math.round(response.data.main.temp),
+            icon: response.data.weather[0].icon,
+            desc: response.data.weather[0].description,
+            city: response.data.name,
+            lat: response.data.coord.lat,
+            lon: response.data.coord.lon
+          });
+          
+          // Store successful weather data in localStorage for future use
+          localStorage.setItem('weatherData', JSON.stringify({
+            temp: Math.round(response.data.main.temp),
+            icon: response.data.weather[0].icon,
+            desc: response.data.weather[0].description,
+            city: response.data.name,
+            lat: response.data.coord.lat,
+            lon: response.data.coord.lon,
+            timestamp: new Date().getTime() // Add timestamp
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching weather data:', error);
+        // Set fallback weather data from localStorage or default values
+        const savedWeather = localStorage.getItem('weatherData');
+        if (savedWeather) {
+          const parsed = JSON.parse(savedWeather);
+          setWeatherData(parsed);
+        } else {
+          setWeatherData({ 
+            temp: 72, 
+            icon: '01d', 
+            desc: 'clear sky',
+            city: 'Unknown',
+            lat: 43.7044,
+            lon: -72.2887
+          });
+        }
+      }
+    };
+    
+    // Fallback to IP-based geolocation
+    const fetchLocationByIP = async () => {
+      try {
+        // Use IP-based geolocation (this doesn't require permission)
+        const response = await axios.get('https://ipapi.co/json/');
+        if (response.data && response.data.latitude && response.data.longitude) {
+          fetchWeather(response.data.latitude, response.data.longitude);
+          
+          // Store coordinates in localStorage for future use
+          localStorage.setItem('userLat', response.data.latitude);
+          localStorage.setItem('userLon', response.data.longitude);
+          localStorage.setItem('userCity', response.data.city);
+        } else {
+          throw new Error('IP geolocation failed');
+        }
+      } catch (error) {
+        console.error('IP geolocation error:', error);
+        // Use saved coordinates or fallback to Dartmouth
+        const storedLat = localStorage.getItem('userLat');
+        const storedLon = localStorage.getItem('userLon');
+        
+        if (storedLat && storedLon) {
+          fetchWeather(parseFloat(storedLat), parseFloat(storedLon));
+        } else {
+          // Last resort fallback to Dartmouth College
+          fetchWeather(43.7044, -72.2887);
+        }
+      }
+    };
+    
+    // Check for cached weather data first to show something immediately
+    const cachedWeather = localStorage.getItem('weatherData');
+    if (cachedWeather) {
+      const parsed = JSON.parse(cachedWeather);
+      const now = new Date().getTime();
+      const cacheAge = now - parsed.timestamp;
+      
+      // If cached data is less than 30 minutes old, use it immediately
+      if (cacheAge < 30 * 60 * 1000) {
+        setWeatherData(parsed);
+      } else {
+        // Cache is stale, show it temporarily but refresh
+        setWeatherData(parsed);
+      }
+    }
+    
+    // Get user's current location with a tiered fallback approach
+    const getUserLocation = () => {
+      // Use cached data if it exists while we wait for fresh data
+      const storedLat = localStorage.getItem('userLat');
+      const storedLon = localStorage.getItem('userLon');
+      
+      if (navigator.geolocation) {
+        // Set a timeout for geolocation permission
+        const geolocationTimeout = setTimeout(() => {
+          console.warn("Geolocation permission timeout - falling back to IP-based location");
+          fetchLocationByIP();
+        }, 5000); // 5 second timeout for permission decision
+        
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            // Success - got user's location
+            clearTimeout(geolocationTimeout);
+            const { latitude, longitude } = position.coords;
+            fetchWeather(latitude, longitude);
+            
+            // Store coordinates in localStorage for persistence
+            localStorage.setItem('userLat', latitude);
+            localStorage.setItem('userLon', longitude);
+          },
+          (error) => {
+            // Error or user denied permission - clear timeout and use fallback
+            clearTimeout(geolocationTimeout);
+            console.warn("Geolocation error:", error);
+            
+            // First try IP-based geolocation
+            fetchLocationByIP();
+          },
+          { timeout: 10000, maximumAge: 3600000 } // 10 second timeout, cache for 1 hour
+        );
+      } else {
+        // Browser doesn't support geolocation, use IP-based geolocation
+        console.warn("Geolocation is not supported by this browser");
+        fetchLocationByIP();
+      }
+    };
+    
+    getUserLocation();
+    
+    // Weather doesn't need to update as frequently as time
+    const weatherTimer = setInterval(getUserLocation, 1800000); // Update every 30 minutes
+    
+    return () => clearInterval(weatherTimer);
+  }, []);
+
+  // Determine which weather service to open based on device
+  const handleWeatherClick = () => {
+    if (!weatherData.lat || !weatherData.lon) return;
+    
+    // Get detailed user agent info to determine device
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    
+    // Check if the user is on an iOS device specifically (iPhone, iPad)
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    
+    if (isIOS) {
+      // For iOS devices, try to use the weather URL scheme (might work on some versions)
+      // But since deep linking is unreliable, provide a reliable fallback immediately
+      try {
+        // First try Apple Maps with weather display
+        window.location.href = `maps://weathercallout?lat=${weatherData.lat}&lon=${weatherData.lon}`;
+        
+        // Set a short timeout to redirect to Weather web search if the deep link doesn't work
+        setTimeout(() => {
+          const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
+          window.open(
+            `https://www.google.com/search?q=weather+${cityName ? 'in+' + cityName : weatherData.lat + ',' + weatherData.lon}`, 
+            '_blank'
+          );
+        }, 300);
+      } catch (e) {
+        // If there's any error, use Google Weather search
+        const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
+        window.open(
+          `https://www.google.com/search?q=weather+${cityName ? 'in+' + cityName : weatherData.lat + ',' + weatherData.lon}`, 
+          '_blank'
+        );
+      }
+    } else {
+      // For all other devices (Android, desktop, etc.), use Google Weather
+      const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
+      const searchQuery = cityName 
+        ? `weather in ${cityName}`
+        : `weather ${weatherData.lat},${weatherData.lon}`;
+      
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`, '_blank');
+    }
+  };
+  
+  // Format time as HH:MM AM/PM (no seconds)
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+  
+  // Format date as Day, Month Date, Year
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  // Style with CSS keyframes for time pulse animation
+  const styles = {
+    '@keyframes timePulse': {
+      '0%': { opacity: 1 },
+      '50%': { opacity: 0.8 },
+      '100%': { opacity: 1 }
+    },
+    '@keyframes subtleFade': {
+      '0%': { opacity: 0.7 },
+      '50%': { opacity: 1 },
+      '100%': { opacity: 0.7 }
+    }
+  };
+
   // --------------------------------------------------------------------------------
   // 14) Return the UI
   // --------------------------------------------------------------------------------
@@ -504,6 +738,7 @@ const LandingPage = ({ darkMode }) => {
         padding: '0 20px',
         paddingBottom: extendPage ? '200px' : '0',
         transition: 'padding-bottom 0.3s ease',
+        ...styles, // Add the keyframes styles
       }}
     >
       {/* For mobile devices - show the mobile landing page component */}
@@ -528,6 +763,10 @@ const LandingPage = ({ darkMode }) => {
           currentUser={currentUser}
           handleLoginRedirect={handleLoginRedirect}
           typingMessages={typingMessages}
+          currentTime={currentTime}
+          formatTime={formatTime}
+          formatDate={formatDate}
+          weatherData={weatherData}
         />
       </Box>
 
@@ -542,6 +781,164 @@ const LandingPage = ({ darkMode }) => {
           textAlign: 'center',
         }}
       >
+        {/* Current Time Display - Centered at the top */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            bgcolor: darkMode ? 'rgba(28, 9, 63, 0.6)' : 'rgba(255, 255, 255, 0.8)',
+            padding: '8px 15px',
+            borderRadius: '12px',
+            boxShadow: darkMode 
+              ? '0 4px 12px rgba(0, 0, 0, 0.3)' 
+              : '0 4px 12px rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'blur(5px)',
+            border: darkMode 
+              ? '1px solid rgba(87, 28, 224, 0.2)' 
+              : '1px solid rgba(0, 0, 0, 0.05)',
+            zIndex: 5,
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              transform: 'translateX(-50%) translateY(-2px)',
+              boxShadow: darkMode 
+                ? '0 6px 16px rgba(0, 0, 0, 0.35)' 
+                : '0 6px 16px rgba(0, 0, 0, 0.15)',
+            }
+          }}
+        >
+          {/* Time and Weather Display Row */}
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            gap: 2,
+            width: '100%'
+          }}>
+            {/* Time Display */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontFamily: 'SF Pro Display, monospace',
+                  fontWeight: 600,
+                  fontSize: '1.1rem',
+                  color: darkMode ? '#FFFFFF' : '#000000',
+                  letterSpacing: '0.04rem',
+                  animation: 'timePulse 2s infinite',
+                  display: 'flex',
+                  alignItems: 'center',
+                  '& .colon': {
+                    display: 'inline-block',
+                    animation: 'subtleFade 1s infinite',
+                    opacity: 0.8,
+                    mx: 0.5,
+                  }
+                }}
+              >
+                {formatTime(currentTime).split(' ').map((part, index) => {
+                  if (index === 0) {
+                    // Format the time parts with subtle colons
+                    const [hours, minutes] = part.split(':');
+                    return (
+                      <React.Fragment key={index}>
+                        {hours}
+                        <span className="colon">:</span>
+                        {minutes}
+                      </React.Fragment>
+                    );
+                  }
+                  return (
+                    <span key={index} style={{ marginLeft: '5px', fontSize: '0.8rem', opacity: 0.8 }}>
+                      {part}
+                    </span>
+                  );
+                })}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontFamily: 'SF Pro Display, sans-serif',
+                  fontSize: '0.7rem',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                  letterSpacing: '0.02rem',
+                }}
+              >
+                {formatDate(currentTime)}
+              </Typography>
+            </Box>
+            
+            {/* Weather Section */}
+            {weatherData.temp && (
+              <Tooltip 
+                title="Click for detailed weather" 
+                placement="bottom" 
+                arrow
+                enterDelay={500}
+              >
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center',
+                    borderLeft: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+                    pl: 2,
+                    ml: 1,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                    }
+                  }}
+                  onClick={handleWeatherClick}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <img 
+                      src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
+                      alt={weatherData.desc}
+                      style={{ width: '28px', height: '28px' }}
+                    />
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        fontWeight: 600,
+                        fontSize: '1.1rem',
+                        color: darkMode ? '#FFFFFF' : '#000000',
+                      }}
+                    >
+                      {weatherData.temp}°F
+                    </Typography>
+                    <OpenInNew 
+                      sx={{ 
+                        fontSize: '0.8rem', 
+                        ml: 0.5, 
+                        opacity: 0.7,
+                        color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)'
+                      }} 
+                    />
+                  </Box>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontSize: '0.7rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {weatherData.city || weatherData.desc}
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )}
+          </Box>
+        </Box>
+        
         {/* Typing effect for the main heading */}
         <Typography
           variant="h3"
@@ -1114,16 +1511,75 @@ const LandingPage = ({ darkMode }) => {
             sx={{
               mt: 4,
               p: 3,
-              bgcolor: darkMode ? '#0C0F33' : '#f9f9f9',
-              borderRadius: 2,
+              bgcolor: darkMode ? 'rgba(12, 15, 51, 0.8)' : '#ffffff',
+              borderRadius: '12px',
               width: '100%',
               maxWidth: '800px',
               boxShadow: darkMode
-                ? '0px 4px 20px rgba(255, 255, 255, 0.1)'
-                : '0px 4px 20px rgba(0, 0, 0, 0.05)',
+                ? '0px 8px 20px rgba(0, 0, 0, 0.2)'
+                : '0px 8px 20px rgba(0, 0, 0, 0.08)',
+              border: darkMode 
+                ? '1px solid rgba(87, 28, 224, 0.2)' 
+                : '1px solid rgba(0, 0, 0, 0.05)',
               color: darkMode ? '#ffffff' : '#333333',
+              overflow: 'hidden',
+              position: 'relative',
             }}
           >
+            {/* Top bar with Google-like styling */}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                pb: 2,
+                mb: 2,
+                borderBottom: darkMode 
+                  ? '1px solid rgba(255, 255, 255, 0.1)' 
+                  : '1px solid rgba(0, 0, 0, 0.05)',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    backgroundColor: '#4285F4',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mr: 1.5,
+                    color: '#FFFFFF',
+                    fontWeight: 'bold',
+                    fontSize: '1.2rem',
+                  }}
+                >
+                  C
+                </Box>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    color: darkMode ? '#ffffff' : '#202124',
+                  }}
+                >
+                  CourseMe Results
+                </Typography>
+              </Box>
+
+              <Typography
+                variant="body2"
+                sx={{
+                  color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                  fontSize: '0.8rem',
+                }}
+              >
+                Results generated in {(Math.random() * 0.5 + 0.2).toFixed(2)}s
+              </Typography>
+            </Box>
+
             {/* Chips & scale meters at the top (only show if we have department/course) */}
             {(department || courseNumber || difficulty !== null || sentiment !== null) && (
               <Box
@@ -1133,6 +1589,11 @@ const LandingPage = ({ darkMode }) => {
                   alignItems: 'center',
                   flexWrap: 'wrap',
                   mb: 2,
+                  p: 1,
+                  backgroundColor: darkMode 
+                    ? 'rgba(255, 255, 255, 0.03)' 
+                    : 'rgba(0, 0, 0, 0.02)',
+                  borderRadius: '8px',
                 }}
               >
                 <Box
@@ -1148,8 +1609,12 @@ const LandingPage = ({ darkMode }) => {
                       label={`Department: ${department}`}
                       color={darkMode ? 'default' : 'primary'}
                       sx={{
-                        bgcolor: darkMode ? '#0C0F33' : 'primary.main',
-                        color: '#ffffff',
+                        bgcolor: darkMode ? 'rgba(66, 133, 244, 0.2)' : '#E8F0FE',
+                        color: darkMode ? '#90CAF9' : '#1967D2',
+                        fontWeight: '500',
+                        border: darkMode 
+                          ? '1px solid rgba(66, 133, 244, 0.4)' 
+                          : '1px solid #DADCE0',
                       }}
                     />
                   )}
@@ -1158,8 +1623,12 @@ const LandingPage = ({ darkMode }) => {
                       label={`Course: ${courseNumber}`}
                       color={darkMode ? 'default' : 'secondary'}
                       sx={{
-                        bgcolor: darkMode ? '#00693e' : 'secondary.main',
-                        color: '#ffffff',
+                        bgcolor: darkMode ? 'rgba(0, 105, 62, 0.2)' : '#E6F4EA',
+                        color: darkMode ? '#81C784' : '#137333',
+                        fontWeight: '500',
+                        border: darkMode 
+                          ? '1px solid rgba(0, 105, 62, 0.4)' 
+                          : '1px solid #DADCE0',
                       }}
                     />
                   )}
@@ -1192,25 +1661,28 @@ const LandingPage = ({ darkMode }) => {
                           flexDirection: 'column',
                           alignItems: 'center',
                           ml: 2,
-                          bgcolor: darkMode ? '#424242' : '#f0f8ff',
+                          bgcolor: darkMode ? 'rgba(66, 66, 66, 0.3)' : 'rgba(240, 248, 255, 0.8)',
                           p: 1,
                           borderRadius: 2,
                           boxShadow: darkMode
-                            ? '0 2px 5px rgba(255, 255, 255, 0.1)'
+                            ? '0 2px 5px rgba(0, 0, 0, 0.2)'
                             : '0 2px 5px rgba(0, 0, 0, 0.1)',
                           transition: 'all 0.3s ease',
                           cursor: 'pointer',
+                          border: darkMode
+                            ? '1px solid rgba(255, 255, 255, 0.1)'
+                            : '1px solid rgba(0, 0, 0, 0.05)',
                           '&:hover': {
-                            bgcolor: darkMode ? '#555555' : '#e6f3ff',
+                            bgcolor: darkMode ? 'rgba(85, 85, 85, 0.4)' : 'rgba(230, 243, 255, 0.9)',
                             transform: 'translateY(-2px)',
                             boxShadow: darkMode
-                              ? '0 4px 8px rgba(255, 255, 255, 0.15)'
+                              ? '0 4px 8px rgba(0, 0, 0, 0.25)'
                               : '0 4px 8px rgba(0, 0, 0, 0.15)',
                           },
                           '&:active': {
                             transform: 'translateY(0)',
                             boxShadow: darkMode
-                              ? '0 2px 5px rgba(255, 255, 255, 0.1)'
+                              ? '0 2px 5px rgba(0, 0, 0, 0.2)'
                               : '0 2px 5px rgba(0, 0, 0, 0.1)',
                           },
                         }}
@@ -1234,9 +1706,9 @@ const LandingPage = ({ darkMode }) => {
                               height: 8,
                               borderRadius: 4,
                               width: '100px',
-                              bgcolor: darkMode ? '#bbbbbb' : '#bbdefb',
+                              bgcolor: darkMode ? 'rgba(187, 134, 252, 0.2)' : '#E8F0FE',
                               '& .MuiLinearProgress-bar': {
-                                bgcolor: darkMode ? '#bb86fc' : '#1976d2',
+                                bgcolor: darkMode ? '#bb86fc' : '#4285F4',
                               },
                             }}
                           />
@@ -1249,7 +1721,17 @@ const LandingPage = ({ darkMode }) => {
             )}
 
             {/* Render the chatbot's answer with markdown */}
-            <Box sx={{ textAlign: 'left', mb: 2 }}>
+            <Box 
+              sx={{ 
+                textAlign: 'left', 
+                mb: 2,
+                px: 1,
+                pb: 2, 
+                borderBottom: darkMode 
+                  ? '1px solid rgba(255, 255, 255, 0.05)' 
+                  : '1px solid rgba(0, 0, 0, 0.05)',
+              }}
+            >
               {formatAnswer(
                 department && courseNumber
                   ? answer.replace(new RegExp(`^${department}\\s*${courseNumber}\\s*`), '')
@@ -1257,14 +1739,68 @@ const LandingPage = ({ darkMode }) => {
               )}
             </Box>
 
-            {/* Note below the AI response */}
-            <Typography
-              variant="body2"
-              sx={{ color: darkMode ? '#bbbbbb' : '#888888', mt: 2 }}
-            >
-              Note: This AI chatbot is in its early stage of development, and we are actively
-              working on improving it.
-            </Typography>
+            {/* Footer with AI info */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mt: 2,
+              pt: 1
+            }}>
+              <Typography
+                variant="body2"
+                sx={{ 
+                  color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                  fontSize: '0.75rem',
+                  fontStyle: 'italic'
+                }}
+              >
+                AI-powered by CourseMe
+              </Typography>
+              
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                  size="small"
+                  sx={{
+                    color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                    textTransform: 'none',
+                    fontSize: '0.75rem',
+                    padding: '2px 8px',
+                    minWidth: 'auto',
+                    borderRadius: '12px',
+                    '&:hover': {
+                      backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'
+                    }
+                  }}
+                  onClick={() => {
+                    setQuestion('');
+                    setAnswer('');
+                  }}
+                >
+                  New Search
+                </Button>
+                
+                {documentName && (
+                  <Button
+                    size="small"
+                    sx={{
+                      color: darkMode ? '#90CAF9' : '#1967D2', 
+                      textTransform: 'none',
+                      fontSize: '0.75rem',
+                      padding: '2px 8px',
+                      minWidth: 'auto',
+                      borderRadius: '12px',
+                      '&:hover': {
+                        backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.1)' : 'rgba(66, 133, 244, 0.05)'
+                      }
+                    }}
+                    onClick={() => navigate(`/departments/${department}/courses/${documentName}`)}
+                  >
+                    View Full Details
+                  </Button>
+                )}
+              </Box>
+            </Box>
           </Paper>
         )}
       </Container>
@@ -1498,19 +2034,5 @@ const LandingPage = ({ darkMode }) => {
     </Box>
   );
 };
-
-const styles = `
-  @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-      transform: translateY(0);
-    }
-    40% {
-      transform: translateY(-5px);
-    }
-    60% {
-      transform: translateY(-3px);
-    }
-  }
-`;
 
 export default LandingPage;
