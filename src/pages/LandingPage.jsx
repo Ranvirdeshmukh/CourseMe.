@@ -8,15 +8,16 @@ import ReactTypingEffect from 'react-typing-effect';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, OpenInNew, AccessTime, CloudOutlined } from '@mui/icons-material';
+import { Lock, OpenInNew, AccessTime, CloudOutlined, LocationOn } from '@mui/icons-material';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MobileNavigation from '../Mobileversion/MobileNavigation';
 import MobileLandingPage from '../Mobileversion/MobileLandingPage';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
-  Alert, Chip, LinearProgress, ButtonBase, Tooltip, Fade
+  Alert, Chip, LinearProgress, ButtonBase, Tooltip, Fade, IconButton
 } from '@mui/material';
 
 // ----------------------------------------------------------------------------------
@@ -1033,16 +1034,6 @@ const LandingPage = ({ darkMode }) => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          cursor: 'pointer'
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent triggering the parent click handler
-                          refreshWeather();
-                          // Show a subtle visual feedback
-                          e.currentTarget.style.transform = 'rotate(180deg)';
-                          setTimeout(() => {
-                            e.currentTarget.style.transform = 'rotate(0deg)';
-                          }, 500);
                         }}
                       >
                         <img 
@@ -1065,19 +1056,46 @@ const LandingPage = ({ darkMode }) => {
                           color: darkMode ? '#FFFFFF' : '#000000',
                           display: 'flex',
                           alignItems: 'center',
-                          lineHeight: 1.2
+                          lineHeight: 1.2,
+                          ml: 0.8  // Added margin-left to move temperature to the right
                         }}
                       >
                         {weatherData.tempDisplay || Math.round(weatherData.temp)}°
-                        <CloudOutlined 
-                          sx={{ 
-                            fontSize: '0.7rem', 
-                            ml: 0.4, 
-                            opacity: 0.7,
-                            color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)'
-                          }} 
-                        />
                       </Typography>
+                      
+                      {/* Refresh Button */}
+                      <Tooltip title="Refresh weather data" placement="top" arrow>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering the parent click handler
+                            refreshWeather();
+                            
+                            // Visual feedback animation
+                            const target = e.currentTarget;
+                            target.style.animation = 'spin 1s linear 1';
+                            
+                            setTimeout(() => {
+                              target.style.animation = 'none';
+                            }, 1000);
+                          }}
+                          sx={{
+                            ml: 0.5,
+                            padding: '2px',
+                            color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                            '&:hover': {
+                              color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+                              backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+                            },
+                            '@keyframes spin': {
+                              '0%': { transform: 'rotate(0deg)' },
+                              '100%': { transform: 'rotate(360deg)' }
+                            }
+                          }}
+                        >
+                          <RefreshIcon sx={{ fontSize: '0.7rem' }} />
+                        </IconButton>
+                      </Tooltip>
                     </Box>
                     <Typography
                       variant="caption"
@@ -1088,9 +1106,30 @@ const LandingPage = ({ darkMode }) => {
                         textTransform: 'capitalize',
                         fontWeight: 400,
                         mt: '-2px',
-                        lineHeight: 1.1
+                        lineHeight: 1.1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        letterSpacing: '0.02em',
+                        px: 0.3,
+                        py: 0.1,
+                        borderRadius: '3px',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+                          backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                          transform: 'translateY(-1px)'
+                        }
                       }}
                     >
+                      <LocationOn 
+                        sx={{ 
+                          fontSize: '0.7rem', 
+                          mr: 0.3,
+                          opacity: 0.9,
+                          color: darkMode ? 'rgba(255, 255, 255, 0.75)' : 'rgba(0, 0, 0, 0.6)'
+                        }} 
+                      />
                       {weatherData.city || weatherData.desc}
                     </Typography>
                     <Box sx={{ 
