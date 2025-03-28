@@ -310,13 +310,12 @@ const MobileLandingPage = ({
         </Collapse>
       </Box>
 
-      {/* Heading and Mobile Navigation */}
-      <Box sx={{ pt: 4, pb: 2 }}>
-        {/* Mobile Time Display - Centered */}
+      {/* Mobile Time & Weather Display at the top */}
+      {currentUser && (
         <Box
           sx={{
             position: 'fixed',
-            top: '10px',
+            top: '50px',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 9,
@@ -326,8 +325,8 @@ const MobileLandingPage = ({
             bgcolor: darkMode 
               ? 'rgba(21, 8, 47, 0.45)' 
               : 'rgba(255, 255, 255, 0.5)',
-            padding: '8px 16px',
-            borderRadius: '10px',
+            padding: '4px 12px',
+            borderRadius: '12px',
             boxShadow: darkMode 
               ? '0 4px 12px rgba(0, 0, 0, 0.12)' 
               : '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
@@ -336,11 +335,9 @@ const MobileLandingPage = ({
               ? '1px solid rgba(255, 255, 255, 0.05)' 
               : '1px solid rgba(240, 240, 240, 0.8)',
             transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
-            minWidth: '260px',
-            maxWidth: '90%',
-            overflow: 'hidden',
+            width: 'auto',
+            minWidth: '250px',
             '&:hover': {
-              transform: 'translateX(-50%) translateY(-2px)',
               boxShadow: darkMode 
                 ? '0 8px 24px rgba(0, 0, 0, 0.16)' 
                 : '0 2px 10px rgba(0, 0, 0, 0.05)',
@@ -560,7 +557,10 @@ const MobileLandingPage = ({
             )}
           </Box>
         </Box>
+      )}
 
+      {/* Heading and Mobile Navigation */}
+      <Box sx={{ pt: 4, pb: 2 }}>
         {/* Mobile Heading */}
         <Typography
           variant="h4"

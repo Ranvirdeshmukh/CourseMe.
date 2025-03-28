@@ -830,253 +830,255 @@ const LandingPage = ({ darkMode }) => {
         }}
       >
         {/* Current Time & Weather Display - Centered at the top */}
-        <Box
-          sx={{
-            position: 'fixed',
-            top: '10px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 9,
-            display: { xs: 'none', sm: 'flex' },
-            flexDirection: 'column',
-            alignItems: 'center',
-            bgcolor: darkMode 
-              ? 'rgba(21, 8, 47, 0.45)' 
-              : 'rgba(255, 255, 255, 0.5)',
-            padding: '6px 16px',
-            borderRadius: '12px',
-            boxShadow: darkMode 
-              ? '0 4px 12px rgba(0, 0, 0, 0.12)' 
-              : '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
-            backdropFilter: 'blur(16px)',
-            border: darkMode 
-              ? '1px solid rgba(255, 255, 255, 0.05)' 
-              : '1px solid rgba(240, 240, 240, 0.8)',
-            transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
-            width: 'auto',
-            minWidth: '280px',
-            '&:hover': {
-              transform: 'translateX(-50%) translateY(-2px)',
-              boxShadow: darkMode 
-                ? '0 8px 24px rgba(0, 0, 0, 0.16)' 
-                : '0 2px 10px rgba(0, 0, 0, 0.05)',
+        {currentUser && (
+          <Box
+            sx={{
+              position: 'fixed',
+              top: '10px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 9,
+              display: { xs: 'none', sm: 'flex' },
+              flexDirection: 'column',
+              alignItems: 'center',
               bgcolor: darkMode 
-                ? 'rgba(21, 8, 47, 0.55)' 
-                : 'rgba(255, 255, 255, 0.6)',
-            },
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '1px',
-              background: darkMode
-                ? 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)'
-                : 'linear-gradient(90deg, transparent, rgba(150, 150, 255, 0.1), transparent)'
-            }
-          }}
-        >
-          {/* Time and Weather Row */}
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            width: '100%',
-            px: 0.5
-          }}>
-            {/* Time Display */}
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'flex-start',
-                flex: 1
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
-                <AccessTime 
-                  sx={{ 
-                    fontSize: '0.85rem', 
-                    mr: 1, 
-                    color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.65)',
-                    opacity: 0.95
-                  }} 
-                />
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontFamily: '"SF Pro Display", system-ui, sans-serif',
-                    fontWeight: 400,
-                    fontSize: '0.9rem',
-                    color: darkMode ? '#FFFFFF' : '#000000',
-                    letterSpacing: '0.02rem',
-                    animation: 'timePulse 4s infinite',
-                    display: 'flex',
-                    alignItems: 'center',
-                    '& .colon': {
-                      display: 'inline-block',
-                      animation: 'subtleFade 2s infinite',
-                      opacity: 0.8,
-                      mx: 0.2,
-                      fontWeight: 300,
-                    }
-                  }}
-                >
-                  {formatTime(currentTime).split(' ').map((part, index) => {
-                    if (index === 0) {
-                      // Format the time parts with subtle colons
-                      const [hours, minutes, seconds] = part.split(':');
-                      return (
-                        <React.Fragment key={index}>
-                          {hours}
-                          <span className="colon">:</span>
-                          {minutes}
-                          <span className="colon">:</span>
-                          {seconds}
-                        </React.Fragment>
-                      );
-                    }
-                    return (
-                      <span key={index} style={{ 
-                        marginLeft: '4px', 
-                        fontSize: '0.65rem', 
-                        opacity: 0.9,
-                        fontWeight: 300,
-                      }}>
-                        {part}
-                      </span>
-                    );
-                  })}
-                </Typography>
-              </Box>
-              <Typography
-                variant="caption"
-                sx={{
-                  fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                  fontSize: '0.6rem',
-                  color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
-                  letterSpacing: '0.01rem',
-                  ml: '1.6rem',
-                  fontWeight: 400,
-                  textTransform: 'capitalize'
+                ? 'rgba(21, 8, 47, 0.45)' 
+                : 'rgba(255, 255, 255, 0.5)',
+              padding: '6px 16px',
+              borderRadius: '12px',
+              boxShadow: darkMode 
+                ? '0 4px 12px rgba(0, 0, 0, 0.12)' 
+                : '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
+              backdropFilter: 'blur(16px)',
+              border: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.05)' 
+                : '1px solid rgba(240, 240, 240, 0.8)',
+              transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
+              width: 'auto',
+              minWidth: '280px',
+              '&:hover': {
+                transform: 'translateX(-50%) translateY(-2px)',
+                boxShadow: darkMode 
+                  ? '0 8px 24px rgba(0, 0, 0, 0.16)' 
+                  : '0 2px 10px rgba(0, 0, 0, 0.05)',
+                bgcolor: darkMode 
+                  ? 'rgba(21, 8, 47, 0.55)' 
+                  : 'rgba(255, 255, 255, 0.6)',
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '1px',
+                background: darkMode
+                  ? 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)'
+                  : 'linear-gradient(90deg, transparent, rgba(150, 150, 255, 0.1), transparent)'
+              }
+            }}
+          >
+            {/* Time and Weather Row */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              width: '100%',
+              px: 0.5
+            }}>
+              {/* Time Display */}
+              <Box 
+                sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'flex-start',
+                  flex: 1
                 }}
               >
-                {formatDate(currentTime)}
-              </Typography>
-            </Box>
-            
-            {/* Weather Section */}
-            {weatherData.temp && (
-              <Tooltip 
-                title="View detailed weather forecast" 
-                placement="bottom" 
-                arrow
-                enterDelay={300}
-                sx={{
-                  '& .MuiTooltip-arrow': {
-                    color: darkMode ? '#333' : '#f5f5f5',
-                  },
-                  '& .MuiTooltip-tooltip': {
-                    bgcolor: darkMode ? '#333' : '#f5f5f5',
-                    color: darkMode ? '#fff' : '#333',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                    fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                    fontSize: '0.7rem',
-                    fontWeight: 400,
-                    padding: '6px 10px',
-                    borderRadius: '4px',
-                  }
-                }}
-              >
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'flex-end',
-                    borderLeft: darkMode 
-                      ? '1px solid rgba(255, 255, 255, 0.07)' 
-                      : '1px solid rgba(0, 0, 0, 0.04)',
-                    pl: 1.5,
-                    ml: 0.5,
-                    cursor: 'pointer',
-                    transition: 'all 0.25s cubic-bezier(0.19, 1, 0.22, 1)',
-                    minWidth: '80px',
-                    '&:hover': {
-                      transform: 'scale(1.02) translateX(-2px)',
-                    }
-                  }}
-                  onClick={handleWeatherClick}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
-                    <Box
-                      sx={{
-                        position: 'relative', 
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering the parent click handler
-                        refreshWeather();
-                        // Show a subtle visual feedback
-                        e.currentTarget.style.transform = 'rotate(180deg)';
-                        setTimeout(() => {
-                          e.currentTarget.style.transform = 'rotate(0deg)';
-                        }, 500);
-                      }}
-                    >
-                      <img 
-                        src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
-                        alt={weatherData.desc}
-                        style={{ 
-                          width: '24px', 
-                          height: '24px',
-                          filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)',
-                          transition: 'transform 0.5s ease'
-                        }}
-                      />
-                    </Box>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                        fontWeight: 500,
-                        fontSize: '0.9rem',
-                        color: darkMode ? '#FFFFFF' : '#000000',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {weatherData.tempDisplay || Math.round(weatherData.temp)}°
-                      <OpenInNew 
-                        sx={{ 
-                          fontSize: '0.7rem', 
-                          ml: 0.5, 
-                          opacity: 0.5,
-                          color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.4)'
-                        }} 
-                      />
-                    </Typography>
-                  </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
+                  <AccessTime 
+                    sx={{ 
+                      fontSize: '0.85rem', 
+                      mr: 1, 
+                      color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.65)',
+                      opacity: 0.95
+                    }} 
+                  />
                   <Typography
-                    variant="caption"
+                    variant="h6"
                     sx={{
-                      fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                      fontSize: '0.6rem',
-                      color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
-                      textTransform: 'capitalize',
+                      fontFamily: '"SF Pro Display", system-ui, sans-serif',
                       fontWeight: 400,
+                      fontSize: '0.9rem',
+                      color: darkMode ? '#FFFFFF' : '#000000',
+                      letterSpacing: '0.02rem',
+                      animation: 'timePulse 4s infinite',
+                      display: 'flex',
+                      alignItems: 'center',
+                      '& .colon': {
+                        display: 'inline-block',
+                        animation: 'subtleFade 2s infinite',
+                        opacity: 0.8,
+                        mx: 0.2,
+                        fontWeight: 300,
+                      }
                     }}
                   >
-                    {weatherData.city || weatherData.desc}
+                    {formatTime(currentTime).split(' ').map((part, index) => {
+                      if (index === 0) {
+                        // Format the time parts with subtle colons
+                        const [hours, minutes, seconds] = part.split(':');
+                        return (
+                          <React.Fragment key={index}>
+                            {hours}
+                            <span className="colon">:</span>
+                            {minutes}
+                            <span className="colon">:</span>
+                            {seconds}
+                          </React.Fragment>
+                        );
+                      }
+                      return (
+                        <span key={index} style={{ 
+                          marginLeft: '4px', 
+                          fontSize: '0.65rem', 
+                          opacity: 0.9,
+                          fontWeight: 300,
+                        }}>
+                          {part}
+                        </span>
+                      );
+                    })}
                   </Typography>
                 </Box>
-              </Tooltip>
-            )}
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                    fontSize: '0.6rem',
+                    color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                    letterSpacing: '0.01rem',
+                    ml: '1.6rem',
+                    fontWeight: 400,
+                    textTransform: 'capitalize'
+                  }}
+                >
+                  {formatDate(currentTime)}
+                </Typography>
+              </Box>
+              
+              {/* Weather Section */}
+              {weatherData.temp && (
+                <Tooltip 
+                  title="View detailed weather forecast" 
+                  placement="bottom" 
+                  arrow
+                  enterDelay={300}
+                  sx={{
+                    '& .MuiTooltip-arrow': {
+                      color: darkMode ? '#333' : '#f5f5f5',
+                    },
+                    '& .MuiTooltip-tooltip': {
+                      bgcolor: darkMode ? '#333' : '#f5f5f5',
+                      color: darkMode ? '#fff' : '#333',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+                      fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                      fontSize: '0.7rem',
+                      fontWeight: 400,
+                      padding: '6px 10px',
+                      borderRadius: '4px',
+                    }
+                  }}
+                >
+                  <Box 
+                    sx={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'flex-end',
+                      borderLeft: darkMode 
+                        ? '1px solid rgba(255, 255, 255, 0.07)' 
+                        : '1px solid rgba(0, 0, 0, 0.04)',
+                      pl: 1.5,
+                      ml: 0.5,
+                      cursor: 'pointer',
+                      transition: 'all 0.25s cubic-bezier(0.19, 1, 0.22, 1)',
+                      minWidth: '80px',
+                      '&:hover': {
+                        transform: 'scale(1.02) translateX(-2px)',
+                      }
+                    }}
+                    onClick={handleWeatherClick}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
+                      <Box
+                        sx={{
+                          position: 'relative', 
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer'
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent triggering the parent click handler
+                          refreshWeather();
+                          // Show a subtle visual feedback
+                          e.currentTarget.style.transform = 'rotate(180deg)';
+                          setTimeout(() => {
+                            e.currentTarget.style.transform = 'rotate(0deg)';
+                          }, 500);
+                        }}
+                      >
+                        <img 
+                          src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
+                          alt={weatherData.desc}
+                          style={{ 
+                            width: '24px', 
+                            height: '24px',
+                            filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)',
+                            transition: 'transform 0.5s ease'
+                          }}
+                        />
+                      </Box>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                          fontWeight: 500,
+                          fontSize: '0.9rem',
+                          color: darkMode ? '#FFFFFF' : '#000000',
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        {weatherData.tempDisplay || Math.round(weatherData.temp)}°
+                        <OpenInNew 
+                          sx={{ 
+                            fontSize: '0.7rem', 
+                            ml: 0.5, 
+                            opacity: 0.5,
+                            color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.4)'
+                          }} 
+                        />
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                        fontSize: '0.6rem',
+                        color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                        textTransform: 'capitalize',
+                        fontWeight: 400,
+                      }}
+                    >
+                      {weatherData.city || weatherData.desc}
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+            </Box>
           </Box>
-        </Box>
+        )}
         
         {/* Typing effect for the main heading */}
         <Typography
