@@ -508,18 +508,13 @@ const LandingPage = ({ darkMode }) => {
           // Store the raw temperature value without formatting it
           const rawTemp = response.data.main.temp;
           
-          // Apply a calibration factor to match Google's weather data more closely
-          // Google often shows temperatures from different sources, adding +2-7°F higher
-          const calibrationFactor = 6; // Adjusting by 7°F to match Google
-          const adjustedTemp = rawTemp + calibrationFactor;
-          
+          // Remove the calibration factor, as the OpenWeatherMap data is already close to Bing's data
           console.log('Weather fetched:', new Date().toLocaleString(), 
-            'Raw Temp:', rawTemp, '°F', 
-            'Adjusted:', adjustedTemp, '°F');
+            'Temp:', rawTemp, '°F');
           
           setWeatherData({
-            temp: rawTemp, // Store the raw temperature (not rounded or formatted)
-            tempDisplay: Math.round(adjustedTemp), // Calibrated and rounded for display
+            temp: rawTemp, // Store the raw temperature
+            tempDisplay: Math.round(rawTemp), // Rounded for display, but without calibration
             icon: response.data.weather[0].icon,
             desc: response.data.weather[0].description,
             city: response.data.name,
@@ -530,7 +525,7 @@ const LandingPage = ({ darkMode }) => {
           // Store successful weather data in localStorage for future use
           localStorage.setItem('weatherData', JSON.stringify({
             temp: rawTemp, // Store raw temperature
-            tempDisplay: Math.round(adjustedTemp), // Calibrated and rounded for display
+            tempDisplay: Math.round(rawTemp), // Rounded for display, but without calibration
             icon: response.data.weather[0].icon,
             desc: response.data.weather[0].description,
             city: response.data.name,
@@ -590,37 +585,15 @@ const LandingPage = ({ darkMode }) => {
       }
     };
     
-    // Check for cached weather data first to show something immediately
-    const cachedWeather = localStorage.getItem('weatherData');
-    if (cachedWeather) {
-      const parsed = JSON.parse(cachedWeather);
-      const now = new Date().getTime();
-      const cacheAge = now - parsed.timestamp;
-      
-      // If cached data is less than 15 minutes old, use it immediately
-      // Otherwise force a refresh (reduced from 30 minutes to ensure more frequent updates)
-      if (cacheAge < 15 * 60 * 1000) {
-        setWeatherData(parsed);
-      } else {
-        // Cache is stale, show it temporarily but refresh
-        setWeatherData(parsed);
-        // Force an immediate weather update when cache is stale
-        console.log('Weather cache is stale, refreshing...');
-      }
-    }
-    
     // Get user's current location with a tiered fallback approach
     const getUserLocation = () => {
-      // Use cached data if it exists while we wait for fresh data
-      const storedLat = localStorage.getItem('userLat');
-      const storedLon = localStorage.getItem('userLon');
-      
+      // Always try to get fresh location and weather on each page load
       if (navigator.geolocation) {
         // Set a timeout for geolocation permission
         const geolocationTimeout = setTimeout(() => {
           console.warn("Geolocation permission timeout - falling back to IP-based location");
           fetchLocationByIP();
-        }, 5000); // 5 second timeout for permission decision
+        }, 3000); // Shorter 3 second timeout for permission decision
         
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -641,7 +614,7 @@ const LandingPage = ({ darkMode }) => {
             // First try IP-based geolocation
             fetchLocationByIP();
           },
-          { timeout: 10000, maximumAge: 3600000 } // 10 second timeout, cache for 1 hour
+          { timeout: 5000, maximumAge: 0 } // 5 second timeout, always get fresh data
         );
       } else {
         // Browser doesn't support geolocation, use IP-based geolocation
@@ -649,13 +622,18 @@ const LandingPage = ({ darkMode }) => {
         fetchLocationByIP();
       }
     };
+
+    // Show cached data immediately if available, but still fetch fresh data
+    const cachedWeather = localStorage.getItem('weatherData');
+    if (cachedWeather) {
+      // Use cached data temporarily while fetching fresh data
+      setWeatherData(JSON.parse(cachedWeather));
+    }
     
+    // Always fetch fresh weather data when component mounts
     getUserLocation();
     
-    // Weather doesn't need to update as frequently as time
-    const weatherTimer = setInterval(getUserLocation, 1800000); // Update every 30 minutes
-    
-    // Expose these functions to the component scope
+    // Expose these functions to the component scope for manual refreshing
     window.weatherUtils = {
       fetchWeather,
       getUserLocation,
@@ -663,7 +641,6 @@ const LandingPage = ({ darkMode }) => {
     };
     
     return () => {
-      clearInterval(weatherTimer);
       // Clean up the global reference
       delete window.weatherUtils;
     };
@@ -673,43 +650,29 @@ const LandingPage = ({ darkMode }) => {
   const handleWeatherClick = () => {
     if (!weatherData.lat || !weatherData.lon) return;
     
-    // Get detailed user agent info to determine device
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    
-    // Check if the user is on an iOS device specifically (iPhone, iPad)
-    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-    
-    if (isIOS) {
-      // For iOS devices, try to use the weather URL scheme (might work on some versions)
-      // But since deep linking is unreliable, provide a reliable fallback immediately
-      try {
-        // First try Apple Maps with weather display
-        window.location.href = `maps://weathercallout?lat=${weatherData.lat}&lon=${weatherData.lon}`;
-        
-        // Set a short timeout to redirect to Weather web search if the deep link doesn't work
-        setTimeout(() => {
-          const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
-          window.open(
-            `https://www.google.com/search?q=weather+${cityName ? 'in+' + cityName : weatherData.lat + ',' + weatherData.lon}`, 
-            '_blank'
-          );
-        }, 300);
-      } catch (e) {
-        // If there's any error, use Google Weather search
-        const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
-        window.open(
-          `https://www.google.com/search?q=weather+${cityName ? 'in+' + cityName : weatherData.lat + ',' + weatherData.lon}`, 
-          '_blank'
-        );
-      }
-    } else {
-      // For all other devices (Android, desktop, etc.), use Google Weather
-      const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
-      const searchQuery = cityName 
-        ? `weather in ${cityName}`
-        : `weather ${weatherData.lat},${weatherData.lon}`;
+    try {
+      // Direct user to Bing/MSN Weather for the location
+      // Format for MSN Weather URL
+      const cityParam = weatherData.city ? encodeURIComponent(weatherData.city) : 'YourLocation';
+      let msnWeatherUrl;
       
-      window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`, '_blank');
+      // Primary format: Try using city + coordinates
+      if (weatherData.city) {
+        msnWeatherUrl = `https://www.msn.com/en-us/weather/forecast/in-${cityParam}?loc=${weatherData.lat},${weatherData.lon}`;
+      } else {
+        // Fallback to direct coordinates URL
+        msnWeatherUrl = `https://www.msn.com/en-us/weather/forecast?lat=${weatherData.lat}&lon=${weatherData.lon}`;
+      }
+      
+      // Open in new tab
+      window.open(msnWeatherUrl, '_blank');
+    } catch (error) {
+      console.error("Error opening weather link:", error);
+      
+      // Fallback to Bing search for weather if MSN direct link fails
+      const cityName = weatherData.city ? `weather in ${encodeURIComponent(weatherData.city)}` : 
+                      `weather ${weatherData.lat},${weatherData.lon}`;
+      window.open(`https://www.bing.com/search?q=${encodeURIComponent(cityName)}`, '_blank');
     }
   };
   
@@ -723,14 +686,36 @@ const LandingPage = ({ darkMode }) => {
     });
   };
   
-  // Format date as Day, Month Date, Year
+  // Format date as Day, Month Date, Year with ordinal indicator (e.g. 1st, 2nd, 3rd)
   const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', {
+    // Get day number and add ordinal suffix
+    const day = date.getDate();
+    const ordinalSuffix = getOrdinalSuffix(day);
+    
+    // Use toLocaleDateString for basic format then customize
+    const rawDate = date.toLocaleDateString('en-US', {
       weekday: 'long',
       month: 'short',
       day: 'numeric',
       year: 'numeric'
     });
+    
+    // Replace the day number with day + ordinal suffix
+    return rawDate.replace(
+      new RegExp(`${day},`), 
+      `${day}${ordinalSuffix},`
+    );
+  };
+  
+  // Helper function to get ordinal suffix (st, nd, rd, th)
+  const getOrdinalSuffix = (day) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
   };
 
   // Style with CSS keyframes for time pulse animation
@@ -834,7 +819,7 @@ const LandingPage = ({ darkMode }) => {
           <Box
             sx={{
               position: 'fixed',
-              top: '10px',
+              top: '8px',
               left: '50%',
               transform: 'translateX(-50%)',
               zIndex: 9,
@@ -842,28 +827,28 @@ const LandingPage = ({ darkMode }) => {
               flexDirection: 'column',
               alignItems: 'center',
               bgcolor: darkMode 
-                ? 'rgba(21, 8, 47, 0.45)' 
-                : 'rgba(255, 255, 255, 0.5)',
-              padding: '6px 16px',
-              borderRadius: '12px',
+                ? 'rgba(21, 8, 47, 0.3)' 
+                : 'rgba(255, 255, 255, 0.4)',
+              padding: '3px 14px',
+              borderRadius: '10px',
               boxShadow: darkMode 
-                ? '0 4px 12px rgba(0, 0, 0, 0.12)' 
-                : '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
-              backdropFilter: 'blur(16px)',
+                ? '0 2px 8px rgba(0, 0, 0, 0.08)' 
+                : '0 1px 2px rgba(0, 0, 0, 0.03)',
+              backdropFilter: 'blur(10px)',
               border: darkMode 
-                ? '1px solid rgba(255, 255, 255, 0.05)' 
-                : '1px solid rgba(240, 240, 240, 0.8)',
+                ? '1px solid rgba(255, 255, 255, 0.03)' 
+                : '1px solid rgba(240, 240, 240, 0.7)',
               transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
               width: 'auto',
-              minWidth: '280px',
+              minWidth: '260px',
               '&:hover': {
-                transform: 'translateX(-50%) translateY(-2px)',
+                transform: 'translateX(-50%) translateY(-1px)',
                 boxShadow: darkMode 
-                  ? '0 8px 24px rgba(0, 0, 0, 0.16)' 
-                  : '0 2px 10px rgba(0, 0, 0, 0.05)',
+                  ? '0 4px 12px rgba(0, 0, 0, 0.12)' 
+                  : '0 2px 8px rgba(0, 0, 0, 0.04)',
                 bgcolor: darkMode 
-                  ? 'rgba(21, 8, 47, 0.55)' 
-                  : 'rgba(255, 255, 255, 0.6)',
+                  ? 'rgba(21, 8, 47, 0.4)' 
+                  : 'rgba(255, 255, 255, 0.5)',
               },
               '&::before': {
                 content: '""',
@@ -873,8 +858,8 @@ const LandingPage = ({ darkMode }) => {
                 right: 0,
                 height: '1px',
                 background: darkMode
-                  ? 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)'
-                  : 'linear-gradient(90deg, transparent, rgba(150, 150, 255, 0.1), transparent)'
+                  ? 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent)'
+                  : 'linear-gradient(90deg, transparent, rgba(150, 150, 255, 0.05), transparent)'
               }
             }}
           >
@@ -884,93 +869,120 @@ const LandingPage = ({ darkMode }) => {
               justifyContent: 'space-between', 
               alignItems: 'center', 
               width: '100%',
-              px: 0.5
+              py: 0.5
             }}>
               {/* Time Display */}
               <Box 
                 sx={{ 
                   display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'flex-start',
-                  flex: 1
+                  flexDirection: 'row', 
+                  alignItems: 'center',
+                  flex: 1,
+                  gap: 0.5  // Use gap instead of margin for consistent spacing
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
+                {/* Clock Icon with Date Below */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'flex-start'
+                }}>
                   <AccessTime 
                     sx={{ 
-                      fontSize: '0.85rem', 
-                      mr: 1, 
-                      color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.65)',
-                      opacity: 0.95
+                      fontSize: '0.75rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)',
+                      opacity: 0.9,
+                      mb: 0.3
                     }} 
                   />
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontFamily: '"SF Pro Display", system-ui, sans-serif',
-                      fontWeight: 400,
-                      fontSize: '0.9rem',
-                      color: darkMode ? '#FFFFFF' : '#000000',
-                      letterSpacing: '0.02rem',
-                      animation: 'timePulse 4s infinite',
-                      display: 'flex',
-                      alignItems: 'center',
-                      '& .colon': {
-                        display: 'inline-block',
-                        animation: 'subtleFade 2s infinite',
-                        opacity: 0.8,
-                        mx: 0.2,
-                        fontWeight: 300,
-                      }
-                    }}
-                  >
-                    {formatTime(currentTime).split(' ').map((part, index) => {
-                      if (index === 0) {
-                        // Format the time parts with subtle colons
-                        const [hours, minutes, seconds] = part.split(':');
-                        return (
-                          <React.Fragment key={index}>
-                            {hours}
-                            <span className="colon">:</span>
-                            {minutes}
-                            <span className="colon">:</span>
-                            {seconds}
-                          </React.Fragment>
-                        );
-                      }
-                      return (
-                        <span key={index} style={{ 
-                          marginLeft: '4px', 
-                          fontSize: '0.65rem', 
-                          opacity: 0.9,
-                          fontWeight: 300,
-                        }}>
-                          {part}
-                        </span>
-                      );
-                    })}
-                  </Typography>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'row', 
+                    alignItems: 'center'
+                  }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                        fontSize: '0.55rem',
+                        color: darkMode ? 'rgba(255, 255, 255, 0.55)' : 'rgba(0, 0, 0, 0.45)',
+                        textTransform: 'capitalize',
+                        fontWeight: 400,
+                        lineHeight: 1.1
+                      }}
+                    >
+                      {formatDate(currentTime).split(',')[0]},
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                        fontSize: '0.55rem',
+                        color: darkMode ? 'rgba(255, 255, 255, 0.55)' : 'rgba(0, 0, 0, 0.45)',
+                        fontWeight: 400,
+                        lineHeight: 1.1,
+                        ml: 0.3
+                      }}
+                    >
+                      {formatDate(currentTime).split(',')[1]?.trim()}
+                    </Typography>
+                  </Box>
                 </Box>
+                
+                {/* Time Display */}
                 <Typography
-                  variant="caption"
+                  variant="h6"
                   sx={{
-                    fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                    fontSize: '0.6rem',
-                    color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
-                    letterSpacing: '0.01rem',
-                    ml: '1.6rem',
+                    fontFamily: '"SF Pro Display", system-ui, sans-serif',
                     fontWeight: 400,
-                    textTransform: 'capitalize'
+                    fontSize: '0.85rem',
+                    color: darkMode ? '#FFFFFF' : '#000000',
+                    letterSpacing: '0.01rem',
+                    animation: 'timePulse 4s infinite',
+                    display: 'flex',
+                    alignItems: 'center',
+                    lineHeight: 1.2,
+                    '& .colon': {
+                      display: 'inline-block',
+                      animation: 'subtleFade 2s infinite',
+                      opacity: 0.8,
+                      mx: 0.1,
+                      fontWeight: 300,
+                    }
                   }}
                 >
-                  {formatDate(currentTime)}
+                  {formatTime(currentTime).split(' ').map((part, index) => {
+                    if (index === 0) {
+                      // Format the time parts with subtle colons
+                      const [hours, minutes, seconds] = part.split(':');
+                      return (
+                        <React.Fragment key={index}>
+                          {hours}
+                          <span className="colon">:</span>
+                          {minutes}
+                          <span className="colon">:</span>
+                          {seconds}
+                        </React.Fragment>
+                      );
+                    }
+                    return (
+                      <span key={index} style={{ 
+                        marginLeft: '3px', 
+                        fontSize: '0.6rem', 
+                        opacity: 0.9,
+                        fontWeight: 300,
+                      }}>
+                        {part}
+                      </span>
+                    );
+                  })}
                 </Typography>
               </Box>
               
               {/* Weather Section */}
               {weatherData.temp && (
                 <Tooltip 
-                  title="View detailed weather forecast" 
+                  title="Click for detailed forecast" 
                   placement="bottom" 
                   arrow
                   enterDelay={300}
@@ -983,9 +995,9 @@ const LandingPage = ({ darkMode }) => {
                       color: darkMode ? '#fff' : '#333',
                       boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
                       fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       fontWeight: 400,
-                      padding: '6px 10px',
+                      padding: '4px 8px',
                       borderRadius: '4px',
                     }
                   }}
@@ -996,20 +1008,20 @@ const LandingPage = ({ darkMode }) => {
                       flexDirection: 'column', 
                       alignItems: 'flex-end',
                       borderLeft: darkMode 
-                        ? '1px solid rgba(255, 255, 255, 0.07)' 
-                        : '1px solid rgba(0, 0, 0, 0.04)',
-                      pl: 1.5,
+                        ? '1px solid rgba(255, 255, 255, 0.05)' 
+                        : '1px solid rgba(0, 0, 0, 0.03)',
+                      pl: 1.2,
                       ml: 0.5,
                       cursor: 'pointer',
                       transition: 'all 0.25s cubic-bezier(0.19, 1, 0.22, 1)',
-                      minWidth: '80px',
+                      minWidth: '70px',
                       '&:hover': {
                         transform: 'scale(1.02) translateX(-2px)',
                       }
                     }}
                     onClick={handleWeatherClick}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 0 }}>
                       <Box
                         sx={{
                           position: 'relative', 
@@ -1032,9 +1044,9 @@ const LandingPage = ({ darkMode }) => {
                           src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
                           alt={weatherData.desc}
                           style={{ 
-                            width: '24px', 
-                            height: '24px',
-                            filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)',
+                            width: '20px', 
+                            height: '20px',
+                            filter: darkMode ? 'brightness(1.2) contrast(0.95)' : 'contrast(0.9)',
                             transition: 'transform 0.5s ease'
                           }}
                         />
@@ -1044,19 +1056,20 @@ const LandingPage = ({ darkMode }) => {
                         sx={{
                           fontFamily: 'SF Pro Display, system-ui, sans-serif',
                           fontWeight: 500,
-                          fontSize: '0.9rem',
+                          fontSize: '0.85rem',
                           color: darkMode ? '#FFFFFF' : '#000000',
                           display: 'flex',
                           alignItems: 'center',
+                          lineHeight: 1.2
                         }}
                       >
                         {weatherData.tempDisplay || Math.round(weatherData.temp)}°
                         <OpenInNew 
                           sx={{ 
-                            fontSize: '0.7rem', 
-                            ml: 0.5, 
+                            fontSize: '0.6rem', 
+                            ml: 0.4, 
                             opacity: 0.5,
-                            color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.4)'
+                            color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.4)'
                           }} 
                         />
                       </Typography>
@@ -1065,14 +1078,24 @@ const LandingPage = ({ darkMode }) => {
                       variant="caption"
                       sx={{
                         fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                        fontSize: '0.6rem',
-                        color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                        fontSize: '0.55rem',
+                        color: darkMode ? 'rgba(255, 255, 255, 0.55)' : 'rgba(0, 0, 0, 0.45)',
                         textTransform: 'capitalize',
                         fontWeight: 400,
+                        mt: '-2px',
+                        lineHeight: 1.1
                       }}
                     >
                       {weatherData.city || weatherData.desc}
                     </Typography>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'flex-end', 
+                      width: '100%',
+                      mt: '1px'
+                    }}>
+                      
+                    </Box>
                   </Box>
                 </Tooltip>
               )}
