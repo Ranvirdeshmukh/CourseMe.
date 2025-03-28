@@ -871,34 +871,87 @@ const LandingPage = ({ darkMode }) => {
               width: '100%',
               py: 0.5
             }}>
-              {/* Time Display */}
+              {/* Time Display - Completely restructured */}
               <Box 
                 sx={{ 
                   display: 'flex', 
                   flexDirection: 'row', 
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                   flex: 1,
-                  gap: 0.5  // Use gap instead of margin for consistent spacing
+                  gap: 1.5
                 }}
               >
-                {/* Clock Icon with Date Below */}
+                {/* Clock Icon */}
+                <Box sx={{ mt: 0.3 }}>
+                  <AccessTime 
+                    sx={{ 
+                      fontSize: '0.8rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)',
+                      opacity: 0.9
+                    }} 
+                  />
+                </Box>
+                
+                {/* Time and Date Container */}
                 <Box sx={{ 
                   display: 'flex', 
                   flexDirection: 'column',
                   alignItems: 'flex-start'
                 }}>
-                  <AccessTime 
-                    sx={{ 
-                      fontSize: '0.75rem',
-                      color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)',
-                      opacity: 0.9,
-                      mb: 0.3
-                    }} 
-                  />
+                  {/* Time Display */}
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontFamily: '"SF Pro Display", system-ui, sans-serif',
+                      fontWeight: 400,
+                      fontSize: '0.85rem',
+                      color: darkMode ? '#FFFFFF' : '#000000',
+                      letterSpacing: '0.01rem',
+                      animation: 'timePulse 4s infinite',
+                      display: 'flex',
+                      alignItems: 'center',
+                      lineHeight: 1.2,
+                      '& .colon': {
+                        display: 'inline-block',
+                        animation: 'subtleFade 2s infinite',
+                        opacity: 0.8,
+                        mx: 0.1,
+                        fontWeight: 300,
+                      }
+                    }}
+                  >
+                    {formatTime(currentTime).split(' ').map((part, index) => {
+                      if (index === 0) {
+                        // Format the time parts with subtle colons
+                        const [hours, minutes, seconds] = part.split(':');
+                        return (
+                          <React.Fragment key={index}>
+                            {hours}
+                            <span className="colon">:</span>
+                            {minutes}
+                            <span className="colon">:</span>
+                            {seconds}
+                          </React.Fragment>
+                        );
+                      }
+                      return (
+                        <span key={index} style={{ 
+                          marginLeft: '3px', 
+                          fontSize: '0.6rem', 
+                          opacity: 0.9,
+                          fontWeight: 300,
+                        }}>
+                          {part}
+                        </span>
+                      );
+                    })}
+                  </Typography>
+                  
+                  {/* Date Display */}
                   <Box sx={{ 
                     display: 'flex', 
-                    flexDirection: 'row', 
-                    alignItems: 'center'
+                    flexDirection: 'row',
+                    alignItems: 'center' 
                   }}>
                     <Typography
                       variant="caption"
@@ -928,55 +981,6 @@ const LandingPage = ({ darkMode }) => {
                     </Typography>
                   </Box>
                 </Box>
-                
-                {/* Time Display */}
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontFamily: '"SF Pro Display", system-ui, sans-serif',
-                    fontWeight: 400,
-                    fontSize: '0.85rem',
-                    color: darkMode ? '#FFFFFF' : '#000000',
-                    letterSpacing: '0.01rem',
-                    animation: 'timePulse 4s infinite',
-                    display: 'flex',
-                    alignItems: 'center',
-                    lineHeight: 1.2,
-                    '& .colon': {
-                      display: 'inline-block',
-                      animation: 'subtleFade 2s infinite',
-                      opacity: 0.8,
-                      mx: 0.1,
-                      fontWeight: 300,
-                    }
-                  }}
-                >
-                  {formatTime(currentTime).split(' ').map((part, index) => {
-                    if (index === 0) {
-                      // Format the time parts with subtle colons
-                      const [hours, minutes, seconds] = part.split(':');
-                      return (
-                        <React.Fragment key={index}>
-                          {hours}
-                          <span className="colon">:</span>
-                          {minutes}
-                          <span className="colon">:</span>
-                          {seconds}
-                        </React.Fragment>
-                      );
-                    }
-                    return (
-                      <span key={index} style={{ 
-                        marginLeft: '3px', 
-                        fontSize: '0.6rem', 
-                        opacity: 0.9,
-                        fontWeight: 300,
-                      }}>
-                        {part}
-                      </span>
-                    );
-                  })}
-                </Typography>
               </Box>
               
               {/* Weather Section */}
@@ -1089,7 +1093,7 @@ const LandingPage = ({ darkMode }) => {
                       {weatherData.city || weatherData.desc}
                     </Typography>
                     <Box sx={{ 
-                      display: 'flex', 
+                      display: 'flex',
                       justifyContent: 'flex-end', 
                       width: '100%',
                       mt: '1px'
