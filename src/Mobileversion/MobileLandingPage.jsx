@@ -16,12 +16,15 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useNavigate } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
 import ReactTypingEffect from 'react-typing-effect';
 import { doc, getDoc } from 'firebase/firestore';
+import CloudOutlined from '@mui/icons-material/CloudOutlined';
 
 const MobileLandingPage = ({ 
   darkMode, 
@@ -42,13 +45,75 @@ const MobileLandingPage = ({
   getColor,
   currentUser,
   handleLoginRedirect,
-  typingMessages
+  typingMessages,
+  currentTime,
+  formatTime,
+  formatDate,
+  weatherData
 }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
   const navigate = useNavigate();
 
   const toggleSearch = () => {
     setSearchExpanded(!searchExpanded);
+  };
+
+  // Handle weather click to open detailed weather information
+  const handleWeatherClick = () => {
+    if (!weatherData?.lat || !weatherData?.lon) return;
+    
+    // Get detailed user agent info to determine device
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    
+    // Check if the user is on an iOS device specifically (iPhone, iPad)
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    
+    if (isIOS) {
+      // For iOS devices, try to use the weather URL scheme (might work on some versions)
+      // But since deep linking is unreliable, provide a reliable fallback immediately
+      try {
+        // First try Apple Maps with weather display
+        window.location.href = `maps://weathercallout?lat=${weatherData.lat}&lon=${weatherData.lon}`;
+        
+        // Set a short timeout to redirect to Weather web search if the deep link doesn't work
+        setTimeout(() => {
+          const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
+          window.open(
+            `https://www.google.com/search?q=weather+${cityName ? 'in+' + cityName : weatherData.lat + ',' + weatherData.lon}`, 
+            '_blank'
+          );
+        }, 300);
+      } catch (e) {
+        // If there's any error, use Google Weather search
+        const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
+        window.open(
+          `https://www.google.com/search?q=weather+${cityName ? 'in+' + cityName : weatherData.lat + ',' + weatherData.lon}`, 
+          '_blank'
+        );
+      }
+    } else {
+      // For all other devices (Android, desktop, etc.), use Google Weather
+      const cityName = weatherData.city ? encodeURIComponent(weatherData.city) : '';
+      const searchQuery = cityName 
+        ? `weather in ${cityName}`
+        : `weather ${weatherData.lat},${weatherData.lon}`;
+      
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`, '_blank');
+    }
+  };
+
+  // Style with CSS keyframes for time pulse animation - mobile version
+  const mobileStyles = {
+    '@keyframes mobileTimePulse': {
+      '0%': { opacity: 1 },
+      '50%': { opacity: 0.8 },
+      '100%': { opacity: 1 }
+    },
+    '@keyframes mobileSubtleFade': {
+      '0%': { opacity: 0.7 },
+      '50%': { opacity: 1 },
+      '100%': { opacity: 0.7 }
+    }
   };
 
   // Mobile-specific ScaleMeter component
@@ -146,7 +211,7 @@ const MobileLandingPage = ({
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', ...mobileStyles }}>
       {/* Mobile Search Bar */}
       <Box sx={{ 
         position: 'fixed',
@@ -245,6 +310,247 @@ const MobileLandingPage = ({
           </Box>
         </Collapse>
       </Box>
+
+      {/* Mobile Time & Weather Display at the top */}
+      {currentUser && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: '50px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9,
+            display: { xs: 'flex', sm: 'none' },
+            flexDirection: 'column',
+            alignItems: 'center',
+            bgcolor: darkMode 
+              ? 'rgba(21, 8, 47, 0.45)' 
+              : 'rgba(255, 255, 255, 0.5)',
+            padding: '4px 12px',
+            borderRadius: '12px',
+            boxShadow: darkMode 
+              ? '0 4px 12px rgba(0, 0, 0, 0.12)' 
+              : '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
+            backdropFilter: 'blur(16px)',
+            border: darkMode 
+              ? '1px solid rgba(255, 255, 255, 0.05)' 
+              : '1px solid rgba(240, 240, 240, 0.8)',
+            transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
+            width: 'auto',
+            minWidth: '250px',
+            '&:hover': {
+              boxShadow: darkMode 
+                ? '0 8px 24px rgba(0, 0, 0, 0.16)' 
+                : '0 2px 10px rgba(0, 0, 0, 0.05)',
+              bgcolor: darkMode 
+                ? 'rgba(21, 8, 47, 0.55)' 
+                : 'rgba(255, 255, 255, 0.6)',
+            },
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '1px',
+              background: darkMode
+                ? 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)'
+                : 'linear-gradient(90deg, transparent, rgba(150, 150, 255, 0.1), transparent)'
+            }
+          }}
+        >
+          {/* Time and Weather Row */}
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            width: '100%',
+            px: 0.5
+          }}>
+            {/* Time Display */}
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'flex-start',
+                flex: 1
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
+                <AccessTimeIcon 
+                  sx={{ 
+                    fontSize: '0.75rem', 
+                    mr: 0.8, 
+                    color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.65)',
+                    opacity: 0.95
+                  }} 
+                />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontFamily: '"SF Pro Display", system-ui, sans-serif',
+                    fontWeight: 400,
+                    fontSize: '0.85rem',
+                    color: darkMode ? '#FFFFFF' : '#000000',
+                    letterSpacing: '0.02rem',
+                    animation: 'mobileTimePulse 4s infinite',
+                    display: 'flex',
+                    alignItems: 'center',
+                    '& .colon': {
+                      display: 'inline-block',
+                      animation: 'mobileSubtleFade 2s infinite',
+                      opacity: 0.8,
+                      mx: 0.2,
+                      fontWeight: 300,
+                    }
+                  }}
+                >
+                  {formatTime(currentTime).split(' ').map((part, index) => {
+                    if (index === 0) {
+                      // Format the time parts with subtle colons
+                      const [hours, minutes, seconds] = part.split(':');
+                      return (
+                        <React.Fragment key={index}>
+                          {hours}
+                          <span className="colon">:</span>
+                          {minutes}
+                          <span className="colon">:</span>
+                          {seconds}
+                        </React.Fragment>
+                      );
+                    }
+                    return (
+                      <span key={index} style={{ 
+                        marginLeft: '3px', 
+                        fontSize: '0.6rem', 
+                        opacity: 0.9,
+                        fontWeight: 300
+                      }}>
+                        {part}
+                      </span>
+                    );
+                  })}
+                </Typography>
+              </Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                  fontSize: '0.55rem',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                  letterSpacing: '0.01rem',
+                  ml: '1.5rem',
+                  fontWeight: 400,
+                  textTransform: 'capitalize'
+                }}
+              >
+                {formatDate(currentTime)}
+              </Typography>
+            </Box>
+            
+            {/* Weather Section - Mobile */}
+            {weatherData?.temp && (
+              <Tooltip 
+                title="Tap for detailed weather" 
+                placement="bottom" 
+                arrow
+                enterDelay={300}
+                sx={{
+                  '& .MuiTooltip-arrow': {
+                    color: darkMode ? '#333' : '#f5f5f5',
+                  },
+                  '& .MuiTooltip-tooltip': {
+                    bgcolor: darkMode ? '#333' : '#f5f5f5',
+                    color: darkMode ? '#fff' : '#333',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+                    fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                    fontSize: '0.7rem',
+                    fontWeight: 400,
+                    padding: '6px 10px',
+                    borderRadius: '4px',
+                  }
+                }}
+              >
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'flex-end',
+                  borderLeft: darkMode 
+                    ? '1px solid rgba(255, 255, 255, 0.07)' 
+                    : '1px solid rgba(0, 0, 0, 0.04)',
+                  pl: 1.2,
+                  ml: 0.5,
+                  cursor: 'pointer',
+                  transition: 'all 0.25s cubic-bezier(0.19, 1, 0.22, 1)',
+                  minWidth: '75px',
+                  '&:active': {
+                    transform: 'scale(0.98)'
+                  }
+                }}
+                onClick={handleWeatherClick}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
+                    <Box
+                      sx={{
+                        position: 'relative', 
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent the parent click
+                        window.weatherUtils && window.weatherUtils.getUserLocation();
+                        // Show a subtle visual feedback
+                        e.currentTarget.style.transform = 'rotate(180deg)';
+                        setTimeout(() => {
+                          e.currentTarget.style.transform = 'rotate(0deg)';
+                        }, 500);
+                      }}
+                    >
+                      <img 
+                        src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
+                        alt={weatherData.desc}
+                        style={{ 
+                          width: '22px', 
+                          height: '22px',
+                          filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)',
+                          transition: 'transform 0.5s ease'
+                        }}
+                      />
+                    </Box>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                        fontWeight: 500,
+                        fontSize: '0.85rem',
+                        color: darkMode ? '#FFFFFF' : '#000000',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      {weatherData.tempDisplay || Math.round(weatherData.temp)}°
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                      fontSize: '0.55rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                      textTransform: 'capitalize',
+                      fontWeight: 400,
+                    }}
+                  >
+                    {weatherData.city || weatherData.desc}
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )}
+          </Box>
+        </Box>
+      )}
 
       {/* Heading and Mobile Navigation */}
       <Box sx={{ pt: 4, pb: 2 }}>
