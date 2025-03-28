@@ -18,6 +18,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useNavigate } from 'react-router-dom';
@@ -52,10 +53,16 @@ const MobileLandingPage = ({
   weatherData
 }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
+  const [weatherExpanded, setWeatherExpanded] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const navigate = useNavigate();
 
   const toggleSearch = () => {
     setSearchExpanded(!searchExpanded);
+  };
+
+  const toggleWeatherExpanded = () => {
+    setWeatherExpanded(!weatherExpanded);
   };
 
   // Handle weather click to open detailed weather information
@@ -113,6 +120,20 @@ const MobileLandingPage = ({
       '0%': { opacity: 0.7 },
       '50%': { opacity: 1 },
       '100%': { opacity: 0.7 }
+    },
+    '@keyframes subtlePulse': {
+      '0%': { transform: 'scale(1)', opacity: 1 },
+      '50%': { transform: 'scale(1.05)', opacity: 0.9 },
+      '100%': { transform: 'scale(1)', opacity: 1 }
+    },
+    '@keyframes fadeIn': {
+      '0%': { opacity: 0, transform: 'translateX(-10px)' },
+      '100%': { opacity: 1, transform: 'translateX(0)' }
+    },
+    '@keyframes float': {
+      '0%': { transform: 'translateY(0px)' },
+      '50%': { transform: 'translateY(-5px)' },
+      '100%': { transform: 'translateY(0px)' }
     }
   };
 
@@ -210,8 +231,264 @@ const MobileLandingPage = ({
     // Don't collapse search after submitting on mobile to maintain context
   };
 
+  // Add a function to refresh the weather data
+  const refreshWeather = () => {
+    // Show refreshing state
+    setIsRefreshing(true);
+    
+    // Call the global refresh function if available
+    if (window.weatherUtils && window.weatherUtils.getUserLocation) {
+      window.weatherUtils.getUserLocation();
+      
+      // Reset the refreshing state after a delay
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 1500);
+    } else {
+      console.error('Weather utilities not available');
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <Box sx={{ width: '100%', ...mobileStyles }}>
+      {/* Mobile Weather & Time Widget */}
+      {currentUser && weatherData && (
+        <Box
+          sx={{
+            position: 'fixed',
+            left: '12px',
+            top: '58px',
+            zIndex: 10,
+            display: { xs: 'flex', sm: 'none' },
+            flexDirection: 'column',
+            alignItems: 'center',
+            animation: 'fadeIn 0.5s ease-out',
+            pointerEvents: 'auto',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: darkMode 
+                ? 'rgba(28, 9, 63, 0.75)' 
+                : 'rgba(255, 255, 255, 0.75)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              padding: weatherExpanded ? '8px 12px' : '8px',
+              boxShadow: darkMode
+                ? '0 3px 10px rgba(0,0,0,0.2), 0 0 1px rgba(255,255,255,0.15) inset'
+                : '0 3px 10px rgba(0,0,0,0.1), 0 0 1px rgba(0,0,0,0.05) inset',
+              border: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.12)' 
+                : '1px solid rgba(0, 0, 0, 0.05)',
+              transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              width: weatherExpanded ? 'auto' : '42px',
+              height: weatherExpanded ? 'auto' : '42px',
+              overflow: 'hidden',
+              userSelect: 'none',
+              animation: !weatherExpanded 
+                ? 'subtlePulse 4s infinite, float 6s ease-in-out infinite'
+                : 'none',
+              '&:hover': {
+                boxShadow: darkMode
+                  ? '0 5px 15px rgba(0,0,0,0.25), 0 0 2px rgba(255,255,255,0.2) inset'
+                  : '0 5px 15px rgba(0,0,0,0.15), 0 0 2px rgba(0,0,0,0.1) inset',
+                transform: 'translateY(-2px)',
+              },
+            }}
+            onClick={toggleWeatherExpanded}
+          >
+            {!weatherExpanded ? (
+              // Collapsed state - only show weather icon or time
+              <Tooltip title="Tap for weather & time" placement="right">
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%',
+                    height: '100%',
+                  }}
+                >
+                  {weatherData.icon ? (
+                    <img 
+                      src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
+                      alt={weatherData.desc}
+                      style={{ 
+                        width: '26px', 
+                        height: '26px',
+                        filter: darkMode ? 'brightness(1.2)' : 'contrast(0.9)',
+                      }}
+                    />
+                  ) : (
+                    <AccessTimeIcon sx={{ 
+                      fontSize: '1.2rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.7)',
+                    }} />
+                  )}
+                </Box>
+              </Tooltip>
+            ) : (
+              // Expanded state
+              <Box sx={{ animation: 'fadeIn 0.3s ease-out' }}>
+                {/* Time & Weather Header */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  width: '100%',
+                  marginBottom: '4px',
+                }}>
+                  {/* Time Display */}
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    marginRight: '8px',
+                  }}>
+                    <AccessTimeIcon sx={{ 
+                      fontSize: '0.8rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)',
+                      marginRight: '4px',
+                    }} />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontFamily: '"SF Pro Display", system-ui, sans-serif',
+                        fontWeight: 500,
+                        fontSize: '0.75rem',
+                        color: darkMode ? '#FFFFFF' : '#000000',
+                        letterSpacing: '0.01rem',
+                        animation: 'mobileTimePulse 4s infinite',
+                      }}
+                    >
+                      {formatTime(currentTime).split(' ')[0]}
+                      <span style={{ 
+                        fontSize: '0.65rem', 
+                        marginLeft: '2px',
+                        opacity: 0.8,
+                      }}>
+                        {formatTime(currentTime).split(' ')[1]}
+                      </span>
+                    </Typography>
+                  </Box>
+
+                  {/* Weather Display with Refresh */}
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box 
+                      sx={{ 
+                        display: 'flex',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                        position: 'relative',
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleWeatherClick();
+                      }}
+                    >
+                      <img 
+                        src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
+                        alt={weatherData.desc}
+                        style={{ 
+                          width: '24px', 
+                          height: '24px',
+                          filter: darkMode ? 'brightness(1.2)' : 'contrast(0.9)',
+                        }}
+                      />
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                          fontWeight: 500,
+                          fontSize: '0.75rem',
+                          color: darkMode ? '#FFFFFF' : '#000000',
+                        }}
+                      >
+                        {weatherData.tempDisplay || Math.round(weatherData.temp)}°
+                      </Typography>
+                    </Box>
+                    
+                    {/* Refresh Button */}
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        refreshWeather();
+                      }}
+                      sx={{
+                        padding: '2px',
+                        ml: 0.5,
+                        color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)',
+                        animation: isRefreshing ? 'spin 1.5s linear infinite' : 'none',
+                        '@keyframes spin': {
+                          '0%': { transform: 'rotate(0deg)' },
+                          '100%': { transform: 'rotate(360deg)' }
+                        }
+                      }}
+                    >
+                      <RefreshIcon sx={{ fontSize: '0.9rem' }} />
+                    </IconButton>
+                  </Box>
+                </Box>
+                
+                {/* Date Display */}
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                    fontSize: '0.65rem',
+                    color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                    textAlign: 'center',
+                    display: 'block',
+                    marginBottom: '2px',
+                  }}
+                >
+                  {formatDate(currentTime)}
+                </Typography>
+                
+                {/* Location */}
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                    fontSize: '0.65rem',
+                    color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)',
+                    textAlign: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CloudOutlined sx={{ fontSize: '0.7rem', mr: 0.5, opacity: 0.7 }} />
+                  {weatherData.city || weatherData.desc || 'Dartmouth'}
+                </Typography>
+                
+                {/* Close button for expanded view */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  mt: 0.5,
+                  opacity: 0.7,
+                }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontSize: '0.6rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)',
+                    }}
+                  >
+                    tap to close
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      )}
+
       {/* Mobile Search Bar */}
       <Box sx={{ 
         position: 'fixed',
@@ -310,247 +587,6 @@ const MobileLandingPage = ({
           </Box>
         </Collapse>
       </Box>
-
-      {/* Mobile Time & Weather Display at the top */}
-      {currentUser && (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: '50px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 9,
-            display: { xs: 'flex', sm: 'none' },
-            flexDirection: 'column',
-            alignItems: 'center',
-            bgcolor: darkMode 
-              ? 'rgba(21, 8, 47, 0.45)' 
-              : 'rgba(255, 255, 255, 0.5)',
-            padding: '4px 12px',
-            borderRadius: '12px',
-            boxShadow: darkMode 
-              ? '0 4px 12px rgba(0, 0, 0, 0.12)' 
-              : '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
-            backdropFilter: 'blur(16px)',
-            border: darkMode 
-              ? '1px solid rgba(255, 255, 255, 0.05)' 
-              : '1px solid rgba(240, 240, 240, 0.8)',
-            transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
-            width: 'auto',
-            minWidth: '250px',
-            '&:hover': {
-              boxShadow: darkMode 
-                ? '0 8px 24px rgba(0, 0, 0, 0.16)' 
-                : '0 2px 10px rgba(0, 0, 0, 0.05)',
-              bgcolor: darkMode 
-                ? 'rgba(21, 8, 47, 0.55)' 
-                : 'rgba(255, 255, 255, 0.6)',
-            },
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '1px',
-              background: darkMode
-                ? 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)'
-                : 'linear-gradient(90deg, transparent, rgba(150, 150, 255, 0.1), transparent)'
-            }
-          }}
-        >
-          {/* Time and Weather Row */}
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            width: '100%',
-            px: 0.5
-          }}>
-            {/* Time Display */}
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'flex-start',
-                flex: 1
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
-                <AccessTimeIcon 
-                  sx={{ 
-                    fontSize: '0.75rem', 
-                    mr: 0.8, 
-                    color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.65)',
-                    opacity: 0.95
-                  }} 
-                />
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontFamily: '"SF Pro Display", system-ui, sans-serif',
-                    fontWeight: 400,
-                    fontSize: '0.85rem',
-                    color: darkMode ? '#FFFFFF' : '#000000',
-                    letterSpacing: '0.02rem',
-                    animation: 'mobileTimePulse 4s infinite',
-                    display: 'flex',
-                    alignItems: 'center',
-                    '& .colon': {
-                      display: 'inline-block',
-                      animation: 'mobileSubtleFade 2s infinite',
-                      opacity: 0.8,
-                      mx: 0.2,
-                      fontWeight: 300,
-                    }
-                  }}
-                >
-                  {formatTime(currentTime).split(' ').map((part, index) => {
-                    if (index === 0) {
-                      // Format the time parts with subtle colons
-                      const [hours, minutes, seconds] = part.split(':');
-                      return (
-                        <React.Fragment key={index}>
-                          {hours}
-                          <span className="colon">:</span>
-                          {minutes}
-                          <span className="colon">:</span>
-                          {seconds}
-                        </React.Fragment>
-                      );
-                    }
-                    return (
-                      <span key={index} style={{ 
-                        marginLeft: '3px', 
-                        fontSize: '0.6rem', 
-                        opacity: 0.9,
-                        fontWeight: 300
-                      }}>
-                        {part}
-                      </span>
-                    );
-                  })}
-                </Typography>
-              </Box>
-              <Typography
-                variant="caption"
-                sx={{
-                  fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                  fontSize: '0.55rem',
-                  color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
-                  letterSpacing: '0.01rem',
-                  ml: '1.5rem',
-                  fontWeight: 400,
-                  textTransform: 'capitalize'
-                }}
-              >
-                {formatDate(currentTime)}
-              </Typography>
-            </Box>
-            
-            {/* Weather Section - Mobile */}
-            {weatherData?.temp && (
-              <Tooltip 
-                title="Tap for detailed weather" 
-                placement="bottom" 
-                arrow
-                enterDelay={300}
-                sx={{
-                  '& .MuiTooltip-arrow': {
-                    color: darkMode ? '#333' : '#f5f5f5',
-                  },
-                  '& .MuiTooltip-tooltip': {
-                    bgcolor: darkMode ? '#333' : '#f5f5f5',
-                    color: darkMode ? '#fff' : '#333',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                    fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                    fontSize: '0.7rem',
-                    fontWeight: 400,
-                    padding: '6px 10px',
-                    borderRadius: '4px',
-                  }
-                }}
-              >
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'flex-end',
-                  borderLeft: darkMode 
-                    ? '1px solid rgba(255, 255, 255, 0.07)' 
-                    : '1px solid rgba(0, 0, 0, 0.04)',
-                  pl: 1.2,
-                  ml: 0.5,
-                  cursor: 'pointer',
-                  transition: 'all 0.25s cubic-bezier(0.19, 1, 0.22, 1)',
-                  minWidth: '75px',
-                  '&:active': {
-                    transform: 'scale(0.98)'
-                  }
-                }}
-                onClick={handleWeatherClick}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
-                    <Box
-                      sx={{
-                        position: 'relative', 
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent the parent click
-                        window.weatherUtils && window.weatherUtils.getUserLocation();
-                        // Show a subtle visual feedback
-                        e.currentTarget.style.transform = 'rotate(180deg)';
-                        setTimeout(() => {
-                          e.currentTarget.style.transform = 'rotate(0deg)';
-                        }, 500);
-                      }}
-                    >
-                      <img 
-                        src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
-                        alt={weatherData.desc}
-                        style={{ 
-                          width: '22px', 
-                          height: '22px',
-                          filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)',
-                          transition: 'transform 0.5s ease'
-                        }}
-                      />
-                    </Box>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                        fontWeight: 500,
-                        fontSize: '0.85rem',
-                        color: darkMode ? '#FFFFFF' : '#000000',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {weatherData.tempDisplay || Math.round(weatherData.temp)}°
-                    </Typography>
-                  </Box>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontFamily: 'SF Pro Display, system-ui, sans-serif',
-                      fontSize: '0.55rem',
-                      color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
-                      textTransform: 'capitalize',
-                      fontWeight: 400,
-                    }}
-                  >
-                    {weatherData.city || weatherData.desc}
-                  </Typography>
-                </Box>
-              </Tooltip>
-            )}
-          </Box>
-        </Box>
-      )}
 
       {/* Heading and Mobile Navigation */}
       <Box sx={{ pt: 4, pb: 2 }}>
