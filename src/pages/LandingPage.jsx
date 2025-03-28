@@ -8,7 +8,7 @@ import ReactTypingEffect from 'react-typing-effect';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, OpenInNew, AccessTime } from '@mui/icons-material';
+import { Lock, OpenInNew, AccessTime, CloudOutlined } from '@mui/icons-material';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MobileNavigation from '../Mobileversion/MobileNavigation';
 import MobileLandingPage from '../Mobileversion/MobileLandingPage';
@@ -829,7 +829,7 @@ const LandingPage = ({ darkMode }) => {
               bgcolor: darkMode 
                 ? 'rgba(21, 8, 47, 0.3)' 
                 : 'rgba(255, 255, 255, 0.4)',
-              padding: '3px 14px',
+              padding: '3px 10px',  // Reduced horizontal padding
               borderRadius: '10px',
               boxShadow: darkMode 
                 ? '0 2px 8px rgba(0, 0, 0, 0.08)' 
@@ -840,7 +840,7 @@ const LandingPage = ({ darkMode }) => {
                 : '1px solid rgba(240, 240, 240, 0.7)',
               transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
               width: 'auto',
-              minWidth: '260px',
+              minWidth: '240px',  // Reduced minimum width
               '&:hover': {
                 transform: 'translateX(-50%) translateY(-1px)',
                 boxShadow: darkMode 
@@ -869,7 +869,8 @@ const LandingPage = ({ darkMode }) => {
               justifyContent: 'space-between', 
               alignItems: 'center', 
               width: '100%',
-              py: 0.5
+              py: 0.5,
+              px: 0.5 // Reduce horizontal padding
             }}>
               {/* Time Display - Completely restructured */}
               <Box 
@@ -1014,11 +1015,11 @@ const LandingPage = ({ darkMode }) => {
                       borderLeft: darkMode 
                         ? '1px solid rgba(255, 255, 255, 0.05)' 
                         : '1px solid rgba(0, 0, 0, 0.03)',
-                      pl: 1.2,
-                      ml: 0.5,
+                      pl: 0.6, // Reduced from 1.2
+                      ml: 0, // Reduced from 0.5
                       cursor: 'pointer',
                       transition: 'all 0.25s cubic-bezier(0.19, 1, 0.22, 1)',
-                      minWidth: '70px',
+                      minWidth: '60px', // Reduced minimum width
                       '&:hover': {
                         transform: 'scale(1.02) translateX(-2px)',
                       }
@@ -1068,14 +1069,6 @@ const LandingPage = ({ darkMode }) => {
                         }}
                       >
                         {weatherData.tempDisplay || Math.round(weatherData.temp)}°
-                        <OpenInNew 
-                          sx={{ 
-                            fontSize: '0.6rem', 
-                            ml: 0.4, 
-                            opacity: 0.5,
-                            color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.4)'
-                          }} 
-                        />
                       </Typography>
                     </Box>
                     <Typography

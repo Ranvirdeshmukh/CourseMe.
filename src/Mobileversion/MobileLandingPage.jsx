@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
 import ReactTypingEffect from 'react-typing-effect';
 import { doc, getDoc } from 'firebase/firestore';
+import CloudOutlined from '@mui/icons-material/CloudOutlined';
 
 const MobileLandingPage = ({ 
   darkMode, 
@@ -530,14 +531,6 @@ const MobileLandingPage = ({
                       }}
                     >
                       {weatherData.tempDisplay || Math.round(weatherData.temp)}°
-                      <OpenInNewIcon 
-                        sx={{ 
-                          fontSize: '0.55rem', 
-                          ml: 0.5, 
-                          opacity: 0.5,
-                          color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.4)'
-                        }} 
-                      />
                     </Typography>
                   </Box>
                   <Typography
