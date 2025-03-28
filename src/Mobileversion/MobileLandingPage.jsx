@@ -17,6 +17,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useNavigate } from 'react-router-dom';
@@ -322,80 +323,127 @@ const MobileLandingPage = ({
             display: { xs: 'flex', sm: 'none' },
             flexDirection: 'column',
             alignItems: 'center',
-            bgcolor: darkMode ? 'rgba(28, 9, 63, 0.7)' : 'rgba(255, 255, 255, 0.8)',
-            padding: '6px 12px',
+            bgcolor: darkMode 
+              ? 'rgba(21, 8, 47, 0.45)' 
+              : 'rgba(255, 255, 255, 0.5)',
+            padding: '8px 16px',
             borderRadius: '10px',
             boxShadow: darkMode 
-              ? '0 2px 8px rgba(0, 0, 0, 0.3)' 
-              : '0 2px 8px rgba(0, 0, 0, 0.1)',
-            backdropFilter: 'blur(5px)',
+              ? '0 4px 12px rgba(0, 0, 0, 0.12)' 
+              : '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
+            backdropFilter: 'blur(16px)',
             border: darkMode 
-              ? '1px solid rgba(87, 28, 224, 0.2)' 
-              : '1px solid rgba(0, 0, 0, 0.05)',
-            transition: 'all 0.3s ease',
+              ? '1px solid rgba(255, 255, 255, 0.05)' 
+              : '1px solid rgba(240, 240, 240, 0.8)',
+            transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
+            minWidth: '260px',
+            maxWidth: '90%',
+            overflow: 'hidden',
             '&:hover': {
               transform: 'translateX(-50%) translateY(-2px)',
               boxShadow: darkMode 
-                ? '0 4px 12px rgba(0, 0, 0, 0.35)' 
-                : '0 4px 12px rgba(0, 0, 0, 0.15)',
+                ? '0 8px 24px rgba(0, 0, 0, 0.16)' 
+                : '0 2px 10px rgba(0, 0, 0, 0.05)',
+              bgcolor: darkMode 
+                ? 'rgba(21, 8, 47, 0.55)' 
+                : 'rgba(255, 255, 255, 0.6)',
+            },
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '1px',
+              background: darkMode
+                ? 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)'
+                : 'linear-gradient(90deg, transparent, rgba(150, 150, 255, 0.1), transparent)'
             }
           }}
         >
           {/* Time and Weather Row */}
           <Box sx={{ 
             display: 'flex', 
-            justifyContent: 'center', 
+            justifyContent: 'space-between', 
             alignItems: 'center', 
-            gap: 1.5,
-            width: '100%'
+            width: '100%',
+            px: 0.5
           }}>
             {/* Time Display */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography
-                variant="body1"
-                sx={{
-                  fontFamily: 'SF Pro Display, monospace',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                  color: darkMode ? '#FFFFFF' : '#000000',
-                  letterSpacing: '0.03rem',
-                  animation: 'mobileTimePulse 2s infinite',
-                  display: 'flex',
-                  alignItems: 'center',
-                  '& .colon': {
-                    display: 'inline-block',
-                    animation: 'mobileSubtleFade 1s infinite',
-                    opacity: 0.8,
-                    mx: 0.3,
-                  }
-                }}
-              >
-                {formatTime(currentTime).split(' ').map((part, index) => {
-                  if (index === 0) {
-                    // Format the time parts with subtle colons
-                    const [hours, minutes] = part.split(':');
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'flex-start',
+                flex: 1
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
+                <AccessTimeIcon 
+                  sx={{ 
+                    fontSize: '0.75rem', 
+                    mr: 0.8, 
+                    color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.65)',
+                    opacity: 0.95
+                  }} 
+                />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontFamily: '"SF Pro Display", system-ui, sans-serif',
+                    fontWeight: 400,
+                    fontSize: '0.85rem',
+                    color: darkMode ? '#FFFFFF' : '#000000',
+                    letterSpacing: '0.02rem',
+                    animation: 'mobileTimePulse 4s infinite',
+                    display: 'flex',
+                    alignItems: 'center',
+                    '& .colon': {
+                      display: 'inline-block',
+                      animation: 'mobileSubtleFade 2s infinite',
+                      opacity: 0.8,
+                      mx: 0.2,
+                      fontWeight: 300,
+                    }
+                  }}
+                >
+                  {formatTime(currentTime).split(' ').map((part, index) => {
+                    if (index === 0) {
+                      // Format the time parts with subtle colons
+                      const [hours, minutes, seconds] = part.split(':');
+                      return (
+                        <React.Fragment key={index}>
+                          {hours}
+                          <span className="colon">:</span>
+                          {minutes}
+                          <span className="colon">:</span>
+                          {seconds}
+                        </React.Fragment>
+                      );
+                    }
                     return (
-                      <React.Fragment key={index}>
-                        {hours}
-                        <span className="colon">:</span>
-                        {minutes}
-                      </React.Fragment>
+                      <span key={index} style={{ 
+                        marginLeft: '3px', 
+                        fontSize: '0.6rem', 
+                        opacity: 0.9,
+                        fontWeight: 300
+                      }}>
+                        {part}
+                      </span>
                     );
-                  }
-                  return (
-                    <span key={index} style={{ marginLeft: '4px', fontSize: '0.7rem', opacity: 0.8 }}>
-                      {part}
-                    </span>
-                  );
-                })}
-              </Typography>
+                  })}
+                </Typography>
+              </Box>
               <Typography
                 variant="caption"
                 sx={{
-                  fontFamily: 'SF Pro Display, sans-serif',
-                  fontSize: '0.65rem',
-                  color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                  fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                  fontSize: '0.55rem',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
                   letterSpacing: '0.01rem',
+                  ml: '1.5rem',
+                  fontWeight: 400,
+                  textTransform: 'capitalize'
                 }}
               >
                 {formatDate(currentTime)}
@@ -408,56 +456,81 @@ const MobileLandingPage = ({
                 title="Tap for detailed weather" 
                 placement="bottom" 
                 arrow
-                enterDelay={500}
+                enterDelay={300}
+                sx={{
+                  '& .MuiTooltip-arrow': {
+                    color: darkMode ? '#333' : '#f5f5f5',
+                  },
+                  '& .MuiTooltip-tooltip': {
+                    bgcolor: darkMode ? '#333' : '#f5f5f5',
+                    color: darkMode ? '#fff' : '#333',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+                    fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                    fontSize: '0.7rem',
+                    fontWeight: 400,
+                    padding: '6px 10px',
+                    borderRadius: '4px',
+                  }
+                }}
               >
                 <Box sx={{ 
                   display: 'flex', 
                   flexDirection: 'column', 
-                  alignItems: 'center',
-                  borderLeft: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
-                  pl: 1.5,
+                  alignItems: 'flex-end',
+                  borderLeft: darkMode 
+                    ? '1px solid rgba(255, 255, 255, 0.07)' 
+                    : '1px solid rgba(0, 0, 0, 0.04)',
+                  pl: 1.2,
                   ml: 0.5,
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: 'all 0.25s cubic-bezier(0.19, 1, 0.22, 1)',
+                  minWidth: '75px',
                   '&:active': {
-                    transform: 'scale(0.95)'
+                    transform: 'scale(0.98)'
                   }
                 }}
                 onClick={handleWeatherClick}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
                     <img 
                       src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
                       alt={weatherData.desc}
-                      style={{ width: '24px', height: '24px' }}
+                      style={{ 
+                        width: '22px', 
+                        height: '22px',
+                        filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)'
+                      }}
                     />
                     <Typography
                       variant="body1"
                       sx={{
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        fontWeight: 600,
-                        fontSize: '0.9rem',
+                        fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                        fontWeight: 500,
+                        fontSize: '0.85rem',
                         color: darkMode ? '#FFFFFF' : '#000000',
+                        display: 'flex',
+                        alignItems: 'center',
                       }}
                     >
-                      {weatherData.temp}°F
+                      {weatherData.temp}°
+                      <OpenInNewIcon 
+                        sx={{ 
+                          fontSize: '0.55rem', 
+                          ml: 0.5, 
+                          opacity: 0.5,
+                          color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.4)'
+                        }} 
+                      />
                     </Typography>
-                    <OpenInNewIcon 
-                      sx={{ 
-                        fontSize: '0.7rem', 
-                        ml: 0.5, 
-                        opacity: 0.7,
-                        color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)'
-                      }} 
-                    />
                   </Box>
                   <Typography
                     variant="caption"
                     sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      fontSize: '0.6rem',
-                      color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                      fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                      fontSize: '0.55rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
                       textTransform: 'capitalize',
+                      fontWeight: 400,
                     }}
                   >
                     {weatherData.city || weatherData.desc}

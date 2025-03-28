@@ -8,7 +8,7 @@ import ReactTypingEffect from 'react-typing-effect';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, OpenInNew } from '@mui/icons-material'; // Added OpenInNew icon
+import { Lock, OpenInNew, AccessTime } from '@mui/icons-material';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MobileNavigation from '../Mobileversion/MobileNavigation';
 import MobileLandingPage from '../Mobileversion/MobileLandingPage';
@@ -684,11 +684,12 @@ const LandingPage = ({ darkMode }) => {
     }
   };
   
-  // Format time as HH:MM AM/PM (no seconds)
+  // Format time as HH:MM:SS AM/PM (with seconds)
   const formatTime = (date) => {
     return date.toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
+      second: '2-digit',
       hour12: true
     });
   };
@@ -707,12 +708,12 @@ const LandingPage = ({ darkMode }) => {
   const styles = {
     '@keyframes timePulse': {
       '0%': { opacity: 1 },
-      '50%': { opacity: 0.8 },
+      '50%': { opacity: 0.9 },
       '100%': { opacity: 1 }
     },
     '@keyframes subtleFade': {
       '0%': { opacity: 0.7 },
-      '50%': { opacity: 1 },
+      '50%': { opacity: 0.9 },
       '100%': { opacity: 0.7 }
     }
   };
@@ -781,91 +782,137 @@ const LandingPage = ({ darkMode }) => {
           textAlign: 'center',
         }}
       >
-        {/* Current Time Display - Centered at the top */}
+        {/* Current Time & Weather Display - Centered at the top */}
         <Box
           sx={{
-            position: 'absolute',
-            top: '20px',
+            position: 'fixed',
+            top: '10px',
             left: '50%',
             transform: 'translateX(-50%)',
-            display: 'flex',
+            zIndex: 9,
+            display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
             alignItems: 'center',
-            bgcolor: darkMode ? 'rgba(28, 9, 63, 0.6)' : 'rgba(255, 255, 255, 0.8)',
-            padding: '8px 15px',
+            bgcolor: darkMode 
+              ? 'rgba(21, 8, 47, 0.45)' 
+              : 'rgba(255, 255, 255, 0.5)',
+            padding: '6px 16px',
             borderRadius: '12px',
             boxShadow: darkMode 
-              ? '0 4px 12px rgba(0, 0, 0, 0.3)' 
-              : '0 4px 12px rgba(0, 0, 0, 0.1)',
-            backdropFilter: 'blur(5px)',
+              ? '0 4px 12px rgba(0, 0, 0, 0.12)' 
+              : '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
+            backdropFilter: 'blur(16px)',
             border: darkMode 
-              ? '1px solid rgba(87, 28, 224, 0.2)' 
-              : '1px solid rgba(0, 0, 0, 0.05)',
-            zIndex: 5,
-            transition: 'all 0.3s ease',
+              ? '1px solid rgba(255, 255, 255, 0.05)' 
+              : '1px solid rgba(240, 240, 240, 0.8)',
+            transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
+            width: 'auto',
+            minWidth: '280px',
             '&:hover': {
               transform: 'translateX(-50%) translateY(-2px)',
               boxShadow: darkMode 
-                ? '0 6px 16px rgba(0, 0, 0, 0.35)' 
-                : '0 6px 16px rgba(0, 0, 0, 0.15)',
+                ? '0 8px 24px rgba(0, 0, 0, 0.16)' 
+                : '0 2px 10px rgba(0, 0, 0, 0.05)',
+              bgcolor: darkMode 
+                ? 'rgba(21, 8, 47, 0.55)' 
+                : 'rgba(255, 255, 255, 0.6)',
+            },
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '1px',
+              background: darkMode
+                ? 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)'
+                : 'linear-gradient(90deg, transparent, rgba(150, 150, 255, 0.1), transparent)'
             }
           }}
         >
-          {/* Time and Weather Display Row */}
+          {/* Time and Weather Row */}
           <Box sx={{ 
             display: 'flex', 
-            justifyContent: 'center', 
+            justifyContent: 'space-between', 
             alignItems: 'center', 
-            gap: 2,
-            width: '100%'
+            width: '100%',
+            px: 0.5
           }}>
             {/* Time Display */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontFamily: 'SF Pro Display, monospace',
-                  fontWeight: 600,
-                  fontSize: '1.1rem',
-                  color: darkMode ? '#FFFFFF' : '#000000',
-                  letterSpacing: '0.04rem',
-                  animation: 'timePulse 2s infinite',
-                  display: 'flex',
-                  alignItems: 'center',
-                  '& .colon': {
-                    display: 'inline-block',
-                    animation: 'subtleFade 1s infinite',
-                    opacity: 0.8,
-                    mx: 0.5,
-                  }
-                }}
-              >
-                {formatTime(currentTime).split(' ').map((part, index) => {
-                  if (index === 0) {
-                    // Format the time parts with subtle colons
-                    const [hours, minutes] = part.split(':');
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'flex-start',
+                flex: 1
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
+                <AccessTime 
+                  sx={{ 
+                    fontSize: '0.85rem', 
+                    mr: 1, 
+                    color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.65)',
+                    opacity: 0.95
+                  }} 
+                />
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontFamily: '"SF Pro Display", system-ui, sans-serif',
+                    fontWeight: 400,
+                    fontSize: '0.9rem',
+                    color: darkMode ? '#FFFFFF' : '#000000',
+                    letterSpacing: '0.02rem',
+                    animation: 'timePulse 4s infinite',
+                    display: 'flex',
+                    alignItems: 'center',
+                    '& .colon': {
+                      display: 'inline-block',
+                      animation: 'subtleFade 2s infinite',
+                      opacity: 0.8,
+                      mx: 0.2,
+                      fontWeight: 300,
+                    }
+                  }}
+                >
+                  {formatTime(currentTime).split(' ').map((part, index) => {
+                    if (index === 0) {
+                      // Format the time parts with subtle colons
+                      const [hours, minutes, seconds] = part.split(':');
+                      return (
+                        <React.Fragment key={index}>
+                          {hours}
+                          <span className="colon">:</span>
+                          {minutes}
+                          <span className="colon">:</span>
+                          {seconds}
+                        </React.Fragment>
+                      );
+                    }
                     return (
-                      <React.Fragment key={index}>
-                        {hours}
-                        <span className="colon">:</span>
-                        {minutes}
-                      </React.Fragment>
+                      <span key={index} style={{ 
+                        marginLeft: '4px', 
+                        fontSize: '0.65rem', 
+                        opacity: 0.9,
+                        fontWeight: 300,
+                      }}>
+                        {part}
+                      </span>
                     );
-                  }
-                  return (
-                    <span key={index} style={{ marginLeft: '5px', fontSize: '0.8rem', opacity: 0.8 }}>
-                      {part}
-                    </span>
-                  );
-                })}
-              </Typography>
+                  })}
+                </Typography>
+              </Box>
               <Typography
                 variant="caption"
                 sx={{
-                  fontFamily: 'SF Pro Display, sans-serif',
-                  fontSize: '0.7rem',
-                  color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
-                  letterSpacing: '0.02rem',
+                  fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                  fontSize: '0.6rem',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                  letterSpacing: '0.01rem',
+                  ml: '1.6rem',
+                  fontWeight: 400,
+                  textTransform: 'capitalize'
                 }}
               >
                 {formatDate(currentTime)}
@@ -875,60 +922,85 @@ const LandingPage = ({ darkMode }) => {
             {/* Weather Section */}
             {weatherData.temp && (
               <Tooltip 
-                title="Click for detailed weather" 
+                title="View detailed weather forecast" 
                 placement="bottom" 
                 arrow
-                enterDelay={500}
+                enterDelay={300}
+                sx={{
+                  '& .MuiTooltip-arrow': {
+                    color: darkMode ? '#333' : '#f5f5f5',
+                  },
+                  '& .MuiTooltip-tooltip': {
+                    bgcolor: darkMode ? '#333' : '#f5f5f5',
+                    color: darkMode ? '#fff' : '#333',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+                    fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                    fontSize: '0.7rem',
+                    fontWeight: 400,
+                    padding: '6px 10px',
+                    borderRadius: '4px',
+                  }
+                }}
               >
                 <Box 
                   sx={{ 
                     display: 'flex', 
                     flexDirection: 'column', 
-                    alignItems: 'center',
-                    borderLeft: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
-                    pl: 2,
-                    ml: 1,
+                    alignItems: 'flex-end',
+                    borderLeft: darkMode 
+                      ? '1px solid rgba(255, 255, 255, 0.07)' 
+                      : '1px solid rgba(0, 0, 0, 0.04)',
+                    pl: 1.5,
+                    ml: 0.5,
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
+                    transition: 'all 0.25s cubic-bezier(0.19, 1, 0.22, 1)',
+                    minWidth: '80px',
                     '&:hover': {
-                      transform: 'scale(1.05)',
+                      transform: 'scale(1.02) translateX(-2px)',
                     }
                   }}
                   onClick={handleWeatherClick}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
                     <img 
                       src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
                       alt={weatherData.desc}
-                      style={{ width: '28px', height: '28px' }}
+                      style={{ 
+                        width: '24px', 
+                        height: '24px',
+                        filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)'
+                      }}
                     />
                     <Typography
                       variant="h6"
                       sx={{
-                        fontFamily: 'SF Pro Display, sans-serif',
-                        fontWeight: 600,
-                        fontSize: '1.1rem',
+                        fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                        fontWeight: 500,
+                        fontSize: '0.9rem',
                         color: darkMode ? '#FFFFFF' : '#000000',
+                        display: 'flex',
+                        alignItems: 'center',
                       }}
                     >
-                      {weatherData.temp}°F
+                      {weatherData.temp}°
+                      <OpenInNew 
+                        sx={{ 
+                          fontSize: '0.7rem', 
+                          ml: 0.5, 
+                          opacity: 0.5,
+                          color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.4)'
+                        }} 
+                      />
                     </Typography>
-                    <OpenInNew 
-                      sx={{ 
-                        fontSize: '0.8rem', 
-                        ml: 0.5, 
-                        opacity: 0.7,
-                        color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)'
-                      }} 
-                    />
                   </Box>
                   <Typography
                     variant="caption"
                     sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      fontSize: '0.7rem',
-                      color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                      fontFamily: 'SF Pro Display, system-ui, sans-serif',
+                      fontSize: '0.6rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
                       textTransform: 'capitalize',
+                      fontWeight: 400,
                     }}
                   >
                     {weatherData.city || weatherData.desc}
