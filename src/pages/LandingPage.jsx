@@ -1069,6 +1069,14 @@ const LandingPage = ({ darkMode }) => {
                         }}
                       >
                         {weatherData.tempDisplay || Math.round(weatherData.temp)}°
+                        <CloudOutlined 
+                          sx={{ 
+                            fontSize: '0.7rem', 
+                            ml: 0.4, 
+                            opacity: 0.7,
+                            color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)'
+                          }} 
+                        />
                       </Typography>
                     </Box>
                     <Typography
