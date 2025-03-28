@@ -492,15 +492,35 @@ const MobileLandingPage = ({
                 onClick={handleWeatherClick}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
-                    <img 
-                      src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
-                      alt={weatherData.desc}
-                      style={{ 
-                        width: '22px', 
-                        height: '22px',
-                        filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)'
+                    <Box
+                      sx={{
+                        position: 'relative', 
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
                       }}
-                    />
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent the parent click
+                        window.weatherUtils && window.weatherUtils.getUserLocation();
+                        // Show a subtle visual feedback
+                        e.currentTarget.style.transform = 'rotate(180deg)';
+                        setTimeout(() => {
+                          e.currentTarget.style.transform = 'rotate(0deg)';
+                        }, 500);
+                      }}
+                    >
+                      <img 
+                        src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
+                        alt={weatherData.desc}
+                        style={{ 
+                          width: '22px', 
+                          height: '22px',
+                          filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)',
+                          transition: 'transform 0.5s ease'
+                        }}
+                      />
+                    </Box>
                     <Typography
                       variant="body1"
                       sx={{
@@ -512,7 +532,7 @@ const MobileLandingPage = ({
                         alignItems: 'center',
                       }}
                     >
-                      {weatherData.temp}°
+                      {weatherData.tempDisplay || Math.round(weatherData.temp)}°
                       <OpenInNewIcon 
                         sx={{ 
                           fontSize: '0.55rem', 

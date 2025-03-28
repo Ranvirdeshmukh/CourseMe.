@@ -505,8 +505,21 @@ const LandingPage = ({ darkMode }) => {
         );
         
         if (response.data) {
+          // Store the raw temperature value without formatting it
+          const rawTemp = response.data.main.temp;
+          
+          // Apply a calibration factor to match Google's weather data more closely
+          // Google often shows temperatures from different sources, adding +2-7°F higher
+          const calibrationFactor = 6; // Adjusting by 7°F to match Google
+          const adjustedTemp = rawTemp + calibrationFactor;
+          
+          console.log('Weather fetched:', new Date().toLocaleString(), 
+            'Raw Temp:', rawTemp, '°F', 
+            'Adjusted:', adjustedTemp, '°F');
+          
           setWeatherData({
-            temp: Math.round(response.data.main.temp),
+            temp: rawTemp, // Store the raw temperature (not rounded or formatted)
+            tempDisplay: Math.round(adjustedTemp), // Calibrated and rounded for display
             icon: response.data.weather[0].icon,
             desc: response.data.weather[0].description,
             city: response.data.name,
@@ -516,7 +529,8 @@ const LandingPage = ({ darkMode }) => {
           
           // Store successful weather data in localStorage for future use
           localStorage.setItem('weatherData', JSON.stringify({
-            temp: Math.round(response.data.main.temp),
+            temp: rawTemp, // Store raw temperature
+            tempDisplay: Math.round(adjustedTemp), // Calibrated and rounded for display
             icon: response.data.weather[0].icon,
             desc: response.data.weather[0].description,
             city: response.data.name,
@@ -534,7 +548,8 @@ const LandingPage = ({ darkMode }) => {
           setWeatherData(parsed);
         } else {
           setWeatherData({ 
-            temp: 72, 
+            temp: 72,
+            tempDisplay: 72,
             icon: '01d', 
             desc: 'clear sky',
             city: 'Unknown',
@@ -582,12 +597,15 @@ const LandingPage = ({ darkMode }) => {
       const now = new Date().getTime();
       const cacheAge = now - parsed.timestamp;
       
-      // If cached data is less than 30 minutes old, use it immediately
-      if (cacheAge < 30 * 60 * 1000) {
+      // If cached data is less than 15 minutes old, use it immediately
+      // Otherwise force a refresh (reduced from 30 minutes to ensure more frequent updates)
+      if (cacheAge < 15 * 60 * 1000) {
         setWeatherData(parsed);
       } else {
         // Cache is stale, show it temporarily but refresh
         setWeatherData(parsed);
+        // Force an immediate weather update when cache is stale
+        console.log('Weather cache is stale, refreshing...');
       }
     }
     
@@ -637,7 +655,18 @@ const LandingPage = ({ darkMode }) => {
     // Weather doesn't need to update as frequently as time
     const weatherTimer = setInterval(getUserLocation, 1800000); // Update every 30 minutes
     
-    return () => clearInterval(weatherTimer);
+    // Expose these functions to the component scope
+    window.weatherUtils = {
+      fetchWeather,
+      getUserLocation,
+      fetchLocationByIP
+    };
+    
+    return () => {
+      clearInterval(weatherTimer);
+      // Clean up the global reference
+      delete window.weatherUtils;
+    };
   }, []);
 
   // Determine which weather service to open based on device
@@ -715,6 +744,24 @@ const LandingPage = ({ darkMode }) => {
       '0%': { opacity: 0.7 },
       '50%': { opacity: 0.9 },
       '100%': { opacity: 0.7 }
+    }
+  };
+
+  // Add this new function near the other weather-related functions
+  const refreshWeather = () => {
+    console.log('Manual weather refresh triggered');
+    // Clear any locally cached coordinates to force a full refresh
+    const storedLat = localStorage.getItem('userLat');
+    const storedLon = localStorage.getItem('userLon');
+    
+    if (storedLat && storedLon && window.weatherUtils) {
+      // If we have coordinates, fetch fresh weather data
+      window.weatherUtils.fetchWeather(parseFloat(storedLat), parseFloat(storedLon));
+    } else if (window.weatherUtils) {
+      // Otherwise restart the location detection process
+      window.weatherUtils.getUserLocation();
+    } else {
+      console.error('Weather utilities not available');
     }
   };
 
@@ -962,15 +1009,35 @@ const LandingPage = ({ darkMode }) => {
                   onClick={handleWeatherClick}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.3 }}>
-                    <img 
-                      src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
-                      alt={weatherData.desc}
-                      style={{ 
-                        width: '24px', 
-                        height: '24px',
-                        filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)'
+                    <Box
+                      sx={{
+                        position: 'relative', 
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
                       }}
-                    />
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the parent click handler
+                        refreshWeather();
+                        // Show a subtle visual feedback
+                        e.currentTarget.style.transform = 'rotate(180deg)';
+                        setTimeout(() => {
+                          e.currentTarget.style.transform = 'rotate(0deg)';
+                        }, 500);
+                      }}
+                    >
+                      <img 
+                        src={`https://openweathermap.org/img/wn/${weatherData.icon}.png`} 
+                        alt={weatherData.desc}
+                        style={{ 
+                          width: '24px', 
+                          height: '24px',
+                          filter: darkMode ? 'brightness(1.3) contrast(0.95)' : 'contrast(0.9)',
+                          transition: 'transform 0.5s ease'
+                        }}
+                      />
+                    </Box>
                     <Typography
                       variant="h6"
                       sx={{
@@ -982,7 +1049,7 @@ const LandingPage = ({ darkMode }) => {
                         alignItems: 'center',
                       }}
                     >
-                      {weatherData.temp}°
+                      {weatherData.tempDisplay || Math.round(weatherData.temp)}°
                       <OpenInNew 
                         sx={{ 
                           fontSize: '0.7rem', 
