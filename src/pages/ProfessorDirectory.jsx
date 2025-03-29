@@ -560,16 +560,18 @@ const ProfessorDirectory = ({ darkMode }) => {
     const getMessage = () => {
       if (selectedDepartment) {
         return showingMajorSpecific 
-          ? `Showing professors from the ${departmentName} department. Click on any professor's name to view their teaching summary and reviews.`
-          : `We couldn't find enough professors for ${departmentName}, so we're showing popular professors across all departments. Click on any professor's name to view their teaching summary.`;
+          ? `Showing professors from the ${selectedDepartment} department. Click on any professor's name to view their teaching summary and reviews.`
+          : `We couldn't find enough professors for ${selectedDepartment}, so we're showing popular professors across all departments. Click on any professor's name to view their teaching summary.`;
       }
       
       if (userMajor && showingMajorSpecific) {
-        return `Showing professors relevant to your major: ${userMajor}. Click on any professor's name to view their teaching summary and reviews.`;
+        const deptCode = getMajorDepartmentCode(userMajor);
+        return `Showing professors from your major's department (${deptCode}). Click on any professor's name to view their teaching summary and reviews.`;
       }
       
       if (userMajor && !showingMajorSpecific) {
-        return `We couldn't find enough professors for ${userMajor}, so we're showing popular professors across all departments. Click on any professor's name to view their teaching summary.`;
+        const deptCode = getMajorDepartmentCode(userMajor);
+        return `We couldn't find enough professors for your major's department (${deptCode}), so we're showing popular professors across all departments. Click on any professor's name to view their teaching summary.`;
       }
       
       return "Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history.";
@@ -709,35 +711,40 @@ const ProfessorDirectory = ({ darkMode }) => {
         
         {/* Department Quick Select */}
         <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-3">
             <h3 className={darkMode ? "text-white text-sm font-medium" : "text-gray-700 text-sm font-medium"}>
-              Popular Departments
+              Select Department
             </h3>
             <button
               onClick={toggleAllDepartments}
               className={`text-xs ${darkMode ? "text-indigo-300" : "text-indigo-600"} hover:underline`}
             >
-              {showAllDepartments ? "Show Less" : "View All"}
+              {showAllDepartments ? "Show Popular" : "View All"}
             </button>
           </div>
           
-          <div className="flex flex-wrap gap-2">
-            {/* Department Chips */}
+          <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+            {/* Department Chips - Show only the code with hover tooltip */}
             {(showAllDepartments ? departmentOptions : popularDepartments).map((dept) => (
               <button 
                 key={dept.value}
                 onClick={() => handleDepartmentSelect(dept.value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                title={dept.label.split(' (')[0]} // Show full department name on hover
+                className={`px-1 py-2 rounded-full text-xs font-medium transition-all transform hover:scale-105 ${
                   selectedDepartment === dept.value
                     ? darkMode 
-                      ? "bg-indigo-700 text-white" 
-                      : "bg-indigo-100 text-indigo-800"
+                      ? "bg-indigo-700 text-white shadow-md" 
+                      : "bg-indigo-500 text-white shadow-md"
                     : darkMode
                       ? "bg-[#1C1F43] text-gray-300 hover:bg-[#252a57]"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
+                style={{ 
+                  textAlign: 'center',
+                  letterSpacing: '0.02em'
+                }}
               >
-                {dept.label}
+                {dept.value}
               </button>
             ))}
             
@@ -745,13 +752,17 @@ const ProfessorDirectory = ({ darkMode }) => {
             {selectedDepartment && (
               <button 
                 onClick={clearDepartmentFilter}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center ${
+                title="Clear department filter"
+                className={`px-1 py-2 rounded-full text-xs font-medium flex items-center justify-center transition-all transform hover:scale-105 ${
                   darkMode 
-                    ? "bg-red-800/50 text-red-200 hover:bg-red-700/60" 
-                    : "bg-red-100 text-red-700 hover:bg-red-200"
+                    ? "bg-red-800/70 text-red-200 hover:bg-red-700/80 shadow-md" 
+                    : "bg-red-500 text-white hover:bg-red-600 shadow-md"
                 }`}
+                style={{ 
+                  textAlign: 'center'
+                }}
               >
-                Clear <X className="ml-1 w-3 h-3" />
+                <X className="w-3 h-3" />
               </button>
             )}
           </div>
