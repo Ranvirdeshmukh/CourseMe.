@@ -306,7 +306,7 @@ const ProfessorDirectory = ({ darkMode }) => {
           const userData = userDocSnap.data();
           if (userData.major) {
             setUserMajor(userData.major);
-            console.log(`User major found: ${userData.major}`); // Debug log
+            console.log(`User major found: ${userData.major}`);
           }
         }
       } catch (err) {
@@ -317,11 +317,11 @@ const ProfessorDirectory = ({ darkMode }) => {
     fetchUserMajor();
   }, [currentUser]);
 
-  // Convert major to department code
+  // Enhanced major to department mapping
   const getMajorDepartmentCode = (major) => {
     if (!major) return null;
     
-    // Common mappings from majors to department codes
+    // More comprehensive mapping from majors to department codes
     const majorToDeptMap = {
       'Computer Science': 'COSC',
       'Economics': 'ECON',
@@ -336,7 +336,22 @@ const ProfessorDirectory = ({ darkMode }) => {
       'Physics': 'PHYS',
       'English': 'ENGL',
       'History': 'HIST',
-      // Add more mappings as needed
+      'Philosophy': 'PHIL',
+      'Sociology': 'SOCY',
+      'Anthropology': 'ANTH',
+      'Art History': 'ARTH',
+      'Classics': 'CLST',
+      'Earth Sciences': 'EARS',
+      'Religion': 'REL',
+      'Film and Media Studies': 'FILM',
+      'French': 'FREN',
+      'German Studies': 'GERM',
+      'Italian Studies': 'ITAL',
+      'Japanese': 'JAPN',
+      'Spanish': 'SPAN',
+      'Music': 'MUS',
+      'Theater': 'THEA',
+      'Women\'s, Gender, and Sexuality Studies': 'WGSS'
     };
     
     // Try direct mapping first
@@ -344,8 +359,19 @@ const ProfessorDirectory = ({ darkMode }) => {
       return majorToDeptMap[major];
     }
     
-    // If no direct mapping, try to extract first 4 characters and uppercase
-    // This is a fallback that may work for some departments
+    // Better fallback strategy:
+    // 1. Try to match any part of the major with known department codes
+    const majorWords = major.toLowerCase().split(/\s+/);
+    for (const word of majorWords) {
+      // Check if any word in the major matches the start of a department code
+      for (const [knownMajor, deptCode] of Object.entries(majorToDeptMap)) {
+        if (knownMajor.toLowerCase().includes(word) && word.length > 2) {
+          return deptCode;
+        }
+      }
+    }
+    
+    // 2. If still no match, try to extract first 4 characters and uppercase
     const deptCode = major.substring(0, 4).toUpperCase();
     return deptCode;
   };
@@ -354,44 +380,57 @@ const ProfessorDirectory = ({ darkMode }) => {
     try {
       setLoading(true);
       const professorsRef = collection(db, 'professor');
-      let baseQuery;
-
-      // If user has a major, try to fetch professors from that department first
+      let professorsData = [];
+      
+      // If user has a major and no search is active, try to get professors from their department
       if (userMajor && !searchQuery) {
         const deptCode = getMajorDepartmentCode(userMajor);
-        console.log(`Attempting to find professors from department: ${deptCode}`); // Debug log
+        console.log(`Attempting to find professors from department: ${deptCode}`);
         
         try {
-          // First try to get professors from the user's department
+          // Query for professors from the user's department
           const deptQuery = firestoreQuery(
             professorsRef,
             where(`departments.${deptCode}`, '!=', null),
-            limit(12)
+            limit(50) // Get more results to allow for sorting
           );
           
           const deptSnapshot = await getDocs(deptQuery);
           
-          // If we found professors in the user's department
           if (!deptSnapshot.empty) {
-            console.log(`Found ${deptSnapshot.size} professors in ${deptCode}`); // Debug log
-            const professorsData = deptSnapshot.docs.map(doc => ({
+            console.log(`Found ${deptSnapshot.size} professors in ${deptCode}`);
+            professorsData = deptSnapshot.docs.map(doc => ({
               id: doc.id,
               ...doc.data()
             }));
             
-            setProfessors(professorsData);
-            setLoading(false);
-            return;
+            // Apply filters to the department-specific results
+            professorsData = professorsData.filter(prof => 
+              (prof.overall_metrics?.review_count || 0) >= reviewThreshold
+            );
+            
+            // If we have enough professors after filtering, we can skip the fallback query
+            if (professorsData.length >= 6) {
+              // Apply sorting based on selected option
+              applySorting(professorsData, selectedSort);
+              professorsData = professorsData.slice(0, 12);
+              
+              setProfessors(professorsData);
+              setLoading(false);
+              return;
+            }
+            
+            console.log(`Not enough professors (${professorsData.length}) after filtering, falling back to regular query`);
           } else {
-            console.log(`No professors found for department: ${deptCode}`); // Debug log
+            console.log(`No professors found for department: ${deptCode}`);
           }
         } catch (deptError) {
-          // If there's an error with the department query, log it and fall back to default query
           console.error(`Error with department query for ${deptCode}:`, deptError);
         }
       }
 
-      // Fallback to regular query if department-specific query didn't return results
+      // Fallback or default query based on selected filters
+      let baseQuery;
       if (selectedSort === SORT_OPTIONS.REVIEW_COUNT) {
         baseQuery = firestoreQuery(
           professorsRef,
@@ -415,27 +454,14 @@ const ProfessorDirectory = ({ darkMode }) => {
       }
 
       const snapshot = await getDocs(baseQuery);
-      let professorsData = snapshot.docs.map(doc => ({
+      professorsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
 
-      if (
-        selectedSort.field &&
-        selectedSort !== SORT_OPTIONS.REVIEW_COUNT &&
-        selectedSort !== SORT_OPTIONS.DIFFICULTY
-      ) {
-        professorsData.sort((a, b) => {
-          const scoreA = a.overall_metrics?.[selectedSort.field] || 0;
-          const scoreB = b.overall_metrics?.[selectedSort.field] || 0;
-          return scoreB - scoreA;
-        });
-        professorsData = professorsData.slice(0, 12);
-      } else if (selectedSort === SORT_OPTIONS.RANDOM) {
-        professorsData = professorsData
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 12);
-      }
+      // Apply sorting if needed
+      applySorting(professorsData, selectedSort);
+      professorsData = professorsData.slice(0, 12);
 
       setProfessors(professorsData);
     } catch (err) {
@@ -446,21 +472,59 @@ const ProfessorDirectory = ({ darkMode }) => {
     }
   }, [sortBy, minReviews, userMajor, searchQuery]);
 
+  // Helper function to apply sorting consistently
+  const applySorting = (data, selectedSort) => {
+    if (selectedSort === SORT_OPTIONS.RANDOM) {
+      data.sort(() => Math.random() - 0.5);
+    } else if (selectedSort === SORT_OPTIONS.REVIEW_COUNT) {
+      data.sort((a, b) => {
+        const countA = a.overall_metrics?.review_count || 0;
+        const countB = b.overall_metrics?.review_count || 0;
+        return countB - countA;
+      });
+    } else if (selectedSort === SORT_OPTIONS.DIFFICULTY) {
+      data.sort((a, b) => {
+        const scoreA = a.overall_metrics?.difficulty_score || 0;
+        const scoreB = b.overall_metrics?.difficulty_score || 0;
+        return scoreA - scoreB; // Lower difficulty first (easier classes)
+      });
+    } else if (selectedSort.field) {
+      data.sort((a, b) => {
+        const scoreA = a.overall_metrics?.[selectedSort.field] || 0;
+        const scoreB = b.overall_metrics?.[selectedSort.field] || 0;
+        return scoreB - scoreA;
+      });
+    }
+    return data;
+  };
+
   // The useEffects now correctly use the memoized callback
+  // Initial load when user major is available
   useEffect(() => {
     if (userMajor) {
-      // Don't change the current sort/filter if the user has already interacted with them
-      // This prevents resetting the user's selections when userMajor loads
-      fetchInitialProfessors(sortBy, minReviews);
+      // Add a small delay so UI transitions feel smoother
+      const timer = setTimeout(() => {
+        fetchInitialProfessors(sortBy, minReviews);
+      }, 100);
+      
+      return () => clearTimeout(timer);
     }
-  }, [userMajor, sortBy, minReviews, fetchInitialProfessors]); 
+  }, [userMajor, fetchInitialProfessors]); // Only re-run when userMajor or the fetch function changes
   
-  // Keep the original useEffect for handling sort/review filter changes
+  // Handle filter changes (sort option or min reviews)
   useEffect(() => {
-    if (!searchQuery) {
+    // Skip if this is the initial render or search is active
+    if (!searchQuery && (sortBy || minReviews)) {
       fetchInitialProfessors(sortBy, minReviews);
     }
-  }, [sortBy, minReviews, searchQuery, fetchInitialProfessors]);
+  }, [sortBy, minReviews, fetchInitialProfessors, searchQuery]);
+
+  // Smooth scrolling when results change
+  useEffect(() => {
+    if (professors.length > 0 || searchResults.length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [professors, searchResults]);
 
   const handleCourseClick = (courseLink) => {
     navigate(courseLink);
@@ -487,30 +551,49 @@ const ProfessorDirectory = ({ darkMode }) => {
     return null;
   };
 
-
-
-  const InfoBanner = () => (
-    <div
-      className={
-        darkMode
-          ? "p-4 rounded-lg mb-6 mt-2 bg-[#332F56]"
-          : "bg-indigo-50 p-4 rounded-lg mb-6 mt-2"
+  const InfoBanner = () => {
+    // Track if we're showing general professors or major-specific ones
+    const [showingMajorSpecific, setShowingMajorSpecific] = useState(false);
+    
+    // Update when professors change
+    useEffect(() => {
+      if (userMajor && professors.length > 0) {
+        // Check if at least one professor has the user's department
+        const deptCode = getMajorDepartmentCode(userMajor);
+        const hasMajorProfs = professors.some(prof => 
+          prof.departments && prof.departments[deptCode]
+        );
+        setShowingMajorSpecific(hasMajorProfs);
+      } else {
+        setShowingMajorSpecific(false);
       }
-    >
-      <p
+    }, [professors, userMajor]);
+    
+    return (
+      <div
         className={
           darkMode
-            ? "text-gray-200 text-sm"
-            : "text-indigo-800 text-sm"
+            ? "p-4 rounded-lg mb-6 mt-2 bg-[#332F56]"
+            : "bg-indigo-50 p-4 rounded-lg mb-6 mt-2"
         }
       >
-        {userMajor 
-          ? `Showing professors relevant to your major: ${userMajor}. Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history.`
-          : "Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history."}
-        *Note metrics are AI-generated and may be inaccurate.
-      </p>
-    </div>
-  );
+        <p
+          className={
+            darkMode
+              ? "text-gray-200 text-sm"
+              : "text-indigo-800 text-sm"
+          }
+        >
+          {userMajor && showingMajorSpecific
+            ? `Showing professors relevant to your major: ${userMajor}. Click on any professor's name to view their teaching summary and reviews.`
+            : userMajor && !showingMajorSpecific
+              ? `We couldn't find enough professors for ${userMajor}, so we're showing popular professors across all departments. Try adjusting the filters above.`
+              : "Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history."}
+          {" "}*Note metrics are AI-generated and may be inaccurate.
+        </p>
+      </div>
+    );
+  };
 
   const handleSortChange = (option) => {
     setSortBy(option);
