@@ -1,7 +1,7 @@
 import { getFirestore, collection, query as firestoreQuery, getDocs, limit, orderBy, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase'; 
 import { Mail, Search, X } from 'lucide-react';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -13,6 +13,13 @@ import {
   getPopularDepartments
 } from '../algorithms/professorMatching';
 import { Typography, Box } from '@mui/material';
+
+// Create a cache to store previously fetched data
+const professorCache = {
+  data: null,
+  timestamp: null,
+  expiryTime: 5 * 60 * 1000 // 5 minutes cache validity
+};
 
 const LoadingSpinner = ({ darkMode }) => (
   <div
@@ -51,6 +58,33 @@ const LoadingOverlay = ({ darkMode }) => (
         }
       ></div>
       <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-500 rounded-full animate-spin border-t-transparent"></div>
+    </div>
+  </div>
+);
+
+// Add a more subtle initial loading component
+const InitialLoading = ({ darkMode }) => (
+  <div
+    className={
+      darkMode
+        ? "flex flex-col items-center justify-center py-12 gap-4"
+        : "flex flex-col items-center justify-center py-12 gap-4"
+    }
+  >
+    <div className="relative w-14 h-14">
+      <div className="absolute top-0 left-0 right-0 bottom-0">
+        <div className="w-full h-full border-4 border-indigo-100 rounded-full opacity-30"></div>
+        <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-500 rounded-full animate-spin border-t-transparent"></div>
+      </div>
+    </div>
+    <div 
+      className={
+        darkMode 
+          ? "text-sm text-gray-300 animate-pulse" 
+          : "text-sm text-gray-500 animate-pulse"
+      }
+    >
+      Loading professors...
     </div>
   </div>
 );
@@ -295,6 +329,7 @@ const ProfessorDirectory = ({ darkMode }) => {
 
   const [professors, setProfessors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState(SORT_OPTIONS.REVIEW_COUNT);
   const [minReviews, setMinReviews] = useState(10);
@@ -305,6 +340,44 @@ const ProfessorDirectory = ({ darkMode }) => {
   const [showAllDepartments, setShowAllDepartments] = useState(false);
   const [departmentOptions] = useState(getAllDepartmentOptions());
   const [popularDepartments] = useState(getPopularDepartments());
+  
+  // Reference to track if component is mounted
+  const isMounted = useRef(true);
+
+  // Check cache on component mount
+  useEffect(() => {
+    // Check if we have valid cached data
+    const now = Date.now();
+    if (professorCache.data && 
+        professorCache.timestamp && 
+        (now - professorCache.timestamp < professorCache.expiryTime)) {
+      console.log('Using cached professor data');
+      setProfessors(professorCache.data);
+      setLoading(false);
+      setInitialLoad(false);
+    } else {
+      // Set a very short timeout for initial loading animation
+      const timer = setTimeout(() => {
+        if (isMounted.current) {
+          setInitialLoad(false);
+        }
+      }, 300); // Reduced from 800ms to 300ms
+      
+      return () => clearTimeout(timer);
+    }
+    
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  // Initialize isMounted ref
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   // Get user major
   useEffect(() => {
@@ -332,7 +405,11 @@ const ProfessorDirectory = ({ darkMode }) => {
 
   const fetchInitialProfessors = useCallback(async (selectedSort = sortBy, reviewThreshold = minReviews) => {
     try {
-      setLoading(true);
+      // Don't show loading if we already have data
+      if (!professors.length) {
+        setLoading(true);
+      }
+      
       const professorsRef = collection(db, 'professor');
       let professorsData = [];
       
@@ -363,8 +440,16 @@ const ProfessorDirectory = ({ darkMode }) => {
               professorsData = applySorting(professorsData, selectedSort);
               professorsData = professorsData.slice(0, 12);
               
-              setProfessors(professorsData);
-              setLoading(false);
+              if (isMounted.current) {
+                setProfessors(professorsData);
+                
+                // Update cache
+                professorCache.data = professorsData;
+                professorCache.timestamp = Date.now();
+                
+                setLoading(false);
+                setInitialLoad(false);
+              }
               return;
             }
             console.log(`Not enough professors for ${selectedDepartment} after filtering`);
@@ -408,8 +493,16 @@ const ProfessorDirectory = ({ darkMode }) => {
               professorsData = applySorting(professorsData, selectedSort);
               professorsData = professorsData.slice(0, 12);
               
-              setProfessors(professorsData);
-              setLoading(false);
+              if (isMounted.current) {
+                setProfessors(professorsData);
+                
+                // Update cache
+                professorCache.data = professorsData;
+                professorCache.timestamp = Date.now();
+                
+                setLoading(false);
+                setInitialLoad(false);
+              }
               return;
             }
             
@@ -456,14 +549,25 @@ const ProfessorDirectory = ({ darkMode }) => {
       professorsData = applySorting(professorsData, selectedSort);
       professorsData = professorsData.slice(0, 12);
 
-      setProfessors(professorsData);
+      if (isMounted.current) {
+        setProfessors(professorsData);
+        
+        // Update cache
+        professorCache.data = professorsData;
+        professorCache.timestamp = Date.now();
+      }
     } catch (err) {
       console.error('Error fetching professors:', err);
-      setError('Failed to load professors');
+      if (isMounted.current) {
+        setError('Failed to load professors');
+      }
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+        setInitialLoad(false);
+      }
     }
-  }, [sortBy, minReviews, userMajor, searchQuery, selectedDepartment]);
+  }, [sortBy, minReviews, userMajor, searchQuery, selectedDepartment, professors.length]);
 
   // Add useEffect to trigger fetch when selectedDepartment changes
   useEffect(() => {
@@ -708,38 +812,6 @@ const ProfessorDirectory = ({ darkMode }) => {
             }}
           >
             Professors for {userMajor}
-            <Box component="span" sx={{ 
-              display: 'inline-block',
-              fontSize: { xs: '0.6em', sm: '0.6em', md: '0.5em' },
-              ml: 2, 
-              opacity: 0.8,
-              fontWeight: 500,
-              verticalAlign: 'middle'
-            }}>
-              ({getMajorDepartmentCode(userMajor)})
-            </Box>
-            <Box
-              component="span"
-              sx={{
-                display: 'inline-block',
-                ml: 2,
-                px: 1.5,
-                py: 0.5,
-                fontSize: '0.35em',
-                borderRadius: '30px',
-                backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.3)' : 'rgba(87, 28, 224, 0.1)',
-                color: darkMode ? '#a78bfa' : '#571CE0',
-                verticalAlign: 'middle',
-                fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
-                fontWeight: 600,
-                letterSpacing: '0.02em',
-                boxShadow: darkMode
-                  ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                  : '0 2px 8px rgba(0, 0, 0, 0.08)'
-              }}
-            >
-              Personalized
-            </Box>
           </Typography>
           <Typography
             variant="body2"
@@ -822,18 +894,6 @@ const ProfessorDirectory = ({ darkMode }) => {
             }}
           >
             {selectedDepartment} Department
-            {departmentOptions.find(dept => dept.value === selectedDepartment) && (
-              <Box component="span" sx={{ 
-                display: 'inline-block',
-                fontSize: { xs: '0.6em', sm: '0.6em', md: '0.5em' },
-                ml: 2, 
-                opacity: 0.8,
-                fontWeight: 500,
-                verticalAlign: 'middle'
-              }}>
-                {departmentOptions.find(dept => dept.value === selectedDepartment).label.split(' (')[0]}
-              </Box>
-            )}
           </Typography>
           <Typography
             variant="body2"
@@ -907,7 +967,7 @@ const ProfessorDirectory = ({ darkMode }) => {
         </div>
       )}
 
-      {/* Search and Filter Section */}
+      {/* Search and Filter Section - show immediately */}
       <div className={`max-w-7xl mx-auto p-6 ${!searchQuery && !selectedDepartment && !userMajor ? 'mb-12' : 'mb-8 pt-4'} space-y-4`}>
         <div className="relative">
           <input
@@ -1032,15 +1092,21 @@ const ProfessorDirectory = ({ darkMode }) => {
             </div>
           </div>
         )}
-        <InfoBanner 
-          selectedDepartment={selectedDepartment}
-          departmentOptions={departmentOptions}
-        />
+        
+        {/* Show InfoBanner only when not in initial loading state */}
+        {!initialLoad && (
+          <InfoBanner 
+            selectedDepartment={selectedDepartment}
+            departmentOptions={departmentOptions}
+          />
+        )}
       </div>
 
-      {/* Professors Grid */}
+      {/* Professors Grid with improved loading state logic */}
       <div className="max-w-7xl mx-auto px-6">
-        {(loading || isSearching) && !displayProfessors.length ? (
+        {initialLoad ? (
+          <InitialLoading darkMode={darkMode} />
+        ) : (loading || isSearching) && !displayProfessors.length ? (
           <LoadingSpinner darkMode={darkMode} />
         ) : (
           <>
@@ -1161,5 +1227,34 @@ const ProfessorDirectory = ({ darkMode }) => {
     </div>
   );
 };
+
+// Preload data for faster return navigation
+// This runs once when the app loads
+(async function preloadProfessorData() {
+  try {
+    if (!professorCache.data) {
+      console.log('Preloading professor data...');
+      const professorsRef = collection(db, 'professor');
+      const baseQuery = firestoreQuery(
+        professorsRef,
+        where('overall_metrics.review_count', '>=', 10),
+        orderBy('overall_metrics.review_count', 'desc'),
+        limit(12)
+      );
+      
+      const snapshot = await getDocs(baseQuery);
+      const professorsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      professorCache.data = professorsData;
+      professorCache.timestamp = Date.now();
+      console.log('Professor data preloaded successfully');
+    }
+  } catch (err) {
+    console.error('Error preloading professor data:', err);
+  }
+})();
 
 export default ProfessorDirectory;
