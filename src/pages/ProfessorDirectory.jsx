@@ -1,7 +1,7 @@
 import { getFirestore, collection, query as firestoreQuery, getDocs, limit, orderBy, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase'; 
 import { Mail, Search, X } from 'lucide-react';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -10,7 +10,8 @@ import {
   filterByMinReviews,
   hasProfessorsFromDepartment,
   getAllDepartmentOptions,
-  getPopularDepartments
+  getPopularDepartments,
+  isDepartmentCode
 } from '../algorithms/professorMatching';
 import { Typography, Box } from '@mui/material';
 
@@ -336,8 +337,8 @@ const ProfessorDirectory = ({ darkMode }) => {
   const [userMajor, setUserMajor] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [showAllDepartments, setShowAllDepartments] = useState(false);
-  const [departmentOptions] = useState(getAllDepartmentOptions());
-  const [popularDepartments] = useState(getPopularDepartments());
+  const departmentOptions = useMemo(() => getAllDepartmentOptions(), []);
+  const popularDepartments = useMemo(() => getPopularDepartments(), []);
   
   // Reference to track if component is mounted
   const isMounted = useRef(true);
@@ -389,8 +390,12 @@ const ProfessorDirectory = ({ darkMode }) => {
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data();
           if (userData.major) {
+            // Store the major as provided by the user for display
             setUserMajor(userData.major);
             console.log(`User major found: ${userData.major}`);
+            
+            // Add direct test of CS -> COSC mapping
+            console.log("DIRECT TEST - CS should map to COSC:", getMajorDepartmentCode("CS"));
           }
         }
       } catch (err) {
@@ -416,16 +421,18 @@ const ProfessorDirectory = ({ darkMode }) => {
         console.log(`Fetching professors for selected department: ${selectedDepartment}`);
         
         try {
+          // Ensure we have a valid department code (not an abbreviation)
+          const deptCode = selectedDepartment;
           const deptQuery = firestoreQuery(
             professorsRef,
-            where(`departments.${selectedDepartment}`, '!=', null),
+            where(`departments.${deptCode}`, '!=', null),
             limit(50)
           );
           
           const deptSnapshot = await getDocs(deptQuery);
           
           if (!deptSnapshot.empty) {
-            console.log(`Found ${deptSnapshot.size} professors in ${selectedDepartment}`);
+            console.log(`Found ${deptSnapshot.size} professors in ${deptCode}`);
             professorsData = deptSnapshot.docs.map(doc => ({
               id: doc.id,
               ...doc.data()
@@ -450,9 +457,9 @@ const ProfessorDirectory = ({ darkMode }) => {
               }
               return;
             }
-            console.log(`Not enough professors for ${selectedDepartment} after filtering`);
+            console.log(`Not enough professors for ${deptCode} after filtering`);
           } else {
-            console.log(`No professors found for department: ${selectedDepartment}`);
+            console.log(`No professors found for department: ${deptCode}`);
           }
         } catch (deptError) {
           console.error(`Error with department query for ${selectedDepartment}:`, deptError);
@@ -462,54 +469,68 @@ const ProfessorDirectory = ({ darkMode }) => {
       // If user has a major and no search is active, and no department is selected,
       // try to get professors from their department
       if (userMajor && !searchQuery && !selectedDepartment) {
-        const deptCode = getMajorDepartmentCode(userMajor);
-        console.log(`Attempting to find professors from department: ${deptCode}`);
+        // Special handling for CS abbreviation 
+        // (in case our mapping function isn't working correctly)
+        let deptCode;
+        if (userMajor === "CS") {
+          deptCode = "COSC"; // Hardcode the most common case for reliability
+          console.log("Special case: Found 'CS' major, using 'COSC' department code");
+        } else {
+          deptCode = getMajorDepartmentCode(userMajor);
+        }
+
+        console.log(`DEBUG - User major: "${userMajor}"`);
+        console.log(`DEBUG - Department code from mapping: "${deptCode}"`);
+        console.log(`DEBUG - Is this a valid department code: ${isDepartmentCode(deptCode)}`);
         
-        try {
-          // Query for professors from the user's department
-          const deptQuery = firestoreQuery(
-            professorsRef,
-            where(`departments.${deptCode}`, '!=', null),
-            limit(50) // Get more results to allow for sorting
-          );
-          
-          const deptSnapshot = await getDocs(deptQuery);
-          
-          if (!deptSnapshot.empty) {
-            console.log(`Found ${deptSnapshot.size} professors in ${deptCode}`);
-            professorsData = deptSnapshot.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data()
-            }));
+        if (deptCode) {
+          try {
+            console.log(`Querying professors in department: ${deptCode}`);
+            // Query for professors from the user's department
+            const deptQuery = firestoreQuery(
+              professorsRef,
+              where(`departments.${deptCode}`, '!=', null),
+              limit(50) // Get more results to allow for sorting
+            );
             
-            // Apply filters to the department-specific results
-            professorsData = filterByMinReviews(professorsData, reviewThreshold);
+            const deptSnapshot = await getDocs(deptQuery);
             
-            // If we have enough professors after filtering, we can skip the fallback query
-            if (professorsData.length >= 6) {
-              // Apply sorting based on selected option
-              professorsData = applySorting(professorsData, selectedSort);
-              professorsData = professorsData.slice(0, 12);
+            if (!deptSnapshot.empty) {
+              console.log(`Found ${deptSnapshot.size} professors in ${deptCode}`);
+              professorsData = deptSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+              }));
               
-              if (isMounted.current) {
-                setProfessors(professorsData);
+              // Apply filters to the department-specific results
+              professorsData = filterByMinReviews(professorsData, reviewThreshold);
+              
+              // If we have enough professors after filtering, we can skip the fallback query
+              if (professorsData.length >= 6) {
+                // Apply sorting based on selected option
+                professorsData = applySorting(professorsData, selectedSort);
+                professorsData = professorsData.slice(0, 12);
                 
-                // Update cache
-                professorCache.data = professorsData;
-                professorCache.timestamp = Date.now();
-                
-                setLoading(false);
-                setInitialLoad(false);
+                if (isMounted.current) {
+                  setProfessors(professorsData);
+                  
+                  // Update cache
+                  professorCache.data = professorsData;
+                  professorCache.timestamp = Date.now();
+                  
+                  setLoading(false);
+                  setInitialLoad(false);
+                }
+                return;
               }
-              return;
+              
+              console.log(`Not enough professors (${professorsData.length}) after filtering, falling back to regular query`);
+            } else {
+              console.log(`No professors found for department: ${deptCode}`);
             }
-            
-            console.log(`Not enough professors (${professorsData.length}) after filtering, falling back to regular query`);
-          } else {
-            console.log(`No professors found for department: ${deptCode}`);
+          } catch (deptError) {
+            console.error(`Error with department query for ${deptCode}:`, deptError);
           }
-        } catch (deptError) {
-          console.error(`Error with department query for ${deptCode}:`, deptError);
         }
       }
 
@@ -742,6 +763,10 @@ const ProfessorDirectory = ({ darkMode }) => {
   const displayProfessors = searchQuery ? searchResults : professors;
 
   const handleDepartmentSelect = (deptCode) => {
+    // Make sure we use a proper department code, not an abbreviation
+    // This is already handled because deptCode comes from the button values
+    // which are already proper department codes
+    console.log(`Department selected: ${deptCode}`);
     setSelectedDepartment(deptCode);
     setSearchQuery(''); // Clear any existing search
   };

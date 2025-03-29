@@ -35,7 +35,113 @@ const majorToDepartmentMap = {
   'Spanish': 'SPAN',
   'Music': 'MUS',
   'Theater': 'THEA',
-  'Women\'s, Gender, and Sexuality Studies': 'WGSS'
+  'Women\'s, Gender, and Sexuality Studies': 'WGSS',
+  // Adding missing departments from departmentMapping.js
+  'African and African American Studies': 'AAAS',
+  'Asian and Middle Eastern Languages and Literatures': 'AMEL',
+  'Asian and Middle Eastern Studies': 'AMES',
+  'Arabic': 'ARAB',
+  'Astronomy': 'ASTR',
+  'Biological Sciences': 'BIOL',
+  'Chinese': 'CHIN',
+  'Comparative Literature': 'COLT',
+  'Education': 'EDUC',
+  'Engineering Sciences': 'ENGS',
+  'French and Italian in Translation': 'FRIT',
+  'Greek': 'GRK',
+  'Hebrew': 'HEBR',
+  'Humanities': 'HUM',
+  'International Studies': 'INTL',
+  'Italian': 'ITAL',
+  'Jewish Studies': 'JWST',
+  'Latin American and Caribbean Studies': 'LACS',
+  'Latin': 'LAT',
+  'Latino Studies': 'LATS',
+  'Linguistics': 'LING',
+  'Native American Studies': 'NAS',
+  'Public Policy': 'PBPL',
+  'Portuguese': 'PORT',
+  'Quantitative Social Science': 'QSS',
+  'Russian Language and Literature': 'RUSS',
+  'Studio Art': 'SART',
+  'Speech': 'SPCM',
+  'Social Science': 'SSC',
+  'Tuck Undergraduate Courses': 'TUC',
+  'Writing Courses': 'WRIT',
+  // Adding missing majors from CompleteProfilePage.jsx
+  'Asian Societies, Cultures, and Languages': 'ASCL',
+  'Biochemistry': 'CHEM',
+  'Biomedical Engineering': 'ENGS',
+  'Chinese Language and Literature': 'CHIN',
+  'Classical Languages and Literature': 'CLST',
+  'Classical Studies': 'CLST',
+  'Cognitive Science': 'COGS',
+  'Human-Centered Design': 'HCD',
+  'Japanese Language and Literature': 'JAPN',
+  'Middle Eastern Studies': 'MES',
+  'Neuroscience': 'NSCI',
+  'Political Science': 'GOVT',
+  'Russian Language and Literature': 'RUSS',
+  'Womens, Gender, and Sexuality Studies': 'WGSS',
+  'Undecided': 'UNDEC',
+  'Graduate Student- MEM, etc.': 'GRAD',
+  
+  // Common abbreviations and alternative names
+  'CS': 'COSC',
+  'Comp Sci': 'COSC',
+  'CompSci': 'COSC',
+  'Compsci': 'COSC',
+  'COSC': 'COSC',
+  'Econ': 'ECON',
+  'Math': 'MATH',
+  'Maths': 'MATH',
+  'Geo': 'GEOG',
+  'Engs': 'ENGS',
+  'Govt': 'GOVT',
+  'Gov': 'GOVT',
+  'Poli Sci': 'GOVT',
+  'PoliSci': 'GOVT',
+  'Psych': 'PSYC',
+  'Psychology': 'PSYC',
+  'PBS': 'PSYC',
+  'Envs': 'ENVS',
+  'Bio': 'BIOL',
+  'Chem': 'CHEM',
+  'Organic Chemistry': 'CHEM',
+  'Phys': 'PHYS',
+  'Eng': 'ENGL',
+  'Lit': 'ENGL',
+  'Literature': 'ENGL',
+  'Hist': 'HIST',
+  'Phil': 'PHIL',
+  'Soc': 'SOCY',
+  'Anthro': 'ANTH',
+  'Art': 'ARTH',
+  'Films': 'FILM',
+  'Cinema': 'FILM',
+  'Media Studies': 'FILM',
+  'German': 'GERM',
+  'Italian': 'ITAL',
+  'Religious Studies': 'REL',
+  'Astro': 'ASTR',
+  'BME': 'ENGS',
+  'Biomed': 'ENGS',
+  'Bioengineering': 'ENGS',
+  'Cog Sci': 'COGS',
+  'CogSci': 'COGS',
+  'HCD': 'HCD',
+  'Design': 'HCD',
+  'Neuro': 'NSCI',
+  'WGSS': 'WGSS',
+  'Gender Studies': 'WGSS',
+  'Women Studies': 'WGSS',
+  'MEM': 'GRAD',
+  'Masters': 'GRAD',
+  'PhD': 'GRAD',
+  'QSS': 'QSS',
+  'Data Science': 'QSS',
+  'Statistics': 'MATH',
+  'Stats': 'MATH'
 };
 
 /**
@@ -146,11 +252,21 @@ const getAllDepartmentOptions = () => {
   const sortedEntries = Object.entries(majorToDepartmentMap)
     .sort(([majorA], [majorB]) => majorA.localeCompare(majorB));
   
-  // Convert to options format for dropdown selectors
-  return sortedEntries.map(([major, code]) => ({
-    label: `${major} (${code})`,
-    value: code
-  }));
+  // Deduplicate by department code (value)
+  const uniqueDeptCodes = new Set();
+  const uniqueOptions = [];
+  
+  for (const [major, code] of sortedEntries) {
+    if (!uniqueDeptCodes.has(code)) {
+      uniqueDeptCodes.add(code);
+      uniqueOptions.push({
+        label: `${major} (${code})`,
+        value: code
+      });
+    }
+  }
+  
+  return uniqueOptions;
 };
 
 /**
@@ -180,6 +296,19 @@ const getPopularDepartments = (limit = 8) => {
   });
 };
 
+/**
+ * Checks if a string is a valid department code
+ * @param {string} code - The string to check
+ * @returns {boolean} True if the string is a valid department code
+ */
+const isDepartmentCode = (code) => {
+  if (!code) return false;
+  
+  // Check if the code is in the values of the majorToDepartmentMap
+  const departmentCodes = new Set(Object.values(majorToDepartmentMap));
+  return departmentCodes.has(code);
+};
+
 export {
   getMajorDepartmentCode,
   applySorting,
@@ -187,5 +316,11 @@ export {
   hasProfessorsFromDepartment,
   majorToDepartmentMap,
   getAllDepartmentOptions,
-  getPopularDepartments
+  getPopularDepartments,
+  isDepartmentCode
 }
+
+// Uncomment these lines for debugging:
+// console.log("DEBUG TEST - CS maps to:", getMajorDepartmentCode("CS"));
+// console.log("DEBUG TEST - Computer Science maps to:", getMajorDepartmentCode("Computer Science"));
+// console.log("DEBUG TEST - CompSci maps to:", getMajorDepartmentCode("CompSci"));
