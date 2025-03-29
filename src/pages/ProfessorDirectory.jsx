@@ -4,6 +4,12 @@ import { Mail, Search } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { 
+  getMajorDepartmentCode, 
+  applySorting, 
+  filterByMinReviews,
+  hasProfessorsFromDepartment 
+} from '../algorithms/professorMatching';
 
 const LoadingSpinner = ({ darkMode }) => (
   <div
@@ -317,65 +323,6 @@ const ProfessorDirectory = ({ darkMode }) => {
     fetchUserMajor();
   }, [currentUser]);
 
-  // Enhanced major to department mapping
-  const getMajorDepartmentCode = (major) => {
-    if (!major) return null;
-    
-    // More comprehensive mapping from majors to department codes
-    const majorToDeptMap = {
-      'Computer Science': 'COSC',
-      'Economics': 'ECON',
-      'Mathematics': 'MATH',
-      'Geography': 'GEOG',
-      'Engineering': 'ENGS',
-      'Government': 'GOVT',
-      'Psychological and Brain Sciences': 'PSYC',
-      'Environmental Studies': 'ENVS',
-      'Biology': 'BIOL',
-      'Chemistry': 'CHEM',
-      'Physics': 'PHYS',
-      'English': 'ENGL',
-      'History': 'HIST',
-      'Philosophy': 'PHIL',
-      'Sociology': 'SOCY',
-      'Anthropology': 'ANTH',
-      'Art History': 'ARTH',
-      'Classics': 'CLST',
-      'Earth Sciences': 'EARS',
-      'Religion': 'REL',
-      'Film and Media Studies': 'FILM',
-      'French': 'FREN',
-      'German Studies': 'GERM',
-      'Italian Studies': 'ITAL',
-      'Japanese': 'JAPN',
-      'Spanish': 'SPAN',
-      'Music': 'MUS',
-      'Theater': 'THEA',
-      'Women\'s, Gender, and Sexuality Studies': 'WGSS'
-    };
-    
-    // Try direct mapping first
-    if (majorToDeptMap[major]) {
-      return majorToDeptMap[major];
-    }
-    
-    // Better fallback strategy:
-    // 1. Try to match any part of the major with known department codes
-    const majorWords = major.toLowerCase().split(/\s+/);
-    for (const word of majorWords) {
-      // Check if any word in the major matches the start of a department code
-      for (const [knownMajor, deptCode] of Object.entries(majorToDeptMap)) {
-        if (knownMajor.toLowerCase().includes(word) && word.length > 2) {
-          return deptCode;
-        }
-      }
-    }
-    
-    // 2. If still no match, try to extract first 4 characters and uppercase
-    const deptCode = major.substring(0, 4).toUpperCase();
-    return deptCode;
-  };
-
   const fetchInitialProfessors = useCallback(async (selectedSort = sortBy, reviewThreshold = minReviews) => {
     try {
       setLoading(true);
@@ -405,14 +352,12 @@ const ProfessorDirectory = ({ darkMode }) => {
             }));
             
             // Apply filters to the department-specific results
-            professorsData = professorsData.filter(prof => 
-              (prof.overall_metrics?.review_count || 0) >= reviewThreshold
-            );
+            professorsData = filterByMinReviews(professorsData, reviewThreshold);
             
             // If we have enough professors after filtering, we can skip the fallback query
             if (professorsData.length >= 6) {
               // Apply sorting based on selected option
-              applySorting(professorsData, selectedSort);
+              professorsData = applySorting(professorsData, selectedSort);
               professorsData = professorsData.slice(0, 12);
               
               setProfessors(professorsData);
@@ -460,7 +405,7 @@ const ProfessorDirectory = ({ darkMode }) => {
       }));
 
       // Apply sorting if needed
-      applySorting(professorsData, selectedSort);
+      professorsData = applySorting(professorsData, selectedSort);
       professorsData = professorsData.slice(0, 12);
 
       setProfessors(professorsData);
@@ -471,32 +416,6 @@ const ProfessorDirectory = ({ darkMode }) => {
       setLoading(false);
     }
   }, [sortBy, minReviews, userMajor, searchQuery]);
-
-  // Helper function to apply sorting consistently
-  const applySorting = (data, selectedSort) => {
-    if (selectedSort === SORT_OPTIONS.RANDOM) {
-      data.sort(() => Math.random() - 0.5);
-    } else if (selectedSort === SORT_OPTIONS.REVIEW_COUNT) {
-      data.sort((a, b) => {
-        const countA = a.overall_metrics?.review_count || 0;
-        const countB = b.overall_metrics?.review_count || 0;
-        return countB - countA;
-      });
-    } else if (selectedSort === SORT_OPTIONS.DIFFICULTY) {
-      data.sort((a, b) => {
-        const scoreA = a.overall_metrics?.difficulty_score || 0;
-        const scoreB = b.overall_metrics?.difficulty_score || 0;
-        return scoreA - scoreB; // Lower difficulty first (easier classes)
-      });
-    } else if (selectedSort.field) {
-      data.sort((a, b) => {
-        const scoreA = a.overall_metrics?.[selectedSort.field] || 0;
-        const scoreB = b.overall_metrics?.[selectedSort.field] || 0;
-        return scoreB - scoreA;
-      });
-    }
-    return data;
-  };
 
   // The useEffects now correctly use the memoized callback
   // Initial load when user major is available
@@ -560,10 +479,7 @@ const ProfessorDirectory = ({ darkMode }) => {
       if (userMajor && professors.length > 0) {
         // Check if at least one professor has the user's department
         const deptCode = getMajorDepartmentCode(userMajor);
-        const hasMajorProfs = professors.some(prof => 
-          prof.departments && prof.departments[deptCode]
-        );
-        setShowingMajorSpecific(hasMajorProfs);
+        setShowingMajorSpecific(hasProfessorsFromDepartment(professors, deptCode));
       } else {
         setShowingMajorSpecific(false);
       }
