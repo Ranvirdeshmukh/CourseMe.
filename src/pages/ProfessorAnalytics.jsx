@@ -41,15 +41,8 @@ const getComparisonColor = (score, average, darkMode = false) => {
 
 /** Returns a small text label describing how far above or below the average we are */
 const getComparisonText = (score, average) => {
-  if (!average) return null;
-  const diff = score - average;
-  const absDiff = Math.abs(diff).toFixed(1);
-  
-  if (diff > 15) return `${absDiff}% above average`;
-  if (diff > 5)  return `${absDiff}% higher`;
-  if (diff > -5) return 'About average';
-  if (diff > -15)return `${absDiff}% lower`;
-  return `${absDiff}% below average`;
+  // Return null in all cases to remove confusing comparison labels
+  return null;
 };
 
 /**
@@ -222,6 +215,13 @@ const ScoreIndicator = ({
               ))}
             </div>
           </div>
+
+          {/* Remove any additional percentage labels that might be showing up */}
+          <style jsx>{`
+            .comparison-text, .percentage-label, .above-average-text {
+              display: none !important;
+            }
+          `}</style>
 
           {/* Current Score Marker */}
           <div 
