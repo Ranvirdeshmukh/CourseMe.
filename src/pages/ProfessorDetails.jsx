@@ -152,43 +152,65 @@ const LoadingState = ({ darkMode }) => (
 /* ===========================
    AISummary Component
    =========================== */
-const AISummary = ({ summary, courseId, professorId, professorName }) => {
+const AISummary = ({ summary, courseId, professorId, professorName, darkMode }) => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   return (
     <div className="mt-6">
-      <div className="p-4 bg-gradient-to-r from-[#F5F5F7] to-white rounded-2xl border border-[#E8E8ED]">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 relative group">
-            <Sparkles className="w-5 h-5 text-[#0071E3]" />
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-white/80 backdrop-blur-xl rounded-xl shadow-lg text-xs text-[#1D1D1F] border border-[#E8E8ED]">
-              <div className="text-center">
-                AI-generated summary based on student reviews
-              </div>
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rotate-45 border-r border-b border-[#E8E8ED]" />
-            </div>
-          </div>
-          <div className="flex-1">
-            <p className="text-sm text-[#1D1D1F] leading-relaxed">{summary}</p>
-          </div>
-          {!isSubmitted && (
-            <button
-              onClick={() => setIsReportModalOpen(true)}
-              className="flex-shrink-0 text-[#98989D] hover:text-[#FF3B30] transition-colors"
-              title="Report inaccurate summary"
-            >
-              <Flag className="w-4 h-4" />
-            </button>
-          )}
+      <div className="mb-3 flex justify-between items-center">
+        <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+          Summary of Student Feedback
+        </h3>
+        {!isSubmitted && (
+          <button
+            onClick={() => setIsReportModalOpen(true)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-colors ${
+              darkMode 
+                ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+            title="Report inaccurate summary"
+          >
+            <Flag className="w-3 h-3" />
+            <span>Report Issue</span>
+          </button>
+        )}
+      </div>
+      
+      <div className={`p-4 relative ${
+        darkMode 
+          ? 'bg-gradient-to-r from-[#252a51] to-[#282c54] rounded-xl border border-[#343b6d]' 
+          : 'bg-gradient-to-r from-[#F5F5F7] to-white rounded-xl border border-[#E8E8ED]'
+      }`}>
+        <div className="absolute -top-3 left-3 px-2 py-0.5 rounded-md text-xs font-medium flex items-center gap-1"
+          style={darkMode ? 
+            { background: 'linear-gradient(135deg, #3b4ee8, #6366f1)', color: 'white' } : 
+            { background: 'linear-gradient(135deg, #6366f1, #818cf8)', color: 'white' }
+          }
+        >
+          <Sparkles className="w-3 h-3" />
+          <span>AI Generated</span>
+        </div>
+        
+        <div className="pt-1">
+          <p className={`text-sm leading-relaxed ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+            {summary}
+          </p>
         </div>
       </div>
+      
+      <div className={`mt-2 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+        This summary is automatically generated based on student reviews and may not be perfectly accurate.
+      </div>
+      
       <ReportSummaryModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
         courseId={courseId}
         professorId={professorId}
         professorName={professorName}
+        darkMode={darkMode}
         onSubmit={() => {
           setIsSubmitted(true);
           setIsReportModalOpen(false);
@@ -201,247 +223,244 @@ const AISummary = ({ summary, courseId, professorId, professorName }) => {
 /* ===========================
    CourseCard Component
    =========================== */
-// <-- ADDED 'darkMode' as a prop
-/* ===========================
-   CourseCard Component
-   =========================== */
-   const CourseCard = ({ course, professorId, professorName, darkMode }) => {
-    const hasReviews = course.metrics.review_count > 0;
-    const [isExpanded, setIsExpanded] = useState(false);
-    const navigate = useNavigate();
-    const [courseDocId, setCourseDocId] = useState(null);
-    const [courseDepartment, setCourseDepartment] = useState(null);
-    
-    // Use the same approach as ProfessorAnalytics to find the courseDocId
-    useEffect(() => {
-      const fetchCourseDocId = async () => {
-        if (!course.courseId) return;
-        try {
-          const db = getFirestore();
-          const normalizedId = normalizeCourseId(course.courseId);
+const CourseCard = ({ course, professorId, professorName, darkMode, isExpanded = false }) => {
+  const hasReviews = course.metrics.review_count > 0;
+  const [isExpandedState, setIsExpanded] = useState(isExpanded);
+  const navigate = useNavigate();
+  const [courseDocId, setCourseDocId] = useState(null);
+  const [courseDepartment, setCourseDepartment] = useState(null);
+  
+  // When the outer isExpanded prop changes, update our internal state
+  useEffect(() => {
+    setIsExpanded(isExpanded);
+  }, [isExpanded]);
+
+  // Use the same approach as ProfessorAnalytics to find the courseDocId
+  useEffect(() => {
+    const fetchCourseDocId = async () => {
+      if (!course.courseId) return;
+      try {
+        const db = getFirestore();
+        const normalizedId = normalizeCourseId(course.courseId);
+        
+        if (!normalizedId) {
+          console.error('Invalid course ID format');
+          return;
+        }
+
+        // Set department from the course data or extract it from courseId
+        const dept = course.deptName || course.courseId.match(/([A-Z]+)/)[0];
+        setCourseDepartment(dept);
+
+        // First, try to see if we already have courseDocId from ProfessorAnalytics
+        if (course.fullDocId) {
+          setCourseDocId(course.fullDocId);
+          return;
+        }
+
+        // Otherwise, query Firestore to find the document
+        const coursesRef = collection(db, 'courses');
+        const coursesSnapshot = await getDocs(coursesRef);
+        
+        const matchingDoc = coursesSnapshot.docs.find(doc =>
+          doc.id.startsWith(normalizedId)
+        );
+
+        if (matchingDoc) {
+          setCourseDocId(matchingDoc.id);
+        } else {
+          // As a fallback, try the normalized ID as the doc ID
+          // Check if this document exists
+          const directDocRef = doc(db, 'courses', normalizedId);
+          const directDocSnap = await getDoc(directDocRef);
           
-          if (!normalizedId) {
-            console.error('Invalid course ID format');
-            return;
-          }
-  
-          // Set department from the course data or extract it from courseId
-          const dept = course.deptName || course.courseId.match(/([A-Z]+)/)[0];
-          setCourseDepartment(dept);
-  
-          // First, try to see if we already have courseDocId from ProfessorAnalytics
-          if (course.fullDocId) {
-            setCourseDocId(course.fullDocId);
-            return;
-          }
-  
-          // Otherwise, query Firestore to find the document
-          const coursesRef = collection(db, 'courses');
-          const coursesSnapshot = await getDocs(coursesRef);
-          
-          const matchingDoc = coursesSnapshot.docs.find(doc =>
-            doc.id.startsWith(normalizedId)
-          );
-  
-          if (matchingDoc) {
-            setCourseDocId(matchingDoc.id);
+          if (directDocSnap.exists()) {
+            setCourseDocId(normalizedId);
           } else {
-            // As a fallback, try the normalized ID as the doc ID
-            // Check if this document exists
-            const directDocRef = doc(db, 'courses', normalizedId);
-            const directDocSnap = await getDoc(directDocRef);
-            
-            if (directDocSnap.exists()) {
-              setCourseDocId(normalizedId);
-            } else {
-              // If course name is available, try to construct a potential full ID
-              if (course.name) {
-                const formattedName = course.name.replace(/\s+/g, '_').replace(/[^\w]/g, '');
-                const potentialId = `${normalizedId}_${formattedName}`;
-                
-                // Check if this constructed ID exists
-                const constructedDocRef = doc(db, 'courses', potentialId);
-                const constructedDocSnap = await getDoc(constructedDocRef);
-                
-                if (constructedDocSnap.exists()) {
-                  setCourseDocId(potentialId);
-                }
+            // If course name is available, try to construct a potential full ID
+            if (course.name) {
+              const formattedName = course.name.replace(/\s+/g, '_').replace(/[^\w]/g, '');
+              const potentialId = `${normalizedId}_${formattedName}`;
+              
+              // Check if this constructed ID exists
+              const constructedDocRef = doc(db, 'courses', potentialId);
+              const constructedDocSnap = await getDoc(constructedDocRef);
+              
+              if (constructedDocSnap.exists()) {
+                setCourseDocId(potentialId);
               }
             }
           }
-        } catch (error) {
-          console.error('Error fetching course doc ID:', error);
         }
-      };
+      } catch (error) {
+        console.error('Error fetching course doc ID:', error);
+      }
+    };
+
+    fetchCourseDocId();
+  }, [course.courseId, course.deptName, course.fullDocId, course.name]);
   
-      fetchCourseDocId();
-    }, [course.courseId, course.deptName, course.fullDocId, course.name]);
+  // Utility function from your code
+  const normalizeCourseId = (courseId) => {
+    const match = courseId.match(/([A-Z]+)(\d+.*)/);
+    if (!match) return null;
+
+    const [_, dept, number] = match;
+    const parts = number.split('.');
+    const baseNumber = parts[0].padStart(3, '0');
+    const section = parts[1];
     
-    // Utility function from your code
-    const normalizeCourseId = (courseId) => {
-      const match = courseId.match(/([A-Z]+)(\d+.*)/);
-      if (!match) return null;
-  
-      const [_, dept, number] = match;
-      const parts = number.split('.');
-      const baseNumber = parts[0].padStart(3, '0');
-      const section = parts[1];
+    if (section) {
+      return `${dept}_${dept}${baseNumber}_${section.padStart(2, '0')}`;
+    } else {
+      return `${dept}_${dept}${baseNumber}__`;
+    }
+  };
+
+  // Handle navigation to course reviews page with professor param
+  const handleSeeReviews = (e) => {
+    e.stopPropagation(); // Prevent toggling the card expansion
+    
+    if (courseDocId && courseDepartment) {
+      // Capitalize first letter of each word in professor name
+      const formattedProfessorName = professorName
+        .split(' ')
+        .map(name => name.charAt(0).toUpperCase() + name.slice(1))
+        .join(' ');
       
-      if (section) {
-        return `${dept}_${dept}${baseNumber}_${section.padStart(2, '0')}`;
-      } else {
-        return `${dept}_${dept}${baseNumber}__`;
-      }
-    };
-  
-    // Handle navigation to course reviews page with professor param
-    const handleSeeReviews = (e) => {
-      e.stopPropagation(); // Prevent toggling the card expansion
-      
-      if (courseDocId && courseDepartment) {
-        // Capitalize first letter of each word in professor name
-        const formattedProfessorName = professorName
-          .split(' ')
-          .map(name => name.charAt(0).toUpperCase() + name.slice(1))
-          .join(' ');
-        
-        // Navigate to the course page with the professor parameter
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        navigate(`/departments/${courseDepartment}/courses/${courseDocId}/professors/${encodeURIComponent(formattedProfessorName)}`);
-      } else {
-        console.error('Course document ID or department not found');
-      }
-    };
-  
-    return (
+      // Navigate to the course page with the professor parameter
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      navigate(`/departments/${courseDepartment}/courses/${courseDocId}/professors/${encodeURIComponent(formattedProfessorName)}`);
+    } else {
+      console.error('Course document ID or department not found');
+    }
+  };
+
+  return (
+    <div
+      className={`rounded-xl border transition-all duration-300 ${
+        darkMode
+          ? 'bg-[#1C1F43] text-white border-[#332F56] hover:scale-[1.005]'
+          : 'bg-white/80 text-[#1D1D1F] border-[#E8E8ED] hover:scale-[1.005]'
+      }`}
+    >
       <div
-        className={`rounded-2xl border transition-all duration-300 ${
-          darkMode
-            ? 'bg-[#1C1F43] text-white border-[#332F56] hover:scale-[1.01]'
-            : 'bg-white/80 text-[#1D1D1F] border-[#E8E8ED] hover:scale-[1.01]'
-        }`}
+        className="p-5 cursor-pointer flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+        onClick={() => hasReviews && setIsExpanded(!isExpandedState)}
       >
-        <div
-          className="p-6 cursor-pointer flex items-start justify-between"
-          onClick={() => hasReviews && setIsExpanded(!isExpanded)}
-        >
-          <div>
-            <div className="flex items-center gap-2">
-              <h3
-                className={`text-lg font-semibold ${
-                  darkMode ? 'text-white' : 'text-[#1D1D1F]'
-                }`}
-              >
-                {course.courseId}
-              </h3>
-              <span
-                className={`text-sm ${
-                  darkMode ? 'text-gray-400' : 'text-[#86868B]'
-                }`}
-              >
-                ({course.deptName})
-              </span>
-            </div>
-            <p
-              className={`mt-1 ${
-                darkMode ? 'text-gray-300' : 'text-[#1D1D1F]'
+        <div>
+          <div className="flex items-center gap-2">
+            <h3
+              className={`text-base font-medium ${
+                darkMode ? 'text-white' : 'text-[#1D1D1F]'
               }`}
             >
-              {course.name}
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {/* Add See Reviews button here */}
-            {hasReviews && (
-              <button
-                onClick={handleSeeReviews}
-                className={`
-                  px-3 py-1.5 text-sm font-medium rounded-full transition-colors
-                  ${darkMode 
-                    ? 'text-indigo-200 bg-indigo-900 hover:bg-indigo-800' 
-                    : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'}
-                `}
-              >
-                See Reviews
-              </button>
-            )}
+              {course.courseId}
+            </h3>
             <span
-              className={`px-4 py-1.5 rounded-full text-sm font-medium ${
-                hasReviews
-                  ? darkMode
-                    ? 'bg-[#0071E3]/20 text-[#0071E3]'
-                    : 'bg-[#0071E3]/10 text-[#0071E3]'
-                  : darkMode
-                  ? 'bg-[#24273c] text-gray-500'
-                  : 'bg-[#F5F5F7] text-[#86868B]'
-              }`}
-            >
-              {course.metrics.review_count}{' '}
-              {course.metrics.review_count === 1 ? 'Review' : 'Reviews'}
-            </span>
-            {hasReviews && (
-              <div
-                className={`transition-colors ${
-                  darkMode
-                    ? 'text-gray-400 hover:text-white'
-                    : 'text-[#86868B] hover:text-[#1D1D1F]'
-                }`}
-              >
-                {isExpanded ? (
-                  <ChevronUp size={20} />
-                ) : (
-                  <ChevronDown size={20} />
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-  
-        {!hasReviews && (
-          <div className="px-6 pb-6 text-center">
-            <div
-              className={`flex items-center justify-center py-4 text-sm ${
+              className={`text-sm ${
                 darkMode ? 'text-gray-400' : 'text-[#86868B]'
               }`}
             >
-              <Info className="w-4 h-4 mr-2" />
-              No reviews available for this course yet
-            </div>
+              {course.deptName}
+            </span>
           </div>
-        )}
-  
-        {hasReviews && isExpanded && (
-          <div
-            className={`px-6 pb-6 ${
-              darkMode ? 'bg-[#2A2E47] text-white' : 'bg-white text-[#1D1D1F]'
+          <p
+            className={`mt-1 text-sm ${
+              darkMode ? 'text-gray-300' : 'text-[#1D1D1F]'
             }`}
           >
-            <div className="pt-4 border-t">
-              <ProfessorAnalytics
-                analysis={course.metrics}
+            {course.name}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {hasReviews && (
+            <button
+              onClick={handleSeeReviews}
+              className={`
+                px-3 py-1 text-xs font-medium rounded-full transition-colors
+                ${darkMode 
+                  ? 'text-indigo-200 bg-indigo-900 hover:bg-indigo-800' 
+                  : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'}
+              `}
+            >
+              See Reviews
+            </button>
+          )}
+          <div 
+            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+              hasReviews
+                ? darkMode
+                  ? 'bg-[#0071E3]/20 text-[#0071E3]'
+                  : 'bg-[#0071E3]/10 text-[#0071E3]'
+                : darkMode
+                ? 'bg-[#24273c] text-gray-500'
+                : 'bg-[#F5F5F7] text-[#86868B]'
+            }`}
+          >
+            <span>{course.metrics.review_count}</span>
+            <span>{course.metrics.review_count === 1 ? 'Review' : 'Reviews'}</span>
+          </div>
+          {hasReviews && (
+            <button
+              className={`transition-colors p-1 rounded-full ${
+                darkMode
+                  ? 'text-gray-300 hover:bg-gray-800'
+                  : 'text-gray-500 hover:bg-gray-100'
+              }`}
+            >
+              {isExpandedState ? (
+                <ChevronUp size={16} />
+              ) : (
+                <ChevronDown size={16} />
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {hasReviews && isExpandedState && (
+        <div
+          className={`px-5 pb-5 border-t ${
+            darkMode ? 'border-[#332F56] bg-[#1A1D3D]' : 'border-gray-100'
+          }`}
+        >
+          <div className="pt-4">
+            <ProfessorAnalytics
+              analysis={course.metrics}
+              courseId={course.courseId}
+              darkMode={darkMode}
+            />
+            {course.summary && (
+              <AISummary
+                summary={course.summary}
                 courseId={course.courseId}
+                professorId={professorId}
+                professorName={professorName}
                 darkMode={darkMode}
               />
-              {course.summary && (
-                <AISummary
-                  summary={course.summary}
-                  courseId={course.courseId}
-                  professorId={professorId}
-                  professorName={professorName}
-                />
-              )}
-            </div>
+            )}
           </div>
-        )}
-      </div>
-    );
-  };
-  
+        </div>
+      )}
+      
+      {!hasReviews && (
+        <div className="px-5 pb-3 flex items-center gap-1.5 text-xs">
+          <Info className={`w-3 h-3 ${
+            darkMode ? 'text-gray-400' : 'text-gray-500'
+          }`} />
+          <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
+            No reviews available
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
 
 /* ===========================
    CoursesSection Component
    =========================== */
-// <-- ADDED 'darkMode' as a prop here too
 const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [expandAll, setExpandAll] = useState(false);
@@ -458,22 +477,30 @@ const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
     return true;
   });
 
+  // Count how many courses have reviews
+  const coursesWithReviews = sortedCourses.filter(course => course.metrics.review_count > 0).length;
+  
   return (
     <div
       className={`transition-all duration-300 ${
         darkMode ? 'bg-[#1C1F43] text-white' : 'bg-white text-[#1D1D1F]'
       } p-6 rounded-2xl shadow-lg`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-        <h2
-          className={`text-2xl font-semibold ${
-            darkMode ? 'text-white' : 'text-[#1D1D1F]'
-          }`}
-        >
-          Courses
-        </h2>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2
+            className={`text-2xl font-semibold ${
+              darkMode ? 'text-white' : 'text-[#1D1D1F]'
+            }`}
+          >
+            Courses Taught
+          </h2>
+          <p className={`text-sm mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            {courses.length} {courses.length === 1 ? 'course' : 'courses'} • {coursesWithReviews} with reviews
+          </p>
+        </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div
             className={`flex rounded-full border ${
               darkMode
@@ -482,9 +509,9 @@ const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
             } p-1`}
           >
             {[
-              { id: 'all', label: 'All Courses' },
+              { id: 'all', label: 'All' },
               { id: 'reviewed', label: 'With Reviews' },
-              { id: 'unreviewed', label: 'Without Reviews' },
+              { id: 'unreviewed', label: 'No Reviews' },
             ].map(filter => (
               <button
                 key={filter.id}
@@ -506,10 +533,10 @@ const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
 
           <button
             onClick={() => setExpandAll(!expandAll)}
-            className={`text-sm transition-colors ${
+            className={`text-sm transition-colors px-4 py-1.5 rounded-lg ${
               darkMode
-                ? 'text-gray-400 hover:text-white'
-                : 'text-[#86868B] hover:text-[#1D1D1F]'
+                ? 'text-gray-200 bg-gray-800/50 hover:bg-gray-800'
+                : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
             }`}
           >
             {expandAll ? 'Collapse All' : 'Expand All'}
@@ -517,17 +544,26 @@ const CoursesSection = ({ courses, professorId, professorName, darkMode }) => {
         </div>
       </div>
 
-      <div className="grid gap-4">
-        {filteredCourses.map(course => (
-          <CourseCard
-            key={course.courseId}
-            course={course}
-            professorId={professorId}
-            professorName={professorName}
-            darkMode={darkMode} // <-- pass darkMode here
-          />
-        ))}
-      </div>
+      {filteredCourses.length === 0 ? (
+        <div className={`p-8 text-center rounded-lg ${
+          darkMode ? 'bg-[#1a1d3d] text-gray-300' : 'bg-gray-50 text-gray-600'
+        }`}>
+          <p>No courses match the selected filter.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {filteredCourses.map(course => (
+            <CourseCard
+              key={course.courseId}
+              course={course}
+              professorId={professorId}
+              professorName={professorName}
+              darkMode={darkMode}
+              isExpanded={expandAll}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -640,6 +676,31 @@ const ProfessorDetails = ({ darkMode = false }) => {
               <h1 className="text-4xl font-semibold">{professor.name}</h1>
               <DisplayTitle title={professor.contact_info?.title} />
               <ContactInfo info={professor.contact_info} darkMode={darkMode} />
+
+              {/* Quick stats badges if available */}
+              {hasAnalytics && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    darkMode ? 'bg-indigo-900/40 text-indigo-300' : 'bg-indigo-50 text-indigo-700'
+                  }`}>
+                    {professor.overall_metrics.review_count} {professor.overall_metrics.review_count === 1 ? 'Review' : 'Reviews'}
+                  </div>
+                  {professor.overall_metrics.quality_score >= 70 && (
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      darkMode ? 'bg-green-900/40 text-green-300' : 'bg-green-50 text-green-700'
+                    }`}>
+                      Highly Rated
+                    </div>
+                  )}
+                  {(100 - professor.overall_metrics.difficulty_score) >= 70 && (
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      darkMode ? 'bg-blue-900/40 text-blue-300' : 'bg-blue-50 text-blue-700'
+                    }`}>
+                      Student Friendly
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -654,13 +715,18 @@ const ProfessorDetails = ({ darkMode = false }) => {
             }`}
           >
             <div className="space-y-6">
-              <h2 className="text-2xl font-semibold">Overall Analytics</h2>
-              <h3 className="text-1xl font-semibold">
-                *Note metrics are AI generated and may not be entirely accurate
-              </h3>
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold">Performance Metrics</h2>
+                <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs ${
+                  darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'
+                }`}>
+                  <Info className="w-3.5 h-3.5" />
+                  <span>AI-generated</span>
+                </div>
+              </div>
               <ProfessorAnalytics
                 analysis={professor.overall_metrics}
-                darkMode={darkMode} // Pass dark mode
+                darkMode={darkMode}
               />
             </div>
           </div>
@@ -696,9 +762,26 @@ const ProfessorDetails = ({ darkMode = false }) => {
               <p className="text-lg font-medium">
                 No courses found for this professor
               </p>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                We don't have information about courses taught by this professor yet.
+              </p>
             </div>
           </div>
         )}
+        
+        {/* How this page works - help text */}
+        <div className={`p-6 rounded-2xl border ${
+          darkMode
+            ? 'bg-[#1C1F43]/80 text-white border-[#332F56]'
+            : 'bg-white/80 text-[#1D1D1F] border-[#E8E8ED]'
+        }`}>
+          <h3 className={`text-lg font-medium mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+            About This Page
+          </h3>
+          <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            All metrics are AI-generated from student reviews. Click any course to view details and course-specific ratings.
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -708,7 +791,7 @@ const ProfessorDetails = ({ darkMode = false }) => {
 /* ===========================
    ReportSummaryModal Component
    =========================== */
-   const ReportSummaryModal = ({ isOpen, onClose, courseId, professorId, professorName, onSubmit, darkMode }) => {
+   const ReportSummaryModal = ({ isOpen, onClose, courseId, professorId, professorName, darkMode, onSubmit }) => {
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');

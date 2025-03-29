@@ -119,20 +119,20 @@ const ScoreIndicator = ({
   // Sub text color
   const subTextColor = darkMode ? 'text-gray-400' : 'text-gray-600';
   // The "bar track" color behind the bar
-  const barTrackColor = darkMode ? 'bg-gray-700' : 'bg-gray-100';
+  const barTrackColor = darkMode ? 'bg-gray-700/70' : 'bg-gray-100';
   // The small vertical lines in the range
-  const rangeLineColor = darkMode ? 'bg-gray-500' : 'bg-gray-200';
+  const rangeLineColor = darkMode ? 'bg-gray-600' : 'bg-gray-300';
   // The text color for the range labels
-  const rangeTextColor = darkMode ? 'text-gray-300' : 'text-gray-400';
+  const rangeTextColor = darkMode ? 'text-gray-300' : 'text-gray-500';
 
-  // If no score or no reviews, don’t show
+  // If no score or no reviews, don't show
   if (!score || reviewCount === 0) return null;
 
   // Figure out which label to display next to the numeric score
   const getCurrentRange = (value) => {
-    return interpretations
-      .reduce((prev, curr) => (value >= curr.threshold ? curr : prev), interpretations[0])
-      .label;
+    const foundInterpretation = interpretations
+      .find(item => value >= item.threshold && value < (item.threshold + 25)) || interpretations[4];
+    return foundInterpretation.label;
   };
 
   const comparisonColor = getComparisonColor(score, averageScore, darkMode);
@@ -151,9 +151,9 @@ const ScoreIndicator = ({
 
   return (
     <div className="space-y-3">
-      {/* Top row: Label, comparison chip, numeric score */}
+      {/* Top row: Label, comparison chip, numeric score - now removed since we show label in the parent component */}
       <div className="flex justify-between items-center">
-        <span className={`text-sm font-medium ${labelTextColor}`}>{label}</span>
+        <span className="hidden">{label}</span>
 
         <div className="flex items-center gap-3">
           {/* Chip showing "X% above average" etc. */}
@@ -174,8 +174,8 @@ const ScoreIndicator = ({
             </span>
           )}
 
-          {/* Numeric score + label */}
-          <div className="flex items-center gap-1.5">
+          {/* Numeric score + label - hidden since we show score in the parent component */}
+          <div className="flex items-center gap-1.5 hidden">
             <span className={`text-sm ${subTextColor}`}>
               {score.toFixed(1)}
               <span className={`text-xs ${rangeTextColor} hidden sm:inline`}>
@@ -188,12 +188,12 @@ const ScoreIndicator = ({
       </div>
       
       {/* The main bar visualization */}
-      <div className="relative h-24">
-        <div className="absolute w-full top-8 px-6">
+      <div className="relative h-16 mt-6">
+        <div className="absolute w-full px-6">
           {/* Background track */}
-          <div className={`w-full h-3 ${barTrackColor} rounded-full relative`}>
+          <div className={`w-full h-4 ${barTrackColor} rounded-full relative`}>
             {/* Range markers */}
-            <div className="absolute w-full top-[-24px] left-0">
+            <div className="absolute w-full top-[-20px] left-0">
               {ranges.map((range, index) => (
                 <div
                   key={index}
@@ -214,19 +214,28 @@ const ScoreIndicator = ({
                           : 'translateX(-50%)'
                   }}
                 >
-                  <div className={`text-xs whitespace-nowrap ${rangeTextColor}`}>
+                  <div className={`text-xs whitespace-nowrap ${rangeTextColor} font-medium`}>
                     {range.label}
                   </div>
-                  <div className={`h-2 w-px ${rangeLineColor} mt-1`} />
+                  <div className={`h-4 w-0.5 ${rangeLineColor} mt-1`} />
                 </div>
               ))}
             </div>
           </div>
 
+          {/* Current Score Marker */}
+          <div 
+            className={`absolute h-6 w-1.5 -top-1 rounded-full bg-white z-10`}
+            style={{ 
+              left: `${score}%`,
+              boxShadow: darkMode ? '0 0 0 2px rgba(255,255,255,0.2)' : '0 0 0 2px rgba(0,0,0,0.1)'
+            }}
+          />
+
           {/* The "comparison" portion of the bar if we have an average */}
           {shouldShowAverage ? (
             <div
-              className={`absolute h-3 ${comparisonColor} rounded-full top-0 transition-all duration-300`}
+              className={`absolute h-4 ${comparisonColor} rounded-full top-0 transition-all duration-300`}
               style={{
                 width: `${Math.abs(score - averageScore)}%`,
                 left: barDirection === 'left' ? `${score}%` : `${averageScore}%`,
@@ -236,7 +245,7 @@ const ScoreIndicator = ({
           ) : (
             // If no average, show a single bar
             <div
-              className={`absolute h-3 bg-indigo-600 rounded-full top-0 transition-all duration-300`}
+              className={`absolute h-4 bg-indigo-600 rounded-full top-0 transition-all duration-300`}
               style={{
                 width: `${score}%`,
                 opacity
@@ -249,15 +258,15 @@ const ScoreIndicator = ({
             <>
               <div
                 className={`
-                  absolute h-6 w-px -top-1.5
-                  ${darkMode ? 'bg-gray-400' : 'bg-gray-400'}
+                  absolute h-7 w-0.5 -top-1.5
+                  ${darkMode ? 'bg-gray-400' : 'bg-gray-500'}
                 `}
                 style={{ left: `${averageScore}%` }}
               />
               <div
                 className={`
-                  absolute text-xs transform -translate-x-1/2 top-8
-                  ${darkMode ? 'text-gray-300' : 'text-gray-500'}
+                  absolute text-xs transform -translate-x-1/2 -top-6 px-1 py-0.5 rounded whitespace-nowrap
+                  ${darkMode ? 'text-white bg-gray-700' : 'text-gray-700 bg-gray-100'}
                 `}
                 style={{ left: `${averageScore}%` }}
               >
@@ -340,18 +349,17 @@ const ProfessorAnalytics = ({
     fetchCourseMetrics();
   }, [courseId]);
 
-  const handleCourseClick = (department, docId) => {
+  const handleCourseClick = (dept, courseId) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    navigate(`/departments/${department}/courses/${docId}`);
+    navigate(`/departments/${dept}/courses/${courseId}`);
   };
 
-  // If no analysis or no reviews, show "No data" message
+  // Extract metrics from the analysis
   const {
-    avg_review_length,
-    difficulty_score,
-    quality_score,
-    review_count = 0,
-    sentiment_score
+    quality_score = 0,
+    difficulty_score = 0,
+    sentiment_score = 0,
+    review_count = 0
   } = analysis || {};
 
   if (!analysis || review_count === 0) {
@@ -386,13 +394,38 @@ const ProfessorAnalytics = ({
     ? 'bg-[#1C1F43] text-white border-[#332F56]'
     : 'bg-white text-gray-900 border-gray-200';
 
+  // Get the quality rating description
+  const getQualityDescription = (score) => {
+    if (score >= 80) return "Clear explanations and engaging teaching style.";
+    if (score >= 60) return "Communicates concepts effectively.";
+    if (score >= 40) return "Adequate teaching methods.";
+    return "May struggle with clear explanations.";
+  };
+
+  // Get the difficulty rating description
+  const getDifficultyDescription = (score) => {
+    const easyScore = 100 - score; // Convert to "ease" score
+    if (easyScore >= 80) return "Manageable workload with approachable assignments.";
+    if (easyScore >= 60) return "Reasonable expectations with moderate challenge.";
+    if (easyScore >= 40) return "Challenging but fair coursework.";
+    return "Rigorous standards with demanding assignments.";
+  };
+
+  // Get the sentiment rating description
+  const getSentimentDescription = (score) => {
+    if (score >= 80) return "Highly positive student feedback.";
+    if (score >= 60) return "Generally favorable reviews.";
+    if (score >= 40) return "Mixed student feedback.";
+    return "Students express some dissatisfaction.";
+  };
+
   return (
     <div className={`rounded-xl shadow-sm border p-6 ${containerClasses}`}>
-      {/* Top section: "Professor Analytics" + # reviews + "View Course" button */}
-      <div className="flex flex-row items-center justify-between pb-4 border-b border-gray-100/40">
+      {/* Top section */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-gray-100/40 gap-3">
         <div className="space-y-1">
           <h3 className="text-lg font-semibold">
-            Professor Analytics
+            Professor Performance
           </h3>
           <p className="text-sm">
             Based on {review_count} student {review_count === 1 ? 'review' : 'reviews'}
@@ -413,10 +446,9 @@ const ProfessorAnalytics = ({
                   : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'}
               `}
             >
-              View Course
+              View Course Details
             </button>
           )}
-          {/* If we got overall metrics from the course, show a "Compared to course average" chip */}
           {courseMetrics && (
             <div
               className={`
@@ -430,54 +462,131 @@ const ProfessorAnalytics = ({
                 className={darkMode ? 'w-4 h-4 text-gray-300' : 'w-4 h-4 text-gray-400'}
               />
               <span className={darkMode ? 'text-sm text-gray-200' : 'text-sm text-gray-600'}>
-                Compared to course average
+                vs. Course Average
               </span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Bottom: Score bars */}
-      <div className="space-y-12 mt-6">
+      {/* Introduction */}
+      <div className={`mt-4 p-3 rounded-lg ${darkMode ? 'bg-[#242659]' : 'bg-indigo-50'}`}>
+        <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          Metrics calculated from student reviews. Higher scores always better. Bars show how this professor compares to others teaching the same course.
+        </p>
+      </div>
+
+      {/* Score bars */}
+      <div className="space-y-10 mt-8">
         {/* Teaching Quality */}
-        <ScoreIndicator
-          score={quality_score}
-          averageScore={courseMetrics?.quality_score}
-          label="Teaching Quality"
-          interpretations={qualityInterpretations}
-          reviewCount={review_count}
-          showCourseAvg={true}
-          darkMode={darkMode}
-        />
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <div>
+              <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                Quality: 
+              </span>
+              <span className={`ml-2 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                {getQualityDescription(quality_score)}
+              </span>
+            </div>
+            <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${
+              quality_score >= 75 ? (darkMode ? 'bg-green-900/40 text-green-300' : 'bg-green-100 text-green-700') :
+              quality_score >= 50 ? (darkMode ? 'bg-blue-900/40 text-blue-300' : 'bg-blue-100 text-blue-700') :
+              quality_score >= 25 ? (darkMode ? 'bg-yellow-900/40 text-yellow-300' : 'bg-yellow-100 text-yellow-700') :
+              (darkMode ? 'bg-red-900/40 text-red-300' : 'bg-red-100 text-red-700')
+            }`}>
+              {quality_score.toFixed(1)} / 100
+            </span>
+          </div>
+          <ScoreIndicator
+            score={quality_score}
+            averageScore={courseMetrics?.quality_score}
+            label=""
+            interpretations={qualityInterpretations}
+            reviewCount={review_count}
+            showCourseAvg={true}
+            darkMode={darkMode}
+          />
+        </div>
 
         {/* Teacher Difficulty (inverted) */}
-        <ScoreIndicator
-          score={100 - difficulty_score}
-          averageScore={
-            courseMetrics?.difficulty_score !== undefined
-              ? 100 - courseMetrics.difficulty_score
-              : undefined
-          }
-          label="Teacher Difficulty"
-          interpretations={difficultyInterpretations}
-          reviewCount={review_count}
-          showCourseAvg={true}
-          courseDocId={courseDocId}
-          courseDept={courseDepartment}
-          onCourseClick={handleCourseClick}
-          darkMode={darkMode}
-        />
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <div>
+              <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                Difficulty: 
+              </span>
+              <span className={`ml-2 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                {getDifficultyDescription(difficulty_score)} <span className="italic text-xs">(Higher = Easier)</span>
+              </span>
+            </div>
+            <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${
+              (100-difficulty_score) >= 75 ? (darkMode ? 'bg-green-900/40 text-green-300' : 'bg-green-100 text-green-700') :
+              (100-difficulty_score) >= 50 ? (darkMode ? 'bg-blue-900/40 text-blue-300' : 'bg-blue-100 text-blue-700') :
+              (100-difficulty_score) >= 25 ? (darkMode ? 'bg-yellow-900/40 text-yellow-300' : 'bg-yellow-100 text-yellow-700') :
+              (darkMode ? 'bg-red-900/40 text-red-300' : 'bg-red-100 text-red-700')
+            }`}>
+              {(100-difficulty_score).toFixed(1)} / 100
+            </span>
+          </div>
+          <ScoreIndicator
+            score={100 - difficulty_score}
+            averageScore={
+              courseMetrics?.difficulty_score !== undefined
+                ? 100 - courseMetrics.difficulty_score
+                : undefined
+            }
+            label=""
+            interpretations={difficultyInterpretations}
+            reviewCount={review_count}
+            showCourseAvg={true}
+            courseDocId={courseDocId}
+            courseDept={courseDepartment}
+            onCourseClick={handleCourseClick}
+            darkMode={darkMode}
+          />
+        </div>
 
         {/* Student Sentiment */}
-        <ScoreIndicator
-          score={sentiment_score}
-          averageScore={courseMetrics?.sentiment_score}
-          label="Student Sentiment"
-          interpretations={sentimentInterpretations}
-          reviewCount={review_count}
-          showCourseAvg={true}
-          darkMode={darkMode}
-        />
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <div>
+              <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                Sentiment: 
+              </span>
+              <span className={`ml-2 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                {getSentimentDescription(sentiment_score)}
+              </span>
+            </div>
+            <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${
+              sentiment_score >= 75 ? (darkMode ? 'bg-green-900/40 text-green-300' : 'bg-green-100 text-green-700') :
+              sentiment_score >= 50 ? (darkMode ? 'bg-blue-900/40 text-blue-300' : 'bg-blue-100 text-blue-700') :
+              sentiment_score >= 25 ? (darkMode ? 'bg-yellow-900/40 text-yellow-300' : 'bg-yellow-100 text-yellow-700') :
+              (darkMode ? 'bg-red-900/40 text-red-300' : 'bg-red-100 text-red-700')
+            }`}>
+              {sentiment_score.toFixed(1)} / 100
+            </span>
+          </div>
+          <ScoreIndicator
+            score={sentiment_score}
+            averageScore={courseMetrics?.sentiment_score}
+            label=""
+            interpretations={sentimentInterpretations}
+            reviewCount={review_count}
+            showCourseAvg={true}
+            darkMode={darkMode}
+          />
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div className={`mt-8 p-4 rounded-lg ${darkMode ? 'bg-[#242659]' : 'bg-gray-50'}`}>
+        <h4 className={`text-xs font-medium mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>How to read:</h4>
+        <ul className={`text-xs space-y-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+          <li>• Bar shows professor's score (0-100)</li>
+          <li>• Vertical line is course average</li>
+          <li>• Darker portion shows difference from average</li>
+        </ul>
       </div>
     </div>
   );

@@ -90,13 +90,11 @@ const InitialLoading = ({ darkMode }) => (
 );
 
 const getScoreColor = (score, darkMode) => {
-  // In dark mode, you might prefer slightly more muted backgrounds
-  // This function returns color classes. We'll define separate sets
-  // for dark mode vs. light mode if you want to tweak them differently.
-  if (score >= 80) return darkMode ? 'text-green-300 bg-green-900/20' : 'text-green-600 bg-green-50';
-  if (score >= 60) return darkMode ? 'text-green-300 bg-green-900/20' : 'text-green-600/80 bg-green-50/80';
-  if (score >= 40) return darkMode ? 'text-yellow-300 bg-yellow-900/20' : 'text-yellow-600 bg-yellow-50';
-  return darkMode ? 'text-red-300 bg-red-900/20' : 'text-red-600 bg-red-50';
+  // More subtle, classy color palette
+  if (score >= 80) return darkMode ? 'text-green-200 bg-[#13422b]/40' : 'text-green-700 bg-green-50/80';
+  if (score >= 60) return darkMode ? 'text-green-200 bg-[#13422b]/30' : 'text-green-600 bg-green-50/60';
+  if (score >= 40) return darkMode ? 'text-amber-200 bg-[#553e11]/40' : 'text-amber-600 bg-amber-50/60';
+  return darkMode ? 'text-rose-200 bg-[#4c1a23]/40' : 'text-rose-600 bg-rose-50/60';
 };
 
 const MetricBadge = ({ value, label, isDifficulty = false, onClick, courseLink, darkMode }) => {
@@ -113,14 +111,14 @@ const MetricBadge = ({ value, label, isDifficulty = false, onClick, courseLink, 
 
   return (
     <div 
-      className={`px-3 py-1.5 rounded-full ${getScoreColor(displayValue, darkMode)} ${
-        courseLink ? 'cursor-pointer hover:ring-2 hover:ring-indigo-300 transition-all' : ''
+      className={`px-3 py-2 rounded-lg flex flex-col items-center justify-center ${getScoreColor(displayValue, darkMode)} ${
+        courseLink ? 'cursor-pointer hover:ring-1 hover:ring-indigo-300 transition-all' : ''
       }`}
       onClick={handleClick}
       title={courseLink ? "View course details" : undefined}
     >
-      <div className="text-sm font-semibold">{displayValue.toFixed(1)}</div>
-      <div className="text-xs opacity-75">{label}</div>
+      <div className="text-lg font-medium leading-tight">{displayValue.toFixed(1)}</div>
+      <div className="text-xs font-medium opacity-75 tracking-tight">{label}</div>
     </div>
   );
 };
@@ -1115,95 +1113,128 @@ const ProfessorDirectory = ({ darkMode }) => {
                 <div 
                   key={prof.id}
                   onClick={() => handleProfessorClick(prof.id)}
-                  className={`rounded-xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer ${
+                  className={`rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer ${
                     darkMode
-                      ? "bg-[#1C1F43] text-white shadow-md hover:bg-[#24273c]"
-                      : "bg-white text-gray-900 shadow-lg hover:shadow-xl"
+                      ? "bg-gradient-to-br from-[#1C1F43] to-[#171A3B] text-white hover:shadow-[0_15px_30px_-5px_rgba(80,70,180,0.2)]"
+                      : "bg-white text-gray-900 hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.1)]"
                   }`}
-                  style={{ boxShadow: darkMode 
-                    ? "0 6px 16px rgba(255, 255, 255, 0.1)"
-                    : "0 6px 16px rgba(0, 0, 0, 0.08)"
+                  style={{ 
+                    boxShadow: darkMode 
+                      ? "0 10px 20px rgba(0, 0, 0, 0.3)"
+                      : "0 10px 20px rgba(0, 0, 0, 0.05)",
+                    transform: "translate3d(0, 0, 0)",
                   }}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold">
-                        {prof.name}
-                      </h3>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {Object.keys(prof.departments || {}).map((dept) => (
-                          <span
-                            key={dept}
-                            className={
-                              darkMode
-                                ? "text-xs px-2 py-1 bg-gray-800 rounded-full text-gray-200"
-                                : "text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600"
-                            }
-                          >
-                            {dept}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    {prof.contact_info?.email && (
-                      <button
-                        onClick={(e) => handleEmailClick(e, prof.contact_info.email)}
-                        className={`p-2 rounded-full transition-colors ${
-                          darkMode ? "hover:bg-[#332F56]" : "hover:bg-gray-100"
-                        }`}
-                      >
-                        <Mail
-                          className={`w-5 h-5 ${
-                            darkMode ? "text-gray-200 hover:text-white" : "text-gray-500 hover:text-gray-700"
-                          }`}
-                        />
-                      </button>
-                    )}
-                  </div>
-
-                  {hasReviews(prof) ? (
-                    <>
-                      <div className="grid grid-cols-3 gap-2">
-                        <MetricBadge
-                          value={prof.overall_metrics.quality_score || 0}
-                          label="Quality"
-                          darkMode={darkMode}
-                        />
-                        <MetricBadge
-                          value={prof.overall_metrics.difficulty_score || 0}
-                          label="Difficulty"
-                          isDifficulty={true}
-                          onClick={handleCourseClick}
-                          courseLink={prof.course_path ? `/departments/${prof.course_path}` : null}
-                          darkMode={darkMode}
-                        />
-                        <MetricBadge
-                          value={prof.overall_metrics.sentiment_score || 0}
-                          label="Sentiment"
-                          darkMode={darkMode}
-                        />
-                      </div>
-
-                      <div className="mt-4 flex justify-between items-center">
-                        <span
-                          className={`text-sm ${
-                            darkMode ? "text-gray-300" : "text-gray-600"
-                          }`}
-                        >
-                          {prof.overall_metrics.review_count || 0} Reviews
-                        </span>
-                        <div
-                          className={`text-xs ${
-                            darkMode ? "text-gray-400" : "text-gray-500"
-                          }`}
-                        >
-                          Click difficulty to view course
+                  <div className={`p-6 ${darkMode ? "border-b border-[#343866]" : "border-b border-gray-100"}`}>
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-11 h-11 rounded-full flex items-center justify-center text-base font-medium ${
+                          darkMode 
+                            ? "bg-gradient-to-br from-[#4e3cf6] to-[#7b5cff] text-white"
+                            : "bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] text-white"
+                        }`}>
+                          {prof.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div>
+                          <h3 className={`text-lg font-semibold ${darkMode ? "text-white" : "text-gray-800"}`}>
+                            {prof.name}
+                          </h3>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {Object.keys(prof.departments || {}).slice(0, 2).map((dept) => (
+                              <span
+                                key={dept}
+                                className={
+                                  darkMode
+                                    ? "text-xs px-2 py-0.5 bg-[#2c2e4a] rounded-full text-gray-300"
+                                    : "text-xs px-2 py-0.5 bg-gray-100 rounded-full text-gray-600"
+                                }
+                              >
+                                {dept}
+                              </span>
+                            ))}
+                            {Object.keys(prof.departments || {}).length > 2 && (
+                              <span
+                                className={
+                                  darkMode
+                                    ? "text-xs px-2 py-0.5 bg-[#2c2e4a] rounded-full text-gray-300"
+                                    : "text-xs px-2 py-0.5 bg-gray-100 rounded-full text-gray-600"
+                                }
+                              >
+                                +{Object.keys(prof.departments || {}).length - 2}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </>
-                  ) : (
-                    <NoReviewsCard darkMode={darkMode} />
-                  )}
+                      {prof.contact_info?.email && (
+                        <button
+                          onClick={(e) => handleEmailClick(e, prof.contact_info.email)}
+                          className={`rounded-full p-2 transition-colors ${
+                            darkMode ? "hover:bg-[#332F56]" : "hover:bg-gray-100"
+                          }`}
+                        >
+                          <Mail
+                            className={`w-4 h-4 ${
+                              darkMode ? "text-gray-300 hover:text-white" : "text-gray-500 hover:text-gray-700"
+                            }`}
+                          />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    {hasReviews(prof) ? (
+                      <>
+                        <div className="grid grid-cols-3 gap-2">
+                          <MetricBadge
+                            value={prof.overall_metrics.quality_score || 0}
+                            label="Quality"
+                            darkMode={darkMode}
+                          />
+                          <MetricBadge
+                            value={prof.overall_metrics.difficulty_score || 0}
+                            label="Difficulty"
+                            isDifficulty={true}
+                            onClick={handleCourseClick}
+                            courseLink={prof.course_path ? `/departments/${prof.course_path}` : null}
+                            darkMode={darkMode}
+                          />
+                          <MetricBadge
+                            value={prof.overall_metrics.sentiment_score || 0}
+                            label="Sentiment"
+                            darkMode={darkMode}
+                          />
+                        </div>
+
+                        <div className="mt-4 flex justify-between items-center">
+                          <div className={`inline-flex items-center gap-1 ${darkMode ? "text-gray-300/90" : "text-gray-600/90"}`}>
+                            <span className="text-sm font-medium">{prof.overall_metrics.review_count || 0}</span>
+                            <span className="text-xs">reviews</span>
+                          </div>
+                          <div
+                            className={`text-xs ${
+                              darkMode ? "text-indigo-300/80" : "text-indigo-600/80"
+                            }`}
+                          >
+                            Click difficulty for course
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div
+                        className={
+                          darkMode
+                            ? "flex items-center justify-center p-4 rounded-lg bg-[#252848]"
+                            : "flex items-center justify-center p-4 rounded-lg bg-gray-50"
+                        }
+                      >
+                        <p className={darkMode ? "text-gray-300 text-sm" : "text-gray-500 text-sm"}>
+                          No reviews available yet
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
