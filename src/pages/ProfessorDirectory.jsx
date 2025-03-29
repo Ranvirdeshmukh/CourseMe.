@@ -1,8 +1,9 @@
-import { getFirestore, collection, query as firestoreQuery, getDocs, limit, orderBy, where } from 'firebase/firestore';
+import { getFirestore, collection, query as firestoreQuery, getDocs, limit, orderBy, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase'; 
 import { Mail, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoadingSpinner = ({ darkMode }) => (
   <div
@@ -289,14 +290,108 @@ const ProfessorDirectory = ({ darkMode }) => {
   const [sortBy, setSortBy] = useState(SORT_OPTIONS.REVIEW_COUNT);
   const [minReviews, setMinReviews] = useState(10);
   const navigate = useNavigate();
-  // const [searchResults, setSearchResults] = useState([]);
+  const { currentUser } = useAuth();
+  const [userMajor, setUserMajor] = useState(null);
 
-  const fetchInitialProfessors = async (selectedSort = sortBy, reviewThreshold = minReviews) => {
+  // Get user major
+  useEffect(() => {
+    const fetchUserMajor = async () => {
+      if (!currentUser) return;
+      
+      try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          if (userData.major) {
+            setUserMajor(userData.major);
+            console.log(`User major found: ${userData.major}`); // Debug log
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user major:', err);
+      }
+    };
+    
+    fetchUserMajor();
+  }, [currentUser]);
+
+  // Convert major to department code
+  const getMajorDepartmentCode = (major) => {
+    if (!major) return null;
+    
+    // Common mappings from majors to department codes
+    const majorToDeptMap = {
+      'Computer Science': 'COSC',
+      'Economics': 'ECON',
+      'Mathematics': 'MATH',
+      'Geography': 'GEOG',
+      'Engineering': 'ENGS',
+      'Government': 'GOVT',
+      'Psychological and Brain Sciences': 'PSYC',
+      'Environmental Studies': 'ENVS',
+      'Biology': 'BIOL',
+      'Chemistry': 'CHEM',
+      'Physics': 'PHYS',
+      'English': 'ENGL',
+      'History': 'HIST',
+      // Add more mappings as needed
+    };
+    
+    // Try direct mapping first
+    if (majorToDeptMap[major]) {
+      return majorToDeptMap[major];
+    }
+    
+    // If no direct mapping, try to extract first 4 characters and uppercase
+    // This is a fallback that may work for some departments
+    const deptCode = major.substring(0, 4).toUpperCase();
+    return deptCode;
+  };
+
+  const fetchInitialProfessors = useCallback(async (selectedSort = sortBy, reviewThreshold = minReviews) => {
     try {
       setLoading(true);
       const professorsRef = collection(db, 'professor');
       let baseQuery;
 
+      // If user has a major, try to fetch professors from that department first
+      if (userMajor && !searchQuery) {
+        const deptCode = getMajorDepartmentCode(userMajor);
+        console.log(`Attempting to find professors from department: ${deptCode}`); // Debug log
+        
+        try {
+          // First try to get professors from the user's department
+          const deptQuery = firestoreQuery(
+            professorsRef,
+            where(`departments.${deptCode}`, '!=', null),
+            limit(12)
+          );
+          
+          const deptSnapshot = await getDocs(deptQuery);
+          
+          // If we found professors in the user's department
+          if (!deptSnapshot.empty) {
+            console.log(`Found ${deptSnapshot.size} professors in ${deptCode}`); // Debug log
+            const professorsData = deptSnapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+            
+            setProfessors(professorsData);
+            setLoading(false);
+            return;
+          } else {
+            console.log(`No professors found for department: ${deptCode}`); // Debug log
+          }
+        } catch (deptError) {
+          // If there's an error with the department query, log it and fall back to default query
+          console.error(`Error with department query for ${deptCode}:`, deptError);
+        }
+      }
+
+      // Fallback to regular query if department-specific query didn't return results
       if (selectedSort === SORT_OPTIONS.REVIEW_COUNT) {
         baseQuery = firestoreQuery(
           professorsRef,
@@ -349,23 +444,32 @@ const ProfessorDirectory = ({ darkMode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sortBy, minReviews, userMajor, searchQuery]);
 
+  // The useEffects now correctly use the memoized callback
   useEffect(() => {
-    fetchInitialProfessors();
-  }, []);
-
-  // Utility functions for search enhancement
-
+    if (userMajor) {
+      // Don't change the current sort/filter if the user has already interacted with them
+      // This prevents resetting the user's selections when userMajor loads
+      fetchInitialProfessors(sortBy, minReviews);
+    }
+  }, [userMajor, sortBy, minReviews, fetchInitialProfessors]); 
+  
+  // Keep the original useEffect for handling sort/review filter changes
+  useEffect(() => {
+    if (!searchQuery) {
+      fetchInitialProfessors(sortBy, minReviews);
+    }
+  }, [sortBy, minReviews, searchQuery, fetchInitialProfessors]);
 
   const handleCourseClick = (courseLink) => {
     navigate(courseLink);
   };
 
+  // Update dependencies to include dependencies for the fetchInitialProfessors function
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [professors, searchResults]);
-  
 
   const getCourseLink = (prof) => {
     if (prof.courses && Object.keys(prof.courses).length > 0) {
@@ -400,17 +504,13 @@ const ProfessorDirectory = ({ darkMode }) => {
             : "text-indigo-800 text-sm"
         }
       >
-        Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history.
+        {userMajor 
+          ? `Showing professors relevant to your major: ${userMajor}. Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history.`
+          : "Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history."}
         *Note metrics are AI-generated and may be inaccurate.
       </p>
     </div>
   );
-
-  useEffect(() => {
-    fetchInitialProfessors();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
 
   const handleSortChange = (option) => {
     setSortBy(option);
