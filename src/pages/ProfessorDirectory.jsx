@@ -12,6 +12,7 @@ import {
   getAllDepartmentOptions,
   getPopularDepartments
 } from '../algorithms/professorMatching';
+import { Typography, Box } from '@mui/material';
 
 const LoadingSpinner = ({ darkMode }) => (
   <div
@@ -688,8 +689,226 @@ const ProfessorDirectory = ({ darkMode }) => {
         transition: 'background-color 0.3s ease, color 0.3s ease'
       }}
     >
+      {/* Header section for user's major */}
+      {userMajor && !searchQuery && !selectedDepartment && (
+        <div className="max-w-7xl mx-auto pt-8 px-6">
+          <Typography
+            variant="h2"
+            align="center"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              marginBottom: '20px',
+              color: darkMode ? '#fff' : '#2c3e50',
+              textShadow: darkMode
+                ? '1px 1px 2px rgba(0, 0, 0, 0.2)'
+                : '1px 1px 2px rgba(0, 0, 0, 0.1)',
+              transition: 'color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Professors for {userMajor}
+            <Box component="span" sx={{ 
+              display: 'inline-block',
+              fontSize: { xs: '0.6em', sm: '0.6em', md: '0.5em' },
+              ml: 2, 
+              opacity: 0.8,
+              fontWeight: 500,
+              verticalAlign: 'middle'
+            }}>
+              ({getMajorDepartmentCode(userMajor)})
+            </Box>
+            <Box
+              component="span"
+              sx={{
+                display: 'inline-block',
+                ml: 2,
+                px: 1.5,
+                py: 0.5,
+                fontSize: '0.35em',
+                borderRadius: '30px',
+                backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.3)' : 'rgba(87, 28, 224, 0.1)',
+                color: darkMode ? '#a78bfa' : '#571CE0',
+                verticalAlign: 'middle',
+                fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+                fontWeight: 600,
+                letterSpacing: '0.02em',
+                boxShadow: darkMode
+                  ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+                  : '0 2px 8px rgba(0, 0, 0, 0.08)'
+              }}
+            >
+              Personalized
+            </Box>
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              marginBottom: '20px',
+              color: darkMode ? '#a78bfa' : '#571CE0',
+              padding: '10px',
+              borderRadius: '8px',
+              fontWeight: 500,
+              maxWidth: 1100,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Tailored recommendations based on your major
+          </Typography>
+        </div>
+      )}
+
+      {/* Default header (shown when no major, no search, no department selected) */}
+      {!userMajor && !searchQuery && !selectedDepartment && (
+        <div className="max-w-7xl mx-auto pt-8 px-6">
+          <Typography
+            variant="h2"
+            align="center"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              marginBottom: '20px',
+              color: darkMode ? '#fff' : '#2c3e50',
+              textShadow: darkMode
+                ? '1px 1px 2px rgba(0, 0, 0, 0.2)'
+                : '1px 1px 2px rgba(0, 0, 0, 0.1)',
+              transition: 'color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Find Your Professors
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              marginBottom: '20px',
+              color: darkMode ? '#a78bfa' : '#571CE0',
+              padding: '10px',
+              borderRadius: '8px',
+              fontWeight: 500,
+              maxWidth: 1100,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Search by name or select a department below
+          </Typography>
+        </div>
+      )}
+
+      {/* Header section for selected department */}
+      {selectedDepartment && !searchQuery && (
+        <div className="max-w-7xl mx-auto pt-8 px-6">
+          <Typography
+            variant="h2"
+            align="center"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              marginBottom: '20px',
+              color: darkMode ? '#fff' : '#2c3e50',
+              textShadow: darkMode
+                ? '1px 1px 2px rgba(0, 0, 0, 0.2)'
+                : '1px 1px 2px rgba(0, 0, 0, 0.1)',
+              transition: 'color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            {selectedDepartment} Department
+            {departmentOptions.find(dept => dept.value === selectedDepartment) && (
+              <Box component="span" sx={{ 
+                display: 'inline-block',
+                fontSize: { xs: '0.6em', sm: '0.6em', md: '0.5em' },
+                ml: 2, 
+                opacity: 0.8,
+                fontWeight: 500,
+                verticalAlign: 'middle'
+              }}>
+                {departmentOptions.find(dept => dept.value === selectedDepartment).label.split(' (')[0]}
+              </Box>
+            )}
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              marginBottom: '20px',
+              color: darkMode ? '#a78bfa' : '#571CE0',
+              padding: '10px',
+              borderRadius: '8px',
+              fontWeight: 500,
+              maxWidth: 1100,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            All professors in this department
+          </Typography>
+        </div>
+      )}
+
+      {/* Header for search results */}
+      {searchQuery && searchResults.length > 0 && (
+        <div className="max-w-7xl mx-auto pt-8 px-6">
+          <Typography
+            variant="h2"
+            align="center"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              marginBottom: '20px',
+              color: darkMode ? '#fff' : '#2c3e50',
+              textShadow: darkMode
+                ? '1px 1px 2px rgba(0, 0, 0, 0.2)'
+                : '1px 1px 2px rgba(0, 0, 0, 0.1)',
+              transition: 'color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Search Results
+            <Box component="span" sx={{ 
+              display: 'inline-block',
+              fontSize: { xs: '0.6em', sm: '0.6em', md: '0.5em' },
+              ml: 2, 
+              opacity: 0.8,
+              fontWeight: 500,
+              verticalAlign: 'middle'
+            }}>
+              "{searchQuery}"
+            </Box>
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              marginBottom: '20px',
+              color: darkMode ? '#a78bfa' : '#571CE0',
+              padding: '10px',
+              borderRadius: '8px',
+              fontWeight: 500,
+              maxWidth: 1100,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Found {searchResults.length} {searchResults.length === 1 ? 'professor' : 'professors'} matching your search
+          </Typography>
+        </div>
+      )}
+
       {/* Search and Filter Section */}
-      <div className="max-w-7xl mx-auto p-6 mb-12 space-y-4">
+      <div className={`max-w-7xl mx-auto p-6 ${!searchQuery && !selectedDepartment && !userMajor ? 'mb-12' : 'mb-8 pt-4'} space-y-4`}>
         <div className="relative">
           <input
             type="text"
