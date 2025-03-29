@@ -137,10 +137,55 @@ const hasProfessorsFromDepartment = (professors, departmentCode) => {
   );
 };
 
+/**
+ * Gets a list of all department options for UI display
+ * @returns {Array} Array of objects with { label, value } for department selection
+ */
+const getAllDepartmentOptions = () => {
+  // Sort the entries alphabetically by the label (major name)
+  const sortedEntries = Object.entries(majorToDepartmentMap)
+    .sort(([majorA], [majorB]) => majorA.localeCompare(majorB));
+  
+  // Convert to options format for dropdown selectors
+  return sortedEntries.map(([major, code]) => ({
+    label: `${major} (${code})`,
+    value: code
+  }));
+};
+
+/**
+ * Gets common/popular departments for quick access
+ * @param {number} limit - Maximum number of departments to return
+ * @returns {Array} Array of objects with { label, value } for popular departments
+ */
+const getPopularDepartments = (limit = 8) => {
+  // Common departments that are frequently accessed
+  const popularMajors = [
+    'Computer Science',
+    'Economics',
+    'Engineering',
+    'Mathematics',
+    'Government',
+    'Biology',
+    'English',
+    'Psychology'
+  ].slice(0, limit);
+  
+  return popularMajors.map(major => {
+    const code = majorToDepartmentMap[major] || major.substring(0, 4).toUpperCase();
+    return {
+      label: `${major} (${code})`,
+      value: code
+    };
+  });
+};
+
 export {
   getMajorDepartmentCode,
   applySorting,
   filterByMinReviews,
   hasProfessorsFromDepartment,
-  majorToDepartmentMap
+  majorToDepartmentMap,
+  getAllDepartmentOptions,
+  getPopularDepartments
 }
