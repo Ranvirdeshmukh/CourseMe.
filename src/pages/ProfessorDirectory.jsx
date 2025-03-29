@@ -1,8 +1,25 @@
-import { getFirestore, collection, query as firestoreQuery, getDocs, limit, orderBy, where } from 'firebase/firestore';
+import { getFirestore, collection, query as firestoreQuery, getDocs, limit, orderBy, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase'; 
-import { Mail, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Mail, Search, X } from 'lucide-react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { 
+  getMajorDepartmentCode, 
+  applySorting, 
+  filterByMinReviews,
+  hasProfessorsFromDepartment,
+  getAllDepartmentOptions,
+  getPopularDepartments
+} from '../algorithms/professorMatching';
+import { Typography, Box } from '@mui/material';
+
+// Create a cache to store previously fetched data
+const professorCache = {
+  data: null,
+  timestamp: null,
+  expiryTime: 5 * 60 * 1000 // 5 minutes cache validity
+};
 
 const LoadingSpinner = ({ darkMode }) => (
   <div
@@ -41,6 +58,33 @@ const LoadingOverlay = ({ darkMode }) => (
         }
       ></div>
       <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-500 rounded-full animate-spin border-t-transparent"></div>
+    </div>
+  </div>
+);
+
+// Add a more subtle initial loading component
+const InitialLoading = ({ darkMode }) => (
+  <div
+    className={
+      darkMode
+        ? "flex flex-col items-center justify-center py-12 gap-4"
+        : "flex flex-col items-center justify-center py-12 gap-4"
+    }
+  >
+    <div className="relative w-14 h-14">
+      <div className="absolute top-0 left-0 right-0 bottom-0">
+        <div className="w-full h-full border-4 border-indigo-100 rounded-full opacity-30"></div>
+        <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-500 rounded-full animate-spin border-t-transparent"></div>
+      </div>
+    </div>
+    <div 
+      className={
+        darkMode 
+          ? "text-sm text-gray-300 animate-pulse" 
+          : "text-sm text-gray-500 animate-pulse"
+      }
+    >
+      Loading professors...
     </div>
   </div>
 );
@@ -272,7 +316,7 @@ const useEnhancedSearch = (db, initialDelay = 300) => {
   };
 };
 
-// Then in your ProfessorDirectory component, modify how you use the hook:
+// Then in your ProfessorDirectory component
 const ProfessorDirectory = ({ darkMode }) => {
   const {
     searchQuery,
@@ -285,18 +329,194 @@ const ProfessorDirectory = ({ darkMode }) => {
 
   const [professors, setProfessors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState(SORT_OPTIONS.REVIEW_COUNT);
   const [minReviews, setMinReviews] = useState(10);
   const navigate = useNavigate();
-  // const [searchResults, setSearchResults] = useState([]);
+  const { currentUser } = useAuth();
+  const [userMajor, setUserMajor] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [showAllDepartments, setShowAllDepartments] = useState(false);
+  const [departmentOptions] = useState(getAllDepartmentOptions());
+  const [popularDepartments] = useState(getPopularDepartments());
+  
+  // Reference to track if component is mounted
+  const isMounted = useRef(true);
 
-  const fetchInitialProfessors = async (selectedSort = sortBy, reviewThreshold = minReviews) => {
+  // Check cache on component mount
+  useEffect(() => {
+    // Check if we have valid cached data
+    const now = Date.now();
+    if (professorCache.data && 
+        professorCache.timestamp && 
+        (now - professorCache.timestamp < professorCache.expiryTime)) {
+      console.log('Using cached professor data');
+      setProfessors(professorCache.data);
+      setLoading(false);
+      setInitialLoad(false);
+    } else {
+      // Set a very short timeout for initial loading animation
+      const timer = setTimeout(() => {
+        if (isMounted.current) {
+          setInitialLoad(false);
+        }
+      }, 300); // Reduced from 800ms to 300ms
+      
+      return () => clearTimeout(timer);
+    }
+    
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  // Initialize isMounted ref
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  // Get user major
+  useEffect(() => {
+    const fetchUserMajor = async () => {
+      if (!currentUser) return;
+      
+      try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          if (userData.major) {
+            setUserMajor(userData.major);
+            console.log(`User major found: ${userData.major}`);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user major:', err);
+      }
+    };
+    
+    fetchUserMajor();
+  }, [currentUser]);
+
+  const fetchInitialProfessors = useCallback(async (selectedSort = sortBy, reviewThreshold = minReviews) => {
     try {
-      setLoading(true);
+      // Don't show loading if we already have data
+      if (!professors.length) {
+        setLoading(true);
+      }
+      
       const professorsRef = collection(db, 'professor');
-      let baseQuery;
+      let professorsData = [];
+      
+      // If a department is explicitly selected, prioritize that
+      if (selectedDepartment && !searchQuery) {
+        console.log(`Fetching professors for selected department: ${selectedDepartment}`);
+        
+        try {
+          const deptQuery = firestoreQuery(
+            professorsRef,
+            where(`departments.${selectedDepartment}`, '!=', null),
+            limit(50)
+          );
+          
+          const deptSnapshot = await getDocs(deptQuery);
+          
+          if (!deptSnapshot.empty) {
+            console.log(`Found ${deptSnapshot.size} professors in ${selectedDepartment}`);
+            professorsData = deptSnapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+            
+            // Apply filters
+            professorsData = filterByMinReviews(professorsData, reviewThreshold);
+            
+            if (professorsData.length >= 3) {
+              professorsData = applySorting(professorsData, selectedSort);
+              professorsData = professorsData.slice(0, 12);
+              
+              if (isMounted.current) {
+                setProfessors(professorsData);
+                
+                // Update cache
+                professorCache.data = professorsData;
+                professorCache.timestamp = Date.now();
+                
+                setLoading(false);
+                setInitialLoad(false);
+              }
+              return;
+            }
+            console.log(`Not enough professors for ${selectedDepartment} after filtering`);
+          } else {
+            console.log(`No professors found for department: ${selectedDepartment}`);
+          }
+        } catch (deptError) {
+          console.error(`Error with department query for ${selectedDepartment}:`, deptError);
+        }
+      }
+      
+      // If user has a major and no search is active, and no department is selected,
+      // try to get professors from their department
+      if (userMajor && !searchQuery && !selectedDepartment) {
+        const deptCode = getMajorDepartmentCode(userMajor);
+        console.log(`Attempting to find professors from department: ${deptCode}`);
+        
+        try {
+          // Query for professors from the user's department
+          const deptQuery = firestoreQuery(
+            professorsRef,
+            where(`departments.${deptCode}`, '!=', null),
+            limit(50) // Get more results to allow for sorting
+          );
+          
+          const deptSnapshot = await getDocs(deptQuery);
+          
+          if (!deptSnapshot.empty) {
+            console.log(`Found ${deptSnapshot.size} professors in ${deptCode}`);
+            professorsData = deptSnapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+            
+            // Apply filters to the department-specific results
+            professorsData = filterByMinReviews(professorsData, reviewThreshold);
+            
+            // If we have enough professors after filtering, we can skip the fallback query
+            if (professorsData.length >= 6) {
+              // Apply sorting based on selected option
+              professorsData = applySorting(professorsData, selectedSort);
+              professorsData = professorsData.slice(0, 12);
+              
+              if (isMounted.current) {
+                setProfessors(professorsData);
+                
+                // Update cache
+                professorCache.data = professorsData;
+                professorCache.timestamp = Date.now();
+                
+                setLoading(false);
+                setInitialLoad(false);
+              }
+              return;
+            }
+            
+            console.log(`Not enough professors (${professorsData.length}) after filtering, falling back to regular query`);
+          } else {
+            console.log(`No professors found for department: ${deptCode}`);
+          }
+        } catch (deptError) {
+          console.error(`Error with department query for ${deptCode}:`, deptError);
+        }
+      }
 
+      // Fallback or default query based on selected filters
+      let baseQuery;
       if (selectedSort === SORT_OPTIONS.REVIEW_COUNT) {
         baseQuery = firestoreQuery(
           professorsRef,
@@ -320,52 +540,78 @@ const ProfessorDirectory = ({ darkMode }) => {
       }
 
       const snapshot = await getDocs(baseQuery);
-      let professorsData = snapshot.docs.map(doc => ({
+      professorsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
 
-      if (
-        selectedSort.field &&
-        selectedSort !== SORT_OPTIONS.REVIEW_COUNT &&
-        selectedSort !== SORT_OPTIONS.DIFFICULTY
-      ) {
-        professorsData.sort((a, b) => {
-          const scoreA = a.overall_metrics?.[selectedSort.field] || 0;
-          const scoreB = b.overall_metrics?.[selectedSort.field] || 0;
-          return scoreB - scoreA;
-        });
-        professorsData = professorsData.slice(0, 12);
-      } else if (selectedSort === SORT_OPTIONS.RANDOM) {
-        professorsData = professorsData
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 12);
-      }
+      // Apply sorting if needed
+      professorsData = applySorting(professorsData, selectedSort);
+      professorsData = professorsData.slice(0, 12);
 
-      setProfessors(professorsData);
+      if (isMounted.current) {
+        setProfessors(professorsData);
+        
+        // Update cache
+        professorCache.data = professorsData;
+        professorCache.timestamp = Date.now();
+      }
     } catch (err) {
       console.error('Error fetching professors:', err);
-      setError('Failed to load professors');
+      if (isMounted.current) {
+        setError('Failed to load professors');
+      }
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+        setInitialLoad(false);
+      }
     }
-  };
+  }, [sortBy, minReviews, userMajor, searchQuery, selectedDepartment, professors.length]);
 
+  // Add useEffect to trigger fetch when selectedDepartment changes
   useEffect(() => {
-    fetchInitialProfessors();
-  }, []);
+    if (selectedDepartment) {
+      fetchInitialProfessors(sortBy, minReviews);
+    }
+  }, [selectedDepartment, fetchInitialProfessors]);
 
-  // Utility functions for search enhancement
+  // The useEffects now correctly use the memoized callback
+  // Initial load when user major is available
+  useEffect(() => {
+    if (userMajor) {
+      // Add a small delay so UI transitions feel smoother
+      const timer = setTimeout(() => {
+        fetchInitialProfessors(sortBy, minReviews);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [userMajor, fetchInitialProfessors]); // Only re-run when userMajor or the fetch function changes
+  
+  // Handle filter changes (sort option or min reviews)
+  useEffect(() => {
+    // Skip if this is the initial render or search is active
+    if (!searchQuery && (sortBy || minReviews)) {
+      fetchInitialProfessors(sortBy, minReviews);
+    }
+  }, [sortBy, minReviews, fetchInitialProfessors, searchQuery]);
 
+  // Smooth scrolling when results change
+  useEffect(() => {
+    if (professors.length > 0 || searchResults.length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [professors, searchResults]);
 
   const handleCourseClick = (courseLink) => {
     navigate(courseLink);
   };
 
+  // Update dependencies to include dependencies for the fetchInitialProfessors function
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [professors, searchResults]);
-  
 
   const getCourseLink = (prof) => {
     if (prof.courses && Object.keys(prof.courses).length > 0) {
@@ -383,34 +629,80 @@ const ProfessorDirectory = ({ darkMode }) => {
     return null;
   };
 
-
-
-  const InfoBanner = () => (
-    <div
-      className={
-        darkMode
-          ? "p-4 rounded-lg mb-6 mt-2 bg-[#332F56]"
-          : "bg-indigo-50 p-4 rounded-lg mb-6 mt-2"
+  const InfoBanner = ({ selectedDepartment, departmentOptions }) => {
+    // Track if we're showing general professors or major-specific ones
+    const [showingMajorSpecific, setShowingMajorSpecific] = useState(false);
+    const [departmentName, setDepartmentName] = useState('');
+    
+    // Get department name from code (for display)
+    useEffect(() => {
+      if (selectedDepartment) {
+        // Find the department name from departmentOptions
+        const option = departmentOptions.find(opt => opt.value === selectedDepartment);
+        if (option) {
+          setDepartmentName(option.label.split(' (')[0]); // Extract just the name part
+        } else {
+          setDepartmentName(selectedDepartment); // Fallback to code
+        }
       }
-    >
-      <p
+    }, [selectedDepartment, departmentOptions]);
+    
+    // Update when professors or department change
+    useEffect(() => {
+      if (selectedDepartment) {
+        // If a department is explicitly selected, set showingMajorSpecific based on 
+        // whether we have professors from that department
+        setShowingMajorSpecific(hasProfessorsFromDepartment(professors, selectedDepartment));
+      } else if (userMajor && professors.length > 0) {
+        // Otherwise, check if at least one professor has the user's department
+        const deptCode = getMajorDepartmentCode(userMajor);
+        setShowingMajorSpecific(hasProfessorsFromDepartment(professors, deptCode));
+      } else {
+        setShowingMajorSpecific(false);
+      }
+    }, [professors, userMajor, selectedDepartment]);
+    
+    const getMessage = () => {
+      if (selectedDepartment) {
+        return showingMajorSpecific 
+          ? `Showing professors from the ${selectedDepartment} department. Click on any professor's name to view their teaching summary and reviews.`
+          : `We couldn't find enough professors for ${selectedDepartment}, so we're showing popular professors across all departments. Click on any professor's name to view their teaching summary.`;
+      }
+      
+      if (userMajor && showingMajorSpecific) {
+        const deptCode = getMajorDepartmentCode(userMajor);
+        return `Showing professors from your major's department (${deptCode}). Click on any professor's name to view their teaching summary and reviews.`;
+      }
+      
+      if (userMajor && !showingMajorSpecific) {
+        const deptCode = getMajorDepartmentCode(userMajor);
+        return `We couldn't find enough professors for your major's department (${deptCode}), so we're showing popular professors across all departments. Click on any professor's name to view their teaching summary.`;
+      }
+      
+      return "Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history.";
+    };
+    
+    return (
+      <div
         className={
           darkMode
-            ? "text-gray-200 text-sm"
-            : "text-indigo-800 text-sm"
+            ? "p-4 rounded-lg mb-6 mt-2 bg-[#332F56]"
+            : "bg-indigo-50 p-4 rounded-lg mb-6 mt-2"
         }
       >
-        Click on any professor's name to view their AI-generated teaching summary, student reviews, and course history.
-        *Note metrics are AI-generated and may be inaccurate.
-      </p>
-    </div>
-  );
-
-  useEffect(() => {
-    fetchInitialProfessors();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+        <p
+          className={
+            darkMode
+              ? "text-gray-200 text-sm"
+              : "text-indigo-800 text-sm"
+          }
+        >
+          {getMessage()}
+          {" "}*Note metrics are AI-generated and may be inaccurate.
+        </p>
+      </div>
+    );
+  };
 
   const handleSortChange = (option) => {
     setSortBy(option);
@@ -451,6 +743,20 @@ const ProfessorDirectory = ({ darkMode }) => {
   // Display Logic
   const displayProfessors = searchQuery ? searchResults : professors;
 
+  const handleDepartmentSelect = (deptCode) => {
+    setSelectedDepartment(deptCode);
+    setSearchQuery(''); // Clear any existing search
+  };
+
+  const clearDepartmentFilter = () => {
+    setSelectedDepartment(null);
+    fetchInitialProfessors(sortBy, minReviews);
+  };
+
+  const toggleAllDepartments = () => {
+    setShowAllDepartments(!showAllDepartments);
+  };
+
   if (error) {
     return (
       <div
@@ -487,8 +793,182 @@ const ProfessorDirectory = ({ darkMode }) => {
         transition: 'background-color 0.3s ease, color 0.3s ease'
       }}
     >
-      {/* Search and Filter Section */}
-      <div className="max-w-7xl mx-auto p-6 mb-12 space-y-4">
+      {/* Header section for user's major */}
+      {userMajor && !searchQuery && !selectedDepartment && (
+        <div className="max-w-7xl mx-auto pt-8 px-6">
+          <Typography
+            variant="h2"
+            align="center"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              marginBottom: '20px',
+              color: darkMode ? '#fff' : '#2c3e50',
+              textShadow: darkMode
+                ? '1px 1px 2px rgba(0, 0, 0, 0.2)'
+                : '1px 1px 2px rgba(0, 0, 0, 0.1)',
+              transition: 'color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Professors for {userMajor}
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              marginBottom: '20px',
+              color: darkMode ? '#a78bfa' : '#571CE0',
+              padding: '10px',
+              borderRadius: '8px',
+              fontWeight: 500,
+              maxWidth: 1100,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Tailored recommendations based on your major
+          </Typography>
+        </div>
+      )}
+
+      {/* Default header (shown when no major, no search, no department selected) */}
+      {!userMajor && !searchQuery && !selectedDepartment && (
+        <div className="max-w-7xl mx-auto pt-8 px-6">
+          <Typography
+            variant="h2"
+            align="center"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              marginBottom: '20px',
+              color: darkMode ? '#fff' : '#2c3e50',
+              textShadow: darkMode
+                ? '1px 1px 2px rgba(0, 0, 0, 0.2)'
+                : '1px 1px 2px rgba(0, 0, 0, 0.1)',
+              transition: 'color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Find Your Professors
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              marginBottom: '20px',
+              color: darkMode ? '#a78bfa' : '#571CE0',
+              padding: '10px',
+              borderRadius: '8px',
+              fontWeight: 500,
+              maxWidth: 1100,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Search by name or select a department below
+          </Typography>
+        </div>
+      )}
+
+      {/* Header section for selected department */}
+      {selectedDepartment && !searchQuery && (
+        <div className="max-w-7xl mx-auto pt-8 px-6">
+          <Typography
+            variant="h2"
+            align="center"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              marginBottom: '20px',
+              color: darkMode ? '#fff' : '#2c3e50',
+              textShadow: darkMode
+                ? '1px 1px 2px rgba(0, 0, 0, 0.2)'
+                : '1px 1px 2px rgba(0, 0, 0, 0.1)',
+              transition: 'color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            {selectedDepartment} Department
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              marginBottom: '20px',
+              color: darkMode ? '#a78bfa' : '#571CE0',
+              padding: '10px',
+              borderRadius: '8px',
+              fontWeight: 500,
+              maxWidth: 1100,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            All professors in this department
+          </Typography>
+        </div>
+      )}
+
+      {/* Header for search results */}
+      {searchQuery && searchResults.length > 0 && (
+        <div className="max-w-7xl mx-auto pt-8 px-6">
+          <Typography
+            variant="h2"
+            align="center"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              marginBottom: '20px',
+              color: darkMode ? '#fff' : '#2c3e50',
+              textShadow: darkMode
+                ? '1px 1px 2px rgba(0, 0, 0, 0.2)'
+                : '1px 1px 2px rgba(0, 0, 0, 0.1)',
+              transition: 'color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Search Results
+            <Box component="span" sx={{ 
+              display: 'inline-block',
+              fontSize: { xs: '0.6em', sm: '0.6em', md: '0.5em' },
+              ml: 2, 
+              opacity: 0.8,
+              fontWeight: 500,
+              verticalAlign: 'middle'
+            }}>
+              "{searchQuery}"
+            </Box>
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{
+              marginBottom: '20px',
+              color: darkMode ? '#a78bfa' : '#571CE0',
+              padding: '10px',
+              borderRadius: '8px',
+              fontWeight: 500,
+              maxWidth: 1100,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            Found {searchResults.length} {searchResults.length === 1 ? 'professor' : 'professors'} matching your search
+          </Typography>
+        </div>
+      )}
+
+      {/* Search and Filter Section - show immediately */}
+      <div className={`max-w-7xl mx-auto p-6 ${!searchQuery && !selectedDepartment && !userMajor ? 'mb-12' : 'mb-8 pt-4'} space-y-4`}>
         <div className="relative">
           <input
             type="text"
@@ -506,6 +986,65 @@ const ProfessorDirectory = ({ darkMode }) => {
               darkMode ? "text-gray-300" : "text-gray-400"
             }`}
           />
+        </div>
+        
+        {/* Department Quick Select */}
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className={darkMode ? "text-white text-sm font-medium" : "text-gray-700 text-sm font-medium"}>
+              Select Department
+            </h3>
+            <button
+              onClick={toggleAllDepartments}
+              className={`text-xs ${darkMode ? "text-indigo-300" : "text-indigo-600"} hover:underline`}
+            >
+              {showAllDepartments ? "Show Popular" : "View All"}
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+            {/* Department Chips - Show only the code with hover tooltip */}
+            {(showAllDepartments ? departmentOptions : popularDepartments).map((dept) => (
+              <button 
+                key={dept.value}
+                onClick={() => handleDepartmentSelect(dept.value)}
+                title={dept.label.split(' (')[0]} // Show full department name on hover
+                className={`px-1 py-2 rounded-full text-xs font-medium transition-all transform hover:scale-105 ${
+                  selectedDepartment === dept.value
+                    ? darkMode 
+                      ? "bg-indigo-700 text-white shadow-md" 
+                      : "bg-indigo-500 text-white shadow-md"
+                    : darkMode
+                      ? "bg-[#1C1F43] text-gray-300 hover:bg-[#252a57]"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                style={{ 
+                  textAlign: 'center',
+                  letterSpacing: '0.02em'
+                }}
+              >
+                {dept.value}
+              </button>
+            ))}
+            
+            {/* Clear Selection Button - show only when a department is selected */}
+            {selectedDepartment && (
+              <button 
+                onClick={clearDepartmentFilter}
+                title="Clear department filter"
+                className={`px-1 py-2 rounded-full text-xs font-medium flex items-center justify-center transition-all transform hover:scale-105 ${
+                  darkMode 
+                    ? "bg-red-800/70 text-red-200 hover:bg-red-700/80 shadow-md" 
+                    : "bg-red-500 text-white hover:bg-red-600 shadow-md"
+                }`}
+                style={{ 
+                  textAlign: 'center'
+                }}
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
         </div>
         
         {!searchQuery && (
@@ -553,12 +1092,21 @@ const ProfessorDirectory = ({ darkMode }) => {
             </div>
           </div>
         )}
-        <InfoBanner />
+        
+        {/* Show InfoBanner only when not in initial loading state */}
+        {!initialLoad && (
+          <InfoBanner 
+            selectedDepartment={selectedDepartment}
+            departmentOptions={departmentOptions}
+          />
+        )}
       </div>
 
-      {/* Professors Grid */}
+      {/* Professors Grid with improved loading state logic */}
       <div className="max-w-7xl mx-auto px-6">
-        {(loading || isSearching) && !displayProfessors.length ? (
+        {initialLoad ? (
+          <InitialLoading darkMode={darkMode} />
+        ) : (loading || isSearching) && !displayProfessors.length ? (
           <LoadingSpinner darkMode={darkMode} />
         ) : (
           <>
@@ -679,5 +1227,34 @@ const ProfessorDirectory = ({ darkMode }) => {
     </div>
   );
 };
+
+// Preload data for faster return navigation
+// This runs once when the app loads
+(async function preloadProfessorData() {
+  try {
+    if (!professorCache.data) {
+      console.log('Preloading professor data...');
+      const professorsRef = collection(db, 'professor');
+      const baseQuery = firestoreQuery(
+        professorsRef,
+        where('overall_metrics.review_count', '>=', 10),
+        orderBy('overall_metrics.review_count', 'desc'),
+        limit(12)
+      );
+      
+      const snapshot = await getDocs(baseQuery);
+      const professorsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      professorCache.data = professorsData;
+      professorCache.timestamp = Date.now();
+      console.log('Professor data preloaded successfully');
+    }
+  } catch (err) {
+    console.error('Error preloading professor data:', err);
+  }
+})();
 
 export default ProfessorDirectory;
