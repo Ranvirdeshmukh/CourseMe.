@@ -378,41 +378,45 @@ const CourseCard = ({ course, professorId, professorName, darkMode, isExpanded =
             <button
               onClick={handleSeeReviews}
               className={`
-                px-3 py-1 text-xs font-medium rounded-full transition-colors
+                px-4 py-1.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5 shadow-sm
                 ${darkMode 
-                  ? 'text-indigo-200 bg-indigo-900 hover:bg-indigo-800' 
-                  : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'}
+                  ? 'text-white bg-blue-600 hover:bg-blue-700 border border-blue-500' 
+                  : 'text-white bg-blue-600 hover:bg-blue-700 border border-blue-500'}
               `}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
               See Reviews
             </button>
           )}
           <div 
-            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium ${
               hasReviews
                 ? darkMode
-                  ? 'bg-[#0071E3]/20 text-[#0071E3]'
-                  : 'bg-[#0071E3]/10 text-[#0071E3]'
+                  ? 'bg-blue-900/30 text-blue-300 border border-blue-800/50'
+                  : 'bg-blue-50 text-blue-700 border border-blue-100'
                 : darkMode
-                ? 'bg-[#24273c] text-gray-500'
-                : 'bg-[#F5F5F7] text-[#86868B]'
+                ? 'bg-[#24273c] text-gray-400 border border-gray-700'
+                : 'bg-gray-50 text-gray-500 border border-gray-100'
             }`}
           >
-            <span>{course.metrics.review_count}</span>
+            <span className="font-semibold">{course.metrics.review_count}</span>
             <span>{course.metrics.review_count === 1 ? 'Review' : 'Reviews'}</span>
           </div>
           {hasReviews && (
             <button
-              className={`transition-colors p-1 rounded-full ${
+              className={`transition-colors p-1.5 rounded-full ${
                 darkMode
                   ? 'text-gray-300 hover:bg-gray-800'
                   : 'text-gray-500 hover:bg-gray-100'
               }`}
             >
               {isExpandedState ? (
-                <ChevronUp size={16} />
+                <ChevronUp size={18} />
               ) : (
-                <ChevronDown size={16} />
+                <ChevronDown size={18} />
               )}
             </button>
           )}
@@ -778,8 +782,11 @@ const ProfessorDetails = ({ darkMode = false }) => {
           <h3 className={`text-lg font-medium mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
             About This Page
           </h3>
-          <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+          <p className={`text-sm mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             All metrics are AI-generated from student reviews. Click any course to view details and course-specific ratings.
+          </p>
+          <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Please keep adding reviews to courses as it helps train our model and will eventually benefit you and your peers in making informed course decisions.
           </p>
         </div>
       </div>
