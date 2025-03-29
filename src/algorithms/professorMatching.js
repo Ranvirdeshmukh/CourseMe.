@@ -35,7 +35,39 @@ const majorToDepartmentMap = {
   'Spanish': 'SPAN',
   'Music': 'MUS',
   'Theater': 'THEA',
-  'Women\'s, Gender, and Sexuality Studies': 'WGSS'
+  'Women\'s, Gender, and Sexuality Studies': 'WGSS',
+  // Adding missing departments from departmentMapping.js
+  'African and African American Studies': 'AAAS',
+  'Asian and Middle Eastern Languages and Literatures': 'AMEL',
+  'Asian and Middle Eastern Studies': 'AMES',
+  'Arabic': 'ARAB',
+  'Astronomy': 'ASTR',
+  'Biological Sciences': 'BIOL',
+  'Chinese': 'CHIN',
+  'Comparative Literature': 'COLT',
+  'Education': 'EDUC',
+  'Engineering Sciences': 'ENGS',
+  'French and Italian in Translation': 'FRIT',
+  'Greek': 'GRK',
+  'Hebrew': 'HEBR',
+  'Humanities': 'HUM',
+  'International Studies': 'INTL',
+  'Italian': 'ITAL',
+  'Jewish Studies': 'JWST',
+  'Latin American and Caribbean Studies': 'LACS',
+  'Latin': 'LAT',
+  'Latino Studies': 'LATS',
+  'Linguistics': 'LING',
+  'Native American Studies': 'NAS',
+  'Public Policy': 'PBPL',
+  'Portuguese': 'PORT',
+  'Quantitative Social Science': 'QSS',
+  'Russian Language and Literature': 'RUSS',
+  'Studio Art': 'SART',
+  'Speech': 'SPCM',
+  'Social Science': 'SSC',
+  'Tuck Undergraduate Courses': 'TUC',
+  'Writing Courses': 'WRIT'
 };
 
 /**
@@ -146,11 +178,21 @@ const getAllDepartmentOptions = () => {
   const sortedEntries = Object.entries(majorToDepartmentMap)
     .sort(([majorA], [majorB]) => majorA.localeCompare(majorB));
   
-  // Convert to options format for dropdown selectors
-  return sortedEntries.map(([major, code]) => ({
-    label: `${major} (${code})`,
-    value: code
-  }));
+  // Deduplicate by department code (value)
+  const uniqueDeptCodes = new Set();
+  const uniqueOptions = [];
+  
+  for (const [major, code] of sortedEntries) {
+    if (!uniqueDeptCodes.has(code)) {
+      uniqueDeptCodes.add(code);
+      uniqueOptions.push({
+        label: `${major} (${code})`,
+        value: code
+      });
+    }
+  }
+  
+  return uniqueOptions;
 };
 
 /**

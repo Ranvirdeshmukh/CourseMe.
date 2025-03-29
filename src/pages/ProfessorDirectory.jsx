@@ -1,7 +1,7 @@
 import { getFirestore, collection, query as firestoreQuery, getDocs, limit, orderBy, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase'; 
 import { Mail, Search, X } from 'lucide-react';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -336,8 +336,8 @@ const ProfessorDirectory = ({ darkMode }) => {
   const [userMajor, setUserMajor] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [showAllDepartments, setShowAllDepartments] = useState(false);
-  const [departmentOptions] = useState(getAllDepartmentOptions());
-  const [popularDepartments] = useState(getPopularDepartments());
+  const departmentOptions = useMemo(() => getAllDepartmentOptions(), []);
+  const popularDepartments = useMemo(() => getPopularDepartments(), []);
   
   // Reference to track if component is mounted
   const isMounted = useRef(true);
