@@ -196,7 +196,7 @@ const Timetable = ({darkMode}) => {
   
   var courseNameLong = ""
    // Add this near your other state declarations
-   const CACHE_VERSION = 'springV1';
+   const CACHE_VERSION = 'springV2';
 
   const isMobile = useMediaQuery('(max-width:600px)');
 
