@@ -1,0 +1,778 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Box, Typography, CircularProgress, Chip, Tooltip, Card, CardContent, Divider } from '@mui/material';
+import { collection, query, getDocs, where, limit, doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { TrendingUp, BookOpen, Lightbulb, BookText, Target } from 'lucide-react';
+
+/**
+ * SimilarCourses component that displays course recommendations based on similarity to the current course
+ * The enhanced algorithm focuses on substantive similarities across departments, not just within them
+ */
+const SimilarCourses = ({ courseId, currentDepartment, darkMode, course }) => {
+  const [loading, setLoading] = useState(true);
+  const [similarCourses, setSimilarCourses] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchSimilarCourses = async () => {
+      if (!courseId || !course) return;
+
+      try {
+        setLoading(true);
+        
+        // Extract current course information for comparison
+        const currentCourseNumber = extractCourseNumber(courseId);
+        const currentCourseLevel = Math.floor(parseInt(currentCourseNumber) / 100) * 100;
+        const currentDistribs = course.distribs ? course.distribs.split(',').map(d => d.trim()) : [];
+        const currentQuality = course.quality || 0;
+        const currentLayup = course.layup || 0;
+        const currentMetrics = course.metrics || {};
+        const currentDescription = course.description || '';
+        const currentName = course.name || '';
+        
+        // Fetch current course's full data to get description and additional fields
+        const courseDocRef = doc(db, 'courses', courseId);
+        const courseDocSnap = await getDoc(courseDocRef);
+        let courseKeywords = [];
+        let currentReviewSummary = '';
+        
+        if (courseDocSnap.exists()) {
+          const fullCourseData = courseDocSnap.data();
+          // Extract keywords from current course description
+          if (fullCourseData.description) {
+            courseKeywords = [...courseKeywords, ...extractKeywords(fullCourseData.description)];
+          }
+          
+          // Get the AI summary if available
+          if (fullCourseData.summary) {
+            currentReviewSummary = fullCourseData.summary;
+          }
+        }
+        
+        // Add keywords from course name
+        if (currentName) {
+          courseKeywords = [...courseKeywords, ...extractKeywords(currentName)];
+        }
+        
+        // Add keywords from review summary
+        if (currentReviewSummary) {
+          courseKeywords = [...courseKeywords, ...extractKeywords(currentReviewSummary)];
+        }
+        
+        // Remove duplicates and normalize
+        courseKeywords = [...new Set(courseKeywords.map(kw => kw.toLowerCase()))];
+        
+        // List of related subject area pairs - Expanded with more interdisciplinary connections
+        const relatedSubjects = [
+          // Humanities
+          ['ENGL', 'CRWT'], // English & Creative Writing
+          ['ENGL', 'COLT'], // English & Comparative Literature
+          ['ENGL', 'WGSS'], // English & Women's Studies
+          ['ENGL', 'FILM'], // English & Film
+          ['ENGL', 'THEA'], // English & Theater
+          ['PHIL', 'GOVT'], // Philosophy & Government
+          ['PHIL', 'COGS'], // Philosophy & Cognitive Science
+          ['PHIL', 'RELI'], // Philosophy & Religion
+          ['PHIL', 'MATH'], // Philosophy & Mathematics
+          ['HIST', 'GOVT'], // History & Government
+          ['HIST', 'AAAS'], // History & African American Studies
+          ['HIST', 'ANTH'], // History & Anthropology
+          ['HIST', 'ASCL'], // History & Asian Studies
+          ['HIST', 'JWST'], // History & Jewish Studies
+          ['HIST', 'LACS'], // History & Latin American Studies
+          ['HIST', 'MES'], // History & Middle Eastern Studies
+          ['HIST', 'NAS'], // History & Native American Studies
+          ['HIST', 'WGSS'], // History & Women's Studies
+          ['HIST', 'CLAS'], // History & Classics
+          ['COLT', 'FILM'], // Comparative Literature & Film
+          ['COLT', 'THEA'], // Comparative Literature & Theater
+          ['COLT', 'WGSS'], // Comparative Literature & Women's Studies
+          ['WGSS', 'SOCY'], // Women's Studies & Sociology
+          ['WGSS', 'ANTH'], // Women's Studies & Anthropology
+          ['WGSS', 'GOVT'], // Women's Studies & Government
+          
+          // STEM
+          ['MATH', 'COSC'], // Math & Computer Science
+          ['MATH', 'PHYS'], // Math & Physics  
+          ['MATH', 'ENGS'], // Math & Engineering
+          ['MATH', 'ECON'], // Math & Economics
+          ['MATH', 'QSS'],  // Math & Quantitative Social Science
+          ['PHYS', 'ASTR'], // Physics & Astronomy
+          ['PHYS', 'ENGS'], // Physics & Engineering
+          ['PHYS', 'CHEM'], // Physics & Chemistry
+          ['CHEM', 'BIOL'], // Chemistry & Biology
+          ['CHEM', 'ENGS'], // Chemistry & Engineering
+          ['CHEM', 'EARS'], // Chemistry & Earth Sciences
+          ['BIOL', 'PSYC'], // Biology & Psychology
+          ['BIOL', 'ENGS'], // Biology & Engineering
+          ['BIOL', 'EARS'], // Biology & Earth Sciences
+          ['BIOL', 'CHEM'], // Biology & Chemistry
+          ['COSC', 'ENGS'], // Computer Science & Engineering
+          ['COSC', 'QSS'], // Computer Science & Quantitative Social Science
+          ['COSC', 'MATH'], // Computer Science & Mathematics
+          ['COSC', 'LING'], // Computer Science & Linguistics
+          ['COSC', 'COGS'], // Computer Science & Cognitive Science
+          ['ENGS', 'EARS'], // Engineering & Earth Sciences
+          ['ENGS', 'ENVS'], // Engineering & Environmental Studies
+          
+          // Social Sciences
+          ['PSYC', 'SOCY'], // Psychology & Sociology
+          ['PSYC', 'COGS'], // Psychology & Cognitive Science
+          ['PSYC', 'LING'], // Psychology & Linguistics
+          ['PSYC', 'EDUC'], // Psychology & Education
+          ['PSYC', 'BIOL'], // Psychology & Biology
+          ['SOCY', 'ANTH'], // Sociology & Anthropology
+          ['SOCY', 'GOVT'], // Sociology & Government
+          ['SOCY', 'WGSS'], // Sociology & Women's Studies
+          ['SOCY', 'GEOG'], // Sociology & Geography
+          ['ECON', 'GOVT'], // Economics & Government
+          ['ECON', 'QSS'], // Economics & Quantitative Social Science
+          ['ECON', 'MATH'], // Economics & Math
+          ['ECON', 'GEOG'], // Economics & Geography
+          ['ECON', 'ENVS'], // Economics & Environmental Studies
+          ['ANTH', 'LING'], // Anthropology & Linguistics
+          ['ANTH', 'WGSS'], // Anthropology & Women's Studies
+          ['GOVT', 'PBPL'], // Government & Public Policy
+          
+          // Arts
+          ['MUS', 'THEA'], // Music & Theater
+          ['SART', 'FILM'], // Studio Art & Film
+          ['FILM', 'THEA'], // Film & Theater
+          ['FILM', 'ENGL'], // Film & English
+          ['THEA', 'ENGL'], // Theater & English
+          ['SART', 'THEA'], // Studio Art & Theater
+          ['MUS', 'COSC'], // Music & Computer Science
+          
+          // Regional Studies
+          ['AAAS', 'GOVT'], // African Studies & Government
+          ['AAAS', 'SOCY'], // African Studies & Sociology
+          ['AAAS', 'HIST'], // African Studies & History
+          ['ASCL', 'GOVT'], // Asian Studies & Government
+          ['ASCL', 'HIST'], // Asian Studies & History
+          ['ASCL', 'RELI'], // Asian Studies & Religion
+          ['LACS', 'SPAN'], // Latin American Studies & Spanish
+          ['LACS', 'PORT'], // Latin American Studies & Portuguese
+          ['LACS', 'GOVT'], // Latin American Studies & Government
+          ['MES', 'GOVT'], // Middle Eastern Studies & Government
+          ['MES', 'ANTH'], // Middle Eastern Studies & Anthropology
+          ['MES', 'RELI'], // Middle Eastern Studies & Religion
+          ['NAS', 'ANTH'], // Native American Studies & Anthropology
+          ['NAS', 'GOVT'], // Native American Studies & Government
+          ['NAS', 'HIST'], // Native American Studies & History
+          
+          // Languages
+          ['SPAN', 'PORT'], // Spanish & Portuguese
+          ['FREN', 'ITAL'], // French & Italian
+          ['CHIN', 'JAPN'], // Chinese & Japanese
+          ['GERM', 'RUSS'], // German & Russian
+          ['HEBR', 'ARAB'], // Hebrew & Arabic
+          ['LING', 'COSC'], // Linguistics & Computer Science
+          ['LING', 'PSYC'], // Linguistics & Psychology
+          ['LING', 'COGS'], // Linguistics & Cognitive Science
+          
+          // Interdisciplinary
+          ['ENVS', 'BIOL'], // Environmental Studies & Biology
+          ['ENVS', 'EARS'], // Environmental Studies & Earth Sciences
+          ['ENVS', 'GEOG'], // Environmental Studies & Geography
+          ['ENVS', 'GOVT'], // Environmental Studies & Government
+          ['ENVS', 'ECON'], // Environmental Studies & Economics
+          ['COGS', 'PSYC'], // Cognitive Science & Psychology
+          ['COGS', 'PHIL'], // Cognitive Science & Philosophy
+          ['COGS', 'LING'], // Cognitive Science & Linguistics
+          ['COGS', 'COSC'], // Cognitive Science & Computer Science
+          ['QSS', 'MATH'], // Quantitative Social Science & Mathematics
+          ['QSS', 'GOVT'], // Quantitative Social Science & Government
+          ['QSS', 'SOCY'], // Quantitative Social Science & Sociology
+          ['QSS', 'ECON'], // Quantitative Social Science & Economics
+          ['QSS', 'COSC'], // Quantitative Social Science & Computer Science
+          ['PBPL', 'GOVT'], // Public Policy & Government
+          ['PBPL', 'ECON'], // Public Policy & Economics
+          ['PBPL', 'SOCY'], // Public Policy & Sociology
+          ['EDUC', 'PSYC'], // Education & Psychology
+          ['EDUC', 'SOCY'], // Education & Sociology
+        ];
+        
+        // Determine related departments to current department
+        const relatedDepartments = new Set();
+        relatedSubjects.forEach(pair => {
+          if (pair[0] === currentDepartment) {
+            relatedDepartments.add(pair[1]);
+          } else if (pair[1] === currentDepartment) {
+            relatedDepartments.add(pair[0]);
+          }
+        });
+        
+        // Fetch all courses
+        const coursesSnapshot = await getDocs(collection(db, 'courses'));
+        
+        // Process and score the similarity of each course
+        const scoredCourses = [];
+        
+        for (const docSnapshot of coursesSnapshot.docs) {
+          const courseData = docSnapshot.data();
+          const candidateId = docSnapshot.id;
+          
+          // Skip the current course
+          if (candidateId === courseId) continue;
+          
+          // Skip courses without necessary data
+          if (!courseData.department || !courseData.course_number) continue;
+          
+          // Calculate similarity score
+          let similarityScore = 0;
+          const reasons = [];
+          
+          // 1. Same department (some weight, but not dominant)
+          if (courseData.department === currentDepartment) {
+            similarityScore += 15;
+            reasons.push('Same department');
+          }
+          
+          // 2. Related department (give significant weight to cross-departmental similarities)
+          if (relatedDepartments.has(courseData.department)) {
+            similarityScore += 20;
+            reasons.push(`Related to ${currentDepartment} studies`);
+          }
+          
+          // 3. Similar course level (100s with 100s, etc.)
+          const candidateCourseNumber = parseInt(courseData.course_number);
+          const candidateCourseLevel = Math.floor(candidateCourseNumber / 100) * 100;
+          
+          if (candidateCourseLevel === currentCourseLevel) {
+            similarityScore += 10;
+            reasons.push('Similar course level');
+          }
+          
+          // 4. Matching distribs (very important - key academic categorization)
+          const candidateDistribs = courseData.distribs ? courseData.distribs.split(',').map(d => d.trim()) : [];
+          const matchingDistribs = candidateDistribs.filter(d => currentDistribs.includes(d));
+          
+          if (matchingDistribs.length > 0) {
+            similarityScore += matchingDistribs.length * 15;
+            reasons.push(`${matchingDistribs.length} matching distribution${matchingDistribs.length > 1 ? 's' : ''}`);
+          }
+          
+          // 5. Keyword matching (most important - content similarity)
+          let candidateKeywords = [];
+          
+          // Extract from name
+          if (courseData.name) {
+            candidateKeywords = [...candidateKeywords, ...extractKeywords(courseData.name)];
+          }
+          
+          // Extract from description if available
+          if (courseData.description) {
+            candidateKeywords = [...candidateKeywords, ...extractKeywords(courseData.description)];
+          }
+          
+          // Extract from summary if available
+          if (courseData.summary) {
+            candidateKeywords = [...candidateKeywords, ...extractKeywords(courseData.summary)];
+          }
+          
+          // Remove duplicates and normalize
+          candidateKeywords = [...new Set(candidateKeywords.map(kw => kw.toLowerCase()))];
+          
+          // Add semantically related concepts to both keyword sets
+          const enhancedCourseKeywords = [...courseKeywords, ...getRelatedConcepts(courseKeywords)];
+          const enhancedCandidateKeywords = [...candidateKeywords, ...getRelatedConcepts(candidateKeywords)];
+          
+          // Calculate keyword matches (direct + semantic)
+          const matchingKeywords = enhancedCandidateKeywords.filter(kw => 
+            enhancedCourseKeywords.some(ck => 
+              // Exact match
+              kw === ck || 
+              // Partial match (one is substring of the other)
+              kw.includes(ck) || 
+              ck.includes(kw) ||
+              // N-gram partial match for multi-word concepts
+              (kw.includes('_') && ck.includes('_') && 
+               kw.split('_').some(kwPart => 
+                 ck.split('_').some(ckPart => 
+                   kwPart === ckPart || kwPart.includes(ckPart) || ckPart.includes(kwPart)
+                 )
+               )
+              )
+            )
+          );
+          
+          // Additional weighting for longer/more specific keyword matches
+          const complexMatchBonus = matchingKeywords.filter(kw => kw.includes('_')).length * 2;
+          
+          if (matchingKeywords.length > 0) {
+            // Give higher weight to keyword matches - this is about actual content
+            const baseKeywordScore = Math.min(matchingKeywords.length * 6, 40); // Increased weight per match
+            const keywordScore = baseKeywordScore + complexMatchBonus; // Add bonus for complex matches
+            similarityScore += keywordScore;
+            
+            // Prioritize cross-department matches with good content similarity
+            if (courseData.department !== currentDepartment && keywordScore >= 24) {
+              similarityScore += 15; // Significant boost for high-quality cross-department matches
+              reasons.push('Strong interdisciplinary connection');
+            }
+            
+            if (matchingKeywords.length >= 4) {
+              reasons.push(`High content similarity (${matchingKeywords.length} matching topics)`);
+            } else if (matchingKeywords.length >= 2) {
+              reasons.push(`Similar content (${matchingKeywords.length} matching topics)`);
+            } else {
+              reasons.push(`Some similar topics`);
+            }
+          }
+          
+          // 6. Similar quality rating
+          const qualityDiff = Math.abs((courseData.quality || 0) - currentQuality);
+          if (qualityDiff <= 5) {
+            similarityScore += 5;
+            reasons.push('Similar quality rating');
+          }
+          
+          // 7. Similar layup score
+          const layupDiff = Math.abs((courseData.layup || 0) - currentLayup);
+          if (layupDiff <= 5) {
+            similarityScore += 5;
+            reasons.push('Similar workload');
+          }
+          
+          // 8. Similar metrics if available (student experience)
+          if (courseData.metrics && currentMetrics) {
+            const metricsToCompare = ['difficulty_score', 'quality_score', 'sentiment_score'];
+            let metricMatches = 0;
+            
+            metricsToCompare.forEach(metric => {
+              if (courseData.metrics[metric] && currentMetrics[metric]) {
+                const diff = Math.abs(courseData.metrics[metric] - currentMetrics[metric]);
+                if (diff <= 15) { // Within 15% similarity threshold
+                  metricMatches++;
+                }
+              }
+            });
+            
+            if (metricMatches > 0) {
+              similarityScore += metricMatches * 5;
+              reasons.push('Similar student experience');
+            }
+          }
+          
+          // 9. Complementary courses (courses that are different but complementary)
+          const isComplementary = (currentDepartment !== courseData.department) && 
+            (currentDistribs.some(d => candidateDistribs.includes(d)));
+            
+          if (isComplementary) {
+            similarityScore += 10;
+            reasons.push('Complementary subject matter');
+          }
+          
+          // 10. Methodological similarity (research methods, analysis approaches)
+          const methodKeywords = ["research", "analysis", "method", "theory", "practical", 
+                                "application", "quantitative", "qualitative", "case study", 
+                                "empirical", "experimental", "theoretical"];
+                                
+          const currentMethodKeywords = enhancedCourseKeywords.filter(kw => 
+            methodKeywords.some(mk => kw.includes(mk)));
+          const candidateMethodKeywords = enhancedCandidateKeywords.filter(kw => 
+            methodKeywords.some(mk => kw.includes(mk)));
+          
+          const methodMatches = candidateMethodKeywords.filter(kw => 
+            currentMethodKeywords.some(cmk => kw.includes(cmk) || cmk.includes(kw)));
+          
+          if (methodMatches.length > 0) {
+            similarityScore += Math.min(methodMatches.length * 3, 12);
+            reasons.push('Similar methodological approach');
+          }
+          
+          // Only include courses with a minimum similarity
+          if (similarityScore >= 25) {
+            scoredCourses.push({
+              id: candidateId,
+              name: courseData.name || `${courseData.department} ${courseData.course_number}`,
+              department: courseData.department,
+              course_number: courseData.course_number,
+              distribs: candidateDistribs,
+              score: similarityScore,
+              reasons,
+              metrics: courseData.metrics || {},
+              quality: courseData.quality || 0,
+              layup: courseData.layup || 0
+            });
+          }
+        }
+        
+        // Sort by similarity score (descending) and take top 4
+        const topSimilarCourses = scoredCourses
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 4);
+        
+        setSimilarCourses(topSimilarCourses);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching similar courses:', error);
+        setError('Failed to fetch similar courses');
+        setLoading(false);
+      }
+    };
+
+    fetchSimilarCourses();
+  }, [courseId, currentDepartment, course]);
+
+  // Helper function to extract course number from ID
+  const extractCourseNumber = (id) => {
+    const match = id.match(/[A-Z]+(\d+)/);
+    return match ? match[1] : '0';
+  };
+
+  // Helper function to extract meaningful keywords from text
+  const extractKeywords = (text) => {
+    if (!text) return [];
+    
+    // Remove HTML tags if present
+    const cleanText = text.replace(/<[^>]*>?/gm, '');
+    
+    // Split by non-word characters and filter out common words and short words
+    const stopWords = [
+      'the', 'and', 'or', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'with', 
+      'by', 'about', 'as', 'of', 'this', 'that', 'these', 'those', 'is', 'are', 
+      'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 
+      'did', 'will', 'would', 'shall', 'should', 'may', 'might', 'must', 'can', 
+      'could', 'course', 'student', 'students', 'class', 'classes', 'lecture', 
+      'lectures', 'professor', 'professors', 'dartmouth', 'college', 'term', 'terms',
+      'week', 'weeks', 'grade', 'grades', 'grading', 'assignment', 'assignments',
+      'exam', 'exams', 'quiz', 'quizzes', 'test', 'tests', 'final', 'midterm', 'paper',
+      'papers', 'reading', 'readings', 'material', 'materials', 'learn', 'learning',
+      'teach', 'teaching', 'understand', 'understanding'
+    ];
+    
+    // Extract n-grams (1-3 words) for better phrase matching
+    const words = cleanText.split(/\s+/)
+      .map(word => word.replace(/[^\w]/g, '').toLowerCase())
+      .filter(word => 
+        word.length > 2 && 
+        !stopWords.includes(word) && 
+        !word.match(/^\d+$/) // Filter out just numbers
+      );
+    
+    // Single words
+    const unigrams = words;
+    
+    // Generate bigrams (pairs of consecutive words)
+    const bigrams = [];
+    for (let i = 0; i < words.length - 1; i++) {
+      if (words[i].length > 2 && words[i+1].length > 2) {
+        bigrams.push(`${words[i]}_${words[i+1]}`);
+      }
+    }
+    
+    // Generate trigrams (triplets of consecutive words)
+    const trigrams = [];
+    for (let i = 0; i < words.length - 2; i++) {
+      if (words[i].length > 2 && words[i+1].length > 2 && words[i+2].length > 2) {
+        trigrams.push(`${words[i]}_${words[i+1]}_${words[i+2]}`);
+      }
+    }
+    
+    // Combine all n-grams and remove duplicates
+    return [...new Set([...unigrams, ...bigrams, ...trigrams])];
+  };
+
+  // Define academic concept mappings for deeper semantic connections
+  const getRelatedConcepts = (keywords) => {
+    const conceptMap = {
+      // STEM concepts
+      'algorithm': ['computation', 'programming', 'data structure', 'complexity', 'computer', 'code'],
+      'computation': ['algorithm', 'theory', 'model', 'mathematics', 'logic'],
+      'calculus': ['derivative', 'integral', 'function', 'limit', 'mathematics', 'differential', 'equation'],
+      'linear algebra': ['vector', 'matrix', 'space', 'transformation', 'system', 'equation'],
+      'statistics': ['probability', 'distribution', 'inference', 'regression', 'model', 'data', 'analysis'],
+      'quantum': ['physics', 'mechanics', 'particle', 'wave', 'energy', 'atomic'],
+      'biology': ['organism', 'cell', 'genetics', 'evolution', 'ecology', 'molecular'],
+      'chemistry': ['compound', 'reaction', 'molecule', 'atomic', 'organic', 'bond'],
+      'machine learning': ['neural', 'network', 'prediction', 'ai', 'artificial intelligence', 'data', 'model', 'training'],
+      'artificial intelligence': ['machine learning', 'neural', 'cognitive', 'intelligence', 'ai', 'algorithm'],
+      'data science': ['analytics', 'visualization', 'statistics', 'mining', 'big data', 'prediction'],
+      'computer science': ['algorithm', 'data structure', 'programming', 'computation', 'software'],
+      'physics': ['mechanics', 'relativity', 'quantum', 'thermodynamics', 'electromagnetism', 'force'],
+      
+      // Humanities concepts
+      'literature': ['text', 'reading', 'writing', 'author', 'narrative', 'interpretation', 'novel'],
+      'philosophy': ['ethics', 'logic', 'epistemology', 'metaphysics', 'ontology', 'knowledge', 'truth'],
+      'history': ['culture', 'civilization', 'period', 'empire', 'revolution', 'war', 'political'],
+      'art': ['visual', 'design', 'aesthetic', 'studio', 'creative', 'image', 'color'],
+      'religion': ['belief', 'faith', 'practice', 'spiritual', 'sacred', 'divine', 'theology'],
+      'writing': ['composition', 'rhetoric', 'narrative', 'creative', 'essay', 'communication'],
+      'theory': ['critique', 'analysis', 'interpretation', 'framework', 'perspective', 'methodology'],
+      'classics': ['ancient', 'greek', 'roman', 'mythology', 'philosophy', 'history'],
+      'rhetoric': ['persuasion', 'argument', 'communication', 'discourse', 'speech', 'debate'],
+      'literary': ['fiction', 'poetry', 'drama', 'narrative', 'text', 'interpretation'],
+      'medieval': ['renaissance', 'history', 'literature', 'culture', 'period'],
+      
+      // Social Sciences concepts
+      'psychology': ['behavior', 'cognitive', 'mental', 'development', 'personality', 'social'],
+      'sociology': ['society', 'culture', 'social', 'institution', 'relationship', 'interaction'],
+      'economics': ['market', 'finance', 'policy', 'theory', 'model', 'business', 'monetary'],
+      'policy': ['government', 'political', 'public', 'regulation', 'legislation', 'administration'],
+      'anthropology': ['culture', 'ethnography', 'society', 'ritual', 'kinship', 'fieldwork'],
+      'political': ['government', 'power', 'policy', 'institution', 'democracy', 'state', 'international'],
+      'international': ['global', 'foreign', 'diplomatic', 'transnational', 'world', 'relations', 'policy'],
+      'education': ['pedagogy', 'learning', 'teaching', 'curriculum', 'assessment', 'development'],
+      'law': ['legal', 'justice', 'rights', 'constitutional', 'court', 'legislation', 'regulatory'],
+      'linguistics': ['language', 'grammar', 'semantics', 'syntax', 'phonology', 'communication'],
+      'cognitive': ['psychology', 'neuroscience', 'mind', 'brain', 'perception', 'consciousness'],
+      
+      // Interdisciplinary concepts
+      'analysis': ['research', 'method', 'theory', 'framework', 'interpretation', 'critical'],
+      'global': ['international', 'world', 'cultural', 'transnational', 'comparative', 'regional'],
+      'ethics': ['moral', 'philosophy', 'value', 'justice', 'rights', 'principle'],
+      'digital': ['technology', 'computer', 'online', 'internet', 'media', 'electronic'],
+      'environment': ['sustainability', 'ecology', 'climate', 'natural', 'conservation', 'system'],
+      'gender': ['sexuality', 'feminism', 'identity', 'cultural', 'social', 'theory'],
+      'race': ['ethnicity', 'identity', 'culture', 'social', 'historical', 'political'],
+      'design': ['process', 'product', 'system', 'creative', 'innovation', 'development'],
+      'media': ['communication', 'technology', 'platform', 'content', 'production', 'analysis'],
+      'health': ['medicine', 'wellbeing', 'disease', 'public', 'care', 'policy', 'social'],
+      'indigenous': ['native', 'aboriginal', 'first nations', 'tradition', 'cultural', 'community'],
+      'postcolonial': ['colonial', 'empire', 'power', 'culture', 'global', 'identity'],
+      'innovation': ['entrepreneurship', 'startup', 'business', 'development', 'technology', 'creative'],
+      'neuroscience': ['brain', 'neural', 'cognitive', 'psychology', 'biology', 'medicine'],
+      'comparative': ['cross-cultural', 'global', 'analysis', 'perspective', 'context', 'relative'],
+      'security': ['defense', 'cybersecurity', 'international', 'strategy', 'threat', 'protection'],
+      'urban': ['city', 'planning', 'development', 'space', 'architecture', 'social'],
+      'public health': ['epidemiology', 'health', 'policy', 'community', 'prevention', 'population'],
+      'data': ['information', 'statistics', 'analysis', 'collection', 'research', 'quantitative']
+    };
+    
+    const relatedTerms = new Set();
+    
+    // For each keyword, add related concepts
+    keywords.forEach(keyword => {
+      // Direct mapping from concept map
+      Object.entries(conceptMap).forEach(([concept, relatedConcepts]) => {
+        // Check if keyword contains the concept or any of its related concepts
+        if (keyword.includes(concept) || relatedConcepts.some(rc => keyword.includes(rc))) {
+          // Add the concept and all related concepts
+          relatedTerms.add(concept);
+          relatedConcepts.forEach(rc => relatedTerms.add(rc));
+        }
+      });
+      
+      // Special handling for academic keywords that cross disciplines
+      const crossDisciplinaryTerms = {
+        // Methods that appear across disciplines
+        'research': ['methodology', 'analysis', 'study', 'investigation', 'qualitative', 'quantitative', 'empirical'],
+        'theory': ['framework', 'model', 'concept', 'hypothesis', 'paradigm', 'approach'],
+        'analysis': ['assessment', 'evaluation', 'examination', 'critique', 'interpretation', 'method'],
+        
+        // Topics that appear across disciplines
+        'ethics': ['moral', 'values', 'justice', 'rights', 'responsibility', 'principles', 'conduct', 'integrity'],
+        'culture': ['society', 'identity', 'social', 'practice', 'community', 'tradition', 'cultural'],
+        'environment': ['sustainability', 'ecological', 'climate', 'conservation', 'natural', 'resource'],
+        
+        // Broad methodological approaches
+        'qualitative': ['interpretation', 'narrative', 'ethnographic', 'observational', 'descriptive'],
+        'quantitative': ['statistical', 'measurement', 'numerical', 'computational', 'data-driven'],
+        'critical': ['analysis', 'theory', 'perspective', 'evaluation', 'assessment', 'critique']
+      };
+      
+      Object.entries(crossDisciplinaryTerms).forEach(([term, related]) => {
+        if (keyword.includes(term)) {
+          related.forEach(r => relatedTerms.add(r));
+        }
+      });
+    });
+    
+    return Array.from(relatedTerms);
+  };
+
+  // Helper function to generate URL for a course
+  const generateCourseUrl = (course) => {
+    return `/departments/${course.department}/courses/${course.id}`;
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ textAlign: 'center', padding: '20px' }}>
+        <CircularProgress size={24} sx={{ color: darkMode ? '#90CAF9' : '#1976D2' }} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ textAlign: 'center', padding: '20px', color: darkMode ? '#F48FB1' : '#D32F2F' }}>
+        <Typography variant="body2">{error}</Typography>
+      </Box>
+    );
+  }
+
+  if (similarCourses.length === 0) {
+    return (
+      <Box sx={{ padding: '20px', textAlign: 'center' }}>
+        <Typography 
+          variant="body2" 
+          sx={{ fontStyle: 'italic', color: darkMode ? '#A0AEC0' : '#718096' }}
+        >
+          No similar courses found
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ padding: '20px' }}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          marginBottom: '16px',
+          gap: 1
+        }}
+      >
+        <Lightbulb size={18} color={darkMode ? '#90CAF9' : '#1976D2'} />
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontSize: '1.1rem', 
+            fontWeight: 600, 
+            color: darkMode ? '#F0F4F8' : '#2D3748' 
+          }}
+        >
+          Recommended Courses
+        </Typography>
+      </Box>
+      
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {similarCourses.map((similarCourse) => {
+          // Get the distribs from the current course we're viewing (not the similarCourse)
+          const viewedCourseDistribs = course?.distribs ? course.distribs.split(',').map(d => d.trim()) : [];
+          
+          return (
+            <Card 
+              key={similarCourse.id} 
+              component={Link} 
+              to={generateCourseUrl(similarCourse)}
+              sx={{
+                textDecoration: 'none',
+                backgroundColor: darkMode ? '#1A202C' : '#FFFFFF',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                },
+                border: darkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+              }}
+            >
+              <CardContent sx={{ padding: '16px !important' }}>
+              <CardContent sx={{ padding: \"16px !important\" }}>
+                <Box sx={{ display: \"flex\", justifyContent: \"space-between\", alignItems: \"flex-start\", mb: 1 }}>
+                    sx={{ 
+                      fontSize: '0.95rem', 
+                      fontWeight: 600, 
+                      color: darkMode ? '#F0F4F8' : '#2D3748',
+                      flexGrow: 1 
+                    }}
+                  >
+                    {similarCourse.department} {similarCourse.course_number}: {similarCourse.name}
+                  </Typography>
+                  <Chip
+                    label={similarCourse.department}
+                    size="small"
+                    sx={{
+                      ml: 1,
+                      backgroundColor: similarCourse.department === currentDepartment 
+                        ? (darkMode ? '#4A5568' : '#E2E8F0') 
+                        : (darkMode ? '#2C5282' : '#EBF8FF'),
+                      color: similarCourse.department === currentDepartment
+                        ? (darkMode ? '#CBD5E0' : '#4A5568')
+                        : (darkMode ? '#90CDF4' : '#2B6CB0'),
+                      fontSize: '0.7rem',
+                      height: '20px',
+                      flexShrink: 0
+                    }}
+                  />
+                </Box>
+                
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 1.5 }}>
+                  {similarCourse.distribs.map((distrib, idx) => (
+                    <Chip
+                      key={`${distrib}-${idx}`}
+                      label={distrib}
+                      size="small"
+                      sx={{
+                        backgroundColor: viewedCourseDistribs.includes(distrib)
+                          ? (darkMode ? '#2D3748' : '#EDF2F7')
+                          : (darkMode ? '#1A365D' : '#E6FFFA'),
+                        color: viewedCourseDistribs.includes(distrib)
+                          ? (darkMode ? '#CBD5E0' : '#4A5568')
+                          : (darkMode ? '#81E6D9' : '#2C7A7B'),
+                        fontSize: '0.7rem',
+                        height: '20px',
+                      }}
+                    />
+                  ))}
+                </Box>
+                
+                <Divider sx={{ my: 1, borderColor: darkMode ? '#2D3748' : '#E2E8F0' }} />
+                
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Tooltip 
+                    title={similarCourse.reasons.join(', ')} 
+                    placement="top"
+                    arrow
+                  >
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 0.5, 
+                      cursor: 'help' 
+                    }}>
+                      <Target size={14} color={darkMode ? '#90CAF9' : '#1976D2'} />
+                      <Typography 
+                        variant="caption" 
+                        sx={{ color: darkMode ? '#A0AEC0' : '#718096' }}
+                      >
+                        {Math.round(similarCourse.score)}% match
+                      </Typography>
+                    </Box>
+                  </Tooltip>
+                  
+                  <Box sx={{ display: 'flex', gap: 1.5 }}>
+                    <Tooltip title="Quality Rating" placement="top" arrow>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          color: darkMode ? '#A0AEC0' : '#718096'
+                        }}
+                      >
+                        Q: {similarCourse.quality}
+                      </Typography>
+                    </Tooltip>
+                    
+                    <Tooltip title="Workload Rating" placement="top" arrow>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          color: darkMode ? '#A0AEC0' : '#718096'
+                        }}
+                      >
+                        W: {similarCourse.layup}
+                      </Typography>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+};
+
+export default SimilarCourses; 
