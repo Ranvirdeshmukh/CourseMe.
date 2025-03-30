@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Container, Typography, Box, Alert, Table, TableBody, TableCell, TableContainer,
@@ -31,6 +32,7 @@ import ScienceIcon from '@mui/icons-material/Science';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import CourseAnalytics from './CourseAnalytics.jsx';
 import CourseVoting from './CourseVoting.jsx';
+import SimilarCourses from './SimilarCourses.jsx';
 
 
 const CourseReviewsPage = ({ darkMode }) => {
@@ -498,7 +500,7 @@ const CourseReviewsPage = ({ darkMode }) => {
       </Typography>
       
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <CourseVoting 
+        <CourseVoting 
           course={course}
           courseId={courseId}
           currentUser={currentUser}
@@ -506,6 +508,12 @@ const CourseReviewsPage = ({ darkMode }) => {
         />
         <CourseAnalytics metrics={course?.metrics}
         darkMode={darkMode} />
+        <SimilarCourses 
+          courseId={courseId}
+          currentDepartment={department}
+          darkMode={darkMode}
+          course={course}
+        />
       </Box>
     </Box>
   );
@@ -3595,6 +3603,25 @@ useEffect(() => {
             </Box>
           </>
         )}
+        <Box
+          sx={{
+            background: '',
+            padding: '20px',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '100%',
+            marginBottom: '20px'
+          }}
+        >
+          <Container maxWidth="md">
+            <SimilarCourses 
+              courseId={courseId}
+              currentDepartment={department}
+              darkMode={darkMode}
+              course={course}
+            />
+          </Container>
+        </Box>
         <Box
           sx={{
             background: '',
