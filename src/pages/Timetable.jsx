@@ -725,16 +725,40 @@ const accentHoverBg = darkMode
   };
   
   const fetchUserTimetable = async () => {
+    if (!currentUser) {
+      console.log("No user logged in, cannot fetch timetable");
+      setSelectedCourses([]);
+      return;
+    }
+    
     try {
-      const db = getFirestore();
-      // Query the subcollection "springCoursestaken" under the current user
-      const springCoursesRef = collection(db, 'users', currentUser.uid, 'springCoursestaken');
-      const snapshot = await getDocs(springCoursesRef);
-      // Map each document to an object that includes its document id (so you can remove it later)
-      const coursesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setSelectedCourses(coursesData);
+      console.log("Fetching spring courses for user:", currentUser.uid);
+      
+      // Get the user document
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      
+      if (userDocSnap.exists()) {
+        // Extract springCoursestaken from user document
+        const userData = userDocSnap.data();
+        const springCourses = userData.springCoursestaken || [];
+        
+        console.log(`Found ${springCourses.length} courses in the user's spring timetable`);
+        setSelectedCourses(springCourses);
+      } else {
+        console.log("User document not found. Creating a new one with empty springCoursestaken array.");
+        // Create user document with empty springCoursestaken array
+        await setDoc(userDocRef, { springCoursestaken: [] });
+        setSelectedCourses([]);
+      }
     } catch (error) {
       console.error("Error fetching user's spring courses:", error);
+      setPopupMessage({
+        message: "There was an error loading your courses. Please try refreshing the page.",
+        type: 'error',
+      });
+      setOpenPopupMessage(true);
+      setSelectedCourses([]); // Reset the state to avoid stale data
     }
   };
   
@@ -1064,6 +1088,9 @@ const accentHoverBg = darkMode
     const courseToAdd = { 
       ...course,
       period: course.period || "ARR",  // Default to "ARR" if period is missing
+      addedAt: new Date(),  // Add timestamp for when the course was added
+      term: "Spring 2025",   // Explicitly set the term
+      id: `${course.subj}_${course.num}_${course.sec}_${Date.now()}` // Generate a unique ID
     };
 
     // If period is missing, try to fetch it from the database
@@ -1089,43 +1116,154 @@ const accentHoverBg = darkMode
       }
     }
 
-    setSelectedCourses([...selectedCourses, courseToAdd]);
-
-    // Add to Firestore
-    const userEmail = localStorage.getItem('userEmail');
-    if (userEmail) {
-      try {
-        await updateDoc(doc(db, 'users', userEmail), {
-          selectedCourses: arrayUnion(courseToAdd),
-        });
-      } catch (error) {
-        console.error('Error updating Firestore:', error);
-      }
+    // Validate that we have the required fields before proceeding
+    if (!courseToAdd.subj || !courseToAdd.num || !courseToAdd.sec) {
+      console.error("Missing required course fields", courseToAdd);
+      setPopupMessage({
+        message: `Could not add course: missing required information.`,
+        type: 'error',
+      });
+      setOpenPopupMessage(true);
+      return;
     }
-    
-    setPopupMessage({
-      message: `${course.subj} ${course.num} has been added to your timetable.`,
-      type: 'success',
-    });
-    setOpenPopupMessage(true);
+
+    // Add to Firestore - directly in the user document
+    if (currentUser) {
+      try {
+        // Create a clean version of the course object with only the fields we need
+        const courseData = {
+          subj: courseToAdd.subj,
+          num: courseToAdd.num,
+          sec: courseToAdd.sec,
+          title: courseToAdd.title || "",
+          period: courseToAdd.period || "ARR",
+          building: courseToAdd.building || "",
+          room: courseToAdd.room || "",
+          instructor: courseToAdd.instructor || "",
+          timing: courseToAdd.timing || "",
+          addedAt: courseToAdd.addedAt,
+          term: courseToAdd.term,
+          id: courseToAdd.id
+        };
+
+        // Get reference to user document
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        
+        // Fetch current user data
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (userDocSnap.exists()) {
+          // User document exists, update the springCoursestaken array
+          const userData = userDocSnap.data();
+          const currentCourses = userData.springCoursestaken || [];
+          
+          // Add the new course
+          await updateDoc(userDocRef, {
+            springCoursestaken: [...currentCourses, courseData]
+          });
+        } else {
+          // User document doesn't exist, create it with the course
+          await setDoc(userDocRef, {
+            springCoursestaken: [courseData]
+          });
+        }
+        
+        // Update the state with the new course
+        setSelectedCourses(prevCourses => [...prevCourses, courseData]);
+        
+        setPopupMessage({
+          message: `${courseToAdd.subj} ${courseToAdd.num} has been added to your timetable.`,
+          type: 'success',
+        });
+        setOpenPopupMessage(true);
+        
+        // Log success
+        console.log(`Successfully added ${courseToAdd.subj} ${courseToAdd.num} to spring courses taken.`);
+      } catch (error) {
+        console.error('Error adding course to springCoursestaken:', error);
+        setPopupMessage({
+          message: `Error adding ${courseToAdd.subj} ${courseToAdd.num} to your timetable.`,
+          type: 'error',
+        });
+        setOpenPopupMessage(true);
+      }
+    } else {
+      // User is not logged in
+      setPopupMessage({
+        message: "Please log in to add courses to your timetable.",
+        type: 'warning',
+      });
+      setOpenPopupMessage(true);
+    }
   };
   
 
   const handleRemoveCourse = async (course) => {
-    const updatedCourses = selectedCourses.filter((c) => c.title !== course.title);
-    setSelectedCourses(updatedCourses);
+    if (!currentUser) {
+      setPopupMessage({
+        message: "Please log in to manage your timetable.",
+        type: 'warning',
+      });
+      setOpenPopupMessage(true);
+      return;
+    }
+
+    // Check if we have the course ID (needed for deletion)
+    if (!course.id) {
+      console.error('Course ID not found, cannot remove from database', course);
+      setPopupMessage({
+        message: `Error removing ${course.subj} ${course.num}: Course ID not found.`,
+        type: 'error',
+      });
+      setOpenPopupMessage(true);
+      return;
+    }
 
     try {
-      const db = getFirestore();
-      // Delete the document from the springCoursestaken subcollection
-      if (course.id) {
-        const courseDocRef = doc(db, 'users', currentUser.uid, 'springCoursestaken', course.id);
-        await deleteDoc(courseDocRef);
+      // Remove the course from the state first for immediate UI feedback
+      setSelectedCourses(prev => prev.filter(c => c.id !== course.id));
+
+      // Get reference to user document
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      
+      // Fetch current user data
+      const userDocSnap = await getDoc(userDocRef);
+      
+      if (userDocSnap.exists()) {
+        // Get current courses
+        const userData = userDocSnap.data();
+        const currentCourses = userData.springCoursestaken || [];
+        
+        // Filter out the course to remove
+        const updatedCourses = currentCourses.filter(c => c.id !== course.id);
+        
+        // Update the document with the filtered array
+        await updateDoc(userDocRef, {
+          springCoursestaken: updatedCourses
+        });
+        
+        // Show success message
+        setPopupMessage({
+          message: `${course.subj} ${course.num} has been removed from your timetable.`,
+          type: 'success',
+        });
+        setOpenPopupMessage(true);
+
+        console.log(`Successfully removed ${course.subj} ${course.num} from spring courses taken.`);
       } else {
-        console.error('Course ID not found, cannot remove from database');
+        throw new Error("User document not found");
       }
     } catch (error) {
       console.error('Error removing course:', error);
+      
+      // Add the course back to the state since deletion failed
+      setSelectedCourses(prev => [...prev, course]);
+      
+      setPopupMessage({
+        message: `Error removing ${course.subj} ${course.num} from your timetable.`,
+        type: 'error',
+      });
+      setOpenPopupMessage(true);
     }
   };
 
@@ -1454,7 +1592,7 @@ const accentHoverBg = darkMode
                         'Enrollment',
                         'Add to Calendar',
                         'Notifications',
-                        'Remove',
+                        'Add',
                       ].map((header, index) => (
                         <TableCell
                           key={index}
@@ -1807,43 +1945,46 @@ const accentHoverBg = darkMode
                                       fontSize: '0.7rem',
                                       color: notificationPriority === 'priority'
                                         ? '#FF3B30'
-                                        : darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
-                                      textTransform: 'uppercase',
-                                      fontWeight: notificationPriority === 'priority' ? 600 : 400,
+                                        : darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)',
+                                      fontWeight: 600,
                                       letterSpacing: '0.02em'
                                     }}
                                   >
-                                    {notificationPriority === 'priority' ? 'Priority' : 'Standard'}
+                                    Priority
                                   </Typography>
                                 </Box>
                               )}
-                              
-                              {course.isNotified && course.notificationPriority === 'priority' && (
-                                <Typography
-                                  sx={{
-                                    fontSize: '0.7rem',
-                                    color: '#FF3B30',
-                                    textTransform: 'uppercase',
-                                    fontWeight: 600,
-                                    letterSpacing: '0.02em'
-                                  }}
-                                >
-                                  Priority
-                                </Typography>
-                              )}
                             </Box>
                           </TableCell>
-  
-                          {/* Remove Button */}
+                          
+                          {/* Add Button Cell */}
                           <TableCell
                             sx={{
                               padding: '12px',
                               textAlign: 'left',
                             }}
                           >
-                            <IconButton onClick={() => handleRemoveCourse(course)}>
-                              <DeleteIcon sx={{ color: '#FF3B30' }} />
-                            </IconButton>
+                            {/* Check if course is already in selectedCourses */}
+                            {selectedCourses.some(
+                              (c) => c.subj === course.subj && c.num === course.num && c.sec === course.sec
+                            ) ? (
+                              <IconButton onClick={() => handleRemoveCourse(course)}>
+                                <DeleteIcon sx={{ color: '#FF3B30' }} />
+                              </IconButton>
+                            ) : (
+                              <IconButton 
+                                onClick={() => handleAddCourse(course)}
+                                sx={{ 
+                                  color: darkMode ? '#BB86FC' : '#00693E',
+                                  backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.1)',
+                                  '&:hover': {
+                                    backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.2)',
+                                  }
+                                }}
+                              >
+                                <AddIcon />
+                              </IconButton>
+                            )}
                           </TableCell>
                         </TableRow>
                       );
@@ -2603,43 +2744,46 @@ const accentHoverBg = darkMode
                             fontSize: '0.7rem',
                             color: notificationPriority === 'priority'
                               ? '#FF3B30'
-                              : darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
-                            textTransform: 'uppercase',
-                            fontWeight: notificationPriority === 'priority' ? 600 : 400,
+                              : darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)',
+                            fontWeight: 600,
                             letterSpacing: '0.02em'
                           }}
                         >
-                          {notificationPriority === 'priority' ? 'Priority' : 'Standard'}
+                          Priority
                         </Typography>
                       </Box>
                     )}
-                    
-                    {course.isNotified && course.notificationPriority === 'priority' && (
-                      <Typography
-                        sx={{
-                          fontSize: '0.7rem',
-                          color: '#FF3B30',
-                          textTransform: 'uppercase',
-                          fontWeight: 600,
-                          letterSpacing: '0.02em'
-                        }}
-                      >
-                        Priority
-                      </Typography>
-                    )}
                   </Box>
                 </TableCell>
-  
-                {/* Remove Button */}
+                
+                {/* Add Button Cell */}
                 <TableCell
                   sx={{
                     padding: '12px',
                     textAlign: 'left',
                   }}
                 >
-                  <IconButton onClick={() => handleRemoveCourse(course)}>
-                    <DeleteIcon sx={{ color: '#FF3B30' }} />
-                  </IconButton>
+                  {/* Check if course is already in selectedCourses */}
+                  {selectedCourses.some(
+                    (c) => c.subj === course.subj && c.num === course.num && c.sec === course.sec
+                  ) ? (
+                    <IconButton onClick={() => handleRemoveCourse(course)}>
+                      <DeleteIcon sx={{ color: '#FF3B30' }} />
+                    </IconButton>
+                  ) : (
+                    <IconButton 
+                      onClick={() => handleAddCourse(course)}
+                      sx={{ 
+                        color: darkMode ? '#BB86FC' : '#00693E',
+                        backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.1)',
+                        '&:hover': {
+                          backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.2)',
+                        }
+                      }}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  )}
                 </TableCell>
               </TableRow>
             );
