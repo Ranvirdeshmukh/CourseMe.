@@ -1078,8 +1078,8 @@ const CourseReviewsPage = ({ darkMode }) => {
     return termCode;
   };
   
-  // NOTE: There may be some hardcoded term values (like W25, 25X) in the UI components
-  // These should be manually updated to match the new format (25W, 25X) if necessary
+  // NOTE: There may be some hardcoded term values (like W25, 25S) in the UI components
+  // These should be manually updated to match the new format (25W, 25S) if necessary
   
   // Render term chip with appropriate styling based on term
   const renderTermChip = (termCode, darkMode) => {
@@ -2956,7 +2956,7 @@ useEffect(() => {
             )}
             
             {isTaughtSpringTerm && (
-              <Tooltip title="This course is offered in 25X" arrow placement="top">
+              <Tooltip title="This course is offered in 25S" arrow placement="top">
                 <Box
                   sx={{
                     backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9', // Spring green color
@@ -2982,7 +2982,7 @@ useEffect(() => {
                       color: darkMode ? '#A5D6A7' : '#2E7D32', // Spring green text
                     }}
                   >
-                    25X
+                    25S
                   </Typography>
                 </Box>
               </Tooltip>
@@ -3329,7 +3329,7 @@ useEffect(() => {
                           color: darkMode ? '#A5D6A7' : '#2E7D32',
                         }}
                       >
-                        25X
+                        25S
                       </Typography>
                     </Box>
                   </Box>
@@ -3374,7 +3374,7 @@ useEffect(() => {
                         color: darkMode ? '#A5D6A7' : '#2E7D32',
                       }}
                     >
-                      25X
+                      25S
                     </Typography>
                   </Box>
                 ) : (
