@@ -237,8 +237,8 @@ const MobileLandingPage = ({
     setIsRefreshing(true);
     
     // Call the global refresh function if available
-    if (window.weatherUtils && window.weatherUtils.getUserLocation) {
-      window.weatherUtils.getUserLocation();
+    if (window.weatherUtils && window.weatherUtils.getWeatherData) {
+      window.weatherUtils.getWeatherData();
       
       // Reset the refreshing state after a delay
       setTimeout(() => {
