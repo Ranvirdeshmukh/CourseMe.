@@ -181,7 +181,7 @@ const Timetable = ({darkMode}) => {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const classesPerPage = 50; // Number of classes per page
-  const isFallAddDropClosed = true;
+  const isFallAddDropClosed = false;
   const [documentName, setDocumentName] = useState('');
   const [showFeatures, setShowFeatures] = useState(false);
   const [professorMappings, setProfessorMappings] = useState({});
