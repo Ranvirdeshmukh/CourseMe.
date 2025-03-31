@@ -33,7 +33,7 @@ export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, se
   const details = `&details=${encodeURIComponent(`Instructor: ${course.instructor}`)}`;
   const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;
 
-  const events = getEventTiming(course.period, course.title);
+  const events = getEventTiming(course.period, course.title, course.subj, course.num);
   
   if (events.length === 0) {
     alert('No valid meeting times found for this course.');
@@ -81,9 +81,11 @@ export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, se
  * Parse course period code and generate Google Calendar events
  * @param {string} periodCode - The course period code (e.g., "11", "10A")
  * @param {string} courseTitle - The title of the course
+ * @param {string} subj - The course subject code (e.g., "AAAS")
+ * @param {string} num - The course number (e.g., "23")
  * @returns {Array} - Array of event objects ready for Google Calendar
  */
-const getEventTiming = (periodCode, courseTitle) => {
+const getEventTiming = (periodCode, courseTitle, subj, num) => {
   const timing = periodCodeToTiming[periodCode];
   if (!timing) return [];
 
@@ -91,6 +93,9 @@ const getEventTiming = (periodCode, courseTitle) => {
   const eventEndDate = '20250609'; // June 9, 2025
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);
+  
+  // Create full course name with subject and number
+  const fullCourseName = `${subj}: ${num} ${courseTitle}`;
   
   // Split by comma to handle different meeting patterns (regular vs. X-hour)
   const timingParts = timing.split(', ');
@@ -151,8 +156,8 @@ const getEventTiming = (periodCode, courseTitle) => {
         // X-hour recurrence rule (just for this specific day)
         const recurrence = `RRULE:FREQ=WEEKLY;BYDAY=${dayToRruleDay(day)};UNTIL=${eventEndDate}T235959Z`;
         
-        // Special title for X-hour
-        const eventTitle = `${courseTitle} (X-hour: ${day} ${startTime}-${endTime})`;
+        // Special title for X-hour with full course name
+        const eventTitle = `${fullCourseName} (X-hour: ${day} ${startTime}-${endTime})`;
         
         events.push({
           startDateTime,
@@ -171,7 +176,7 @@ const getEventTiming = (periodCode, courseTitle) => {
       
       const recurrence = createRecurrenceRule(days, eventEndDate);
       
-      const eventTitle = `${courseTitle} (${days} ${startTime}-${endTime})`;
+      const eventTitle = `${fullCourseName} (${days} ${startTime}-${endTime})`;
       
       events.push({
         startDateTime,

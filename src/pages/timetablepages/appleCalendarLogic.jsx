@@ -16,7 +16,7 @@ export const addToAppleCalendar = (course) => {
     return;
   }
   
-  const events = getEventTiming(course.period, course.title);
+  const events = getEventTiming(course.period, course.title, course.subj, course.num);
   console.log('Generated events:', events);
   
   if (events.length === 0) {
@@ -108,9 +108,11 @@ const generateUUID = () => {
  * Parse course period code and generate calendar events
  * @param {string} periodCode - The course period code (e.g., "11", "10A")
  * @param {string} courseTitle - The title of the course
+ * @param {string} subj - The course subject code (e.g., "AAAS")
+ * @param {string} num - The course number (e.g., "23")
  * @returns {Array} - Array of event objects ready for iCalendar
  */
-const getEventTiming = (periodCode, courseTitle) => {
+const getEventTiming = (periodCode, courseTitle, subj, num) => {
   console.log(`Getting timing for period ${periodCode}, title: ${courseTitle}`);
   
   // Handle case when periodCode is not in the mapping
@@ -127,6 +129,9 @@ const getEventTiming = (periodCode, courseTitle) => {
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);
   
+  // Create full course name with subject and number
+  const fullCourseName = `${subj}: ${num} ${courseTitle}`;
+  
   // Special case handling for 'ARR' and 'FS'
   if (periodCode === 'ARR' || periodCode === 'FS') {
     console.log(`Special case handling for ${periodCode}`);
@@ -137,7 +142,7 @@ const getEventTiming = (periodCode, courseTitle) => {
     return [{
       startDateTime: startDateTime,
       endDateTime: endDateTime,
-      title: `${courseTitle} (${timing})`,
+      title: `${fullCourseName} (${timing})`,
       recurrence: ''  // No recurrence for these special cases
     }];
   }
@@ -216,8 +221,8 @@ const getEventTiming = (periodCode, courseTitle) => {
           // X-hour recurrence rule (just for this specific day)
           const recurrence = `RRULE:FREQ=WEEKLY;BYDAY=${dayToRruleDay(day)};UNTIL=${eventEndDate}T235959Z`;
           
-          // Special title for X-hour
-          const eventTitle = `${courseTitle} (X-hour: ${day} ${startTime}-${endTime})`;
+          // Special title for X-hour with full course name
+          const eventTitle = `${fullCourseName} (X-hour: ${day} ${startTime}-${endTime})`;
           
           events.push({
             startDateTime,
@@ -236,7 +241,7 @@ const getEventTiming = (periodCode, courseTitle) => {
         
         const recurrence = createRecurrenceRule(days, eventEndDate);
         
-        const eventTitle = `${courseTitle} (${days} ${startTime}-${endTime})`;
+        const eventTitle = `${fullCourseName} (${days} ${startTime}-${endTime})`;
         
         events.push({
           startDateTime,

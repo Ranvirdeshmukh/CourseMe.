@@ -1474,7 +1474,7 @@ const LandingPage = ({ darkMode }) => {
                 textAlign: 'center',
               }}
             >
-              New
+              Beta
             </Box>
 
             <ButtonBase
