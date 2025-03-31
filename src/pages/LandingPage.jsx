@@ -477,7 +477,6 @@ const LandingPage = ({ darkMode }) => {
           // Store the raw temperature value without formatting it
           const rawTemp = response.data.main.temp;
           
-          // Remove the calibration factor, as the OpenWeatherMap data is already close to Bing's data
           console.log('Weather fetched:', new Date().toLocaleString(), 
             'Temp:', rawTemp, '°F');
           
@@ -516,7 +515,7 @@ const LandingPage = ({ darkMode }) => {
             tempDisplay: 72,
             icon: '01d', 
             desc: 'clear sky',
-            city: 'Unknown',
+            city: 'Hanover',
             lat: 43.7044,
             lon: -72.2887
           });
@@ -524,89 +523,56 @@ const LandingPage = ({ darkMode }) => {
       }
     };
     
-    // Fallback to IP-based geolocation
-    const fetchLocationByIP = async () => {
-      try {
-        // Use IP-based geolocation (this doesn't require permission)
-        const response = await axios.get('https://ipapi.co/json/');
-        if (response.data && response.data.latitude && response.data.longitude) {
-          fetchWeather(response.data.latitude, response.data.longitude);
+    // Get weather data without asking for precise location permission
+    const getWeatherData = () => {
+      // Always try to use IP-based geolocation first (doesn't require permission)
+      const fetchLocationByIP = async () => {
+        try {
+          // Use IP-based geolocation (this doesn't require permission)
+          const response = await axios.get('https://ipapi.co/json/');
+          if (response.data && response.data.latitude && response.data.longitude) {
+            fetchWeather(response.data.latitude, response.data.longitude);
+            
+            // Store coordinates in localStorage for future use
+            localStorage.setItem('userLat', response.data.latitude);
+            localStorage.setItem('userLon', response.data.longitude);
+            localStorage.setItem('userCity', response.data.city);
+          } else {
+            throw new Error('IP geolocation failed');
+          }
+        } catch (error) {
+          console.error('IP geolocation error:', error);
+          // Use saved coordinates or fallback to Dartmouth
+          const storedLat = localStorage.getItem('userLat');
+          const storedLon = localStorage.getItem('userLon');
           
-          // Store coordinates in localStorage for future use
-          localStorage.setItem('userLat', response.data.latitude);
-          localStorage.setItem('userLon', response.data.longitude);
-          localStorage.setItem('userCity', response.data.city);
-        } else {
-          throw new Error('IP geolocation failed');
+          if (storedLat && storedLon) {
+            fetchWeather(parseFloat(storedLat), parseFloat(storedLon));
+          } else {
+            // Last resort fallback to Dartmouth College
+            fetchWeather(43.7044, -72.2887);
+          }
         }
-      } catch (error) {
-        console.error('IP geolocation error:', error);
-        // Use saved coordinates or fallback to Dartmouth
-        const storedLat = localStorage.getItem('userLat');
-        const storedLon = localStorage.getItem('userLon');
-        
-        if (storedLat && storedLon) {
-          fetchWeather(parseFloat(storedLat), parseFloat(storedLon));
-        } else {
-          // Last resort fallback to Dartmouth College
-          fetchWeather(43.7044, -72.2887);
-        }
+      };
+
+      // First show cached data immediately if available
+      const cachedWeather = localStorage.getItem('weatherData');
+      if (cachedWeather) {
+        // Use cached data temporarily while fetching fresh data
+        setWeatherData(JSON.parse(cachedWeather));
       }
-    };
-    
-    // Get user's current location with a tiered fallback approach
-    const getUserLocation = () => {
-      // Always try to get fresh location and weather on each page load
-      if (navigator.geolocation) {
-        // Set a timeout for geolocation permission
-        const geolocationTimeout = setTimeout(() => {
-          console.warn("Geolocation permission timeout - falling back to IP-based location");
-          fetchLocationByIP();
-        }, 3000); // Shorter 3 second timeout for permission decision
-        
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            // Success - got user's location
-            clearTimeout(geolocationTimeout);
-            const { latitude, longitude } = position.coords;
-            fetchWeather(latitude, longitude);
-            
-            // Store coordinates in localStorage for persistence
-            localStorage.setItem('userLat', latitude);
-            localStorage.setItem('userLon', longitude);
-          },
-          (error) => {
-            // Error or user denied permission - clear timeout and use fallback
-            clearTimeout(geolocationTimeout);
-            console.warn("Geolocation error:", error);
-            
-            // First try IP-based geolocation
-            fetchLocationByIP();
-          },
-          { timeout: 5000, maximumAge: 0 } // 5 second timeout, always get fresh data
-        );
-      } else {
-        // Browser doesn't support geolocation, use IP-based geolocation
-        console.warn("Geolocation is not supported by this browser");
-        fetchLocationByIP();
-      }
+      
+      // Then fetch fresh data using IP-based geolocation (no permission needed)
+      fetchLocationByIP();
     };
 
-    // Show cached data immediately if available, but still fetch fresh data
-    const cachedWeather = localStorage.getItem('weatherData');
-    if (cachedWeather) {
-      // Use cached data temporarily while fetching fresh data
-      setWeatherData(JSON.parse(cachedWeather));
-    }
-    
-    // Always fetch fresh weather data when component mounts
-    getUserLocation();
+    // Call our new function instead of getUserLocation()
+    getWeatherData();
     
     // Expose these functions to the component scope for manual refreshing
     window.weatherUtils = {
       fetchWeather,
-      getUserLocation,
-      fetchLocationByIP
+      getWeatherData
     };
     
     return () => {
@@ -713,7 +679,7 @@ const LandingPage = ({ darkMode }) => {
       window.weatherUtils.fetchWeather(parseFloat(storedLat), parseFloat(storedLon));
     } else if (window.weatherUtils) {
       // Otherwise restart the location detection process
-      window.weatherUtils.getUserLocation();
+      window.weatherUtils.getWeatherData();
     } else {
       console.error('Weather utilities not available');
     }
