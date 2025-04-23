@@ -21,6 +21,7 @@ import CourseReviewsPage from './pages/CourseReviewsPage/CourseReviewsPage';
 import DepartmentCoursesPage from './pages/DepartmentCoursesPage';
 import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriorities';
 import GetStartedPage from './pages/GetStartedPage';
+import NewStartPage from './pages/NewStartPage';
 import LandingPage from './pages/LandingPage';
 import LayupsPage from './pages/LayupsPage';
 import LoginPage from './pages/LoginPage';
@@ -102,7 +103,7 @@ const AppContent = () => {
       />
 
       <Routes>
-        <Route path="/" element={<GetStartedPage />} />
+        <Route path="/" element={<NewStartPage />} />
         <Route path="/landing" element={<LandingPage darkMode={effectiveDarkMode} />} />
         <Route path="/classes" element={<AllClassesPage darkMode={effectiveDarkMode} />} />
         <Route path="/profile" element={<ProfilePage darkMode={effectiveDarkMode} />} />
