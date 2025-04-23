@@ -8,6 +8,7 @@ const NewStartPage = () => {
   const { currentUser } = useAuth();
   const [displayText, setDisplayText] = useState('');
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const targetText = "CourseMe.";
@@ -19,7 +20,7 @@ const NewStartPage = () => {
     
     let frame = 0;
     const frameRate = 25;
-    const finalFrameHold = 30; // frames to hold at the end
+    const finalFrameHold = 22; // frames to hold at the end (reduced from 30)
     let holdCount = 0;
     let isComplete = false;
     
@@ -71,17 +72,22 @@ const NewStartPage = () => {
     return () => clearInterval(interval);
   }, []);
   
-  // Auto-navigate after animation completes
+  // Implement a short, subtle transition before navigation
   useEffect(() => {
-    if (isAnimationComplete) {
-      // Wait for a brief pause after animation completes before navigating
-      const transitionTimeout = setTimeout(() => {
-        navigate(currentUser ? '/landing' : '/login');
-      }, 1500); // 1.5 seconds delay
+    if (isAnimationComplete && !isTransitioning) {
+      // Set transitioning state to trigger fade effect
+      setIsTransitioning(true);
       
-      return () => clearTimeout(transitionTimeout);
+      // Set transition data in sessionStorage for the landing page to use
+      sessionStorage.setItem('comingFromIntro', 'true');
+      
+      // Navigate after a brief transition
+      setTimeout(() => {
+        const destination = currentUser ? '/landing' : '/login';
+        navigate(destination, { replace: true });
+      }, 400); // Short delay for subtle transition
     }
-  }, [isAnimationComplete, navigate, currentUser]);
+  }, [isAnimationComplete, isTransitioning, navigate, currentUser]);
 
   // Function to render the text with colored period
   const renderTextWithColoredPeriod = () => {
@@ -122,8 +128,8 @@ const NewStartPage = () => {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          transition: 'opacity 0.8s ease-in-out',
-          opacity: isAnimationComplete ? 0.5 : 1, // Start fading out when animation completes
+          opacity: isTransitioning ? 0 : 1,
+          transition: 'opacity 0.4s ease-out',
         }}
       >
         {/* Text with scrambling animation */}
@@ -137,7 +143,8 @@ const NewStartPage = () => {
             letterSpacing: '-0.02em',
             textShadow: '0 0 15px rgba(255, 255, 255, 0.2)',
             opacity: isAnimationComplete ? 1 : 0.95,
-            transition: 'opacity 0.5s ease-in-out',
+            transition: 'all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
+            transform: isTransitioning ? 'scale(1.05)' : 'scale(1)',
           }}
         >
           {renderTextWithColoredPeriod()}
