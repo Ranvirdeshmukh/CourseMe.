@@ -2,15 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 const NewStartPage = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
-  const pageRef = useRef(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const targetText = "CourseMe.";
@@ -74,29 +71,17 @@ const NewStartPage = () => {
     return () => clearInterval(interval);
   }, []);
   
-  // Handle scroll progress and navigation
+  // Auto-navigate after animation completes
   useEffect(() => {
-    const handleScroll = () => {
-      if (pageRef.current) {
-        const scrollPosition = window.scrollY;
-        const viewportHeight = window.innerHeight;
-        const scrollHeight = viewportHeight * 0.5;
-        const progress = Math.min(scrollPosition / scrollHeight, 1);
-        setScrollProgress(progress);
-    
-        if (progress >= 0.9) {
-          window.removeEventListener('scroll', handleScroll);
-          setTimeout(() => {
-            window.scrollTo(0, 0);
-            navigate(currentUser ? '/landing' : '/login');
-          }, 300);
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [currentUser, navigate]);
+    if (isAnimationComplete) {
+      // Wait for a brief pause after animation completes before navigating
+      const transitionTimeout = setTimeout(() => {
+        navigate(currentUser ? '/landing' : '/login');
+      }, 1500); // 1.5 seconds delay
+      
+      return () => clearTimeout(transitionTimeout);
+    }
+  }, [isAnimationComplete, navigate, currentUser]);
 
   // Function to render the text with colored period
   const renderTextWithColoredPeriod = () => {
@@ -118,9 +103,8 @@ const NewStartPage = () => {
 
   return (
     <Box 
-      ref={pageRef}
       sx={{ 
-        height: '150vh',
+        height: '100vh',
         width: '100%', 
         overflow: 'hidden',
         position: 'relative',
@@ -138,8 +122,8 @@ const NewStartPage = () => {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          opacity: 1 - scrollProgress,
-          transition: 'opacity 0.3s ease-in',
+          transition: 'opacity 0.8s ease-in-out',
+          opacity: isAnimationComplete ? 0.5 : 1, // Start fading out when animation completes
         }}
       >
         {/* Text with scrambling animation */}
@@ -147,7 +131,7 @@ const NewStartPage = () => {
           variant="h1"
           sx={{
             fontFamily: '"SF Pro Display", sans-serif',
-            fontWeight: 600, // Changed from 700 to 600 (semi-bold)
+            fontWeight: 600,
             fontSize: { xs: '3rem', sm: '4rem', md: '6rem' },
             color: '#FFFFFF',
             letterSpacing: '-0.02em',
@@ -158,52 +142,6 @@ const NewStartPage = () => {
         >
           {renderTextWithColoredPeriod()}
         </Typography>
-      </Box>
-
-      {/* Scroll indicator */}
-      <Box
-        sx={{
-          position: 'fixed',
-          bottom: { xs: '15px', sm: '20px', md: '25px' },
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          animation: 'bounce 2s infinite',
-          opacity: isAnimationComplete ? (1 - scrollProgress) : 0,
-          zIndex: 2,
-          transition: 'opacity 0.5s ease-in-out',
-          '@keyframes bounce': {
-            '0%, 20%, 50%, 80%, 100%': {
-              transform: 'translateY(0) translateX(-50%)',
-            },
-            '40%': {
-              transform: 'translateY(-30px) translateX(-50%)',
-            },
-            '60%': {
-              transform: 'translateY(-15px) translateX(-50%)',
-            },
-          },
-        }}
-      >
-        <Typography 
-          variant="body1" 
-          sx={{ 
-            mb: 1, 
-            fontFamily: 'SF Pro Display, sans-serif',
-            color: 'white',
-            fontWeight: 500,
-            textShadow: '1px 1px 3px rgba(0,0,0,0.5)',
-            fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' }
-          }}
-        >
-          Scroll to continue
-        </Typography>
-        <KeyboardArrowDownIcon 
-          fontSize={isMobile ? "medium" : "large"} 
-          sx={{ color: 'white' }}
-        />
       </Box>
     </Box>
   );
