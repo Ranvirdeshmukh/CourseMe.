@@ -23,7 +23,12 @@
     <!-- Web Manifest -->
     <link rel="manifest" href="%PUBLIC_URL%/site.webmanifest" />
 
-    <!-- Use system fonts with proper fallbacks -->
+    <!-- Google Fonts - Inter (similar to SF Pro Display) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font styling -->
     <style>
       @font-face {
         font-family: 'SF Pro Display';
@@ -64,7 +69,7 @@
       
       /* Add a fallback font stack for cross-browser compatibility */
       body {
-        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
       }
     </style>
 
