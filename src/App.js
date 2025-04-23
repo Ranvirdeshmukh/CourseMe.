@@ -73,10 +73,6 @@ const AppContent = () => {
     return <Navigate to="/" />;
   }
 
-  if (!currentUser && location.pathname === '/') {
-    return <Navigate to="/landing" />;
-  }
-
   // Define special pages (unchanged)
   const isSpecialPage = [
     '/',
