@@ -81,13 +81,12 @@ const NewStartPage = () => {
       // Set transition data in sessionStorage for the landing page to use
       sessionStorage.setItem('comingFromIntro', 'true');
       
-      // Navigate after a brief transition
+      // Navigate after a brief transition - always go to landing page regardless of auth status
       setTimeout(() => {
-        const destination = currentUser ? '/landing' : '/login';
-        navigate(destination, { replace: true });
+        navigate('/landing', { replace: true });
       }, 400); // Short delay for subtle transition
     }
-  }, [isAnimationComplete, isTransitioning, navigate, currentUser]);
+  }, [isAnimationComplete, isTransitioning, navigate]);
 
   // Function to render the text with colored period
   const renderTextWithColoredPeriod = () => {
