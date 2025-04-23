@@ -64,6 +64,9 @@ const LandingPage = ({ darkMode }) => {
   const [difficulty, setDifficulty] = useState(null);
   const [sentiment, setSentiment] = useState(null);
 
+  // State for fade-in transition
+  const [fadeIn, setFadeIn] = useState(false);
+
   const pageRef = useRef(null);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -685,6 +688,27 @@ const LandingPage = ({ darkMode }) => {
     }
   };
 
+  // Check if coming from intro page and trigger fade-in effect
+  useEffect(() => {
+    const isComingFromIntro = sessionStorage.getItem('comingFromIntro') === 'true';
+    
+    if (isComingFromIntro) {
+      // Start with opacity 0
+      setFadeIn(false);
+      
+      // Remove the flag from sessionStorage
+      sessionStorage.removeItem('comingFromIntro');
+      
+      // Trigger fade-in after a small delay
+      setTimeout(() => {
+        setFadeIn(true);
+      }, 50);
+    } else {
+      // If not coming from intro, set to fully visible
+      setFadeIn(true);
+    }
+  }, []);
+
   // --------------------------------------------------------------------------------
   // 14) Return the UI
   // --------------------------------------------------------------------------------
@@ -705,7 +729,8 @@ const LandingPage = ({ darkMode }) => {
         fontFamily: 'SF Pro Display, sans-serif',
         padding: '0 20px',
         paddingBottom: extendPage ? '200px' : '0',
-        transition: 'padding-bottom 0.3s ease',
+        transition: 'padding-bottom 0.3s ease, opacity 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)',
+        opacity: fadeIn ? 1 : 0,
         ...styles, // Add the keyframes styles
       }}
     >
