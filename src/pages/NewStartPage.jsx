@@ -8,6 +8,7 @@ const NewStartPage = () => {
   const { currentUser } = useAuth();
   const [displayText, setDisplayText] = useState('');
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const targetText = "CourseMe.";
@@ -19,7 +20,7 @@ const NewStartPage = () => {
     
     let frame = 0;
     const frameRate = 25;
-    const finalFrameHold = 30; // frames to hold at the end
+    const finalFrameHold = 22; // frames to hold at the end (reduced from 30)
     let holdCount = 0;
     let isComplete = false;
     
@@ -71,15 +72,12 @@ const NewStartPage = () => {
     return () => clearInterval(interval);
   }, []);
   
-  // Auto-navigate after animation completes
+  // Implement a direct navigation without fade when animation completes
   useEffect(() => {
     if (isAnimationComplete) {
-      // Wait for a brief pause after animation completes before navigating
-      const transitionTimeout = setTimeout(() => {
-        navigate(currentUser ? '/landing' : '/login');
-      }, 1500); // 1.5 seconds delay
-      
-      return () => clearTimeout(transitionTimeout);
+      // Navigate immediately to avoid blank screen
+      const destination = currentUser ? '/landing' : '/login';
+      navigate(destination, { replace: true });
     }
   }, [isAnimationComplete, navigate, currentUser]);
 
@@ -122,8 +120,6 @@ const NewStartPage = () => {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          transition: 'opacity 0.8s ease-in-out',
-          opacity: isAnimationComplete ? 0.5 : 1, // Start fading out when animation completes
         }}
       >
         {/* Text with scrambling animation */}
@@ -137,7 +133,7 @@ const NewStartPage = () => {
             letterSpacing: '-0.02em',
             textShadow: '0 0 15px rgba(255, 255, 255, 0.2)',
             opacity: isAnimationComplete ? 1 : 0.95,
-            transition: 'opacity 0.5s ease-in-out',
+            transition: 'all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
           }}
         >
           {renderTextWithColoredPeriod()}
