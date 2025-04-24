@@ -27,11 +27,11 @@ import debounce from 'lodash/debounce';
 import moment from 'moment-timezone';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import { useAuth } from '../contexts/AuthContext';
-import { periodCodeToTiming, addToGoogleCalendar } from './timetablepages/googleCalendarLogic';
-import { addToAppleCalendar } from './timetablepages/appleCalendarLogic';
-import { ProfessorCell } from './ProfessorCell';
-import ScheduleVisualization from './timetablepages/ScheduleVisualization';
+import { useAuth } from '../../contexts/AuthContext';
+import { periodCodeToTiming, addToGoogleCalendar } from './googleCalendarLogic';
+import { addToAppleCalendar } from './appleCalendarLogic';
+import { ProfessorCell } from '../ProfessorCell';
+import ScheduleVisualization from './ScheduleVisualization';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';

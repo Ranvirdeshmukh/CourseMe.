@@ -3,9 +3,9 @@ import { Box, Typography, Paper, Button, Container, IconButton } from '@mui/mate
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { collection, getDocs, getFirestore, doc, deleteDoc } from 'firebase/firestore';
-import ScheduleVisualization from './timetablepages/ScheduleVisualization';
+import ScheduleVisualization from './ScheduleVisualization';
 
 const WeeklySchedule = ({ darkMode }) => {
   const navigate = useNavigate();
@@ -47,7 +47,6 @@ const WeeklySchedule = ({ darkMode }) => {
 
   const handlePrint = () => {
     const printContent = document.getElementById('schedule-to-print');
-    const originalContents = document.body.innerHTML;
     
     // Prepare for printing
     const printCSS = `

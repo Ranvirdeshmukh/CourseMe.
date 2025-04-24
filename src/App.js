@@ -28,11 +28,11 @@ import LoginPage from './pages/LoginPage';
 import ProfessorReviewsPage from './pages/ProfessorReviewsPage';
 import ProfilePage from './pages/ProfilePage';
 import SignUpPage from './pages/SignUpPage';
-import Timetable from './pages/Timetable';
+import Timetable from './pages/timetablepages/Timetable.jsx';
 import TranscriptParser from './pages/TranscriptParser';
 import ProfessorDetails from './pages/ProfessorDetails';
 import ProfessorDirectory from './pages/ProfessorDirectory';
-import WeeklySchedule from './pages/WeeklySchedule';
+import WeeklySchedule from './pages/timetablepages/WeeklySchedule.jsx';
 import CORA from './pages/MajorTracking/CORA';
 import BetaSignup from './pages/BetaSignup';
 
