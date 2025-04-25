@@ -3,15 +3,19 @@ import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import ReactTypingEffect from 'react-typing-effect';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, OpenInNew } from '@mui/icons-material';
+import { Lock, OpenInNew, CalendarMonthOutlined, CloseFullscreen, OpenInFull, Close } from '@mui/icons-material';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MobileNavigation from '../Mobileversion/MobileNavigation';
 import MobileLandingPage from '../Mobileversion/MobileLandingPage';
+import ScheduleVisualization from './timetablepages/ScheduleVisualization';
+import Slide from '@mui/material/Slide';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import Divider from '@mui/material/Divider';
 
 import { 
   Container, Box, Typography, TextField, Button, 
@@ -63,6 +67,11 @@ const LandingPage = ({ darkMode }) => {
 
   // State for fade-in transition
   const [fadeIn, setFadeIn] = useState(false);
+
+  // Add state for schedule visualization
+  const [miniScheduleOpen, setMiniScheduleOpen] = useState(false);
+  const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(true);
+  const [selectedCourses, setSelectedCourses] = useState([]);
 
   const pageRef = useRef(null);
   const navigate = useNavigate();
@@ -475,6 +484,12 @@ const LandingPage = ({ darkMode }) => {
     }
   }, []);
 
+  // Replace the handleOpenMiniSchedule function with this navigate function
+  const navigateToTimetableWithVisualization = () => {
+    // Navigate to timetable with state parameter to open visualization
+    navigate('/timetable', { state: { openVisualization: true } });
+  };
+
   // --------------------------------------------------------------------------------
   // 14) Return the UI
   // --------------------------------------------------------------------------------
@@ -862,7 +877,7 @@ const LandingPage = ({ darkMode }) => {
             </Typography>
           </ButtonBase>
 
-          {/* CORA 1.0 Beta */}
+          {/* Schedule Visualizer */}
           <Box sx={{ position: 'relative', display: 'inline-block' }}>
             {/* Ribbon */}
             <Box
@@ -894,11 +909,11 @@ const LandingPage = ({ darkMode }) => {
                 textAlign: 'center',
               }}
             >
-              Beta
+              New
             </Box>
 
             <ButtonBase
-              onClick={() => (currentUser ? navigate('/major-tracker') : handleLoginRedirect())}
+              onClick={() => (currentUser ? navigateToTimetableWithVisualization() : handleLoginRedirect())}
               sx={buttonBaseStyle}
             >
               <Box 
@@ -928,7 +943,7 @@ const LandingPage = ({ darkMode }) => {
                   transition: 'transform 0.3s ease',
                 }}
               >
-                🤖
+                📅
               </Typography>
               <Typography
                 variant="h6"
@@ -939,7 +954,7 @@ const LandingPage = ({ darkMode }) => {
                   color: darkMode ? '#FFFFFF' : '#000000',
                 }}
               >
-                CORA 1.0
+                Schedule Visualizer
               </Typography>
               <Typography
                 variant="body2"
@@ -950,12 +965,10 @@ const LandingPage = ({ darkMode }) => {
                   textAlign: 'center',
                 }}
               >
-                Your AI college advisor and major planning tool<span style={{ color: '#F26655' }}>.</span>
+                View your weekly schedule<span style={{ color: '#F26655' }}>.</span>
               </Typography>
             </ButtonBase>
           </Box>
-
-          
 
           {/* Profile */}
           <ButtonBase
