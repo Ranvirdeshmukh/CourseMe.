@@ -37,9 +37,74 @@ import CORA from './pages/MajorTracking/CORA';
 import BetaSignup from './pages/BetaSignup';
 
 import darkTheme from './components/theme'; // Your dark theme file
+import { fontStack } from './components/theme'; // Import the font stack
 
-// Simple MUI default theme as our "light" mode
-const lightTheme = createTheme();
+// Create light theme with the same font stack as dark theme
+const lightTheme = createTheme({
+  typography: {
+    fontFamily: fontStack,
+    h1: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h2: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h3: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h4: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h5: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h6: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    body1: {
+      fontFamily: fontStack,
+    },
+    body2: {
+      fontFamily: fontStack,
+    },
+    button: {
+      fontFamily: fontStack,
+      textTransform: 'none',
+      fontWeight: 500,
+    },
+    caption: {
+      fontFamily: fontStack,
+    },
+    overline: {
+      fontFamily: fontStack,
+    },
+    subtitle1: {
+      fontFamily: fontStack,
+      fontWeight: 500,
+    },
+    subtitle2: {
+      fontFamily: fontStack,
+      fontWeight: 500,
+    },
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          fontFamily: fontStack,
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
+        },
+      },
+    },
+  },
+});
 
 const App = () => {
   return (

@@ -23,13 +23,14 @@
     <!-- Web Manifest -->
     <link rel="manifest" href="%PUBLIC_URL%/site.webmanifest" />
 
-    <!-- Google Fonts - Inter (similar to SF Pro Display) -->
+    <!-- Google Fonts - Inter (for SF Pro Display fallback) with font-display: swap -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&text=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:!%&()[]{}*+-=/@$#" rel="stylesheet">
 
     <!-- Font styling -->
     <style>
+      /* Better SF Pro Display font loading with Inter fallback */
       @font-face {
         font-family: 'SF Pro Display';
         src: local('SF Pro Display'),
@@ -38,6 +39,7 @@
              local('BlinkMacSystemFont');
         font-weight: 400;
         font-style: normal;
+        font-display: swap;
       }
       @font-face {
         font-family: 'SF Pro Display';
@@ -47,6 +49,7 @@
              local('BlinkMacSystemFont');
         font-weight: 500;
         font-style: normal;
+        font-display: swap;
       }
       @font-face {
         font-family: 'SF Pro Display';
@@ -56,6 +59,7 @@
              local('BlinkMacSystemFont');
         font-weight: 600;
         font-style: normal;
+        font-display: swap;
       }
       @font-face {
         font-family: 'SF Pro Display';
@@ -65,11 +69,25 @@
              local('BlinkMacSystemFont');
         font-weight: 700;
         font-style: normal;
+        font-display: swap;
       }
       
       /* Add a fallback font stack for cross-browser compatibility */
       body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+        font-family: 'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Preload critical text for faster font display */
+      body::before {
+        content: '';
+        font-family: 'Inter';
+        position: absolute;
+        height: 0;
+        width: 0;
+        overflow: hidden;
+        visibility: hidden;
       }
     </style>
 
