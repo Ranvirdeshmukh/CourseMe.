@@ -26,12 +26,12 @@ import localforage from 'localforage';
 import debounce from 'lodash/debounce';
 import moment from 'moment-timezone';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import { useAuth } from '../contexts/AuthContext';
-import { periodCodeToTiming, addToGoogleCalendar } from './timetablepages/googleCalendarLogic';
-import { addToAppleCalendar } from './timetablepages/appleCalendarLogic';
-import { ProfessorCell } from './ProfessorCell';
-import ScheduleVisualization from './timetablepages/ScheduleVisualization';
+import { useNavigate, useLocation } from 'react-router-dom'; // Make sure useLocation is imported
+import { useAuth } from '../../contexts/AuthContext';
+import { periodCodeToTiming, addToGoogleCalendar } from './googleCalendarLogic';
+import { addToAppleCalendar } from './appleCalendarLogic';
+import { ProfessorCell } from '../ProfessorCell';
+import ScheduleVisualization from './ScheduleVisualization';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
@@ -257,6 +257,8 @@ const Timetable = ({darkMode}) => {
   const [userReviews, setUserReviews] = useState([]);
   
   const db = getFirestore();
+  const navigate = useNavigate();
+  const location = useLocation(); // Add this to get location information
   
   var courseNameLong = ""
   // Add this near your other state declarations
@@ -268,7 +270,6 @@ const Timetable = ({darkMode}) => {
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const totalPages = Math.ceil(filteredCourses.length / classesPerPage); // Total number of pages
-  const navigate = useNavigate();
 
   const [sortConfig] = useState({ key: null, direction: 'ascending' });
 
@@ -1410,6 +1411,20 @@ const accentHoverBg = darkMode
       console.error('Error saving feature highlight status:', error);
     }
   };
+
+  // Add this effect to check for openVisualization parameter
+  useEffect(() => {
+    // Check if we have a state parameter to open visualization
+    if (location.state?.openVisualization) {
+      // Set a timeout to ensure courses are loaded first
+      setTimeout(() => {
+        setMiniScheduleOpen(true);
+      }, 500);
+      
+      // Clean up the state to prevent reopening on page refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   return (
     <Box
