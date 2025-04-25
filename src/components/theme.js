@@ -2,8 +2,63 @@
 
 import { createTheme } from '@mui/material/styles';
 
+// Create a consistent font stack to use throughout the application
+const fontStack = '"SF Pro Display", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+
 // A single dark theme, which you can toggle on/off in your application.
 const darkTheme = createTheme({
+  typography: {
+    fontFamily: fontStack,
+    h1: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h2: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h3: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h4: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h5: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    h6: {
+      fontFamily: fontStack,
+      fontWeight: 600,
+    },
+    body1: {
+      fontFamily: fontStack,
+    },
+    body2: {
+      fontFamily: fontStack,
+    },
+    button: {
+      fontFamily: fontStack,
+      textTransform: 'none',
+      fontWeight: 500,
+    },
+    caption: {
+      fontFamily: fontStack,
+    },
+    overline: {
+      fontFamily: fontStack,
+    },
+    subtitle1: {
+      fontFamily: fontStack,
+      fontWeight: 500,
+    },
+    subtitle2: {
+      fontFamily: fontStack,
+      fontWeight: 500,
+    },
+  },
   palette: {
     // Enabling "dark" mode for built-in MUI theming behavior
     mode: 'dark',
@@ -37,6 +92,8 @@ const darkTheme = createTheme({
           color: '#FFFFFF', // Correct text color for dark mode
           margin: 0,
           padding: 0,
+          // Ensure the font stack is applied to the body
+          fontFamily: fontStack,
         },
       },
     },
@@ -95,4 +152,6 @@ const darkTheme = createTheme({
   },
 });
 
+// Export both the theme and font stack for use in other components
+export { fontStack };
 export default darkTheme;

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
+import useAppStyles from '../hooks/useAppStyles';
 
 const NewStartPage = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const NewStartPage = () => {
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const theme = useTheme();
+  const appStyles = useAppStyles(); // Use our custom hook for font consistency
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const targetText = "CourseMe.";
   
@@ -135,7 +137,7 @@ const NewStartPage = () => {
         <Typography
           variant="h1"
           sx={{
-            fontFamily: '"SF Pro Display", sans-serif',
+            fontFamily: appStyles.fontFamily, // Use our common font stack
             fontWeight: 600,
             fontSize: { xs: '3rem', sm: '4rem', md: '6rem' },
             color: '#FFFFFF',
