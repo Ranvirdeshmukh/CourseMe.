@@ -28,6 +28,7 @@ import moment from 'moment-timezone';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom'; // Make sure useLocation is imported
 import { useAuth } from '../../contexts/AuthContext';
+import { recordAnalyticsView, logAnalyticsSession } from '../../services/analyticsService';
 import { periodCodeToTiming, addToGoogleCalendar } from './googleCalendarLogic';
 import { addToAppleCalendar } from './appleCalendarLogic';
 import { ProfessorCell } from '../ProfessorCell';
@@ -222,6 +223,10 @@ const EnrollmentProgressBar = styled('div')(({ theme, status, darkMode, percenta
 }));
 
 const Timetable = ({darkMode}) => {
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [viewStartTime, setViewStartTime] = useState(null);
   const [courses, setCourses] = useState([]); 
   const [filteredCourses, setFilteredCourses] = useState([]); 
   const [loading, setLoading] = useState(true);
@@ -233,7 +238,6 @@ const Timetable = ({darkMode}) => {
   const [snackbarMessage, setSnackbarMessage] = useState("Thank you, you will be notified if someone drops the class.");
   const [popupMessageOpen, setPopupMessageOpen] = useState(false); // For pop-up blocker message
   const [showSelectedCourses, setShowSelectedCourses] = useState(false); 
-  const { currentUser } = useAuth();
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const classesPerPage = 50; // Number of classes per page
@@ -257,9 +261,6 @@ const Timetable = ({darkMode}) => {
   const [userReviews, setUserReviews] = useState([]);
   
   const db = getFirestore();
-  const navigate = useNavigate();
-  const location = useLocation(); // Add this to get location information
-  
   var courseNameLong = ""
   // Add this near your other state declarations
   const CACHE_VERSION = 'springV3';
@@ -396,9 +397,10 @@ const accentHoverBg = darkMode
       // Check cache first
       const cachedProfessors = await localforage.getItem('cachedProfessors');
       const cacheTimestamp = await localforage.getItem('professorsCacheTimestamp');
+      const cachedVersion = await localforage.getItem('professorsCacheVersion');
       const now = Date.now();
   
-      if (cachedProfessors && cacheTimestamp && (now - cacheTimestamp) < 5184000000) {
+      if (cachedProfessors && cacheTimestamp && cachedVersion === CACHE_VERSION && (now - cacheTimestamp) < 5184000000) {
         setProfessorNames(cachedProfessors);
         // Create mapping for faster lookups
         const mapping = new Map(
@@ -421,6 +423,7 @@ const accentHoverBg = darkMode
       // Update cache
       await localforage.setItem('cachedProfessors', professorsData);
       await localforage.setItem('professorsCacheTimestamp', now);
+      await localforage.setItem('professorsCacheVersion', CACHE_VERSION);
   
       setProfessorNames(professorsData);
       // Create mapping for faster lookups
@@ -1426,6 +1429,37 @@ const accentHoverBg = darkMode
     }
   }, [location, navigate]);
 
+  // Analytics tracking for timetable page views
+  useEffect(() => {
+    // Set the view start time for session duration tracking
+    setViewStartTime(new Date());
+    
+    // Record that this user is viewing the timetable page
+    if (currentUser) {
+      recordAnalyticsView(
+        currentUser.uid, 
+        'timetable_page', 
+        'timetable_page_view',
+        location.pathname
+      );
+    }
+    
+    // When component unmounts, log the session duration
+    return () => {
+      if (currentUser && viewStartTime) {
+        const sessionDuration = new Date() - viewStartTime;
+        if (sessionDuration > 1000) { // Only log sessions longer than 1 second
+          logAnalyticsSession(
+            currentUser.uid,
+            'timetable_page',
+            'timetable_page_view',
+            sessionDuration
+          );
+        }
+      }
+    };
+  }, [currentUser, location.pathname, viewStartTime]);
+
   return (
     <Box
       sx={{
@@ -1476,8 +1510,6 @@ const accentHoverBg = darkMode
               marginBottom: '8px',
               marginTop: '10px',
               fontFamily: 'SF Pro Display, sans-serif',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.2,
               transition: 'color 0.3s ease',
             }}
           >
@@ -2541,37 +2573,36 @@ const accentHoverBg = darkMode
                 </TableCell>
 
                 {/* Room */}
-<TableCell
-  sx={{
-    color: darkMode ? '#FFFFFF' : '#1D1D1F',
-    padding: '10px',
-    fontWeight: 400,
-     // Adds ellipsis (...) if text is too long
-    fontSize: '0.95rem',
-    textAlign: 'left',
-    transition: 'color 0.3s ease',
-    fontFamily: 'SF Pro Display, sans-serif',
-  }}
->
-  {course.room || 'N/A'}
-</TableCell>
+                <TableCell
+                  sx={{
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                    padding: '10px',
+                    fontWeight: 400,
+                    // Adds ellipsis (...) if text is too long
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    transition: 'color 0.3s ease',
+                    fontFamily: 'SF Pro Display, sans-serif',
+                  }}
+                >
+                  {course.room || 'N/A'}
+                </TableCell>
 
-{/* Building */}
-<TableCell
-  sx={{
-    color: darkMode ? '#FFFFFF' : '#1D1D1F',
-    padding: '10px',
-    fontWeight: 400,
-      // Adds ellipsis (...) if text is too long
-    fontSize: '0.95rem',
-    textAlign: 'left',
-    transition: 'color 0.3s ease',
-    fontFamily: 'SF Pro Display, sans-serif',
-  }}
->
-  {course.building || 'N/A'}
-</TableCell>
-
+                {/* Building */}
+                <TableCell
+                  sx={{
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                    padding: '10px',
+                    fontWeight: 400,
+                    // Adds ellipsis (...) if text is too long
+                    fontSize: '0.95rem',
+                    textAlign: 'left',
+                    transition: 'color 0.3s ease',
+                    fontFamily: 'SF Pro Display, sans-serif',
+                  }}
+                >
+                  {course.building || 'N/A'}
+                </TableCell>
 
                 {/* Instructor */}
                 <TableCell
@@ -2676,7 +2707,7 @@ const accentHoverBg = darkMode
                     </Box>
                   )}
                 </TableCell>
-  
+
                 {/* Notify When Available Button */}
                 <TableCell
                   sx={{
