@@ -4,7 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { 
   getRecentAnalyticsViews, 
   checkUserIsAdmin, 
-  getUserAnalyticsData 
+  getUserAnalyticsData, 
+  testCreateAnalyticsSession 
 } from '../services/analyticsService';
 import { Info, Filter, Download, User, Calendar, Clock, Monitor, Smartphone, Tablet } from 'lucide-react';
 
@@ -17,6 +18,9 @@ const AdminAnalyticsTracker = ({ darkMode }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('info');
   
   // Check if user has admin privileges
   useEffect(() => {
@@ -119,6 +123,26 @@ const AdminAnalyticsTracker = ({ darkMode }) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+  
+  // Handle test session creation
+  const handleTestSessionCreate = async () => {
+    try {
+      const docId = await testCreateAnalyticsSession();
+      if (docId) {
+        setSnackbarMessage(`Test session created successfully! Document ID: ${docId}`);
+        setSnackbarSeverity('success');
+      } else {
+        setSnackbarMessage('Failed to create test session. Check console for details.');
+        setSnackbarSeverity('error');
+      }
+      setShowSnackbar(true);
+    } catch (error) {
+      console.error('Error in test session creation:', error);
+      setSnackbarMessage(`Error: ${error.message}`);
+      setSnackbarSeverity('error');
+      setShowSnackbar(true);
+    }
   };
   
   // Render device icon based on device type
@@ -242,6 +266,16 @@ const AdminAnalyticsTracker = ({ darkMode }) => {
           >
             <Download className="w-4 h-4" />
             <span>Export</span>
+          </button>
+          <button
+            onClick={handleTestSessionCreate}
+            className={`flex items-center space-x-1 p-2 rounded-lg text-sm
+            ${darkMode 
+              ? 'bg-indigo-700 text-white hover:bg-indigo-600' 
+              : 'bg-indigo-600 text-white hover:bg-indigo-500'}`}
+          >
+            <Clock className="w-4 h-4" />
+            <span>Create Test Session</span>
           </button>
         </div>
       </div>
@@ -369,6 +403,18 @@ const AdminAnalyticsTracker = ({ darkMode }) => {
           </table>
         </div>
       </div>
+      {showSnackbar && (
+        <div className={`fixed bottom-4 left-4 z-50 rounded-lg p-4 ${snackbarSeverity === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          <span>{snackbarMessage}</span>
+          <button 
+            onClick={() => setShowSnackbar(false)} 
+            className="absolute top-2 right-2 text-gray-500 hover:text-gray-600"
+          >
+            <span className="sr-only">Close</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

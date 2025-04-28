@@ -82,19 +82,62 @@ export const logAnalyticsSession = async (userId, contentType, contentId, durati
     const db = getFirestore();
     const currentUser = auth.currentUser;
     
-    await addDoc(collection(db, 'analytics_sessions'), {
+    const docRef = await addDoc(collection(db, 'analytics_sessions'), {
       userId: userId,
       contentType: contentType,
       contentId: contentId,
       startTime: new Date(Date.now() - durationMs),
       endTime: new Date(),
       durationMs: durationMs,
+      timestamp: serverTimestamp(), // Add server timestamp for proper indexing
+      userAgent: navigator.userAgent,
+      deviceType: getDeviceType(),
       userEmail: currentUser?.email || null,
       userName: currentUser?.displayName || null,
       sessionId: sessionStorage.getItem('session_id') || `session_${Date.now()}`
     });
+    
+    console.log('Successfully logged analytics session for:', contentType, 'with ID:', docRef.id);
   } catch (error) {
     console.error('Error logging analytics session:', error);
+  }
+};
+
+/**
+ * Test function to explicitly create a session entry
+ * This is for debugging purposes to verify collection creation
+ */
+export const testCreateAnalyticsSession = async () => {
+  try {
+    const db = getFirestore();
+    const currentUser = auth.currentUser;
+    
+    if (!currentUser) {
+      console.error('No user logged in, cannot create test entry');
+      return;
+    }
+    
+    const docRef = await addDoc(collection(db, 'analytics_sessions'), {
+      userId: currentUser.uid,
+      contentType: 'test_entry',
+      contentId: 'debug_session',
+      startTime: new Date(Date.now() - 60000), // 1 minute ago
+      endTime: new Date(),
+      durationMs: 60000,
+      timestamp: serverTimestamp(),
+      userAgent: navigator.userAgent,
+      deviceType: getDeviceType(),
+      userEmail: currentUser.email || null,
+      userName: currentUser.displayName || null,
+      sessionId: `test_session_${Date.now()}`,
+      isTestEntry: true
+    });
+    
+    console.log('✅ TEST ENTRY CREATED SUCCESSFULLY! Document ID:', docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.error('❌ ERROR CREATING TEST ENTRY:', error);
+    return null;
   }
 };
 
