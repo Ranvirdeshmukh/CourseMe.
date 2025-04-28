@@ -5,7 +5,8 @@ import {
   getRecentAnalyticsViews, 
   checkUserIsAdmin, 
   getUserAnalyticsData, 
-  testCreateAnalyticsSession 
+  testCreateAnalyticsSession,
+  getAllAnalyticsUsers 
 } from '../services/analyticsService';
 import { format } from 'date-fns';
 import { Snackbar, Alert } from '@mui/material';
@@ -96,7 +97,7 @@ const AdminAnalyticsTracker = ({ darkMode }) => {
         if (selectedUser) {
           viewsData = await getUserAnalyticsData(selectedUser);
         } else {
-          viewsData = await getRecentAnalyticsViews(100); // Limit to last 100 views
+          viewsData = await getRecentAnalyticsViews(500); // Increased limit to 500
         }
         
         // Apply content type filter if needed
@@ -114,24 +115,20 @@ const AdminAnalyticsTracker = ({ darkMode }) => {
         
         setViewerData(viewsData);
         
-        // Extract unique users for filtering
-        const users = Array.from(new Set(viewsData.map(item => item.userId)))
-          .map(userId => {
-            const userItems = viewsData.filter(item => item.userId === userId);
-            return {
-              id: userId,
-              name: userItems[0]?.userName || 'Unknown User',
-              email: userItems[0]?.userEmail || 'No Email'
-            };
-          })
-          .filter(user => user.id); // Filter out undefined user IDs
+        // Fetch ALL users data
+        const allUsers = await getAllAnalyticsUsers();
         
-        setUsersList(users);
+        // Extract unique users for filtering
+        setUsersList(allUsers.map(user => ({
+          id: user.id,
+          name: user.name,
+          email: user.email
+        })));
         
         // Calculate stats data
         setStatsData({
           totalViews: viewsData.length,
-          activeUsers: users.length,
+          activeUsers: allUsers.length,
           avgDuration: '2m 34s' // Placeholder, would calculate from actual session data
         });
         

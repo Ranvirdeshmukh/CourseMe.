@@ -9,8 +9,13 @@ import {
   query, 
   where, 
   orderBy, 
-  limit, 
-  getDocs 
+  limit,
+  limitToLast,
+  getDocs,
+  Timestamp,
+  startAfter,
+  endBefore,
+  collectionGroup
 } from 'firebase/firestore';
 import { auth } from '../firebase';
 
@@ -164,7 +169,7 @@ export const checkUserIsAdmin = async (userId) => {
  * @param {number} limit - Number of records to retrieve
  * @returns {Promise<Array>} Array of view records
  */
-export const getRecentAnalyticsViews = async (limitCount = 50) => {
+export const getRecentAnalyticsViews = async (limitCount = 100) => {
   try {
     const db = getFirestore();
     const analyticsRef = collection(db, 'analytics_views');
@@ -179,6 +184,49 @@ export const getRecentAnalyticsViews = async (limitCount = 50) => {
   } catch (error) {
     console.error('Error fetching analytics views:', error);
     return [];
+  }
+};
+
+/**
+ * Get all sessions data with pagination
+ * @param {number} limitCount - Number of records to retrieve per page
+ * @param {object} lastDoc - Last document for pagination
+ * @returns {Promise<{data: Array, lastDoc: object}>} Array of session records and last doc
+ */
+export const getAnalyticsSessions = async (limitCount = 100, lastDoc = null) => {
+  try {
+    const db = getFirestore();
+    const sessionsRef = collection(db, 'analytics_sessions');
+    
+    let q;
+    if (lastDoc) {
+      q = query(
+        sessionsRef, 
+        orderBy('timestamp', 'desc'),
+        startAfter(lastDoc),
+        limit(limitCount)
+      );
+    } else {
+      q = query(
+        sessionsRef, 
+        orderBy('timestamp', 'desc'),
+        limit(limitCount)
+      );
+    }
+    
+    const snapshot = await getDocs(q);
+    const lastVisible = snapshot.docs[snapshot.docs.length - 1];
+    
+    return {
+      data: snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })),
+      lastDoc: lastVisible
+    };
+  } catch (error) {
+    console.error('Error fetching analytics sessions:', error);
+    return { data: [], lastDoc: null };
   }
 };
 
@@ -207,6 +255,157 @@ export const getUserAnalyticsData = async (userId) => {
     }));
   } catch (error) {
     console.error('Error fetching user analytics data:', error);
+    return [];
+  }
+};
+
+/**
+ * Get all unique users who have activity recorded
+ * @returns {Promise<Array>} Array of unique users with their activity summary
+ */
+export const getAllUniqueUsers = async () => {
+  try {
+    const db = getFirestore();
+    
+    // Get all views
+    const viewsRef = collection(db, 'analytics_views');
+    const viewsSnapshot = await getDocs(viewsRef);
+    
+    // Get all sessions
+    const sessionsRef = collection(db, 'analytics_sessions');
+    const sessionsSnapshot = await getDocs(sessionsRef);
+    
+    // Combine all data and extract unique users
+    const allData = [
+      ...viewsSnapshot.docs.map(doc => doc.data()),
+      ...sessionsSnapshot.docs.map(doc => doc.data())
+    ];
+    
+    // Create a map of users with their data
+    const userMap = new Map();
+    
+    allData.forEach(item => {
+      if (!item.userId) return;
+      
+      if (!userMap.has(item.userId)) {
+        userMap.set(item.userId, {
+          userId: item.userId,
+          userName: item.userName || 'Unknown User',
+          userEmail: item.userEmail || null,
+          lastActivity: item.timestamp?.toDate() || item.endTime || new Date(),
+          viewCount: 0,
+          sessionCount: 0,
+          totalDuration: 0,
+          deviceTypes: new Set()
+        });
+      }
+      
+      const userData = userMap.get(item.userId);
+      
+      // Update last activity time
+      const itemTime = item.timestamp?.toDate() || item.endTime || new Date();
+      if (itemTime > userData.lastActivity) {
+        userData.lastActivity = itemTime;
+      }
+      
+      // Count views and sessions
+      if (item.contentType && item.contentId) {
+        userData.viewCount++;
+      }
+      
+      if (item.durationMs) {
+        userData.sessionCount++;
+        userData.totalDuration += item.durationMs;
+      }
+      
+      // Record device type
+      if (item.deviceType) {
+        userData.deviceTypes.add(item.deviceType);
+      }
+    });
+    
+    // Convert map to array and format the data
+    return Array.from(userMap.values()).map(user => ({
+      ...user,
+      deviceTypes: Array.from(user.deviceTypes),
+      avgSessionDuration: user.sessionCount > 0 ? user.totalDuration / user.sessionCount : 0
+    }));
+  } catch (error) {
+    console.error('Error fetching all unique users:', error);
+    return [];
+  }
+};
+
+/**
+ * Get all unique users who have analytics data
+ * @returns {Promise<Array>} Array of unique users
+ */
+export const getAllAnalyticsUsers = async () => {
+  try {
+    const db = getFirestore();
+    
+    // Get all views (with a high limit to ensure we get all users)
+    const viewsRef = collection(db, 'analytics_views');
+    const viewsQuery = query(viewsRef, orderBy('timestamp', 'desc'), limit(1000)); // Increased limit
+    const viewsSnapshot = await getDocs(viewsQuery);
+    
+    // Get all sessions
+    const sessionsRef = collection(db, 'analytics_sessions');
+    const sessionsQuery = query(sessionsRef, orderBy('timestamp', 'desc'), limit(500)); // Added sessions
+    const sessionsSnapshot = await getDocs(sessionsQuery);
+    
+    // Combine users from both collections
+    const usersMap = new Map();
+    
+    // Process views
+    viewsSnapshot.docs.forEach(doc => {
+      const data = doc.data();
+      if (data.userId && !usersMap.has(data.userId)) {
+        usersMap.set(data.userId, {
+          id: data.userId,
+          name: data.userName || 'Unknown User',
+          email: data.userEmail || 'No Email',
+          lastActive: data.timestamp?.toDate() || new Date(),
+          viewCount: 1,
+          sessionCount: 0
+        });
+      } else if (data.userId) {
+        const user = usersMap.get(data.userId);
+        user.viewCount++;
+        
+        // Update last active time if newer
+        if (data.timestamp?.toDate() > user.lastActive) {
+          user.lastActive = data.timestamp.toDate();
+        }
+      }
+    });
+    
+    // Process sessions
+    sessionsSnapshot.docs.forEach(doc => {
+      const data = doc.data();
+      if (data.userId && !usersMap.has(data.userId)) {
+        usersMap.set(data.userId, {
+          id: data.userId,
+          name: data.userName || 'Unknown User',
+          email: data.userEmail || 'No Email',
+          lastActive: data.timestamp?.toDate() || new Date(),
+          viewCount: 0,
+          sessionCount: 1
+        });
+      } else if (data.userId) {
+        const user = usersMap.get(data.userId);
+        user.sessionCount++;
+        
+        // Update last active time if newer
+        if (data.timestamp?.toDate() > user.lastActive) {
+          user.lastActive = data.timestamp.toDate();
+        }
+      }
+    });
+    
+    return Array.from(usersMap.values());
+  } catch (error) {
+    console.error('Error fetching analytics users:', error);
     return [];
   }
 };
