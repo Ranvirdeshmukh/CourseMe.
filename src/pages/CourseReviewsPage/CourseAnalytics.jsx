@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TrendingUp, ThumbsUp, Scale, Users, Brain, BookOpen } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
+import { recordAnalyticsView, logAnalyticsSession } from '../../services/analyticsService';
 
 const getScoreColor = (score) => {
   if (score >= 75) {
@@ -59,6 +62,42 @@ const ScoreIndicator = ({ score, label, icon: Icon, interpretations, darkMode })
 };
 
 const CourseAnalytics = ({ metrics, darkMode }) => {
+  // State for tracking analytics view time
+  const [viewStartTime, setViewStartTime] = useState(null);
+  const { currentUser } = useAuth();
+  const location = useLocation();
+  
+  // Track when a user views the course analytics
+  useEffect(() => {
+    // Set the view start time for session duration tracking
+    setViewStartTime(new Date());
+    
+    // Record that this user is viewing course analytics
+    if (currentUser && metrics?.courseId) {
+      recordAnalyticsView(
+        currentUser.uid, 
+        'course', 
+        metrics.courseId,
+        location.pathname
+      );
+    }
+    
+    // When component unmounts, log the session duration
+    return () => {
+      if (currentUser && viewStartTime && metrics?.courseId) {
+        const sessionDuration = new Date() - viewStartTime;
+        if (sessionDuration > 1000) { // Only log sessions longer than 1 second
+          logAnalyticsSession(
+            currentUser.uid,
+            'course',
+            metrics.courseId,
+            sessionDuration
+          );
+        }
+      }
+    };
+  }, [currentUser, metrics, location.pathname]);
+  
   // Check if metrics exists and has valid data
   const hasValidData = metrics && (
     metrics.difficulty_score > 0 ||

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Info, TrendingUp } from 'lucide-react';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { recordAnalyticsView, logAnalyticsSession } from '../services/analyticsService';
 
 /* ===========================
    Utility Functions
@@ -311,7 +313,10 @@ const ProfessorAnalytics = ({
   const [courseMetrics, setCourseMetrics] = useState(null);
   const [courseDocId, setCourseDocId] = useState(null);
   const [courseDepartment, setCourseDepartment] = useState(null);
+  const [viewStartTime, setViewStartTime] = useState(null);
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const location = useLocation();
 
   // Attempt to fetch the course metrics for an overall "course average"
   useEffect(() => {
@@ -348,6 +353,37 @@ const ProfessorAnalytics = ({
 
     fetchCourseMetrics();
   }, [courseId]);
+
+  // Track when a user views the professor analytics
+  useEffect(() => {
+    // Set the view start time for session duration tracking
+    setViewStartTime(new Date());
+    
+    // Record that this user is viewing professor analytics
+    if (currentUser && analysis?.professorId) {
+      recordAnalyticsView(
+        currentUser.uid, 
+        'professor', 
+        analysis.professorId,
+        location.pathname
+      );
+    }
+    
+    // When component unmounts, log the session duration
+    return () => {
+      if (currentUser && viewStartTime && analysis?.professorId) {
+        const sessionDuration = new Date() - viewStartTime;
+        if (sessionDuration > 1000) { // Only log sessions longer than 1 second
+          logAnalyticsSession(
+            currentUser.uid,
+            'professor',
+            analysis.professorId,
+            sessionDuration
+          );
+        }
+      }
+    };
+  }, [currentUser, analysis, location.pathname]);
 
   const handleCourseClick = (dept, courseId) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
