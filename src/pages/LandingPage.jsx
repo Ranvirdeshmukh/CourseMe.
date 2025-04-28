@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import ReactTypingEffect from 'react-typing-effect';
@@ -22,6 +22,8 @@ import {
   InputAdornment, CircularProgress, Paper, Snackbar,
   Alert, Chip, LinearProgress, ButtonBase, Tooltip, Fade, IconButton
 } from '@mui/material';
+
+import { recordAnalyticsView, logAnalyticsSession } from '../services/analyticsService';
 
 // ----------------------------------------------------------------------------------
 // 1) Revert to the original PythonAnywhere endpoint
@@ -75,7 +77,41 @@ const LandingPage = ({ darkMode }) => {
 
   const pageRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser } = useAuth();
+
+  // Track landing page views for analytics
+  const [viewStartTime, setViewStartTime] = useState(null);
+
+  useEffect(() => {
+    // Set the view start time for session duration tracking
+    setViewStartTime(new Date());
+    
+    // Record that a user is viewing the landing page
+    if (currentUser) {
+      recordAnalyticsView(
+        currentUser.uid, 
+        'landing_page', 
+        'landing_page_view',
+        location.pathname
+      );
+    }
+    
+    // When component unmounts, log the session duration
+    return () => {
+      if (currentUser && viewStartTime) {
+        const sessionDuration = new Date() - viewStartTime;
+        if (sessionDuration > 1000) { // Only log sessions longer than 1 second
+          logAnalyticsSession(
+            currentUser.uid,
+            'landing_page',
+            'landing_page_view',
+            sessionDuration
+          );
+        }
+      }
+    };
+  }, [currentUser, location.pathname]);
 
   // --------------------------------------------------------------------------------
   // 4) UI constants
@@ -1223,7 +1259,7 @@ const LandingPage = ({ darkMode }) => {
                         fontWeight: '500',
                         border: darkMode 
                           ? '1px solid rgba(66, 133, 244, 0.4)' 
-                          : '1px solid #DADCE0',
+                          : '1px solid rgba(0, 0, 0, 0.05)',
                       }}
                     />
                   )}
@@ -1237,7 +1273,7 @@ const LandingPage = ({ darkMode }) => {
                         fontWeight: '500',
                         border: darkMode 
                           ? '1px solid rgba(0, 105, 62, 0.4)' 
-                          : '1px solid #DADCE0',
+                          : '1px solid rgba(0, 0, 0, 0.05)',
                       }}
                     />
                   )}
@@ -1425,7 +1461,7 @@ const LandingPage = ({ darkMode }) => {
             mb: 1,
           }}
         >
-          © 2025 CourseMe. All Rights Reserved.
+          &copy; 2025 CourseMe. All Rights Reserved.
         </Typography>
         <Typography
           variant="body2"
@@ -1436,7 +1472,7 @@ const LandingPage = ({ darkMode }) => {
             fontWeight: 400,
           }}
         >
-          Built with <span>💚</span> in Dartmouth Dorms, just for you.
+          Built with <span>&#10084;</span> in Dartmouth Dorms, just for you.
         </Typography>
       </Box>
 

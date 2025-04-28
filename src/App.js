@@ -35,6 +35,7 @@ import ProfessorDirectory from './pages/ProfessorDirectory';
 import WeeklySchedule from './pages/timetablepages/WeeklySchedule.jsx';
 import CORA from './pages/MajorTracking/CORA';
 import BetaSignup from './pages/BetaSignup';
+import AdminAnalyticsTracker from './components/AdminAnalyticsTracker';
 
 import darkTheme from './components/theme'; // Your dark theme file
 import { fontStack } from './components/theme'; // Import the font stack
@@ -192,6 +193,8 @@ const AppContent = () => {
         <Route path="/upload-unique-transcript" element={<TranscriptParser darkMode={effectiveDarkMode} />} />
         <Route path="/professors/:professorId" element={<ProfessorDetails darkMode={effectiveDarkMode} />} />
         <Route path="/professors" element={<ProfessorDirectory darkMode={effectiveDarkMode} />} />
+        {/* Admin Analytics Dashboard */}
+        <Route path="/admin/analytics" element={<AdminAnalyticsTracker darkMode={effectiveDarkMode} />} />
       </Routes>
  {/* Conditionally render the UniversalFooter (hide on landing page) */}
  {location.pathname !== '/landing' && <UniversalFooter darkMode={effectiveDarkMode} />}
@@ -200,7 +203,3 @@ const AppContent = () => {
 };
 
  export default App;
-
-
-
-
