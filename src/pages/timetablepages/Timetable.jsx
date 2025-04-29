@@ -263,7 +263,7 @@ const Timetable = ({darkMode}) => {
   const db = getFirestore();
   var courseNameLong = ""
   // Add this near your other state declarations
-  const CACHE_VERSION = 'springV3';
+  const CACHE_VERSION = 'summerV1';
   // Constants
   const ENROLLMENT_REFRESH_INTERVAL = 43200000; // 12 hours in milliseconds
   const MAX_COURSES = 4; // Maximum number of courses users can add
@@ -628,7 +628,7 @@ const accentHoverBg = darkMode
   
       // Fetch new data
       const db = getFirestore();
-      const coursesSnapshot = await getDocs(collection(db, 'springTimetable'));
+      const coursesSnapshot = await getDocs(collection(db, 'summerTimetable'));
       const coursesData = coursesSnapshot.docs.map((doc) => {
         const data = doc.data();
         const periodCode = data['Period Code'];
@@ -736,27 +736,27 @@ const accentHoverBg = darkMode
     }
     
     try {
-      console.log("Fetching spring courses for user:", currentUser.uid);
+      console.log("Fetching summer courses for user:", currentUser.uid);
       
       // Get the user document
       const userDocRef = doc(db, 'users', currentUser.uid);
       const userDocSnap = await getDoc(userDocRef);
       
       if (userDocSnap.exists()) {
-        // Extract springCoursestaken from user document
+        // Extract summerCoursestaken from user document
         const userData = userDocSnap.data();
-        const springCourses = userData.springCoursestaken || [];
+        const summerCourses = userData.summerCoursestaken || [];
         
-        console.log(`Found ${springCourses.length} courses in the user's spring timetable`);
-        setSelectedCourses(springCourses);
+        console.log(`Found ${summerCourses.length} courses in the user's summer timetable`);
+        setSelectedCourses(summerCourses);
       } else {
-        console.log("User document not found. Creating a new one with empty springCoursestaken array.");
-        // Create user document with empty springCoursestaken array
-        await setDoc(userDocRef, { springCoursestaken: [] });
+        console.log("User document not found. Creating a new one with empty summerCoursestaken array.");
+        // Create user document with empty summerCoursestaken array
+        await setDoc(userDocRef, { summerCoursestaken: [] });
         setSelectedCourses([]);
       }
     } catch (error) {
-      console.error("Error fetching user's spring courses:", error);
+      console.error("Error fetching user's summer courses:", error);
       setPopupMessage({
         message: "There was an error loading your courses. Please try refreshing the page.",
         type: 'error',
@@ -1093,7 +1093,7 @@ const accentHoverBg = darkMode
       ...course,
       period: course.period || "ARR",  // Default to "ARR" if period is missing
       addedAt: new Date(),  // Add timestamp for when the course was added
-      term: "Spring 2025",   // Explicitly set the term
+      term: "Summer 2025",   // Explicitly set the term
       id: `${course.subj}_${course.num}_${course.sec}_${Date.now()}` // Generate a unique ID
     };
 
@@ -1157,18 +1157,18 @@ const accentHoverBg = darkMode
         const userDocSnap = await getDoc(userDocRef);
         
         if (userDocSnap.exists()) {
-          // User document exists, update the springCoursestaken array
+          // User document exists, update the summerCoursestaken array
           const userData = userDocSnap.data();
-          const currentCourses = userData.springCoursestaken || [];
+          const currentCourses = userData.summerCoursestaken || [];
           
           // Add the new course
           await updateDoc(userDocRef, {
-            springCoursestaken: [...currentCourses, courseData]
+            summerCoursestaken: [...currentCourses, courseData]
           });
         } else {
           // User document doesn't exist, create it with the course
           await setDoc(userDocRef, {
-            springCoursestaken: [courseData]
+            summerCoursestaken: [courseData]
           });
         }
         
@@ -1182,9 +1182,9 @@ const accentHoverBg = darkMode
         setOpenPopupMessage(true);
         
         // Log success
-        console.log(`Successfully added ${courseToAdd.subj} ${courseToAdd.num} to spring courses taken.`);
+        console.log(`Successfully added ${courseToAdd.subj} ${courseToAdd.num} to summer courses taken.`);
       } catch (error) {
-        console.error('Error adding course to springCoursestaken:', error);
+        console.error('Error adding course to summerCoursestaken:', error);
         setPopupMessage({
           message: `Error adding ${courseToAdd.subj} ${courseToAdd.num} to your timetable.`,
           type: 'error',
@@ -1236,14 +1236,14 @@ const accentHoverBg = darkMode
       if (userDocSnap.exists()) {
         // Get current courses
         const userData = userDocSnap.data();
-        const currentCourses = userData.springCoursestaken || [];
+        const currentCourses = userData.summerCoursestaken || [];
         
         // Filter out the course to remove
         const updatedCourses = currentCourses.filter(c => c.id !== course.id);
         
         // Update the document with the filtered array
         await updateDoc(userDocRef, {
-          springCoursestaken: updatedCourses
+          summerCoursestaken: updatedCourses
         });
         
         // Show success message
@@ -1253,7 +1253,7 @@ const accentHoverBg = darkMode
         });
         setOpenPopupMessage(true);
 
-        console.log(`Successfully removed ${course.subj} ${course.num} from spring courses taken.`);
+        console.log(`Successfully removed ${course.subj} ${course.num} from summer courses taken.`);
       } else {
         throw new Error("User document not found");
       }
@@ -1342,12 +1342,12 @@ const accentHoverBg = darkMode
     printWindow.document.write(`
       <html>
         <head>
-          <title>Spring 2025 Schedule</title>
+          <title>Summer 2025 Schedule</title>
           ${printCSS}
         </head>
         <body>
           <div class="schedule-print-container">
-            <div class="schedule-title">Spring 2025 Weekly Schedule</div>
+            <div class="schedule-title">Summer 2025 Weekly Schedule</div>
             <div class="schedule-subtitle">Dartmouth College</div>
             ${printContent.innerHTML}
           </div>
@@ -1498,7 +1498,7 @@ const accentHoverBg = darkMode
           </Alert>
         )}
 
-        {/* "Your Spring 2025 Classes" Section */}
+        {/* "Your Summer 2025 Classes" Section */}
         {showSelectedCourses && (
           <Typography
             variant="h2"
@@ -1513,7 +1513,7 @@ const accentHoverBg = darkMode
               transition: 'color 0.3s ease',
             }}
           >
-    Your Spring 2025 Courses.
+    Your Summer 2025 Courses.
     </Typography>
         )}
   
@@ -1920,7 +1920,7 @@ const accentHoverBg = darkMode
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
                               <Tooltip title={
                                 isFallAddDropClosed 
-                                  ? "Spring add/drop notifications will open on 8:00 AM Mon, Mar 31" 
+                                  ? "Summer add/drop notifications will open on 8:00 AM Mon, Mar 31" 
                                   : course.isNotified 
                                     ? "Click to remove notification" 
                                     : "Get notified if someone drops this class"
@@ -2082,7 +2082,7 @@ const accentHoverBg = darkMode
   
         {showSelectedCourses && selectedCourses.length === 0 && (
           <Typography sx={{ marginBottom: '20px', color: darkMode ? '#FFFFFF' : '#1D1D1F' }}>
-            Haven&apos;t added your Spring 2025 timetable on CourseMe? Add now!
+            Haven&apos;t added your Summer 2025 timetable on CourseMe? Add now!
           </Typography>
         )}
      
@@ -2109,7 +2109,7 @@ const accentHoverBg = darkMode
       transition: 'color 0.3s ease',
     }}
   >
-    Spring 2025 Timetable.
+    Summer 2025 Timetable.
   </Typography>
 
   <TextField
@@ -2718,7 +2718,7 @@ const accentHoverBg = darkMode
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
                     <Tooltip title={
                       isFallAddDropClosed 
-                        ? "Spring add/drop notifications will open on 8:00 AM Mon, Mar 31" 
+                        ? "Summer add/drop notifications will open on 8:00 AM Mon, Mar 31" 
                         : course.isNotified 
                           ? "Click to remove notification" 
                           : "Get notified if someone drops this class"
