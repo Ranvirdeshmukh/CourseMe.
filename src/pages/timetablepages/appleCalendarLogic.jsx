@@ -124,8 +124,9 @@ const getEventTiming = (periodCode, courseTitle, subj, num) => {
   
   console.log(`Found timing: ${timing}`);
 
-  const eventStartDate = '20250331'; // March 31, 2025 (Monday)
-  const eventEndDate = '20250609'; // June 9, 2025
+  // Update these dates for Summer 2025
+  const eventStartDate = '20250626'; // June 26, 2025 (Thursday)
+  const eventEndDate = '20250902'; // September 2, 2025
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);
   
