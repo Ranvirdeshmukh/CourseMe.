@@ -1210,20 +1210,31 @@ const accentHoverBg = darkMode
       return;
     }
 
-    // Check if we have the course ID (needed for deletion)
-    if (!course.id) {
-      console.error('Course ID not found, cannot remove from database', course);
-      setPopupMessage({
-        message: `Error removing ${course.subj} ${course.num}: Course ID not found.`,
-        type: 'error',
-      });
-      setOpenPopupMessage(true);
-      return;
-    }
+    // Create an object to identify the course if id is missing
+    const courseIdentifier = course.id 
+      ? { id: course.id }
+      : { 
+          subj: course.subj, 
+          num: course.num, 
+          sec: course.sec 
+        };
+    
+    // Log to help with debugging
+    console.log('Removing course:', courseIdentifier);
 
     try {
-      // Remove the course from the state first for immediate UI feedback
-      setSelectedCourses(prev => prev.filter(c => c.id !== course.id));
+      // First, remove from UI for immediate feedback
+      setSelectedCourses(prev => {
+        if (courseIdentifier.id) {
+          return prev.filter(c => c.id !== courseIdentifier.id);
+        } else {
+          return prev.filter(c => 
+            !(c.subj === courseIdentifier.subj && 
+              c.num === courseIdentifier.num && 
+              c.sec === courseIdentifier.sec)
+          );
+        }
+      });
 
       // Get reference to user document
       const userDocRef = doc(db, 'users', currentUser.uid);
@@ -1237,7 +1248,13 @@ const accentHoverBg = darkMode
         const currentCourses = userData.summerCoursestaken || [];
         
         // Filter out the course to remove
-        const updatedCourses = currentCourses.filter(c => c.id !== course.id);
+        const updatedCourses = courseIdentifier.id 
+          ? currentCourses.filter(c => c.id !== courseIdentifier.id)
+          : currentCourses.filter(c => 
+              !(c.subj === courseIdentifier.subj && 
+                c.num === courseIdentifier.num && 
+                c.sec === courseIdentifier.sec)
+            );
         
         // Update the document with the filtered array
         await updateDoc(userDocRef, {
