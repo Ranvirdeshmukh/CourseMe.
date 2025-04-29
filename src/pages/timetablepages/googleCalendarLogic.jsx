@@ -1,6 +1,6 @@
 import moment from 'moment-timezone';
 
-// Period code to timing mapping
+// Period code to timing mapping - Summer term might have different formats for some periods
 export const periodCodeToTiming = {
   "11": "MWF 11:30-12:35, Tu 12:15-1:05",
   "10": "MWF 10:10-11:15, Th 12:15-1:05",
@@ -19,6 +19,7 @@ export const periodCodeToTiming = {
   "6B": "W 6:30-9:30, Tu 7:30-8:20",
   "8S": "MTThF 7:45-8:35, Wed 7:45-8:35",
   "LSA": "Language Study Abroad",
+  // Add any Summer-specific period codes here if needed
 };
 
 /**
@@ -89,8 +90,9 @@ const getEventTiming = (periodCode, courseTitle, subj, num) => {
   const timing = periodCodeToTiming[periodCode];
   if (!timing) return [];
 
-  const eventStartDate = '20250331'; // March 31, 2025 (Monday)
-  const eventEndDate = '20250609'; // June 9, 2025
+  // Update these dates for Summer 2025
+  const eventStartDate = '20250626'; // June 16, 2025 (Monday)
+  const eventEndDate = '20250902'; // August 22, 2025
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);
   
