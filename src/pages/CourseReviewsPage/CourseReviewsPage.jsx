@@ -36,6 +36,7 @@ import CourseVoting from './CourseVoting.jsx';
 const CourseReviewsPage = ({ darkMode }) => {
   const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
   const [isTaughtSpringTerm, setIsTaughtSpringTerm] = useState(false);
+  const [isTaughtSummerTerm, setIsTaughtSummerTerm] = useState(false);
   const { department, courseId } = useParams();
   const { currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
@@ -52,6 +53,7 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [currentInstructors, setCurrentInstructors] = useState([]);
   const [winterInstructors, setWinterInstructors] = useState([]);
   const [springInstructors, setSpringInstructors] = useState([]);
+  const [summerInstructors, setSummerInstructors] = useState([]);
   const [bothTermsInstructors, setBothTermsInstructors] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [reviewInstructors, setReviewInstructors] = useState([]);
@@ -1042,6 +1044,18 @@ const CourseReviewsPage = ({ darkMode }) => {
       }
     });
     
+    summerInstructors.forEach(instructor => {
+      if (!professorTerms[instructor]) {
+        professorTerms[instructor] = [];
+      }
+      
+      const summerTerm = currentYear + 'X';
+      if (!professorTerms[instructor].includes(summerTerm)) {
+        professorTerms[instructor].unshift(summerTerm);
+        console.log(`Added current Summer term ${summerTerm} for professor ${instructor}`);
+      }
+    });
+    
     console.log("Final professorTerms:", professorTerms);
     return professorTerms;
   };
@@ -1135,28 +1149,28 @@ const CourseReviewsPage = ({ darkMode }) => {
     };
     
     switch (term) {
-      case 'W': // Winter - Blue
+      case 'W': // Winter
         colors = {
           bg: darkMode ? '#2C3E50' : '#E0F7FF',
           border: darkMode ? '#4A6572' : '#B3E5FC',
           text: darkMode ? '#B3E5FC' : '#0277BD'
         };
         break;
-      case 'S': // Spring - Yellow
+      case 'S': // Spring
         colors = {
           bg: darkMode ? '#4D3C14' : '#FFF8E1',
           border: darkMode ? '#6D5B24' : '#FFE082',
           text: darkMode ? '#FFE082' : '#F57F17'
         };
         break;
-      case 'X': // Summer - Green
+      case 'X': // Summer
         colors = {
           bg: darkMode ? '#1B5E20' : '#E8F5E9',
           border: darkMode ? '#388E3C' : '#A5D6A7',
           text: darkMode ? '#A5D6A7' : '#2E7D32'
         };
         break;
-      case 'F': // Fall - Orange/Red
+      case 'F': // Fall
         colors = {
           bg: darkMode ? '#4E342E' : '#FBE9E7',
           border: darkMode ? '#6D4C41' : '#FFCCBC',
@@ -1321,10 +1335,27 @@ const handleQualityVote = async (voteType) => {
                 }
               });
               
+              // Check Summer Term
+              const summerTimetableRef = collection(db, 'summerTimetable');
+              const summerQuery = query(summerTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumValue));
+              const summerQuerySnapshot = await getDocs(summerQuery);
+              
+              let summerFound = false;
+              summerQuerySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.Instructor) {
+                  summerFound = true;
+                  if (!instructors.includes(data.Instructor)) {
+                    instructors.push(data.Instructor);
+                  }
+                }
+              });
+              
               console.log("Matching instructors:", instructors);
 
               setIsTaughtCurrentTerm(winterFound);
               setIsTaughtSpringTerm(springFound);
+              setIsTaughtSummerTerm(summerFound);
               if (instructors.length > 0) {
                 setCurrentInstructors(instructors);
               } else {
@@ -1429,20 +1460,40 @@ const handleQualityVote = async (voteType) => {
           }
         });
 
+        // Check Summer Term
+        const summerTimetableRef = collection(db, 'summerTimetable');
+        const summerQuery = query(summerTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+        const summerQuerySnapshot = await getDocs(summerQuery);
+        
+        let summerInstructors = [];
+        let summerFound = false;
+        summerQuerySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.Instructor) {
+            summerFound = true;
+            if (!summerInstructors.includes(data.Instructor)) {
+              summerInstructors.push(data.Instructor);
+            }
+          }
+        });
+        
         // Find instructors who teach in both terms
         const bothTermsInstructors = winterInstructors.filter(instructor => 
           springInstructors.includes(instructor)
         );
 
-        setCurrentInstructors([...winterInstructors, ...springInstructors]);
+        setCurrentInstructors([...winterInstructors, ...springInstructors, ...summerInstructors]);
         setWinterInstructors(winterInstructors);
         setSpringInstructors(springInstructors);
+        setSummerInstructors(summerInstructors);
         setBothTermsInstructors(bothTermsInstructors);
         setIsTaughtCurrentTerm(winterFound);
         setIsTaughtSpringTerm(springFound);
-        console.log("Current instructors:", [...winterInstructors, ...springInstructors]);
+        setIsTaughtSummerTerm(summerFound);
+        console.log("Current instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors]);
         console.log("Winter instructors:", winterInstructors);
         console.log("Spring instructors:", springInstructors);
+        console.log("Summer instructors:", summerInstructors);
         console.log("Both terms instructors:", bothTermsInstructors);
         let data = null;
         const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -1469,7 +1520,7 @@ const handleQualityVote = async (voteType) => {
           console.log("Review instructors:", reviewInstructors);
 
           // Compare and update if necessary
-          const instructorsToAdd = [...winterInstructors, ...springInstructors].filter(instructor => 
+          const instructorsToAdd = [...winterInstructors, ...springInstructors, ...summerInstructors].filter(instructor => 
             !reviewInstructors.some(reviewInstructor => compareNames(instructor, reviewInstructor))
           );
 
@@ -1485,14 +1536,14 @@ const handleQualityVote = async (voteType) => {
         } else {
           // If the document doesn't exist, create it with the current instructors
           const newReviewsData = {};
-          [...winterInstructors, ...springInstructors].forEach(instructor => {
+          [...winterInstructors, ...springInstructors, ...summerInstructors].forEach(instructor => {
             newReviewsData[instructor] = [];
           });
           await setDoc(reviewsRef, newReviewsData);
-          console.log("Created new reviews document with instructors:", [...winterInstructors, ...springInstructors]);
+          console.log("Created new reviews document with instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors]);
         }
 
-        setIsTaughtCurrentTerm([...winterInstructors, ...springInstructors].length > 0);
+        setIsTaughtCurrentTerm([...winterInstructors, ...springInstructors, ...summerInstructors].length > 0);
       }
     } catch (error) {
       console.error("Error fetching and updating instructors:", error);
@@ -2396,6 +2447,12 @@ useEffect(() => {
             terms.add(springTerm);
             console.log(`Manual extraction: No terms found for ${professor}, adding current spring term ${springTerm}`);
           }
+          
+          if (summerInstructors.includes(professor)) {
+            const summerTerm = currentYear + 'X';
+            terms.add(summerTerm);
+            console.log(`Manual extraction: No terms found for ${professor}, adding current summer term ${summerTerm}`);
+          }
         }
         
         // Update the professor's terms if we found any
@@ -2696,7 +2753,7 @@ useEffect(() => {
           
           let rangeSegment = '';
           
-          // Determine range segment based on course number
+          // Determine range segment based on course number range
           if (courseNumBase >= 1 && courseNumBase <= 19) {
             rangeSegment = 'mus-1-mus-19';
           } else if (courseNumBase >= 20 && courseNumBase <= 39) {
@@ -2713,14 +2770,14 @@ useEffect(() => {
             rangeSegment = 'mus-80-mus-99';
           }
           
-          // Format course number for URL
-          let formattedCourseNum = courseNum;
-          if (courseNum.includes('.')) {
-            formattedCourseNum = courseNum.replace('.', '-');
-          }
-          
           // If we identified a valid range, use it in the URL
           if (rangeSegment) {
+            // Format course number for URL
+            let formattedCourseNum = courseNum;
+            if (courseNum.includes('.')) {
+              formattedCourseNum = courseNum.replace('.', '-');
+            }
+            
             const musUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/music/${deptCode}-music-undergraduate-courses/${rangeSegment}/${deptCode}-${formattedCourseNum}/`;
             console.log(`Generated ORC link for ${courseId}: ${musUrl}`);
             return musUrl;
@@ -2912,7 +2969,7 @@ useEffect(() => {
 >
           {courseName}
         </Typography>
-        {(isTaughtCurrentTerm || isTaughtSpringTerm) && (
+        {(isTaughtCurrentTerm || isTaughtSpringTerm || isTaughtSummerTerm) && (
           <Box
             sx={{
               display: 'flex',
@@ -2983,6 +3040,39 @@ useEffect(() => {
                     }}
                   >
                     25S
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )}
+            
+            {isTaughtSummerTerm && (
+              <Tooltip title="This course is offered in 25X" arrow placement="top">
+                <Box
+                  sx={{
+                    backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9', // Summer green color
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                    transition: 'all 0.2s ease',
+                    cursor: 'help',
+                    '&:hover': {
+                      backgroundColor: darkMode ? '#2E7D32' : '#A5D6A7',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: darkMode ? '#A5D6A7' : '#2E7D32', // Summer green text
+                    }}
+                  >
+                    25X
                   </Typography>
                 </Box>
               </Tooltip>
@@ -3215,6 +3305,7 @@ useEffect(() => {
           const isCurrent = currentInstructors.includes(professor);
           const isWinter = winterInstructors.includes(professor);
           const isSpring = springInstructors.includes(professor);
+          const isSummer = summerInstructors.includes(professor);
           const isBothTerms = bothTermsInstructors.includes(professor);
           const reviewCount = reviews.filter(
             (review) => review.instructor === professor
@@ -3332,6 +3423,27 @@ useEffect(() => {
                         25S
                       </Typography>
                     </Box>
+                    <Box
+                      sx={{
+                        backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
+                          color: darkMode ? '#A5D6A7' : '#2E7D32',
+                        }}
+                      >
+                        25X
+                      </Typography>
+                    </Box>
                   </Box>
                 ) : isWinter ? (
                   <Box
@@ -3375,6 +3487,28 @@ useEffect(() => {
                       }}
                     >
                       25S
+                    </Typography>
+                  </Box>
+                ) : isSummer ? (
+                  <Box
+                    sx={{
+                      backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.8rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#A5D6A7' : '#2E7D32',
+                      }}
+                    >
+                      25X
                     </Typography>
                   </Box>
                 ) : (
