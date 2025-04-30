@@ -1165,9 +1165,9 @@ const CourseReviewsPage = ({ darkMode }) => {
         break;
       case 'X': // Summer
         colors = {
-          bg: darkMode ? '#1A237E' : '#E8EAF6',
-          border: darkMode ? '#303F9F' : '#9FA8DA',
-          text: darkMode ? '#9FA8DA' : '#1A237E'
+          bg: darkMode ? '#006064' : '#E0F7FA',
+          border: darkMode ? '#00838F' : '#80DEEA',
+          text: darkMode ? '#B2EBF2' : '#00838F'
         };
         break;
       case 'F': // Fall
@@ -3049,16 +3049,16 @@ useEffect(() => {
               <Tooltip title="This course is offered in 25X" arrow placement="top">
                 <Box
                   sx={{
-                    backgroundColor: darkMode ? '#1A237E' : '#E8EAF6', // Summer green color
+                    backgroundColor: darkMode ? '#006064' : '#E0F7FA', // Summer orange color
                     padding: '2px 8px',
                     borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'center',
-                    border: darkMode ? '1px solid #303F9F' : '1px solid #9FA8DA',
+                    border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
                     transition: 'all 0.2s ease',
                     cursor: 'help',
                     '&:hover': {
-                      backgroundColor: darkMode ? '#303F9F' : '#9FA8DA',
+                      backgroundColor: darkMode ? '#00838F' : '#80DEEA',
                       transform: 'translateY(-2px)',
                       boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
                     }
@@ -3069,7 +3069,7 @@ useEffect(() => {
                     sx={{
                       fontSize: '0.9rem',
                       fontWeight: 500,
-                      color: darkMode ? '#9FA8DA' : '#1A237E', // Summer green text
+                      color: darkMode ? '#B2EBF2' : '#00838F', // Summer orange text
                     }}
                   >
                     25X
@@ -3425,12 +3425,12 @@ useEffect(() => {
                     </Box>
                     <Box
                       sx={{
-                        backgroundColor: darkMode ? '#1A237E' : '#E8EAF6',
+                        backgroundColor: darkMode ? '#006064' : '#E0F7FA',
                         padding: '2px 8px',
                         borderRadius: '12px',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        border: darkMode ? '1px solid #303F9F' : '1px solid #9FA8DA',
+                        border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
                       }}
                     >
                       <Typography
@@ -3438,7 +3438,7 @@ useEffect(() => {
                         sx={{
                           fontSize: '0.8rem',
                           fontWeight: 500,
-                          color: darkMode ? '#9FA8DA' : '#1A237E',
+                          color: darkMode ? '#B2EBF2' : '#00838F',
                         }}
                       >
                         25X
@@ -3492,12 +3492,12 @@ useEffect(() => {
                 ) : isSummer ? (
                   <Box
                     sx={{
-                      backgroundColor: darkMode ? '#1A237E' : '#E8EAF6',
+                      backgroundColor: darkMode ? '#006064' : '#E0F7FA',
                       padding: '2px 8px',
                       borderRadius: '12px',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      border: darkMode ? '1px solid #303F9F' : '1px solid #9FA8DA',
+                      border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
                     }}
                   >
                     <Typography
@@ -3505,7 +3505,7 @@ useEffect(() => {
                       sx={{
                         fontSize: '0.8rem',
                         fontWeight: 500,
-                        color: darkMode ? '#9FA8DA' : '#1A237E',
+                        color: darkMode ? '#B2EBF2' : '#00838F',
                       }}
                     >
                       25X
