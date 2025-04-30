@@ -1165,9 +1165,9 @@ const CourseReviewsPage = ({ darkMode }) => {
         break;
       case 'X': // Summer
         colors = {
-          bg: darkMode ? '#1B5E20' : '#E8F5E9',
-          border: darkMode ? '#388E3C' : '#A5D6A7',
-          text: darkMode ? '#A5D6A7' : '#2E7D32'
+          bg: darkMode ? '#1A237E' : '#E8EAF6',
+          border: darkMode ? '#303F9F' : '#9FA8DA',
+          text: darkMode ? '#9FA8DA' : '#1A237E'
         };
         break;
       case 'F': // Fall
@@ -3016,16 +3016,16 @@ useEffect(() => {
               <Tooltip title="This course is offered in 25S" arrow placement="top">
                 <Box
                   sx={{
-                    backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9', // Spring green color
+                    backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1', // Spring green color
                     padding: '2px 8px',
                     borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'center',
-                    border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                    border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
                     transition: 'all 0.2s ease',
                     cursor: 'help',
                     '&:hover': {
-                      backgroundColor: darkMode ? '#2E7D32' : '#A5D6A7',
+                      backgroundColor: darkMode ? '#6D5B24' : '#FFE082',
                       transform: 'translateY(-2px)',
                       boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
                     }
@@ -3036,7 +3036,7 @@ useEffect(() => {
                     sx={{
                       fontSize: '0.9rem',
                       fontWeight: 500,
-                      color: darkMode ? '#A5D6A7' : '#2E7D32', // Spring green text
+                      color: darkMode ? '#FFE082' : '#F57F17', // Spring green text
                     }}
                   >
                     25S
@@ -3049,16 +3049,16 @@ useEffect(() => {
               <Tooltip title="This course is offered in 25X" arrow placement="top">
                 <Box
                   sx={{
-                    backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9', // Summer green color
+                    backgroundColor: darkMode ? '#1A237E' : '#E8EAF6', // Summer green color
                     padding: '2px 8px',
                     borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'center',
-                    border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                    border: darkMode ? '1px solid #303F9F' : '1px solid #9FA8DA',
                     transition: 'all 0.2s ease',
                     cursor: 'help',
                     '&:hover': {
-                      backgroundColor: darkMode ? '#2E7D32' : '#A5D6A7',
+                      backgroundColor: darkMode ? '#303F9F' : '#9FA8DA',
                       transform: 'translateY(-2px)',
                       boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
                     }
@@ -3069,7 +3069,7 @@ useEffect(() => {
                     sx={{
                       fontSize: '0.9rem',
                       fontWeight: 500,
-                      color: darkMode ? '#A5D6A7' : '#2E7D32', // Summer green text
+                      color: darkMode ? '#9FA8DA' : '#1A237E', // Summer green text
                     }}
                   >
                     25X
@@ -3404,12 +3404,12 @@ useEffect(() => {
                     </Box>
                     <Box
                       sx={{
-                        backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                        backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
                         padding: '2px 8px',
                         borderRadius: '12px',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                        border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
                       }}
                     >
                       <Typography
@@ -3417,7 +3417,7 @@ useEffect(() => {
                         sx={{
                           fontSize: '0.8rem',
                           fontWeight: 500,
-                          color: darkMode ? '#A5D6A7' : '#2E7D32',
+                          color: darkMode ? '#FFE082' : '#F57F17',
                         }}
                       >
                         25S
@@ -3425,12 +3425,12 @@ useEffect(() => {
                     </Box>
                     <Box
                       sx={{
-                        backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                        backgroundColor: darkMode ? '#1A237E' : '#E8EAF6',
                         padding: '2px 8px',
                         borderRadius: '12px',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                        border: darkMode ? '1px solid #303F9F' : '1px solid #9FA8DA',
                       }}
                     >
                       <Typography
@@ -3438,7 +3438,7 @@ useEffect(() => {
                         sx={{
                           fontSize: '0.8rem',
                           fontWeight: 500,
-                          color: darkMode ? '#A5D6A7' : '#2E7D32',
+                          color: darkMode ? '#9FA8DA' : '#1A237E',
                         }}
                       >
                         25X
@@ -3470,12 +3470,12 @@ useEffect(() => {
                 ) : isSpring ? (
                   <Box
                     sx={{
-                      backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                      backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
                       padding: '2px 8px',
                       borderRadius: '12px',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                      border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
                     }}
                   >
                     <Typography
@@ -3483,7 +3483,7 @@ useEffect(() => {
                       sx={{
                         fontSize: '0.8rem',
                         fontWeight: 500,
-                        color: darkMode ? '#A5D6A7' : '#2E7D32',
+                        color: darkMode ? '#FFE082' : '#F57F17',
                       }}
                     >
                       25S
@@ -3492,12 +3492,12 @@ useEffect(() => {
                 ) : isSummer ? (
                   <Box
                     sx={{
-                      backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                      backgroundColor: darkMode ? '#1A237E' : '#E8EAF6',
                       padding: '2px 8px',
                       borderRadius: '12px',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                      border: darkMode ? '1px solid #303F9F' : '1px solid #9FA8DA',
                     }}
                   >
                     <Typography
@@ -3505,7 +3505,7 @@ useEffect(() => {
                       sx={{
                         fontSize: '0.8rem',
                         fontWeight: 500,
-                        color: darkMode ? '#A5D6A7' : '#2E7D32',
+                        color: darkMode ? '#9FA8DA' : '#1A237E',
                       }}
                     >
                       25X
