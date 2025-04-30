@@ -2980,7 +2980,7 @@ useEffect(() => {
             }}
           >
             {isTaughtCurrentTerm && (
-              <Tooltip title="This course is offered in W25" arrow placement="top">
+              <Tooltip title="This course is offered in 25W" arrow placement="top">
                 <Box
                   sx={{
                     backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
