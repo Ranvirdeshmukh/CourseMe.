@@ -18,12 +18,26 @@ import {
   Alert,
   Grid,
   Chip,
-  Divider
+  Divider,
+  Checkbox,
+  ListItemText,
+  OutlinedInput
 } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
 import { getCoursesByPeriod } from '../services/courseDataService';
 import { collection, query, getDocs, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
 const LayupsByTiming = ({darkMode}) => {
   const [timeSlotCourses, setTimeSlotCourses] = useState([]);
@@ -31,8 +45,8 @@ const LayupsByTiming = ({darkMode}) => {
   const [error, setError] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState("10A");
   const [selectedTerm, setSelectedTerm] = useState("summer");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedDistrib, setSelectedDistrib] = useState("");
+  const [selectedDepartments, setSelectedDepartments] = useState([]);
+  const [selectedDistribs, setSelectedDistribs] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [distribs, setDistribs] = useState([]);
   const [filterApplied, setFilterApplied] = useState(false);
@@ -42,8 +56,8 @@ const LayupsByTiming = ({darkMode}) => {
   // Use refs to track current values without triggering effects
   const periodRef = useRef(selectedPeriod);
   const termRef = useRef(selectedTerm);
-  const departmentRef = useRef(selectedDepartment);
-  const distribRef = useRef(selectedDistrib);
+  const departmentsRef = useRef(selectedDepartments);
+  const distribsRef = useRef(selectedDistribs);
   const didMountRef = useRef(false);
   
   // Prevent renders from creating infinite loops
@@ -93,7 +107,7 @@ const LayupsByTiming = ({darkMode}) => {
   }, []);
 
   // Fetch data function that doesn't depend on state values
-  const fetchData = useCallback(async (periodCode, term, department, distrib) => {
+  const fetchData = useCallback(async (periodCode, term, departments, distribs) => {
     if (isUpdatingRef.current) return;
     
     try {
@@ -103,24 +117,26 @@ const LayupsByTiming = ({darkMode}) => {
 
       let data = await getCoursesByPeriod(periodCode, periodCodeToTiming, term);
       
-      // Apply additional filters in memory if department or distrib is selected
-      if (department) {
-        data = data.filter(course => course.subj === department);
+      // Apply additional filters in memory if departments or distribs are selected
+      if (departments.length > 0) {
+        data = data.filter(course => departments.includes(course.subj));
         setFilterApplied(true);
       }
       
-      if (distrib) {
+      if (distribs.length > 0) {
         data = data.filter(course => {
           // Get the full course info from the courseId for distrib filtering
           // This is needed because the period data might not include full distrib info
-          return course.distribs && 
-                 typeof course.distribs === 'string' && 
-                 course.distribs.split(',').map(d => d.trim()).includes(distrib);
+          if (!course.distribs || typeof course.distribs !== 'string') return false;
+          
+          const courseDistribs = course.distribs.split(',').map(d => d.trim());
+          // Return true if ANY of the selected distribs match (OR logic)
+          return distribs.some(d => courseDistribs.includes(d));
         });
         setFilterApplied(true);
       }
       
-      if (!department && !distrib) {
+      if (departments.length === 0 && distribs.length === 0) {
         setFilterApplied(false);
       }
       
@@ -138,7 +154,7 @@ const LayupsByTiming = ({darkMode}) => {
   // This effect runs only once after the component mounts
   useEffect(() => {
     fetchDepartmentsAndDistribs();
-    fetchData("10A", "summer", "", "");
+    fetchData("10A", "summer", [], []);
     didMountRef.current = true;
   }, [fetchData, fetchDepartmentsAndDistribs]);
   
@@ -152,12 +168,12 @@ const LayupsByTiming = ({darkMode}) => {
   }, [selectedTerm]);
 
   useEffect(() => {
-    departmentRef.current = selectedDepartment;
-  }, [selectedDepartment]);
+    departmentsRef.current = selectedDepartments;
+  }, [selectedDepartments]);
 
   useEffect(() => {
-    distribRef.current = selectedDistrib;
-  }, [selectedDistrib]);
+    distribsRef.current = selectedDistribs;
+  }, [selectedDistribs]);
   
   // Handle filter changes
   const applyFilters = () => {
@@ -166,8 +182,8 @@ const LayupsByTiming = ({darkMode}) => {
         fetchData(
           periodRef.current, 
           termRef.current,
-          departmentRef.current,
-          distribRef.current
+          departmentsRef.current,
+          distribsRef.current
         );
       }, 0);
     }
@@ -191,38 +207,50 @@ const LayupsByTiming = ({darkMode}) => {
     applyFilters();
   };
 
-  // Handle department change
-  const handleDepartmentChange = (event) => {
+  // Handle departments change (multiple selection)
+  const handleDepartmentsChange = (event) => {
     if (isUpdatingRef.current) return;
     
-    const department = event.target.value;
-    setSelectedDepartment(department);
-    applyFilters();
+    const departments = event.target.value;
+    setSelectedDepartments(departments);
+    setTimeout(() => applyFilters(), 0);
   };
 
-  // Handle distrib change
-  const handleDistribChange = (event) => {
+  // Handle distribs change (multiple selection)
+  const handleDistribsChange = (event) => {
     if (isUpdatingRef.current) return;
     
-    const distrib = event.target.value;
-    setSelectedDistrib(distrib);
-    applyFilters();
+    const distribs = event.target.value;
+    setSelectedDistribs(distribs);
+    setTimeout(() => applyFilters(), 0);
+  };
+
+  // Remove a single department from selection
+  const handleRemoveDepartment = (department) => {
+    setSelectedDepartments(prev => prev.filter(d => d !== department));
+    setTimeout(() => applyFilters(), 0);
+  };
+
+  // Remove a single distrib from selection
+  const handleRemoveDistrib = (distrib) => {
+    setSelectedDistribs(prev => prev.filter(d => d !== distrib));
+    setTimeout(() => applyFilters(), 0);
   };
 
   // Reset all filters
   const handleResetFilters = () => {
     if (isUpdatingRef.current) return;
     
-    setSelectedDepartment("");
-    setSelectedDistrib("");
+    setSelectedDepartments([]);
+    setSelectedDistribs([]);
     
     // Don't reset period and term, just department and distrib filters
     setTimeout(() => {
       fetchData(
         periodRef.current, 
         termRef.current,
-        "",
-        ""
+        [],
+        []
       );
     }, 0);
   };
@@ -333,20 +361,36 @@ const LayupsByTiming = ({darkMode}) => {
             </FormControl>
           </Grid>
 
-          {/* Department selector */}
+          {/* Departments selector (multiple) */}
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth>
-              <InputLabel
-                id="department-label"
+              <InputLabel 
+                id="departments-label"
                 sx={{ color: darkMode ? '#fff' : '#00693E' }}
               >
-                Department
+                Departments
               </InputLabel>
               <Select
-                labelId="department-label"
-                value={selectedDepartment}
-                label="Department"
-                onChange={handleDepartmentChange}
+                labelId="departments-label"
+                id="departments-multiple-checkbox"
+                multiple
+                value={selectedDepartments}
+                onChange={handleDepartmentsChange}
+                input={<OutlinedInput label="Departments" />}
+                renderValue={(selected) => 
+                  selected.length > 1 
+                    ? `${selected.length} departments selected` 
+                    : selected[0] || "All Departments"
+                }
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                      width: 250,
+                      backgroundColor: darkMode ? '#1C1F43' : undefined,
+                    }
+                  }
+                }}
                 sx={{
                   backgroundColor: darkMode ? '#1C1F43' : '#F0F4FF',
                   borderRadius: '8px',
@@ -355,45 +399,66 @@ const LayupsByTiming = ({darkMode}) => {
                   transition: 'background-color 0.3s ease, color 0.3s ease',
                 }}
               >
-                <MenuItem
-                  value=""
-                  sx={{
-                    backgroundColor: darkMode ? '#1C1F43' : undefined,
-                    color: darkMode ? '#fff' : undefined,
-                  }}
-                >
-                  <em>All Departments</em>
-                </MenuItem>
                 {departments.map((department) => (
-                  <MenuItem
-                    key={department}
+                  <MenuItem 
+                    key={department} 
                     value={department}
                     sx={{
                       backgroundColor: darkMode ? '#1C1F43' : undefined,
                       color: darkMode ? '#fff' : undefined,
                     }}
                   >
-                    {department}
+                    <Checkbox 
+                      checked={selectedDepartments.indexOf(department) > -1}
+                      sx={{
+                        color: darkMode ? '#bb86fc' : undefined,
+                        '&.Mui-checked': {
+                          color: darkMode ? '#bb86fc' : undefined,
+                        }
+                      }}  
+                    />
+                    <ListItemText 
+                      primary={department}
+                      primaryTypographyProps={{
+                        color: darkMode ? '#fff' : undefined,
+                      }}  
+                    />
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
 
-          {/* Distrib selector */}
+          {/* Distribs selector (multiple) */}
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth>
-              <InputLabel
-                id="distrib-label"
+              <InputLabel 
+                id="distribs-label"
                 sx={{ color: darkMode ? '#fff' : '#00693E' }}
               >
-                Distribution
+                Distributions
               </InputLabel>
               <Select
-                labelId="distrib-label"
-                value={selectedDistrib}
-                label="Distribution"
-                onChange={handleDistribChange}
+                labelId="distribs-label"
+                id="distribs-multiple-checkbox"
+                multiple
+                value={selectedDistribs}
+                onChange={handleDistribsChange}
+                input={<OutlinedInput label="Distributions" />}
+                renderValue={(selected) => 
+                  selected.length > 1 
+                    ? `${selected.length} distribs selected` 
+                    : selected[0] || "All Distribs"
+                }
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                      width: 250,
+                      backgroundColor: darkMode ? '#1C1F43' : undefined,
+                    }
+                  }
+                }}
                 sx={{
                   backgroundColor: darkMode ? '#1C1F43' : '#F0F4FF',
                   borderRadius: '8px',
@@ -402,25 +467,30 @@ const LayupsByTiming = ({darkMode}) => {
                   transition: 'background-color 0.3s ease, color 0.3s ease',
                 }}
               >
-                <MenuItem
-                  value=""
-                  sx={{
-                    backgroundColor: darkMode ? '#1C1F43' : undefined,
-                    color: darkMode ? '#fff' : undefined,
-                  }}
-                >
-                  <em>All Distribs</em>
-                </MenuItem>
                 {distribs.map((distrib) => (
-                  <MenuItem
-                    key={distrib}
+                  <MenuItem 
+                    key={distrib} 
                     value={distrib}
                     sx={{
                       backgroundColor: darkMode ? '#1C1F43' : undefined,
                       color: darkMode ? '#fff' : undefined,
                     }}
                   >
-                    {distrib}
+                    <Checkbox 
+                      checked={selectedDistribs.indexOf(distrib) > -1}
+                      sx={{
+                        color: darkMode ? '#03dac6' : undefined,
+                        '&.Mui-checked': {
+                          color: darkMode ? '#03dac6' : undefined,
+                        }
+                      }}  
+                    />
+                    <ListItemText 
+                      primary={distrib}
+                      primaryTypographyProps={{
+                        color: darkMode ? '#fff' : undefined,
+                      }}
+                    />
                   </MenuItem>
                 ))}
               </Select>
@@ -429,19 +499,17 @@ const LayupsByTiming = ({darkMode}) => {
         </Grid>
 
         {/* Active filters display */}
-        {(selectedDepartment || selectedDistrib) && (
+        {(selectedDepartments.length > 0 || selectedDistribs.length > 0) && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2, alignItems: 'center' }}>
             <Typography variant="body2" sx={{ color: darkMode ? '#ccc' : '#666' }}>
               Active filters:
             </Typography>
             
-            {selectedDepartment && (
+            {selectedDepartments.map(dept => (
               <Chip 
-                label={`Department: ${selectedDepartment}`} 
-                onDelete={() => {
-                  setSelectedDepartment("");
-                  applyFilters();
-                }}
+                key={dept}
+                label={`Dept: ${dept}`} 
+                onDelete={() => handleRemoveDepartment(dept)}
                 color="primary"
                 variant="outlined"
                 size="small"
@@ -450,15 +518,13 @@ const LayupsByTiming = ({darkMode}) => {
                   color: darkMode ? '#bb86fc' : undefined,
                 }}
               />
-            )}
+            ))}
             
-            {selectedDistrib && (
+            {selectedDistribs.map(distrib => (
               <Chip 
-                label={`Distrib: ${selectedDistrib}`} 
-                onDelete={() => {
-                  setSelectedDistrib("");
-                  applyFilters();
-                }}
+                key={distrib}
+                label={`Distrib: ${distrib}`} 
+                onDelete={() => handleRemoveDistrib(distrib)}
                 color="secondary"
                 variant="outlined"
                 size="small"
@@ -467,9 +533,9 @@ const LayupsByTiming = ({darkMode}) => {
                   color: darkMode ? '#03dac6' : undefined,
                 }}
               />
-            )}
+            ))}
             
-            {(selectedDepartment || selectedDistrib) && (
+            {(selectedDepartments.length > 0 || selectedDistribs.length > 0) && (
               <Chip 
                 label="Reset Filters" 
                 onClick={handleResetFilters}
