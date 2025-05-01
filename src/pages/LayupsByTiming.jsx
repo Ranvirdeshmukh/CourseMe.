@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Typography,
@@ -25,7 +25,16 @@ const LayupsByTiming = ({darkMode}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState("11");
+  const [selectedTerm, setSelectedTerm] = useState("spring");
   const isMobile = useMediaQuery('(max-width:600px)');
+  
+  // Use refs to track current values without triggering effects
+  const periodRef = useRef(selectedPeriod);
+  const termRef = useRef(selectedTerm);
+  const didMountRef = useRef(false);
+  
+  // Prevent renders from creating infinite loops
+  const isUpdatingRef = useRef(false);
   
   // Moved this to useMemo to prevent recreation on every render
   const periodCodeToTiming = useMemo(() => ({
@@ -43,97 +52,154 @@ const LayupsByTiming = ({darkMode}) => {
     "8S": "MTThF 7:45-8:35, Wed 7:45-8:35",
   }), []);
 
-  const fetchCoursesByPeriod = useCallback(async (periodCode, updateLoadingState = true) => {
+  // Fetch data function that doesn't depend on state values
+  const fetchData = useCallback(async (periodCode, term) => {
+    if (isUpdatingRef.current) return;
+    
     try {
-      if (updateLoadingState) {
-        setLoading(true);
-        setError(null);
-      }
+      isUpdatingRef.current = true;
+      setLoading(true);
+      setError(null);
 
-      // Using the centralized data service instead of direct Firestore calls
-      const data = await getCoursesByPeriod(periodCode, periodCodeToTiming);
+      const data = await getCoursesByPeriod(periodCode, periodCodeToTiming, term);
       
-      if (updateLoadingState) {
-        setTimeSlotCourses(data);
-        setLoading(false);
-      }
+      setTimeSlotCourses(data);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching courses:', error);
-      
-      if (updateLoadingState) {
-        setError('Failed to fetch courses. Please try again later.');
-        setLoading(false);
-      }
+      setError('Failed to fetch courses. Please try again later.');
+      setLoading(false);
+    } finally {
+      isUpdatingRef.current = false;
     }
   }, [periodCodeToTiming]);
 
-  // Add this after your state declarations
+  // This effect runs only once after the component mounts
   useEffect(() => {
-    // Fetch period 11 data when component mounts
-    fetchCoursesByPeriod("11");
-  }, [fetchCoursesByPeriod]); 
+    fetchData("11", "spring");
+    didMountRef.current = true;
+  }, [fetchData]);
+  
+  // Update refs when state changes, without triggering effects
+  useEffect(() => {
+    periodRef.current = selectedPeriod;
+  }, [selectedPeriod]);
   
   useEffect(() => {
-    // Preload common periods
-    const preloadPeriods = async () => {
-      const commonPeriods = ['10', '2'];
-      await Promise.all(
-        commonPeriods.map(period => fetchCoursesByPeriod(period, false))
-      );
-    };
+    termRef.current = selectedTerm;
+  }, [selectedTerm]);
+  
+  // Handle period change 
+  const handlePeriodChange = (event) => {
+    if (isUpdatingRef.current) return;
     
-    preloadPeriods();
-  }, [fetchCoursesByPeriod]);
-
-  const handlePeriodChange = useCallback((event) => {
     const period = event.target.value;
     setSelectedPeriod(period);
-    if (period) {
-      fetchCoursesByPeriod(period);
-    } else {
-      setTimeSlotCourses([]);
+    
+    // Only fetch if we're not already in an update cycle
+    if (!isUpdatingRef.current && didMountRef.current) {
+      setTimeout(() => {
+        fetchData(period, termRef.current);
+      }, 0);
     }
-  }, [fetchCoursesByPeriod]);
+  };
+
+  // Handle term change
+  const handleTermChange = (event) => {
+    if (isUpdatingRef.current) return;
+    
+    const term = event.target.value;
+    setSelectedTerm(term);
+    
+    // Only fetch if we're not already in an update cycle
+    if (!isUpdatingRef.current && didMountRef.current) {
+      setTimeout(() => {
+        fetchData(periodRef.current, term);
+      }, 0);
+    }
+  };
 
   return (
     <>
-<Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-  <FormControl sx={{ minWidth: 200 }}>
-    <InputLabel
-      id="period-label"
-      sx={{ color: darkMode ? '#fff' : '#00693E' }}
-    >
-      Period
-    </InputLabel>
-    <Select
-      labelId="period-label"
-      value={selectedPeriod}
-      label="Period"
-      onChange={handlePeriodChange}
-      sx={{
-        height: '48px',
-        backgroundColor: darkMode ? '#1C1F43' : '#F0F4FF',
-        borderRadius: '8px',
-        color: darkMode ? '#fff' : '#333',
-        '&:hover': { backgroundColor: darkMode ? '#24273c' : '#E0E7FF' },
-        transition: 'background-color 0.3s ease, color 0.3s ease',
-      }}
-    >
-      {Object.entries(periodCodeToTiming).map(([code, timing]) => (
-        <MenuItem
-          key={code}
-          value={code}
-          sx={{
-            backgroundColor: darkMode ? '#1C1F43' : undefined,
-            color: darkMode ? '#fff' : undefined,
-          }}
-        >
-          {`Period ${code} (${timing})`}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-</Box>
+      <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: '20px' }}>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel
+            id="term-label"
+            sx={{ color: darkMode ? '#fff' : '#00693E' }}
+          >
+            Term
+          </InputLabel>
+          <Select
+            labelId="term-label"
+            value={selectedTerm}
+            label="Term"
+            onChange={handleTermChange}
+            sx={{
+              height: '48px',
+              backgroundColor: darkMode ? '#1C1F43' : '#F0F4FF',
+              borderRadius: '8px',
+              color: darkMode ? '#fff' : '#333',
+              '&:hover': { backgroundColor: darkMode ? '#24273c' : '#E0E7FF' },
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+            }}
+          >
+            <MenuItem
+              value="spring"
+              sx={{
+                backgroundColor: darkMode ? '#1C1F43' : undefined,
+                color: darkMode ? '#fff' : undefined,
+              }}
+            >
+              Spring Term
+            </MenuItem>
+            <MenuItem
+              value="summer"
+              sx={{
+                backgroundColor: darkMode ? '#1C1F43' : undefined,
+                color: darkMode ? '#fff' : undefined,
+              }}
+            >
+              Summer Term
+            </MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel
+            id="period-label"
+            sx={{ color: darkMode ? '#fff' : '#00693E' }}
+          >
+            Period
+          </InputLabel>
+          <Select
+            labelId="period-label"
+            value={selectedPeriod}
+            label="Period"
+            onChange={handlePeriodChange}
+            sx={{
+              height: '48px',
+              backgroundColor: darkMode ? '#1C1F43' : '#F0F4FF',
+              borderRadius: '8px',
+              color: darkMode ? '#fff' : '#333',
+              '&:hover': { backgroundColor: darkMode ? '#24273c' : '#E0E7FF' },
+              transition: 'background-color 0.3s ease, color 0.3s ease',
+            }}
+          >
+            {Object.entries(periodCodeToTiming).map(([code, timing]) => (
+              <MenuItem
+                key={code}
+                value={code}
+                sx={{
+                  backgroundColor: darkMode ? '#1C1F43' : undefined,
+                  color: darkMode ? '#fff' : undefined,
+                }}
+              >
+                {`Period ${code} (${timing})`}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
 
 
       {loading ? (
@@ -331,9 +397,43 @@ const LayupsByTiming = ({darkMode}) => {
 </TableContainer>
 
       ) : (
-        <Typography sx={{ color: '#333', fontFamily: 'SF Pro Display, sans-serif' }}>
-          Select a period to see the biggest layups in that time slot
-        </Typography>
+        <Paper
+          sx={{
+            backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+            borderRadius: '10px',
+            boxShadow: darkMode
+              ? '0 2px 8px rgba(255, 255, 255, 0.1)'
+              : '0 2px 8px rgba(0, 0, 0, 0.1)',
+            padding: '20px',
+            textAlign: 'center'
+          }}
+        >
+          <Typography 
+            sx={{ 
+              color: darkMode ? '#fff' : '#333', 
+              fontFamily: 'SF Pro Display, sans-serif',
+              mb: 1
+            }}
+          >
+            {selectedTerm === "spring" 
+              ? "Select a period to see the biggest layups in that Spring term time slot"
+              : selectedPeriod 
+                ? `No layup courses found for period ${selectedPeriod} in the Summer term` 
+                : "Select a period to see the biggest layups in that Summer term time slot"}
+          </Typography>
+          {selectedTerm === "summer" && selectedPeriod && (
+            <Typography 
+              sx={{ 
+                color: darkMode ? '#ccc' : '#666', 
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontSize: '0.9rem',
+                fontStyle: 'italic'
+              }}
+            >
+              Try a different period or switch to the Spring term
+            </Typography>
+          )}
+        </Paper>
       )}
     </>
   );
