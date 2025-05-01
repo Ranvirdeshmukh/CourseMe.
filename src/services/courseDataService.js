@@ -157,12 +157,12 @@ export async function getCourseIndex() {
 }
 
 // Fetch courses by period with caching
-export async function getCoursesByPeriod(periodCode, periodCodeToTiming) {
+export async function getCoursesByPeriod(periodCode, periodCodeToTiming, term = 'spring') {
   try {
     const courseIndex = await getCourseIndex();
     
-    // Generate cache keys
-    const cacheKey = `${CACHE_CONFIG.PERIOD_DATA.KEY}_${periodCode}`;
+    // Generate cache keys - include term in cache key
+    const cacheKey = `${CACHE_CONFIG.PERIOD_DATA.KEY}_${term}_${periodCode}`;
     const timestampKey = `${cacheKey}_timestamp`;
     const versionKey = `${cacheKey}_version`;
     
@@ -173,14 +173,14 @@ export async function getCoursesByPeriod(periodCode, periodCodeToTiming) {
 
     // Use cache if valid and not expired
     const isCacheValid = cachedData && 
-                         cacheVersion === CACHE_CONFIG.PERIOD_DATA.VERSION && 
-                         Date.now() - cacheTimestamp < CACHE_CONFIG.PERIOD_DATA.DURATION;
-                         
+                       cacheVersion === CACHE_CONFIG.PERIOD_DATA.VERSION && 
+                       Date.now() - cacheTimestamp < CACHE_CONFIG.PERIOD_DATA.DURATION;
+                       
     if (isCacheValid) {
       // If cache is stale but not expired, refresh in background
       if (shouldRefreshCache(cacheTimestamp, CACHE_CONFIG.PERIOD_DATA.REFRESH_THRESHOLD)) {
-        console.log(`Background refreshing data for period ${periodCode}`);
-        fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming)
+        console.log(`Background refreshing data for period ${periodCode} (${term})`);
+        fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming, term)
           .then(freshData => {
             Promise.all([
               cacheWrite(cacheKey, freshData),
@@ -195,7 +195,7 @@ export async function getCoursesByPeriod(periodCode, periodCodeToTiming) {
     }
 
     // Cache miss or invalid - fetch fresh data
-    const data = await fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming);
+    const data = await fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming, term);
     
     // Cache the results
     await Promise.all([
@@ -210,7 +210,7 @@ export async function getCoursesByPeriod(periodCode, periodCodeToTiming) {
     
     // Try to recover from cache in case of network failure
     try {
-      const fallbackData = await cacheRead(`${CACHE_CONFIG.PERIOD_DATA.KEY}_${periodCode}`);
+      const fallbackData = await cacheRead(`${CACHE_CONFIG.PERIOD_DATA.KEY}_${term}_${periodCode}`);
       if (fallbackData) {
         console.log('Recovered period data from cache after fetch failure');
         return fallbackData;
@@ -224,17 +224,25 @@ export async function getCoursesByPeriod(periodCode, periodCodeToTiming) {
 }
 
 // Extract the Firestore query logic for period courses
-async function fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming) {
-  // Fetch spring timetable data with limit to improve performance
-  const springQuery = query(
-    collection(db, 'springTimetable'),
+async function fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming, term = 'spring') {
+  const collectionName = term === 'summer' ? 'summerTimetable' : 'springTimetable';
+  console.log(`Fetching from collection: ${collectionName} for period ${periodCode}`);
+  
+  // Fetch timetable data with limit to improve performance
+  const timetableQuery = query(
+    collection(db, collectionName),
     where('Period Code', '==', periodCode),
     limit(100) // Add reasonable limit to query
   );
-  const springSnapshot = await getDocs(springQuery);
+  const timetableSnapshot = await getDocs(timetableQuery);
+  
+  if (timetableSnapshot.empty) {
+    console.log(`No courses found for period ${periodCode} in ${term} term`);
+    return [];
+  }
   
   // Process data efficiently
-  const springCourses = springSnapshot.docs.map(doc => {
+  const courses = timetableSnapshot.docs.map(doc => {
     const data = doc.data();
     const lookupKey = `${data.Subj}_${normalizeCourseNumber(data.Num)}`;
     const courseInfo = courseIndex.get(lookupKey) || { 
@@ -259,7 +267,7 @@ async function fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCo
     };
   });
 
-  return springCourses
+  return courses
     .filter(course => course.layup > 0)
     .sort((a, b) => b.layup - a.layup)
     .slice(0, 15); // Limiting to top 15 courses
