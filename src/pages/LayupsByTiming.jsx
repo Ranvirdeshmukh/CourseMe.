@@ -24,8 +24,8 @@ const LayupsByTiming = ({darkMode}) => {
   const [timeSlotCourses, setTimeSlotCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState("11");
-  const [selectedTerm, setSelectedTerm] = useState("spring");
+  const [selectedPeriod, setSelectedPeriod] = useState("10A");
+  const [selectedTerm, setSelectedTerm] = useState("summer");
   const isMobile = useMediaQuery('(max-width:600px)');
   
   // Use refs to track current values without triggering effects
@@ -76,7 +76,7 @@ const LayupsByTiming = ({darkMode}) => {
 
   // This effect runs only once after the component mounts
   useEffect(() => {
-    fetchData("11", "spring");
+    fetchData("10A", "summer");
     didMountRef.current = true;
   }, [fetchData]);
   
