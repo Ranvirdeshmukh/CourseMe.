@@ -42,6 +42,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import DownloadIcon from '@mui/icons-material/Download';
+import Switch from '@mui/material/Switch';
 
 
 const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
@@ -256,6 +257,8 @@ const Timetable = ({darkMode}) => {
   const [isPriorityEligible, setIsPriorityEligible] = useState(false);
   const [notificationPriority, setNotificationPriority] = useState('standard'); // 'standard' or 'priority'
   const [userReviews, setUserReviews] = useState([]);
+  // New state for term toggle
+  const [termType, setTermType] = useState('fall'); // 'summer' or 'fall'
   
   const db = getFirestore();
   const navigate = useNavigate();
@@ -341,7 +344,7 @@ const accentHoverBg = darkMode
   useEffect(() => {
     fetchFirestoreCourses();
     fetchUserTimetable(); 
-  }, [currentUser]); 
+  }, [currentUser, termType]); // Add termType as a dependency
 
   useEffect(() => {
     applyFilters(); 
@@ -584,9 +587,13 @@ const accentHoverBg = darkMode
     try {
       setIsDataProcessing(true);
       // First check if we have cached data
-      const cachedCourses = await localforage.getItem('cachedCourses');
-      const cacheTimestamp = await localforage.getItem('cacheTimestamp');
-      const cachedVersion = await localforage.getItem('cacheVersion');
+      const cacheKey = `cachedCourses_${termType}`;
+      const cacheTimestampKey = `cacheTimestamp_${termType}`;
+      const cacheVersionKey = `cacheVersion_${termType}`;
+      
+      const cachedCourses = await localforage.getItem(cacheKey);
+      const cacheTimestamp = await localforage.getItem(cacheTimestampKey);
+      const cachedVersion = await localforage.getItem(cacheVersionKey);
       const now = Date.now();
   
       console.log('Cache status:', {
@@ -621,12 +628,14 @@ const accentHoverBg = darkMode
       // If cache version doesn't match, clear everything
       if (cachedVersion !== CACHE_VERSION) {
         console.log('Version mismatch, clearing cache');
-        await localforage.clear();
+        await localforage.removeItem(cacheKey);
+        await localforage.removeItem(cacheTimestampKey);
+        await localforage.removeItem(cacheVersionKey);
       }
   
-      // Fetch new data
-      const db = getFirestore();
-      const coursesSnapshot = await getDocs(collection(db, 'summerTimetable'));
+      // Fetch new data - use the correct collection based on termType
+      const collectionName = termType === 'summer' ? 'summerTimetable' : 'fallTimetable2';
+      const coursesSnapshot = await getDocs(collection(db, collectionName));
       const coursesData = coursesSnapshot.docs.map((doc) => {
         const data = doc.data();
         const periodCode = data['Period Code'];
@@ -650,9 +659,9 @@ const accentHoverBg = darkMode
 
       // Store the new data in cache
       await Promise.all([
-        localforage.setItem('cachedCourses', enhancedCourses),
-        localforage.setItem('cacheTimestamp', now),
-        localforage.setItem('cacheVersion', CACHE_VERSION)
+        localforage.setItem(cacheKey, enhancedCourses),
+        localforage.setItem(cacheTimestampKey, now),
+        localforage.setItem(cacheVersionKey, CACHE_VERSION)
       ]);
   
       console.log('New data cached');
@@ -734,27 +743,30 @@ const accentHoverBg = darkMode
     }
     
     try {
-      console.log("Fetching summer courses for user:", currentUser.uid);
+      console.log(`Fetching ${termType} courses for user:`, currentUser.uid);
       
       // Get the user document
       const userDocRef = doc(db, 'users', currentUser.uid);
       const userDocSnap = await getDoc(userDocRef);
       
       if (userDocSnap.exists()) {
-        // Extract summerCoursestaken from user document
+        // Extract courses taken for the current term
         const userData = userDocSnap.data();
-        const summerCourses = userData.summerCoursestaken || [];
+        const fieldName = termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken';
+        const termCourses = userData[fieldName] || [];
         
-        console.log(`Found ${summerCourses.length} courses in the user's summer timetable`);
-        setSelectedCourses(summerCourses);
+        console.log(`Found ${termCourses.length} courses in the user's ${termType} timetable`);
+        setSelectedCourses(termCourses);
       } else {
-        console.log("User document not found. Creating a new one with empty summerCoursestaken array.");
-        // Create user document with empty summerCoursestaken array
-        await setDoc(userDocRef, { summerCoursestaken: [] });
+        console.log("User document not found. Creating a new one with empty courses array.");
+        // Create user document with empty courses array for the current term
+        const initialData = {};
+        initialData[termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken'] = [];
+        await setDoc(userDocRef, initialData);
         setSelectedCourses([]);
       }
     } catch (error) {
-      console.error("Error fetching user's summer courses:", error);
+      console.error(`Error fetching user's ${termType} courses:`, error);
       setPopupMessage({
         message: "There was an error loading your courses. Please try refreshing the page.",
         type: 'error',
@@ -1091,7 +1103,7 @@ const accentHoverBg = darkMode
       ...course,
       period: course.period || "ARR",  // Default to "ARR" if period is missing
       addedAt: new Date(),  // Add timestamp for when the course was added
-      term: "Summer 2025",   // Explicitly set the term
+      term: termType === 'summer' ? "Summer 2025" : "Fall 2025",   // Explicitly set the term
       id: `${course.subj}_${course.num}_${course.sec}_${Date.now()}` // Generate a unique ID
     };
 
@@ -1155,19 +1167,20 @@ const accentHoverBg = darkMode
         const userDocSnap = await getDoc(userDocRef);
         
         if (userDocSnap.exists()) {
-          // User document exists, update the summerCoursestaken array
+          // User document exists, update the courses array for the current term
           const userData = userDocSnap.data();
-          const currentCourses = userData.summerCoursestaken || [];
+          const fieldName = termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken';
+          const currentCourses = userData[fieldName] || [];
           
           // Add the new course
-          await updateDoc(userDocRef, {
-            summerCoursestaken: [...currentCourses, courseData]
-          });
+          const updateData = {};
+          updateData[fieldName] = [...currentCourses, courseData];
+          await updateDoc(userDocRef, updateData);
         } else {
           // User document does not exist, create it
-          await setDoc(userDocRef, {
-            summerCoursestaken: [courseData]
-          });
+          const initialData = {};
+          initialData[termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken'] = [courseData];
+          await setDoc(userDocRef, initialData);
         }
         
         // Update the state with the new course
@@ -1180,9 +1193,9 @@ const accentHoverBg = darkMode
         setOpenPopupMessage(true);
         
         // Log success
-        console.log(`Successfully added ${courseToAdd.subj} ${courseToAdd.num} to summer courses taken.`);
+        console.log(`Successfully added ${courseToAdd.subj} ${courseToAdd.num} to ${termType} courses taken.`);
       } catch (error) {
-        console.error('Error adding course to summerCoursestaken:', error);
+        console.error(`Error adding course to ${termType}Coursestaken:`, error);
         setPopupMessage({
           message: `Error adding ${courseToAdd.subj} ${courseToAdd.num} to your timetable.`,
           type: 'error',
@@ -1245,7 +1258,8 @@ const accentHoverBg = darkMode
       if (userDocSnap.exists()) {
         // Get current courses
         const userData = userDocSnap.data();
-        const currentCourses = userData.summerCoursestaken || [];
+        const fieldName = termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken';
+        const currentCourses = userData[fieldName] || [];
         
         // Filter out the course to remove
         const updatedCourses = courseIdentifier.id 
@@ -1257,9 +1271,9 @@ const accentHoverBg = darkMode
             );
         
         // Update the document with the filtered array
-        await updateDoc(userDocRef, {
-          summerCoursestaken: updatedCourses
-        });
+        const updateData = {};
+        updateData[fieldName] = updatedCourses;
+        await updateDoc(userDocRef, updateData);
         
         // Show success message
         setPopupMessage({
@@ -1268,7 +1282,7 @@ const accentHoverBg = darkMode
         });
         setOpenPopupMessage(true);
 
-        console.log(`Successfully removed ${course.subj} ${course.num} from summer courses taken.`);
+        console.log(`Successfully removed ${course.subj} ${course.num} from ${termType} courses taken.`);
       } else {
         throw new Error("User document not found");
       }
@@ -1499,7 +1513,7 @@ const accentHoverBg = darkMode
               transition: 'color 0.3s ease',
             }}
           >
-    Your Summer 2025 Courses.
+    Your {termType === 'summer' ? 'Summer' : 'Fall'} 2025 Courses.
     </Typography>
         )}
   
@@ -2068,7 +2082,7 @@ const accentHoverBg = darkMode
   
         {showSelectedCourses && selectedCourses.length === 0 && (
           <Typography sx={{ marginBottom: '20px', color: darkMode ? '#FFFFFF' : '#1D1D1F' }}>
-            Haven&apos;t added your Summer 2025 timetable on CourseMe? Add now!
+            Haven&apos;t added your {termType === 'summer' ? 'Summer' : 'Fall'} 2025 timetable on CourseMe? Add now!
           </Typography>
         )}
      
@@ -2083,20 +2097,72 @@ const accentHoverBg = darkMode
     gap: '16px',
   }}
 >
-  <Typography
-    variant="h3"
-    align="left"
-    sx={{
-      fontWeight: 600,
-      color: darkMode ? '#FFFFFF' : '#000000',
-      marginBottom: '20px',
-      marginTop: '30px',
-      fontFamily: 'SF Pro Display, sans-serif',
-      transition: 'color 0.3s ease',
-    }}
-  >
-    Summer 2025 Timetable.
-  </Typography>
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+    <Typography
+      variant="h3"
+      align="left"
+      sx={{
+        fontWeight: 600,
+        color: darkMode ? '#FFFFFF' : '#000000',
+        marginBottom: '20px',
+        marginTop: '30px',
+        fontFamily: 'SF Pro Display, sans-serif',
+        transition: 'color 0.3s ease',
+      }}
+    >
+      {termType === 'summer' ? 'Summer' : 'Fall'} 2025 Timetable.
+    </Typography>
+    
+    {/* Term Toggle */}
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)', 
+        borderRadius: '24px', 
+        padding: '4px 12px',
+        marginBottom: '20px',
+        marginTop: '30px',
+        backgroundColor: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.7)'
+      }}
+    >
+      <Typography 
+        sx={{ 
+          color: termType === 'summer' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'),
+          fontWeight: termType === 'summer' ? 600 : 400,
+          fontSize: '0.9rem',
+          transition: 'color 0.3s'
+        }}
+      >
+        Summer
+      </Typography>
+      <Switch
+        checked={termType === 'fall'}
+        onChange={() => setTermType(termType === 'summer' ? 'fall' : 'summer')}
+        sx={{
+          '& .MuiSwitch-switchBase.Mui-checked': {
+            color: darkMode ? '#BB86FC' : '#00693E',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            },
+          },
+          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: darkMode ? '#BB86FC' : '#00693E',
+          },
+        }}
+      />
+      <Typography 
+        sx={{ 
+          color: termType === 'fall' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'),
+          fontWeight: termType === 'fall' ? 600 : 400,
+          fontSize: '0.9rem',
+          transition: 'color 0.3s'
+        }}
+      >
+        Fall
+      </Typography>
+    </Box>
+  </Box>
 
   <TextField
     variant="outlined"
