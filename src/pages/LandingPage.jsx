@@ -650,6 +650,84 @@ const LandingPage = ({ darkMode }) => {
     }
   };
   
+  // Add this function for professor search
+  const searchProfessors = async (searchTerm) => {
+    try {
+      if (!searchTerm || searchTerm.length < 2 || !db) return [];
+      
+      // Normalize the search term (lowercase, remove accents, etc.)
+      const normalizedSearchTerm = searchTerm.toLowerCase().trim();
+      const searchTerms = normalizedSearchTerm.split(/\s+/).filter(term => term.length > 1);
+      
+      // If there are no valid search terms, return empty array
+      if (searchTerms.length === 0) return [];
+      
+      // Query all professors - unfortunately we need to do client-side filtering
+      // because Firestore doesn't support complex text searches
+      const professorsRef = collection(db, "professor");
+      const professorsSnapshot = await getDocs(professorsRef);
+      
+      // Array to store matched professors with their relevance score
+      const matchedProfessors = [];
+      
+      professorsSnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (!data.name) return;
+        
+        const professorName = data.name.toLowerCase();
+        let matchScore = 0;
+        let exactMatchFound = false;
+        
+        // Check for exact match of the full name
+        if (professorName === normalizedSearchTerm) {
+          matchScore += 100; // Very high score for exact match
+          exactMatchFound = true;
+        }
+        
+        // Score each search term
+        for (const term of searchTerms) {
+          // Strong match: Full term appears in professor name
+          if (professorName.includes(term)) {
+            matchScore += 20;
+            
+            // Bonus points if it matches the start of the name or a name component
+            const nameComponents = professorName.split(' ');
+            for (const component of nameComponents) {
+              if (component.startsWith(term)) matchScore += 10;
+            }
+          }
+          
+          // Partial match: Check if term is part of professor name
+          if (term.length >= 3) {
+            const nameComponents = professorName.split(' ');
+            for (const component of nameComponents) {
+              if (component.includes(term)) matchScore += 5;
+            }
+          }
+        }
+        
+        // Only add if there's some match
+        if (matchScore > 0 || exactMatchFound) {
+          matchedProfessors.push({
+            id: doc.id,
+            name: data.name,
+            title: data.contact_info?.title || 'Professor',
+            departments: data.departments ? Object.keys(data.departments) : [],
+            matchScore: matchScore
+          });
+        }
+      });
+      
+      // Sort by match score descending and take top 5
+      return matchedProfessors
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, 5);
+    } catch (error) {
+      console.error("Error searching professors:", error);
+      return [];
+    }
+  };
+  
   // Function to generate suggestions as user types
   const handleSearchInputChange = async (e) => {
     const value = e.target.value;
@@ -690,6 +768,27 @@ const LandingPage = ({ darkMode }) => {
         }));
       
       suggestions = [...suggestions, ...matchingPopularSearches];
+    }
+    
+    // Search for professors
+    try {
+      if (value.length >= 2) {
+        const professorResults = await searchProfessors(value);
+        
+        if (professorResults.length > 0) {
+          const professorSuggestions = professorResults.map(prof => ({
+            text: `${prof.name}${prof.departments.length > 0 ? ` (${prof.departments[0]})` : ''}`,
+            type: 'professor',
+            icon: '👨‍🏫',
+            professorId: prof.id,
+            matchScore: prof.matchScore
+          }));
+          
+          suggestions = [...suggestions, ...professorSuggestions];
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching professor suggestions:", error);
     }
     
     // Add suggestions for departments and course numbers
@@ -774,6 +873,9 @@ const LandingPage = ({ darkMode }) => {
       
       // Navigate directly to course page
       navigate(`/departments/${dept}/courses/${suggestion.docId}`);
+    } else if (suggestion.type === 'professor' && suggestion.professorId) {
+      // Navigate directly to professor page
+      navigate(`/professors/${suggestion.professorId}`);
     } else {
       // Set the search query and perform search
       setQuestion(suggestion.text);
@@ -840,6 +942,7 @@ const LandingPage = ({ darkMode }) => {
           handleSuggestionClick={handleSuggestionClick}
           isTyping={isTyping}
           popularSearches={popularSearches}
+          searchProfessors={searchProfessors}
         />
       </Box>
 
@@ -1459,7 +1562,43 @@ const LandingPage = ({ darkMode }) => {
                                   Click to view course details
                                 </Typography>
                               )}
+                              {suggestion.type === 'professor' && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                                    display: 'block',
+                                    mt: -0.5
+                                  }}
+                                >
+                                  View professor profile
+                                </Typography>
+                              )}
                             </Box>
+                            {suggestion.type === 'professor' && (
+                              <Box 
+                                sx={{ 
+                                  ml: 'auto', 
+                                  bgcolor: darkMode ? 'rgba(87, 28, 224, 0.2)' : 'rgba(87, 28, 224, 0.1)',
+                                  borderRadius: '6px',
+                                  px: 1,
+                                  py: 0.5,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}
+                              >
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: darkMode ? '#bb86fc' : '#571CE0',
+                                    fontWeight: 'medium'
+                                  }}
+                                >
+                                  Professor
+                                </Typography>
+                              </Box>
+                            )}
                           </Box>
                         </ListItem>
                       ))

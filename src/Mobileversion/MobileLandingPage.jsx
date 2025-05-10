@@ -54,7 +54,8 @@ const MobileLandingPage = ({
   handleSearchInputChange = () => {},
   handleSuggestionClick = () => {},
   isTyping = false,
-  popularSearches = []
+  popularSearches = [],
+  searchProfessors
 }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
   const navigate = useNavigate();
@@ -314,7 +315,11 @@ const MobileLandingPage = ({
                                 }}>
                                   {suggestion.icon}
                                 </Typography>
-                                <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <Box sx={{ 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis',
+                                  flex: 1
+                                }}>
                                   <Typography 
                                     variant="body2" 
                                     sx={{ fontWeight: suggestion.type === 'recent' ? 400 : 500 }}
@@ -332,7 +337,41 @@ const MobileLandingPage = ({
                                       View course details
                                     </Typography>
                                   )}
+                                  {suggestion.type === 'professor' && (
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                                        display: 'block'
+                                      }}
+                                    >
+                                      View professor profile
+                                    </Typography>
+                                  )}
                                 </Box>
+                                {suggestion.type === 'professor' && (
+                                  <Box
+                                    sx={{
+                                      bgcolor: darkMode ? 'rgba(87, 28, 224, 0.2)' : 'rgba(87, 28, 224, 0.1)',
+                                      borderRadius: '4px',
+                                      px: 1,
+                                      py: 0.3,
+                                      ml: 1,
+                                      minWidth: 'auto'
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        color: darkMode ? '#bb86fc' : '#571CE0',
+                                        fontSize: '0.7rem',
+                                        fontWeight: 'medium'
+                                      }}
+                                    >
+                                      Prof
+                                    </Typography>
+                                  </Box>
+                                )}
                               </Box>
                             </ListItem>
                           ))
