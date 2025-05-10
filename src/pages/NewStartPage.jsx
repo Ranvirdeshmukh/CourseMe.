@@ -9,11 +9,17 @@ const NewStartPage = () => {
   const { currentUser } = useAuth();
   const [displayText, setDisplayText] = useState('');
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+  const [isEatingAnimation, setIsEatingAnimation] = useState(false);
+  const [eatingStep, setEatingStep] = useState(0);
+  const [isShrinkingAnimation, setIsShrinkingAnimation] = useState(false);
+  const [shrinkStep, setShrinkStep] = useState(0);
+  const [textOpacity, setTextOpacity] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const theme = useTheme();
   const appStyles = useAppStyles(); // Use our custom hook for font consistency
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const targetText = "CourseMe.";
+  const maxSteps = Math.ceil(targetText.length / 2);
   
   // Text scrambling animation effect
   useEffect(() => {
@@ -74,27 +80,144 @@ const NewStartPage = () => {
     return () => clearInterval(interval);
   }, []);
   
-  // Implement a short, subtle transition before navigation
+  // "Eating" animation effect that starts after scrambling completes
   useEffect(() => {
-    if (isAnimationComplete && !isTransitioning) {
-      // Set transitioning state to trigger fade effect
-      setIsTransitioning(true);
+    if (isAnimationComplete && !isEatingAnimation && !isTransitioning) {
+      setIsEatingAnimation(true);
       
+      // Start the eating animation immediately without delay
+      const textLength = targetText.length;
+      let currentStep = 0;
+      const maxSteps = Math.ceil(textLength / 2);
+      
+      const eatText = () => {
+        // Animation complete check
+        if (currentStep > maxSteps) {
+          // Start the shrinking underscores animation
+          setIsShrinkingAnimation(true);
+          return;
+        }
+        
+        // Create new text with characters being replaced by underscores from both ends
+        let newText = Array(textLength).fill(' '); // Start with spaces
+        
+        // Final step - all underscores
+        if (currentStep === maxSteps) {
+          for (let i = 0; i < textLength; i++) {
+            newText[i] = '_';
+          }
+          
+          // Accelerate to the final animation after a very short pause
+          setTimeout(() => {
+            currentStep++;
+            eatText();
+          }, 50); // Faster transition (reduced from 100ms)
+        } else {
+          // Fill in the not-yet-eaten letters from the original text
+          for (let i = currentStep; i < textLength - currentStep; i++) {
+            newText[i] = targetText[i];
+          }
+          
+          // Add underscores at the eaten positions
+          for (let i = 0; i < currentStep; i++) {
+            newText[i] = '_'; // Left side underscores
+            newText[textLength - 1 - i] = '_'; // Right side underscores
+          }
+          
+          setDisplayText(newText.join(''));
+          currentStep++;
+          setEatingStep(currentStep);
+          
+          // Accelerate animation speed as it progresses
+          const nextDelay = Math.max(20, 50 - currentStep * 4); // Faster eating animation
+          setTimeout(eatText, nextDelay);
+        }
+      };
+      
+      // Start the animation sequence immediately
+      eatText();
+    }
+  }, [isAnimationComplete, isEatingAnimation, isTransitioning, targetText]);
+  
+  // New effect for shrinking underscores animation
+  useEffect(() => {
+    if (isShrinkingAnimation && !isTransitioning) {
+      const initialUnderscores = targetText.length;
+      let currentLength = initialUnderscores;
+      let step = 0;
+      
+      const shrinkUnderscores = () => {
+        // Determine the number of underscores to show
+        if (step === 0) {
+          currentLength = 6; // Start with "______"
+        } else if (step === 1) {
+          currentLength = 4; // Then "____"
+        } else if (step === 2) {
+          currentLength = 3; // Then "___"
+        } else if (step === 3) {
+          currentLength = 2; // Then "__"
+        } else if (step === 4) {
+          currentLength = 1; // Then "_"
+        } else if (step === 5) {
+          // Start direct transition to landing page
+          setIsTransitioning(true);
+          return;
+        }
+        
+        // Center the underscores
+        const newText = Array(currentLength).fill('_').join('');
+        setDisplayText(newText);
+        setShrinkStep(step);
+        
+        // Advance to next step
+        step++;
+        
+        // Schedule next step with a faster delay
+        setTimeout(shrinkUnderscores, 100); // Faster transition (reduced from 180ms)
+      };
+      
+      // Start the shrinking animation
+      shrinkUnderscores();
+    }
+  }, [isShrinkingAnimation, isTransitioning, targetText.length]);
+  
+  // Implement a short transition before navigation
+  useEffect(() => {
+    if (isTransitioning) {
       // Set transition data in sessionStorage for the landing page to use
       sessionStorage.setItem('comingFromIntro', 'true');
+      sessionStorage.setItem('eatenText', displayText);
       
-      // Navigate after a brief transition - always go to landing page regardless of auth status
+      // Navigate after a brief transition
       setTimeout(() => {
         navigate('/landing', { replace: true });
-      }, 400); // Short delay for subtle transition
+      }, 300); // Shorter delay for faster transition
     }
-  }, [isAnimationComplete, isTransitioning, navigate]);
+  }, [isTransitioning, navigate, displayText]);
 
-  // Function to render the text with colored period
+  // Function to render the text with colored period and "eaten" effect
   const renderTextWithColoredPeriod = () => {
     if (!displayText) return null;
     
-    // If we have a period at the end
+    // If we're in eating animation or transitioning
+    if (isEatingAnimation) {
+      // If the text contains a period
+      if (displayText.includes('.')) {
+        const periodIndex = displayText.indexOf('.');
+        const beforePeriod = displayText.substring(0, periodIndex);
+        const afterPeriod = displayText.substring(periodIndex + 1);
+        
+        return (
+          <>
+            {beforePeriod}
+            <span style={{ color: '#f26655' }}>.</span>
+            {afterPeriod}
+          </>
+        );
+      }
+    }
+    
+    // Normal rendering for scramble animation
     if (displayText.endsWith('.')) {
       const textWithoutPeriod = displayText.slice(0, -1);
       return (
@@ -130,10 +253,10 @@ const NewStartPage = () => {
           justifyContent: 'center',
           alignItems: 'center',
           opacity: isTransitioning ? 0 : 1,
-          transition: 'opacity 0.4s ease-out',
+          transition: isTransitioning ? 'opacity 0.3s cubic-bezier(0.2, 0, 0, 1)' : 'opacity 0.4s ease-out',
         }}
       >
-        {/* Text with scrambling animation */}
+        {/* Text with scrambling and eating animation */}
         <Typography
           variant="h1"
           sx={{
@@ -142,10 +265,12 @@ const NewStartPage = () => {
             fontSize: { xs: '3rem', sm: '4rem', md: '6rem' },
             color: '#FFFFFF',
             letterSpacing: '-0.02em',
-            textShadow: '0 0 15px rgba(255, 255, 255, 0.2)',
-            opacity: isAnimationComplete ? 1 : 0.95,
-            transition: 'all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
-            transform: isTransitioning ? 'scale(1.05)' : 'scale(1)',
+            textShadow: isShrinkingAnimation ? '0 0 15px rgba(255, 255, 255, 0.3)' : isEatingAnimation && eatingStep > maxSteps ? '0 0 25px rgba(255, 255, 255, 0.9)' : '0 0 15px rgba(255, 255, 255, 0.2)',
+            opacity: isShrinkingAnimation && isTransitioning ? 0 : isAnimationComplete ? 1 : 0.95,
+            transition: isTransitioning ? 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)' : 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+            transform: isTransitioning ? 'scale(0.85) translateY(10px)' : isEatingAnimation && eatingStep > maxSteps ? 'scale(1.1)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.01})` : 'scale(1)',
+            display: 'inline-block',
+            textAlign: 'center',
           }}
         >
           {renderTextWithColoredPeriod()}
