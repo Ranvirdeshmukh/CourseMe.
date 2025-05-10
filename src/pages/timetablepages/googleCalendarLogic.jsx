@@ -34,7 +34,9 @@ export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, se
   const details = `&details=${encodeURIComponent(`Instructor: ${course.instructor}`)}`;
   const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;
 
-  const events = getEventTiming(course.period, course.title, course.subj, course.num);
+  // Determine the term from the course object
+  const isSummer = course.term && course.term.toLowerCase().includes('summer');
+  const events = getEventTiming(course.period, course.title, course.subj, course.num, isSummer);
   
   if (events.length === 0) {
     alert('No valid meeting times found for this course.');
@@ -84,15 +86,19 @@ export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, se
  * @param {string} courseTitle - The title of the course
  * @param {string} subj - The course subject code (e.g., "AAAS")
  * @param {string} num - The course number (e.g., "23")
+ * @param {boolean} isSummer - Whether the course is in the summer term
  * @returns {Array} - Array of event objects ready for Google Calendar
  */
-const getEventTiming = (periodCode, courseTitle, subj, num) => {
+const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = true) => {
   const timing = periodCodeToTiming[periodCode];
   if (!timing) return [];
 
-  // Update these dates for Summer 2025
-  const eventStartDate = '20250626'; // June 16, 2025 (Monday)
-  const eventEndDate = '20250902'; // August 22, 2025
+  // Use different date ranges depending on the term
+  // Summer 2025: June 26 - September 2
+  // Fall 2025: September 15 - November 21
+  const eventStartDate = isSummer ? '20250626' : '20250915'; // Summer or Fall start date
+  const eventEndDate = isSummer ? '20250902' : '20251121'; // Summer or Fall end date
+  
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);
   

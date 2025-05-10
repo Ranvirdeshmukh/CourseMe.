@@ -16,7 +16,9 @@ export const addToAppleCalendar = (course) => {
     return;
   }
   
-  const events = getEventTiming(course.period, course.title, course.subj, course.num);
+  // Determine the term from the course object
+  const isSummer = course.term && course.term.toLowerCase().includes('summer');
+  const events = getEventTiming(course.period, course.title, course.subj, course.num, isSummer);
   console.log('Generated events:', events);
   
   if (events.length === 0) {
@@ -110,10 +112,11 @@ const generateUUID = () => {
  * @param {string} courseTitle - The title of the course
  * @param {string} subj - The course subject code (e.g., "AAAS")
  * @param {string} num - The course number (e.g., "23")
+ * @param {boolean} isSummer - Whether the course is in the summer term
  * @returns {Array} - Array of event objects ready for iCalendar
  */
-const getEventTiming = (periodCode, courseTitle, subj, num) => {
-  console.log(`Getting timing for period ${periodCode}, title: ${courseTitle}`);
+const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = true) => {
+  console.log(`Getting timing for period ${periodCode}, title: ${courseTitle}, term: ${isSummer ? 'Summer' : 'Fall'}`);
   
   // Handle case when periodCode is not in the mapping
   const timing = periodCodeToTiming[periodCode];
@@ -124,9 +127,12 @@ const getEventTiming = (periodCode, courseTitle, subj, num) => {
   
   console.log(`Found timing: ${timing}`);
 
-  // Update these dates for Summer 2025
-  const eventStartDate = '20250626'; // June 26, 2025 (Thursday)
-  const eventEndDate = '20250902'; // September 2, 2025
+  // Use different date ranges depending on the term
+  // Summer 2025: June 26 - September 2
+  // Fall 2025: September 15 - November 21
+  const eventStartDate = isSummer ? '20250626' : '20250915'; // Summer or Fall start date
+  const eventEndDate = isSummer ? '20250902' : '20251121'; // Summer or Fall end date
+  
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);
   
