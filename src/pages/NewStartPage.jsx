@@ -16,6 +16,7 @@ const NewStartPage = () => {
   const appStyles = useAppStyles(); // Use our custom hook for font consistency
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const targetText = "CourseMe.";
+  const maxSteps = Math.ceil(targetText.length / 2);
   
   // Text scrambling animation effect
   useEffect(() => {
@@ -86,31 +87,60 @@ const NewStartPage = () => {
         // Start the eating animation
         const textLength = targetText.length;
         let currentStep = 0;
-        const underscoreSequence = []; // Array to store growing underscore sequence
+        const maxSteps = Math.ceil(textLength / 2);
         
         const eatText = () => {
-          if (currentStep >= textLength) {
-            // Eating animation complete, start transition
-            setIsTransitioning(true);
+          // Animation complete check
+          if (currentStep > maxSteps) {
+            // Do a quick final flash before transitioning
+            setEatingStep(maxSteps + 10); // Boost the step count for dramatic scaling
+            
+            // Start transition after a very brief pause
+            setTimeout(() => {
+              setIsTransitioning(true);
+            }, 120);
             return;
           }
           
-          // Add a new underscore to the growing sequence
-          underscoreSequence.push('_');
+          // Create new text with characters being replaced by underscores from both ends
+          let newText = Array(textLength).fill(' '); // Start with spaces
           
-          // Create the new display text: remaining characters + underscore sequence
-          const remainingText = targetText.substring(currentStep);
-          const newText = underscoreSequence.join('') + remainingText;
-          
-          setDisplayText(newText);
-          currentStep++;
-          setEatingStep(currentStep);
+          // Final step - all underscores
+          if (currentStep === maxSteps) {
+            for (let i = 0; i < textLength; i++) {
+              newText[i] = '_';
+            }
+            
+            // Accelerate to the final animation after a very short pause
+            setTimeout(() => {
+              currentStep++;
+              eatText();
+            }, 100);
+          } else {
+            // Fill in the not-yet-eaten letters from the original text
+            for (let i = currentStep; i < textLength - currentStep; i++) {
+              newText[i] = targetText[i];
+            }
+            
+            // Add underscores at the eaten positions
+            for (let i = 0; i < currentStep; i++) {
+              newText[i] = '_'; // Left side underscores
+              newText[textLength - 1 - i] = '_'; // Right side underscores
+            }
+            
+            setDisplayText(newText.join(''));
+            currentStep++;
+            setEatingStep(currentStep);
+            
+            // Accelerate animation speed as it progresses
+            const nextDelay = Math.max(30, 70 - currentStep * 3);
+            setTimeout(eatText, nextDelay);
+          }
         };
         
-        // Run the eating animation at a slower pace than scramble
-        const eatInterval = setInterval(eatText, 150);
+        // Start the animation sequence
+        eatText();
         
-        return () => clearInterval(eatInterval);
       }, 600); // Short delay before starting the eating animation
     }
   }, [isAnimationComplete, isEatingAnimation, isTransitioning, targetText]);
@@ -125,7 +155,7 @@ const NewStartPage = () => {
       // Navigate after a brief transition
       setTimeout(() => {
         navigate('/landing', { replace: true });
-      }, 800); // Longer delay for the full effect
+      }, 300); // Shorter delay for faster transition
     }
   }, [isTransitioning, navigate, displayText]);
 
@@ -135,7 +165,7 @@ const NewStartPage = () => {
     
     // If we're in eating animation or transitioning
     if (isEatingAnimation) {
-      // If the text still contains a period (hasn't been eaten yet)
+      // If the text contains a period
       if (displayText.includes('.')) {
         const periodIndex = displayText.indexOf('.');
         const beforePeriod = displayText.substring(0, periodIndex);
@@ -187,7 +217,7 @@ const NewStartPage = () => {
           justifyContent: 'center',
           alignItems: 'center',
           opacity: isTransitioning ? 0 : 1,
-          transition: isTransitioning ? 'opacity 0.8s ease-out' : 'opacity 0.4s ease-out',
+          transition: isTransitioning ? 'opacity 0.3s cubic-bezier(0.2, 0, 0, 1)' : 'opacity 0.4s ease-out',
         }}
       >
         {/* Text with scrambling and eating animation */}
@@ -199,10 +229,10 @@ const NewStartPage = () => {
             fontSize: { xs: '3rem', sm: '4rem', md: '6rem' },
             color: '#FFFFFF',
             letterSpacing: '-0.02em',
-            textShadow: '0 0 15px rgba(255, 255, 255, 0.2)',
+            textShadow: isEatingAnimation && eatingStep > maxSteps ? '0 0 25px rgba(255, 255, 255, 0.9)' : '0 0 15px rgba(255, 255, 255, 0.2)',
             opacity: isAnimationComplete ? 1 : 0.95,
-            transition: 'all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
-            transform: isTransitioning ? 'scale(0.9)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.01})` : 'scale(1)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+            transform: isTransitioning ? 'scale(0.2)' : isEatingAnimation && eatingStep > maxSteps ? 'scale(1.3)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.02})` : 'scale(1)',
           }}
         >
           {renderTextWithColoredPeriod()}
