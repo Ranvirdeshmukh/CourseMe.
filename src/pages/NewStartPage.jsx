@@ -28,7 +28,7 @@ const NewStartPage = () => {
     
     let frame = 0;
     const frameRate = 25;
-    const finalFrameHold = 22; // frames to hold at the end (reduced from 30)
+    const finalFrameHold = 5; // Significantly reduced from 22 frames to minimize pause
     let holdCount = 0;
     let isComplete = false;
     
