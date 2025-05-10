@@ -11,6 +11,9 @@ const NewStartPage = () => {
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
   const [isEatingAnimation, setIsEatingAnimation] = useState(false);
   const [eatingStep, setEatingStep] = useState(0);
+  const [isShrinkingAnimation, setIsShrinkingAnimation] = useState(false);
+  const [shrinkStep, setShrinkStep] = useState(0);
+  const [textOpacity, setTextOpacity] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const theme = useTheme();
   const appStyles = useAppStyles(); // Use our custom hook for font consistency
@@ -92,13 +95,8 @@ const NewStartPage = () => {
         const eatText = () => {
           // Animation complete check
           if (currentStep > maxSteps) {
-            // Do a quick final flash before transitioning
-            setEatingStep(maxSteps + 10); // Boost the step count for dramatic scaling
-            
-            // Start transition after a very brief pause
-            setTimeout(() => {
-              setIsTransitioning(true);
-            }, 120);
+            // Start the shrinking underscores animation
+            setIsShrinkingAnimation(true);
             return;
           }
           
@@ -144,6 +142,70 @@ const NewStartPage = () => {
       }, 600); // Short delay before starting the eating animation
     }
   }, [isAnimationComplete, isEatingAnimation, isTransitioning, targetText]);
+  
+  // New effect for shrinking underscores animation
+  useEffect(() => {
+    if (isShrinkingAnimation && !isTransitioning) {
+      const initialUnderscores = targetText.length;
+      let currentLength = initialUnderscores;
+      let step = 0;
+      
+      const shrinkUnderscores = () => {
+        // Determine the number of underscores to show
+        if (step === 0) {
+          currentLength = 6; // Start with "______"
+        } else if (step === 1) {
+          currentLength = 4; // Then "____"
+        } else if (step === 2) {
+          currentLength = 3; // Then "___"
+        } else if (step === 3) {
+          currentLength = 2; // Then "__"
+        } else if (step === 4) {
+          currentLength = 1; // Then "_"
+        } else if (step === 5) {
+          // Start fading out the last underscore
+          startFadeOut();
+          return;
+        }
+        
+        // Center the underscores
+        const newText = Array(currentLength).fill('_').join('');
+        setDisplayText(newText);
+        setShrinkStep(step);
+        
+        // Advance to next step
+        step++;
+        
+        // Schedule next step with a delay
+        setTimeout(shrinkUnderscores, 180);
+      };
+      
+      const startFadeOut = () => {
+        // Set single underscore
+        setDisplayText('_');
+        
+        // Fade out animation using opacity
+        let opacity = 1;
+        const fadeStep = 0.05;
+        
+        const fadeInterval = setInterval(() => {
+          opacity -= fadeStep;
+          setTextOpacity(Math.max(0, opacity));
+          
+          if (opacity <= 0) {
+            clearInterval(fadeInterval);
+            // Short delay before transitioning
+            setTimeout(() => {
+              setIsTransitioning(true);
+            }, 200);
+          }
+        }, 30);
+      };
+      
+      // Start the shrinking animation
+      shrinkUnderscores();
+    }
+  }, [isShrinkingAnimation, isTransitioning, targetText.length]);
   
   // Implement a short transition before navigation
   useEffect(() => {
@@ -229,10 +291,12 @@ const NewStartPage = () => {
             fontSize: { xs: '3rem', sm: '4rem', md: '6rem' },
             color: '#FFFFFF',
             letterSpacing: '-0.02em',
-            textShadow: isEatingAnimation && eatingStep > maxSteps ? '0 0 25px rgba(255, 255, 255, 0.9)' : '0 0 15px rgba(255, 255, 255, 0.2)',
-            opacity: isAnimationComplete ? 1 : 0.95,
+            textShadow: isShrinkingAnimation ? '0 0 15px rgba(255, 255, 255, 0.3)' : isEatingAnimation && eatingStep > maxSteps ? '0 0 25px rgba(255, 255, 255, 0.9)' : '0 0 15px rgba(255, 255, 255, 0.2)',
+            opacity: isShrinkingAnimation ? textOpacity : isAnimationComplete ? 1 : 0.95,
             transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
-            transform: isTransitioning ? 'scale(0.2)' : isEatingAnimation && eatingStep > maxSteps ? 'scale(1.3)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.02})` : 'scale(1)',
+            transform: isTransitioning ? 'scale(0.2)' : isEatingAnimation && eatingStep > maxSteps ? 'scale(1.1)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.01})` : 'scale(1)',
+            display: 'inline-block',
+            textAlign: 'center',
           }}
         >
           {renderTextWithColoredPeriod()}
