@@ -258,7 +258,7 @@ const Timetable = ({darkMode}) => {
   const [notificationPriority, setNotificationPriority] = useState('standard'); // 'standard' or 'priority'
   const [userReviews, setUserReviews] = useState([]);
   // New state for term toggle
-  const [termType, setTermType] = useState('summer'); // 'summer' or 'fall'
+  const [termType, setTermType] = useState('fall'); // 'summer' or 'fall'
   
   const db = getFirestore();
   const navigate = useNavigate();
