@@ -594,7 +594,7 @@ const LandingPage = ({ darkMode }) => {
             fontWeight: 600,
             fontSize: { xs: '2rem', md: '3rem' },
             color: '#000',
-            mb: '40px',
+            mb: '15px',
             letterSpacing: '0.04rem',
             textAlign: 'center',
             height: '100px', // Fixed height for the container
