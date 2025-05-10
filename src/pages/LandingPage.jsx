@@ -3,7 +3,7 @@ import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, deleteDoc, orderBy, limit } from 'firebase/firestore';
 import ParticleTextCarousel from '../components/ParticleTextCarousel';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -20,7 +20,8 @@ import Divider from '@mui/material/Divider';
 import { 
   Container, Box, Typography, TextField, Button, 
   InputAdornment, CircularProgress, Paper, Snackbar,
-  Alert, Chip, LinearProgress, ButtonBase, Tooltip, Fade, IconButton
+  Alert, Chip, LinearProgress, ButtonBase, Tooltip, Fade, IconButton,
+  List, ListItem, ListItemText, ClickAwayListener
 } from '@mui/material';
 
 import { recordAnalyticsView, logAnalyticsSession } from '../services/analyticsService';
@@ -74,6 +75,14 @@ const LandingPage = ({ darkMode }) => {
   const [miniScheduleOpen, setMiniScheduleOpen] = useState(false);
   const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(true);
   const [selectedCourses, setSelectedCourses] = useState([]);
+
+  // New state for search suggestions
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [popularSearches, setPopularSearches] = useState([]);
+  const searchInputRef = useRef(null);
 
   const pageRef = useRef(null);
   const navigate = useNavigate();
@@ -212,6 +221,16 @@ const LandingPage = ({ darkMode }) => {
   // --------------------------------------------------------------------------------
   const handleSearch = async (e) => {
     e.preventDefault();
+    
+    // Don't search if question is empty
+    if (!question.trim()) return;
+    
+    // Save this search to history
+    saveSearchToHistory(question);
+    
+    // Hide suggestions
+    setShowSuggestions(false);
+    
     setLoading(true);
     setError('');
     setAnswer('');
@@ -254,6 +273,17 @@ const LandingPage = ({ darkMode }) => {
       } else {
         throw new Error('Unexpected response format');
       }
+      
+      // After successful search, also update recent searches for immediate use
+      if (currentUser) {
+        const updatedRecentSearches = [
+          { id: Date.now().toString(), query: question, timestamp: new Date().toISOString() },
+          ...recentSearches
+        ].slice(0, 5); // Keep only the 5 most recent
+        
+        setRecentSearches(updatedRecentSearches);
+      }
+      
     } catch (error) {
       console.error('Error fetching answer:', error);
       setError('An error occurred while fetching the answer. Please try again.');
@@ -526,6 +556,237 @@ const LandingPage = ({ darkMode }) => {
     navigate('/timetable', { state: { openVisualization: true } });
   };
 
+  // Fetch popular searches on component mount
+  useEffect(() => {
+    const fetchPopularSearches = async () => {
+      if (!db) return;
+      
+      try {
+        const searchesRef = collection(db, "search_analytics");
+        const q = query(searchesRef, orderBy("count", "desc"), limit(5));
+        const querySnapshot = await getDocs(q);
+        
+        const searches = [];
+        querySnapshot.forEach((doc) => {
+          searches.push({
+            id: doc.id,
+            query: doc.data().query,
+            count: doc.data().count
+          });
+        });
+        
+        setPopularSearches(searches);
+      } catch (error) {
+        console.error("Error fetching popular searches:", error);
+      }
+    };
+    
+    fetchPopularSearches();
+  }, []);
+  
+  // Fetch user's recent searches if logged in
+  useEffect(() => {
+    const fetchRecentSearches = async () => {
+      if (!currentUser || !db) return;
+      
+      try {
+        const userSearchesRef = collection(db, `users/${currentUser.uid}/searches`);
+        const q = query(userSearchesRef, orderBy("timestamp", "desc"), limit(5));
+        const querySnapshot = await getDocs(q);
+        
+        const searches = [];
+        querySnapshot.forEach((doc) => {
+          searches.push({
+            id: doc.id,
+            query: doc.data().query,
+            timestamp: doc.data().timestamp
+          });
+        });
+        
+        setRecentSearches(searches);
+      } catch (error) {
+        console.error("Error fetching recent searches:", error);
+      }
+    };
+    
+    if (currentUser) {
+      fetchRecentSearches();
+    }
+  }, [currentUser]);
+  
+  // Save search to user's history
+  const saveSearchToHistory = async (searchQuery) => {
+    if (!currentUser || !searchQuery.trim() || !db) return;
+    
+    try {
+      const searchesRef = collection(db, `users/${currentUser.uid}/searches`);
+      await setDoc(doc(searchesRef), {
+        query: searchQuery,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Also update global search analytics
+      const analyticsRef = collection(db, "search_analytics");
+      const q = query(analyticsRef, where("query", "==", searchQuery));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        // Create new entry
+        await setDoc(doc(analyticsRef), {
+          query: searchQuery,
+          count: 1,
+          last_used: new Date().toISOString()
+        });
+      } else {
+        // Update existing entry
+        const docRef = querySnapshot.docs[0].ref;
+        await setDoc(docRef, {
+          count: querySnapshot.docs[0].data().count + 1,
+          last_used: new Date().toISOString()
+        }, { merge: true });
+      }
+    } catch (error) {
+      console.error("Error saving search history:", error);
+    }
+  };
+  
+  // Function to generate suggestions as user types
+  const handleSearchInputChange = async (e) => {
+    const value = e.target.value;
+    setQuestion(value);
+    
+    if (!value.trim()) {
+      setSearchSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    
+    setIsTyping(true);
+    
+    // Combine suggestions from various sources
+    let suggestions = [];
+    
+    // Add recent searches that match
+    if (recentSearches.length > 0) {
+      const matchingRecentSearches = recentSearches
+        .filter(item => item.query.toLowerCase().includes(value.toLowerCase()))
+        .map(item => ({
+          text: item.query,
+          type: 'recent',
+          icon: '🕒'
+        }));
+      
+      suggestions = [...suggestions, ...matchingRecentSearches];
+    }
+    
+    // Add popular searches that match
+    if (popularSearches.length > 0) {
+      const matchingPopularSearches = popularSearches
+        .filter(item => item.query.toLowerCase().includes(value.toLowerCase()))
+        .map(item => ({
+          text: item.query,
+          type: 'popular',
+          icon: '🔥'
+        }));
+      
+      suggestions = [...suggestions, ...matchingPopularSearches];
+    }
+    
+    // Add suggestions for departments and course numbers
+    try {
+      // Try to match department + course number pattern (e.g., "COSC 10")
+      const deptMatch = value.match(/^([A-Za-z]+)\s*(\d*)/);
+      
+      if (deptMatch && deptMatch[1]) {
+        const dept = deptMatch[1].toUpperCase();
+        const courseNum = deptMatch[2] || '';
+        
+        const coursesRef = collection(db, "courses");
+        let q;
+        
+        if (courseNum) {
+          // Look for specific course number
+          q = query(
+            coursesRef,
+            where("department", "==", dept),
+            where("course_number", ">=", courseNum),
+            where("course_number", "<=", courseNum + "\uf8ff"),
+            limit(5)
+          );
+        } else {
+          // Just look for department
+          q = query(
+            coursesRef,
+            where("department", "==", dept),
+            limit(5)
+          );
+        }
+        
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          const courseSuggestions = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            courseSuggestions.push({
+              text: `${data.department} ${data.course_number} - ${data.course_title}`,
+              type: 'course',
+              icon: '📚',
+              docId: doc.id
+            });
+          });
+          
+          suggestions = [...suggestions, ...courseSuggestions];
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching course suggestions:", error);
+    }
+    
+    // Add some common question templates if nothing else matches
+    if (suggestions.length === 0) {
+      const questionTemplates = [
+        { text: `What are the easiest ${value} courses?`, type: 'question', icon: '❓' },
+        { text: `Who is the best professor for ${value}?`, type: 'question', icon: '👨‍🏫' },
+        { text: `How difficult is ${value}?`, type: 'question', icon: '📊' }
+      ];
+      
+      suggestions = [...suggestions, ...questionTemplates];
+    }
+    
+    // Filter out duplicates and limit to 8 suggestions
+    const uniqueSuggestions = suggestions.filter((item, index, self) => 
+      index === self.findIndex(t => t.text === item.text)
+    ).slice(0, 8);
+    
+    setSearchSuggestions(uniqueSuggestions);
+    setShowSuggestions(uniqueSuggestions.length > 0);
+    setIsTyping(false);
+  };
+  
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.type === 'course' && suggestion.docId) {
+      // Get department and course number from suggestion
+      const parts = suggestion.text.split(' - ')[0].trim().split(' ');
+      const dept = parts[0];
+      const courseNum = parts[1];
+      
+      // Navigate directly to course page
+      navigate(`/departments/${dept}/courses/${suggestion.docId}`);
+    } else {
+      // Set the search query and perform search
+      setQuestion(suggestion.text);
+      handleSearch(new Event('submit'));
+    }
+    
+    // Save to search history
+    saveSearchToHistory(suggestion.text);
+    
+    // Hide suggestions
+    setShowSuggestions(false);
+  };
+
   // --------------------------------------------------------------------------------
   // 14) Return the UI
   // --------------------------------------------------------------------------------
@@ -572,6 +833,13 @@ const LandingPage = ({ darkMode }) => {
           currentUser={currentUser}
           handleLoginRedirect={handleLoginRedirect}
           typingMessages={typingMessages}
+          searchSuggestions={searchSuggestions}
+          showSuggestions={showSuggestions}
+          setShowSuggestions={setShowSuggestions}
+          handleSearchInputChange={handleSearchInputChange}
+          handleSuggestionClick={handleSuggestionClick}
+          isTyping={isTyping}
+          popularSearches={popularSearches}
         />
       </Box>
 
@@ -1033,53 +1301,175 @@ const LandingPage = ({ darkMode }) => {
             width: '100%',
             gap: 2,
             mt: 2,
+            position: 'relative', // Add this for positioning suggestions dropdown
           }}
         >
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Ask anything about courses..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            sx={{
-              bgcolor: darkMode ? '#0C0F33' : '#f9f9f9',
-              borderRadius: '25px',
-              width: { xs: '90%', md: '60%' },
-              boxShadow: darkMode
-                ? '0px 2px 8px rgba(255, 255, 255, 0.1)'
-                : '0px 2px 8px rgba(0, 0, 0, 0.1)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '25px',
-                padding: '0 20px',
-                height: '50px',
-                transition: 'all 0.3s ease-in-out',
-                '& fieldset': {
-                  borderColor: darkMode ? '#555555' : 'transparent',
-                },
-                '&:hover fieldset': {
-                  borderColor: darkMode ? '#777777' : '#bbb',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: darkMode ? '#bb86fc' : '#000000',
+          <ClickAwayListener onClickAway={() => setShowSuggestions(false)}>
+            <Box sx={{ width: { xs: '90%', md: '60%' }, position: 'relative' }}>
+              <TextField
+                ref={searchInputRef}
+                fullWidth
+                variant="outlined"
+                placeholder="Ask anything about courses..."
+                value={question}
+                onChange={handleSearchInputChange}
+                autoComplete="off"
+                sx={{
+                  bgcolor: darkMode ? '#0C0F33' : '#f9f9f9',
+                  borderRadius: '25px',
                   boxShadow: darkMode
-                    ? '0px 4px 15px rgba(187, 134, 252, 0.3)'
-                    : '0px 4px 15px rgba(0, 0, 0, 0.1)',
-                },
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon
-                    sx={{
-                      color: darkMode ? '#bbbbbb' : '#888888',
-                      fontSize: '24px',
-                    }}
-                  />
-                </InputAdornment>
-              ),
-            }}
-          />
+                    ? '0px 2px 8px rgba(255, 255, 255, 0.1)'
+                    : '0px 2px 8px rgba(0, 0, 0, 0.1)',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '25px',
+                    padding: '0 20px',
+                    height: '50px',
+                    transition: 'all 0.3s ease-in-out',
+                    '& fieldset': {
+                      borderColor: darkMode ? '#555555' : 'transparent',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: darkMode ? '#777777' : '#bbb',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: darkMode ? '#bb86fc' : '#000000',
+                      boxShadow: darkMode
+                        ? '0px 4px 15px rgba(187, 134, 252, 0.3)'
+                        : '0px 4px 15px rgba(0, 0, 0, 0.1)',
+                    },
+                  },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon
+                        sx={{
+                          color: darkMode ? '#bbbbbb' : '#888888',
+                          fontSize: '24px',
+                        }}
+                      />
+                    </InputAdornment>
+                  ),
+                  endAdornment: question ? (
+                    <InputAdornment position="end">
+                      <IconButton 
+                        size="small" 
+                        onClick={() => {
+                          setQuestion('');
+                          setSearchSuggestions([]);
+                          setShowSuggestions(false);
+                        }}
+                        sx={{ color: darkMode ? '#bbbbbb' : '#888888' }}
+                      >
+                        <Close fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null,
+                }}
+              />
+              
+              {/* Search suggestions dropdown */}
+              {showSuggestions && (
+                <Paper
+                  elevation={3}
+                  sx={{
+                    position: 'absolute',
+                    width: '100%',
+                    maxHeight: '350px',
+                    overflowY: 'auto',
+                    mt: '4px',
+                    borderRadius: '12px',
+                    zIndex: 10,
+                    boxShadow: darkMode
+                      ? '0px 8px 16px rgba(0, 0, 0, 0.4)'
+                      : '0px 8px 16px rgba(0, 0, 0, 0.1)',
+                    bgcolor: darkMode ? '#0C0F33' : '#ffffff',
+                    border: darkMode
+                      ? '1px solid rgba(87, 28, 224, 0.2)'
+                      : '1px solid rgba(0, 0, 0, 0.05)',
+                    '&::-webkit-scrollbar': {
+                      width: '8px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      backgroundColor: darkMode ? '#555555' : '#dddddd',
+                      borderRadius: '4px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                >
+                  <List dense disablePadding>
+                    {isTyping ? (
+                      <ListItem sx={{ justifyContent: 'center' }}>
+                        <CircularProgress size={20} sx={{ color: darkMode ? '#bb86fc' : '#571CE0' }} />
+                      </ListItem>
+                    ) : (
+                      searchSuggestions.map((suggestion, index) => (
+                        <ListItem
+                          button
+                          key={index}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          sx={{
+                            py: 1.5,
+                            borderBottom: index < searchSuggestions.length - 1
+                              ? darkMode
+                                ? '1px solid rgba(255, 255, 255, 0.05)'
+                                : '1px solid rgba(0, 0, 0, 0.05)'
+                              : 'none',
+                            '&:hover': {
+                              bgcolor: darkMode ? 'rgba(87, 28, 224, 0.15)' : 'rgba(0, 0, 0, 0.03)',
+                            },
+                          }}
+                        >
+                          <Box sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            width: '100%', 
+                            color: darkMode ? '#ffffff' : '#333333' 
+                          }}>
+                            <Typography sx={{ 
+                              mr: 1.5, 
+                              fontSize: '1.2rem',
+                              width: '24px',
+                              textAlign: 'center'
+                            }}>
+                              {suggestion.icon}
+                            </Typography>
+                            <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              <Typography 
+                                variant="body1" 
+                                sx={{ 
+                                  fontWeight: suggestion.type === 'recent' ? 400 : 500,
+                                  fontSize: '0.95rem',
+                                  color: darkMode ? '#ffffff' : '#333333'
+                                }}
+                              >
+                                {suggestion.text}
+                              </Typography>
+                              {suggestion.type === 'course' && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                                    display: 'block',
+                                    mt: -0.5
+                                  }}
+                                >
+                                  Click to view course details
+                                </Typography>
+                              )}
+                            </Box>
+                          </Box>
+                        </ListItem>
+                      ))
+                    )}
+                  </List>
+                </Paper>
+              )}
+            </Box>
+          </ClickAwayListener>
+          
           <Button
             variant="contained"
             type="submit"
@@ -1104,6 +1494,59 @@ const LandingPage = ({ darkMode }) => {
             {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
           </Button>
         </Box>
+
+        {/* Display popular searches if no recent search and no answer showing */}
+        {!answer && popularSearches.length > 0 && question === '' && (
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              mt: 3,
+              mb: 2
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                mb: 1,
+                fontSize: '0.9rem'
+              }}
+            >
+              Popular searches:
+            </Typography>
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: 1, 
+                justifyContent: 'center',
+                maxWidth: '600px'
+              }}
+            >
+              {popularSearches.map((search, index) => (
+                <Chip
+                  key={index}
+                  label={search.query}
+                  onClick={() => {
+                    setQuestion(search.query);
+                    handleSearch(new Event('submit'));
+                  }}
+                  icon={<Typography sx={{ fontSize: '1rem', ml: 1 }}>🔥</Typography>}
+                  sx={{
+                    bgcolor: darkMode ? 'rgba(87, 28, 224, 0.15)' : 'rgba(0, 0, 0, 0.05)',
+                    color: darkMode ? '#ffffff' : '#333333',
+                    fontSize: '0.85rem',
+                    '&:hover': {
+                      bgcolor: darkMode ? 'rgba(87, 28, 224, 0.25)' : 'rgba(0, 0, 0, 0.1)',
+                    },
+                  }}
+                />
+              ))}
+            </Box>
+          </Box>
+        )}
 
         {/* AI answer section */}
         {answer && (
