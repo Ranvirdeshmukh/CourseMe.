@@ -159,8 +159,8 @@ const NewStartPage = () => {
         } else if (step === 4) {
           currentLength = 1; // Then "_"
         } else if (step === 5) {
-          // Start fading out the last underscore
-          startFadeOut();
+          // Start direct transition to landing page
+          setIsTransitioning(true);
           return;
         }
         
@@ -174,26 +174,6 @@ const NewStartPage = () => {
         
         // Schedule next step with a faster delay
         setTimeout(shrinkUnderscores, 100); // Faster transition (reduced from 180ms)
-      };
-      
-      const startFadeOut = () => {
-        // Set single underscore
-        setDisplayText('_');
-        
-        // Fade out animation using opacity
-        let opacity = 1;
-        const fadeStep = 0.08; // Faster fade (increased from 0.05)
-        
-        const fadeInterval = setInterval(() => {
-          opacity -= fadeStep;
-          setTextOpacity(Math.max(0, opacity));
-          
-          if (opacity <= 0) {
-            clearInterval(fadeInterval);
-            // Immediate transition
-            setIsTransitioning(true);
-          }
-        }, 20); // Faster fade interval (reduced from 30ms)
       };
       
       // Start the shrinking animation
@@ -286,9 +266,9 @@ const NewStartPage = () => {
             color: '#FFFFFF',
             letterSpacing: '-0.02em',
             textShadow: isShrinkingAnimation ? '0 0 15px rgba(255, 255, 255, 0.3)' : isEatingAnimation && eatingStep > maxSteps ? '0 0 25px rgba(255, 255, 255, 0.9)' : '0 0 15px rgba(255, 255, 255, 0.2)',
-            opacity: isShrinkingAnimation ? textOpacity : isAnimationComplete ? 1 : 0.95,
-            transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
-            transform: isTransitioning ? 'scale(0.2)' : isEatingAnimation && eatingStep > maxSteps ? 'scale(1.1)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.01})` : 'scale(1)',
+            opacity: isShrinkingAnimation && isTransitioning ? 0 : isAnimationComplete ? 1 : 0.95,
+            transition: isTransitioning ? 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)' : 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+            transform: isTransitioning ? 'scale(0.85) translateY(10px)' : isEatingAnimation && eatingStep > maxSteps ? 'scale(1.1)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.01})` : 'scale(1)',
             display: 'inline-block',
             textAlign: 'center',
           }}
