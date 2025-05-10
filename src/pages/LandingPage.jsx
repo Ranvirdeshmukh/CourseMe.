@@ -4,7 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import ReactTypingEffect from 'react-typing-effect';
+import ParticleTextCarousel from '../components/ParticleTextCarousel';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
@@ -586,7 +586,7 @@ const LandingPage = ({ darkMode }) => {
           textAlign: 'center',
         }}
       >
-        {/* Typing effect for the main heading */}
+        {/* Typing effect for the main heading - Replace with our custom component */}
         <Typography
           variant="h3"
           sx={{
@@ -596,64 +596,20 @@ const LandingPage = ({ darkMode }) => {
             color: '#000',
             mb: '40px',
             letterSpacing: '0.04rem',
+            textAlign: 'center',
+            height: '100px', // Fixed height for the container
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <ReactTypingEffect
-            text={typingMessages}
-            typingDelay={1000}
-            speed={100}
-            eraseSpeed={50}
-            eraseDelay={currentUser ? 2000 : 3000}
-            displayTextRenderer={(text, i) => {
-              const isWelcomeMessage = currentUser && i === 0;
-              const isFirstLogin = localStorage.getItem(`hasLoggedIn_${currentUser?.uid}`) === 'true' && 
-                                  !localStorage.getItem(`hasSeenWelcome_${currentUser?.uid}`);
-              const isJoinPrompt = !currentUser && i === 0 && text.includes('Join them');
-              const isSecondSentence = !currentUser ? i === 1 : i === 1;
-              
-              // Set color based on message type
-              const sentenceColor = darkMode
-                ? '#FFFFFF'
-                : isJoinPrompt
-                ? '#e91e63' // Hot pink for "Join them?" prompt
-                : isWelcomeMessage && isFirstLogin
-                ? '#ff5722' // Exciting orange for first-time users
-                : isWelcomeMessage
-                ? '#00693e' // Green for returning users
-                : isSecondSentence
-                ? '#571ce0' // Purple for second sentence
-                : '#000000'; // Black for other sentences
-              
-              // After displaying the welcome message, mark that the user has seen it
-              if (currentUser && isWelcomeMessage && isFirstLogin && !localStorage.getItem(`hasSeenWelcome_${currentUser.uid}`)) {
-                localStorage.setItem(`hasSeenWelcome_${currentUser.uid}`, 'true');
-              }
-              
-              const hasFullStop = text.endsWith('.');
-              const hasExclamation = text.endsWith('!');
-              const hasQuestion = text.endsWith('?');
-              const textWithoutEnding = hasFullStop ? text.slice(0, -1) : 
-                                         hasExclamation ? text.slice(0, -1) : 
-                                         hasQuestion ? text.slice(0, -1) : text;
-              const ending = hasFullStop ? '.' : 
-                             hasExclamation ? '!' : 
-                             hasQuestion ? '?' : '';
-  
-              return (
-                <span>
-                  <span
-                    style={{
-                      color: sentenceColor,
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      fontWeight: '600',
-                    }}
-                  >
-                    {textWithoutEnding}
-                  </span>
-                  {ending && <span style={{ color: ending === '?' ? '#e91e63' : '#F26655' }}>{ending}</span>}
-                </span>
-              );
-            }}
+          <ParticleTextCarousel
+            messages={typingMessages}
+            typingDelay={3000}
+            darkMode={darkMode}
+            currentUser={currentUser}
+            isFirstLogin={localStorage.getItem(`hasLoggedIn_${currentUser?.uid}`) === 'true' && 
+                          !localStorage.getItem(`hasSeenWelcome_${currentUser?.uid}`)}
           />
         </Typography>
 
