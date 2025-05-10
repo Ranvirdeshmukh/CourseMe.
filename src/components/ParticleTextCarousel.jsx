@@ -10,7 +10,9 @@ const ParticleTextCarousel = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
+  const [nextText, setNextText] = useState('');
   const [isReady, setIsReady] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Function to handle animation completion
   const handleAnimationComplete = useCallback(() => {
@@ -22,11 +24,25 @@ const ParticleTextCarousel = ({
     
     // Schedule the next message after delay
     const timer = setTimeout(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % messages.length);
+      // Start transition
+      setIsTransitioning(true);
+      
+      // After a short delay to allow the fade-out to begin, prepare the next text
+      setTimeout(() => {
+        const nextIndex = (currentIndex + 1) % messages.length;
+        setNextText(messages[nextIndex]);
+        
+        // After the outgoing animation completes, update the current index and displayed text
+        setTimeout(() => {
+          setCurrentIndex(nextIndex);
+          setDisplayedText(messages[nextIndex]);
+          setIsTransitioning(false);
+        }, 800); // Match the transition duration in the component
+      }, 200);
     }, typingDelay);
     
     return () => clearTimeout(timer);
-  }, [messages.length, typingDelay, currentUser, currentIndex, isFirstLogin]);
+  }, [messages, typingDelay, currentUser, currentIndex, isFirstLogin, messages.length]);
 
   // Update displayed text when index changes
   useEffect(() => {
@@ -110,6 +126,7 @@ const ParticleTextCarousel = ({
       darkMode={darkMode}
       endingPunctuation={getEndingPunctuation()}
       endingPunctuationColor={getEndingPunctuationColor()}
+      isTransitioning={isTransitioning}
     />
   );
 };
