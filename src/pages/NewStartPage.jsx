@@ -85,61 +85,57 @@ const NewStartPage = () => {
     if (isAnimationComplete && !isEatingAnimation && !isTransitioning) {
       setIsEatingAnimation(true);
       
-      // Hold the complete text for a moment before eating animation
-      setTimeout(() => {
-        // Start the eating animation
-        const textLength = targetText.length;
-        let currentStep = 0;
-        const maxSteps = Math.ceil(textLength / 2);
+      // Start the eating animation immediately without delay
+      const textLength = targetText.length;
+      let currentStep = 0;
+      const maxSteps = Math.ceil(textLength / 2);
+      
+      const eatText = () => {
+        // Animation complete check
+        if (currentStep > maxSteps) {
+          // Start the shrinking underscores animation
+          setIsShrinkingAnimation(true);
+          return;
+        }
         
-        const eatText = () => {
-          // Animation complete check
-          if (currentStep > maxSteps) {
-            // Start the shrinking underscores animation
-            setIsShrinkingAnimation(true);
-            return;
+        // Create new text with characters being replaced by underscores from both ends
+        let newText = Array(textLength).fill(' '); // Start with spaces
+        
+        // Final step - all underscores
+        if (currentStep === maxSteps) {
+          for (let i = 0; i < textLength; i++) {
+            newText[i] = '_';
           }
           
-          // Create new text with characters being replaced by underscores from both ends
-          let newText = Array(textLength).fill(' '); // Start with spaces
-          
-          // Final step - all underscores
-          if (currentStep === maxSteps) {
-            for (let i = 0; i < textLength; i++) {
-              newText[i] = '_';
-            }
-            
-            // Accelerate to the final animation after a very short pause
-            setTimeout(() => {
-              currentStep++;
-              eatText();
-            }, 100);
-          } else {
-            // Fill in the not-yet-eaten letters from the original text
-            for (let i = currentStep; i < textLength - currentStep; i++) {
-              newText[i] = targetText[i];
-            }
-            
-            // Add underscores at the eaten positions
-            for (let i = 0; i < currentStep; i++) {
-              newText[i] = '_'; // Left side underscores
-              newText[textLength - 1 - i] = '_'; // Right side underscores
-            }
-            
-            setDisplayText(newText.join(''));
+          // Accelerate to the final animation after a very short pause
+          setTimeout(() => {
             currentStep++;
-            setEatingStep(currentStep);
-            
-            // Accelerate animation speed as it progresses
-            const nextDelay = Math.max(30, 70 - currentStep * 3);
-            setTimeout(eatText, nextDelay);
+            eatText();
+          }, 50); // Faster transition (reduced from 100ms)
+        } else {
+          // Fill in the not-yet-eaten letters from the original text
+          for (let i = currentStep; i < textLength - currentStep; i++) {
+            newText[i] = targetText[i];
           }
-        };
-        
-        // Start the animation sequence
-        eatText();
-        
-      }, 600); // Short delay before starting the eating animation
+          
+          // Add underscores at the eaten positions
+          for (let i = 0; i < currentStep; i++) {
+            newText[i] = '_'; // Left side underscores
+            newText[textLength - 1 - i] = '_'; // Right side underscores
+          }
+          
+          setDisplayText(newText.join(''));
+          currentStep++;
+          setEatingStep(currentStep);
+          
+          // Accelerate animation speed as it progresses
+          const nextDelay = Math.max(20, 50 - currentStep * 4); // Faster eating animation
+          setTimeout(eatText, nextDelay);
+        }
+      };
+      
+      // Start the animation sequence immediately
+      eatText();
     }
   }, [isAnimationComplete, isEatingAnimation, isTransitioning, targetText]);
   
@@ -176,8 +172,8 @@ const NewStartPage = () => {
         // Advance to next step
         step++;
         
-        // Schedule next step with a delay
-        setTimeout(shrinkUnderscores, 180);
+        // Schedule next step with a faster delay
+        setTimeout(shrinkUnderscores, 100); // Faster transition (reduced from 180ms)
       };
       
       const startFadeOut = () => {
@@ -186,7 +182,7 @@ const NewStartPage = () => {
         
         // Fade out animation using opacity
         let opacity = 1;
-        const fadeStep = 0.05;
+        const fadeStep = 0.08; // Faster fade (increased from 0.05)
         
         const fadeInterval = setInterval(() => {
           opacity -= fadeStep;
@@ -194,12 +190,10 @@ const NewStartPage = () => {
           
           if (opacity <= 0) {
             clearInterval(fadeInterval);
-            // Short delay before transitioning
-            setTimeout(() => {
-              setIsTransitioning(true);
-            }, 200);
+            // Immediate transition
+            setIsTransitioning(true);
           }
-        }, 30);
+        }, 20); // Faster fade interval (reduced from 30ms)
       };
       
       // Start the shrinking animation
