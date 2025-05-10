@@ -48,8 +48,8 @@ const ParticleTextAnimation = ({
       particle.style.top = `${Math.random() * containerHeight}px`;
       
       // Set velocity - much slower for elegance
-      const vx = (Math.random() - 0.5) * 0.7;
-      const vy = (Math.random() - 0.5) * 0.7;
+      const vx = (Math.random() - 0.5) * 1.2;
+      const vy = (Math.random() - 0.5) * 1.2;
       
       particles.push({
         element: particle,
@@ -87,13 +87,13 @@ const ParticleTextAnimation = ({
         }
         
         // Gradually slow down for natural movement
-        particle.vx *= 0.99;
-        particle.vy *= 0.99;
+        particle.vx *= 0.995;
+        particle.vy *= 0.995;
         
         // Occasionally add tiny random impulses for organic movement
         if (Math.random() < 0.02) {
-          particle.vx += (Math.random() - 0.5) * 0.2;
-          particle.vy += (Math.random() - 0.5) * 0.2;
+          particle.vx += (Math.random() - 0.5) * 0.3;
+          particle.vy += (Math.random() - 0.5) * 0.3;
         }
         
         // Update position
@@ -166,7 +166,7 @@ const ParticleTextAnimation = ({
         }
         
         // Cap velocity to maintain elegance
-        const maxVelocity = 2;
+        const maxVelocity = 3;
         const velocityMagnitude = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
         if (velocityMagnitude > maxVelocity) {
           const scale = maxVelocity / velocityMagnitude;
@@ -205,11 +205,8 @@ const ParticleTextAnimation = ({
           justifyContent: 'center',
           position: 'relative',
           zIndex: 1,
-          transition: isTransitioning ? 
-            'opacity 0.8s cubic-bezier(0.4, 0.0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)' : 
-            'opacity 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)',
-          opacity: isTransitioning ? 0 : opacity,
-          transform: isTransitioning ? 'translateY(10px)' : 'translateY(0)'
+          transition: 'opacity 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)',
+          opacity: isTransitioning ? 0 : opacity
         }}
       >
         {/* Text display */}
