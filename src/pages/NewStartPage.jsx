@@ -9,6 +9,8 @@ const NewStartPage = () => {
   const { currentUser } = useAuth();
   const [displayText, setDisplayText] = useState('');
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+  const [isEatingAnimation, setIsEatingAnimation] = useState(false);
+  const [eatingStep, setEatingStep] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const theme = useTheme();
   const appStyles = useAppStyles(); // Use our custom hook for font consistency
@@ -74,27 +76,82 @@ const NewStartPage = () => {
     return () => clearInterval(interval);
   }, []);
   
-  // Implement a short, subtle transition before navigation
+  // "Eating" animation effect that starts after scrambling completes
   useEffect(() => {
-    if (isAnimationComplete && !isTransitioning) {
-      // Set transitioning state to trigger fade effect
-      setIsTransitioning(true);
+    if (isAnimationComplete && !isEatingAnimation && !isTransitioning) {
+      setIsEatingAnimation(true);
       
+      // Hold the complete text for a moment before eating animation
+      setTimeout(() => {
+        // Start the eating animation
+        const textLength = targetText.length;
+        let currentStep = 0;
+        const underscoreSequence = []; // Array to store growing underscore sequence
+        
+        const eatText = () => {
+          if (currentStep >= textLength) {
+            // Eating animation complete, start transition
+            setIsTransitioning(true);
+            return;
+          }
+          
+          // Add a new underscore to the growing sequence
+          underscoreSequence.push('_');
+          
+          // Create the new display text: remaining characters + underscore sequence
+          const remainingText = targetText.substring(currentStep);
+          const newText = underscoreSequence.join('') + remainingText;
+          
+          setDisplayText(newText);
+          currentStep++;
+          setEatingStep(currentStep);
+        };
+        
+        // Run the eating animation at a slower pace than scramble
+        const eatInterval = setInterval(eatText, 150);
+        
+        return () => clearInterval(eatInterval);
+      }, 600); // Short delay before starting the eating animation
+    }
+  }, [isAnimationComplete, isEatingAnimation, isTransitioning, targetText]);
+  
+  // Implement a short transition before navigation
+  useEffect(() => {
+    if (isTransitioning) {
       // Set transition data in sessionStorage for the landing page to use
       sessionStorage.setItem('comingFromIntro', 'true');
+      sessionStorage.setItem('eatenText', displayText);
       
-      // Navigate after a brief transition - always go to landing page regardless of auth status
+      // Navigate after a brief transition
       setTimeout(() => {
         navigate('/landing', { replace: true });
-      }, 400); // Short delay for subtle transition
+      }, 800); // Longer delay for the full effect
     }
-  }, [isAnimationComplete, isTransitioning, navigate]);
+  }, [isTransitioning, navigate, displayText]);
 
-  // Function to render the text with colored period
+  // Function to render the text with colored period and "eaten" effect
   const renderTextWithColoredPeriod = () => {
     if (!displayText) return null;
     
-    // If we have a period at the end
+    // If we're in eating animation or transitioning
+    if (isEatingAnimation) {
+      // If the text still contains a period (hasn't been eaten yet)
+      if (displayText.includes('.')) {
+        const periodIndex = displayText.indexOf('.');
+        const beforePeriod = displayText.substring(0, periodIndex);
+        const afterPeriod = displayText.substring(periodIndex + 1);
+        
+        return (
+          <>
+            {beforePeriod}
+            <span style={{ color: '#f26655' }}>.</span>
+            {afterPeriod}
+          </>
+        );
+      }
+    }
+    
+    // Normal rendering for scramble animation
     if (displayText.endsWith('.')) {
       const textWithoutPeriod = displayText.slice(0, -1);
       return (
@@ -130,10 +187,10 @@ const NewStartPage = () => {
           justifyContent: 'center',
           alignItems: 'center',
           opacity: isTransitioning ? 0 : 1,
-          transition: 'opacity 0.4s ease-out',
+          transition: isTransitioning ? 'opacity 0.8s ease-out' : 'opacity 0.4s ease-out',
         }}
       >
-        {/* Text with scrambling animation */}
+        {/* Text with scrambling and eating animation */}
         <Typography
           variant="h1"
           sx={{
@@ -145,7 +202,7 @@ const NewStartPage = () => {
             textShadow: '0 0 15px rgba(255, 255, 255, 0.2)',
             opacity: isAnimationComplete ? 1 : 0.95,
             transition: 'all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
-            transform: isTransitioning ? 'scale(1.05)' : 'scale(1)',
+            transform: isTransitioning ? 'scale(0.9)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.01})` : 'scale(1)',
           }}
         >
           {renderTextWithColoredPeriod()}
