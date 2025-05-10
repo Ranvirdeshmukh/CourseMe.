@@ -594,10 +594,10 @@ const LandingPage = ({ darkMode }) => {
             fontWeight: 600,
             fontSize: { xs: '2rem', md: '3rem' },
             color: '#000',
-            mb: '15px',
+            mb: '5px',
             letterSpacing: '0.04rem',
             textAlign: 'center',
-            height: '100px', // Fixed height for the container
+            height: '90px', // Reduced height for the container
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -625,7 +625,7 @@ const LandingPage = ({ darkMode }) => {
             mb: 4,
             overflowX: 'auto',
             padding: { xs: '16px 0', md: '16px 0' },
-            marginTop: '16px',
+            marginTop: '0px',
             '&::-webkit-scrollbar': {
               display: 'none', // Hide scrollbar for Chrome, Safari, and newer Edge
             },

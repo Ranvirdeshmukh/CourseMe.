@@ -188,12 +188,13 @@ const ParticleTextAnimation = ({
       ref={containerRef}
       sx={{
         width: "100%",
-        height: "100px",
+        height: "90px",
         position: "relative",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        overflow: "hidden"
+        overflow: "hidden",
+        marginBottom: "10px"
       }}
       onMouseMove={handleMouseMove}
     >
