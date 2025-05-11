@@ -11,6 +11,8 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PrintIcon from '@mui/icons-material/Print';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import CloseIcon from '@mui/icons-material/Close';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import Fab from '@mui/material/Fab';
 import Modal from '@mui/material/Modal';
 import Zoom from '@mui/material/Zoom';
@@ -259,6 +261,7 @@ const Timetable = ({darkMode}) => {
   const [userReviews, setUserReviews] = useState([]);
   // New state for term toggle
   const [termType, setTermType] = useState('fall'); // 'summer' or 'fall'
+  const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
   
   const db = getFirestore();
   const navigate = useNavigate();
@@ -1111,11 +1114,32 @@ const accentHoverBg = darkMode
   const handleSearch = (event) => {
     const term = event.target.value;
     setSearchTerm(term);
+    
+    // Show subject dropdown when searching if we have subjects
+    if (term.length > 0 && subjects.length > 0) {
+      setIsSubjectDropdownOpen(true);
+    } else {
+      setIsSubjectDropdownOpen(false);
+    }
   };
 
-  const handleSubjectChange = (event) => {
-    const subject = event.target.value;
+  const handleSubjectChange = (subject) => {
     setSelectedSubject(subject);
+    setIsSubjectDropdownOpen(false);
+  };
+
+  const handleSearchFocus = () => {
+    // Only open dropdown if there's search text
+    if (searchTerm.length > 0 && subjects.length > 0) {
+      setIsSubjectDropdownOpen(true);
+    }
+  };
+
+  const handleSearchBlur = () => {
+    // Use setTimeout to allow click events on dropdown to fire before closing
+    setTimeout(() => {
+      setIsSubjectDropdownOpen(false);
+    }, 200);
   };
 
   const handleAddCourse = async (course) => {
@@ -2146,14 +2170,14 @@ const accentHoverBg = darkMode
     gap: '16px',
   }}
 >
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
     <Typography
       variant="h3"
       align="left"
       sx={{
         fontWeight: 600,
         color: darkMode ? '#FFFFFF' : '#000000',
-        marginBottom: '20px',
+        marginBottom: '8px',
         marginTop: '30px',
         fontFamily: 'SF Pro Display, sans-serif',
         transition: 'color 0.3s ease',
@@ -2162,287 +2186,304 @@ const accentHoverBg = darkMode
       {termType === 'summer' ? 'Summer' : 'Fall'} 2025 Timetable.
     </Typography>
     
-    {/* Term Toggle */}
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)', 
-        borderRadius: '24px', 
-        padding: '4px 12px',
-        marginBottom: '20px',
-        marginTop: '30px',
-        backgroundColor: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.7)'
-      }}
-    >
-      <Typography 
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 3,
+      marginBottom: '20px'
+    }}>
+      {/* Subtle Pill Navigation for Term Toggle */}
+      <Box 
         sx={{ 
-          color: termType === 'summer' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'),
-          fontWeight: termType === 'summer' ? 600 : 400,
-          fontSize: '0.9rem',
-          transition: 'color 0.3s'
+          display: 'flex', 
+          alignItems: 'center', 
+          borderRadius: '12px', 
+          padding: '2px',
+          backgroundColor: darkMode ? 'rgba(28, 31, 67, 0.8)' : 'rgba(240, 240, 245, 0.8)',
+          boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
+          overflow: 'hidden',
         }}
       >
-        Summer
-      </Typography>
-      <Switch
-        checked={termType === 'fall'}
-        onChange={() => setTermType(termType === 'summer' ? 'fall' : 'summer')}
-        sx={{
-          '& .MuiSwitch-switchBase.Mui-checked': {
-            color: darkMode ? '#BB86FC' : '#00693E',
+        <Box
+          onClick={() => setTermType('summer')}
+          sx={{
+            padding: '6px 14px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            backgroundColor: termType === 'summer' 
+              ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
+              : 'transparent',
+            color: termType === 'summer'
+              ? (darkMode ? '#BB86FC' : '#00693E')
+              : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
+            fontWeight: termType === 'summer' ? 600 : 400,
+            fontSize: '0.85rem',
+            fontFamily: 'SF Pro Display, sans-serif',
             '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.04)',
-            },
-          },
-          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-            backgroundColor: darkMode ? '#BB86FC' : '#00693E',
-          },
-        }}
-      />
-      <Typography 
-        sx={{ 
-          color: termType === 'fall' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'),
-          fontWeight: termType === 'fall' ? 600 : 400,
-          fontSize: '0.9rem',
-          transition: 'color 0.3s'
-        }}
-      >
-        Fall
-      </Typography>
-    </Box>
-  </Box>
-
-  <TextField
-    variant="outlined"
-    placeholder="Search Courses"
-    value={searchTerm}
-    onChange={handleSearch}
-    sx={{
-      width: isMobile ? '100%' : '300px',
-      height: '40px',
-      borderRadius: '20px',
-      boxShadow: darkMode
-        ? '0px 4px 12px rgba(255, 255, 255, 0.1)'
-        : '0px 4px 10px rgba(0, 0, 0, 0.1)',
-      marginTop: '25px',
-      transition: 'box-shadow 0.3s ease, background-color 0.3s ease',
-      '& .MuiOutlinedInput-root': {
-        '& fieldset': {
-          borderColor: '#00693E',
-        },
-        '&:hover fieldset': {
-          borderColor: '#00693E',
-        },
-        '&.Mui-focused fieldset': {
-          borderColor: '#00693E',
-        },
-        borderRadius: '20px',
-        height: '40px',
-        backgroundColor: darkMode ? '#0C0F33' : '#FFFFFF',
-        transition: 'background-color 0.3s ease',
-      },
-    }}
-    InputProps={{
-      startAdornment: (
-        <InputAdornment position="start">
-          <SearchIcon sx={{ color: '#00693E' }} />
-        </InputAdornment>
-      ),
-      style: {
-        color: darkMode ? '#FFFFFF' : '#000000',
-      },
-    }}
-  />
-
-  <FormControl
-    variant="outlined"
-    sx={{
-      minWidth: isMobile ? '100%' : 200,
-      marginTop: '25px',
-    }}
-  >
-    <InputLabel
-      sx={{
-        color: darkMode ? '#FFFFFF' : '#000000',
-        '&.Mui-focused': {
-          color: '#00693E', 
-        },
-        transform: 'translate(14px, 8px) scale(1)',
-        '&[data-shrink="true"]': {
-          transform: 'translate(14px, -9px) scale(0.75)',
-        },
-        transition: 'color 0.3s ease',
-      }}
-    >
-      Subject
-    </InputLabel>
-    <Select
-      value={selectedSubject}
-      onChange={handleSubjectChange}
-      label="Subject"
-      sx={{
-        borderRadius: '20px',
-        height: '40px',
-        backgroundColor: darkMode ? '#0C0F33' : 'transparent',
-        color: darkMode ? '#FFFFFF' : '#000000',
-        fontWeight: '600',
-        fontSize: '16px',
-        fontFamily: 'SF Pro Display, sans-serif',
-        textTransform: 'none',
-        border: '1px solid #00693E',
-        boxShadow: darkMode
-          ? '0px 4px 12px rgba(255, 255, 255, 0.1)'
-          : '0px 4px 10px rgba(0, 0, 0, 0.1)',
-        transition: 'background-color 0.3s ease, color 0.3s ease',
-        '& .MuiOutlinedInput-root': {
-          '& fieldset': {
-            borderColor: darkMode ? '#FFFFFF' : '#000000',
-          },
-          '&:hover fieldset': {
-            borderColor: darkMode ? '#FFFFFF' : '#000000',
-          },
-          '&.Mui-focused fieldset': {
-            borderColor: darkMode ? '#FFFFFF' : '#000000',
-          },
-          backgroundColor: 'transparent',
-          height: '40px',
-        },
-        '& .MuiSelect-select': {
-          paddingTop: '8px',
-          paddingBottom: '8px',
+              backgroundColor: termType !== 'summer'
+                ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
+                : (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.1)')
+            }
+          }}
+        >
+          Summer 2025
+        </Box>
+        <Box
+          onClick={() => setTermType('fall')}
+          sx={{
+            padding: '6px 14px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            backgroundColor: termType === 'fall' 
+              ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
+              : 'transparent',
+            color: termType === 'fall'
+              ? (darkMode ? '#BB86FC' : '#00693E')
+              : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
+            fontWeight: termType === 'fall' ? 600 : 400,
+            fontSize: '0.85rem',
+            fontFamily: 'SF Pro Display, sans-serif',
+            '&:hover': {
+              backgroundColor: termType !== 'fall'
+                ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
+                : (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.1)')
+            }
+          }}
+        >
+          Fall 2025
+        </Box>
+      </Box>
+      
+      {/* Course Toggle Button as a Subtle Chip */}
+      <Box
+        onClick={() => setShowSelectedCourses(!showSelectedCourses)}
+        sx={{
           display: 'flex',
           alignItems: 'center',
-        },
-        '& .MuiSelect-icon': {
-          color: '#00693E',
-        },
-        '&:hover': {
-          backgroundColor: darkMode
-            ? 'rgba(255, 255, 255, 0.1)'
-            : 'rgba(0, 105, 62, 0.1)',
-        },
-        '&:focus': {
-          outline: 'none',
-          boxShadow: darkMode
-            ? '0 0 0 4px rgba(255, 255, 255, 0.2)'
-            : '0 0 0 4px rgba(0, 105, 62, 0.5)',
-        },
-      }}
-    >
-      <MenuItem value="">
-        <em>All Subjects</em>
-      </MenuItem>
-      {subjects.map((subject, index) => (
-        <MenuItem key={index} value={subject}>
-          {subject}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-
-  <Button
-    variant="contained"
-    sx={{
-      marginTop: isMobile ? '20px' : '25px',
-      padding: '10px 20px',
-      borderRadius: '20px',
-      height: '40px',
-      backgroundColor: darkMode ? 'transparent' : 'transparent',
-      color: '#00693E',
-      fontWeight: '600',
-      fontSize: '16px',
-      fontFamily: 'SF Pro Display, sans-serif',
-      textTransform: 'none',
-      border: '1px solid #00693E',
-      boxShadow: darkMode
-        ? '0px 4px 12px rgba(255, 255, 255, 0.1)'
-        : '0px 4px 10px rgba(0, 0, 0, 0.1)',
-      transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
-      '&:hover': {
-        backgroundColor: darkMode
-          ? 'rgba(255, 255, 255, 0.1)'
-          : 'rgba(0, 105, 62, 0.1)',
-        borderColor: '#00693E',
-      },
-      '&:focus': {
-        outline: 'none',
-        boxShadow: darkMode
-          ? '0 0 0 4px rgba(255, 255, 255, 0.2)'
-          : '0 0 0 4px rgba(0, 105, 62, 0.5)',
-      },
-    }}
-    onClick={() => setShowSelectedCourses(!showSelectedCourses)}
-  >
-    {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
-  </Button>
-</Box>
-
-<Box sx={{ position: 'relative' }}>
-  <Box
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'pointer',
-      marginBottom: '16px',
-      marginTop: '24px',
-      padding: '12px 16px',
-      backgroundColor: darkMode
-        ? 'rgba(255, 255, 255, 0.06)'
-        : 'rgba(0, 105, 62, 0.04)',
-      borderRadius: '8px',
-      border: darkMode
-        ? '1px solid rgba(255, 255, 255, 0.2)'
-        : '1px solid rgba(0, 105, 62, 0.1)',
-      transition: 'all 0.2s ease',
-      '&:hover': {
-        backgroundColor: darkMode
-          ? 'rgba(255, 255, 255, 0.1)'
-          : 'rgba(0, 105, 62, 0.08)',
-      },
-    }}
-    onClick={() => setShowFeatures(!showFeatures)}
-  >
-    <Typography
-      variant="h6"
-      sx={{
-        fontFamily: 'SF Pro Display, sans-serif',
-        color: '#00693E',
-        fontWeight: 600,
-        fontSize: '1.1rem',
-        flex: 1,
-      }}
-    >
-      AI-Powered Course Planning
-    </Typography>
-    <KeyboardArrowDownIcon
-      sx={{
-        color: '#00693E',
-        transform: showFeatures ? 'rotate(180deg)' : 'none',
-        transition: 'transform 0.3s ease',
-      }}
-    />
+          gap: 1,
+          padding: '6px 14px',
+          borderRadius: '10px',
+          cursor: 'pointer',
+          backgroundColor: showSelectedCourses 
+            ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)') 
+            : (darkMode ? 'rgba(28, 31, 67, 0.8)' : 'rgba(240, 240, 245, 0.8)'),
+          color: showSelectedCourses
+            ? (darkMode ? '#BB86FC' : '#00693E')
+            : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
+          boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            backgroundColor: showSelectedCourses
+              ? (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.12)')
+              : (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)')
+          }
+        }}
+      >
+        {showSelectedCourses ? (
+          <VisibilityOffIcon sx={{ fontSize: '18px', color: darkMode ? '#BB86FC' : '#00693E' }} />
+        ) : (
+          <VisibilityIcon sx={{ fontSize: '18px', color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)' }} />
+        )}
+        <Typography sx={{ 
+          fontSize: '0.85rem', 
+          fontWeight: showSelectedCourses ? 600 : 400,
+          fontFamily: 'SF Pro Display, sans-serif',
+        }}>
+          {showSelectedCourses ? 'Hide My Courses' : 'My Courses'}
+        </Typography>
+      </Box>
+    </Box>
   </Box>
 
-  <Collapse in={showFeatures}>
-    <Box
-      component="ul"
+  <Box 
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      width: isMobile ? '100%' : '400px',
+      position: 'relative',
+      marginTop: isMobile ? '0' : '25px',
+    }}
+  >
+    <TextField
+      variant="outlined"
+      placeholder="Search by course, subject or instructor..."
+      value={searchTerm}
+      onChange={handleSearch}
+      onFocus={handleSearchFocus}
+      onBlur={handleSearchBlur}
       sx={{
-        margin: '0',
-        paddingLeft: '20px',
-        marginBottom: '20px',
-        color: darkMode ? '#FFFFFF' : '#1D1D1F',
-        fontFamily: 'SF Pro Display, sans-serif',
-        transition: 'color 0.3s ease',
+        width: '100%',
+        borderRadius: '16px',
+        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
+        transition: 'all 0.3s ease',
+        '& .MuiOutlinedInput-root': {
+          borderRadius: '16px',
+          backgroundColor: darkMode ? 'rgba(28, 31, 67, 0.7)' : '#FFFFFF',
+          '&:hover': {
+            boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.12)',
+          },
+          '&.Mui-focused': {
+            boxShadow: '0px 8px 25px rgba(0, 0, 0, 0.15)',
+          },
+          '& fieldset': {
+            borderColor: 'transparent',
+            borderWidth: '1px',
+            transition: 'all 0.3s ease',
+          },
+          '&:hover fieldset': {
+            borderColor: darkMode ? 'rgba(187, 134, 252, 0.5)' : 'rgba(0, 105, 62, 0.3)',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: darkMode ? '#BB86FC' : '#00693E',
+            borderWidth: '2px',
+          },
+        },
+        '& .MuiInputBase-input': {
+          padding: '14px 20px 14px 60px',
+          fontSize: '1rem',
+          color: darkMode ? '#FFFFFF' : '#000000',
+          fontFamily: 'SF Pro Display, sans-serif',
+        },
       }}
-    >
-      <li>Sync your timetable to Google Calendar in one click</li>
-      <li>Get instant notifications when a course spot opens up</li>
-      <li>Send templated emails to professors in one click.</li>
-      <li>Navigate to the course reviews in one click.</li>
-    </Box>
-  </Collapse>
+      InputProps={{
+        startAdornment: (
+          <InputAdornment 
+            position="start" 
+            sx={{ 
+              position: 'absolute', 
+              left: '16px',
+              pointerEvents: 'none'
+            }}
+          >
+            <SearchIcon sx={{ color: darkMode ? '#BB86FC' : '#00693E', fontSize: '24px' }} />
+          </InputAdornment>
+        ),
+      }}
+    />
+    
+    {/* Subject filter dropdown appears below the search field when clicked */}
+    {subjects.length > 0 && isSubjectDropdownOpen && (
+      <Paper
+        elevation={4}
+        sx={{
+          position: 'absolute',
+          top: '60px',
+          left: 0,
+          width: '100%',
+          maxHeight: '300px',
+          overflowY: 'auto',
+          borderRadius: '12px',
+          zIndex: 10,
+          backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+          boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* "All Subjects" option at the top */}
+        <Box
+          onClick={() => handleSubjectChange('')}
+          sx={{
+            padding: '10px 16px',
+            cursor: 'pointer',
+            borderBottom: '1px solid',
+            borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+            backgroundColor: selectedSubject === '' ? (darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.05)') : 'transparent',
+            color: selectedSubject === '' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? '#FFFFFF' : '#000000'),
+            fontWeight: selectedSubject === '' ? 600 : 400,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            '&:hover': {
+              backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+            },
+          }}
+        >
+          <Typography sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>All Subjects</Typography>
+          {selectedSubject === '' && (
+            <CheckCircleIcon sx={{ fontSize: '18px', color: darkMode ? '#BB86FC' : '#00693E' }} />
+          )}
+        </Box>
+        
+        {/* Filter subject items to match current search */}
+        {subjects
+          .filter(subject => !searchTerm || subject.toLowerCase().includes(searchTerm.toLowerCase()))
+          .map((subject, index) => (
+            <Box
+              key={index}
+              onClick={() => handleSubjectChange(subject)}
+              sx={{
+                padding: '10px 16px',
+                cursor: 'pointer',
+                borderBottom: index < subjects.length - 1 ? '1px solid' : 'none',
+                borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                backgroundColor: selectedSubject === subject ? (darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.05)') : 'transparent',
+                color: selectedSubject === subject ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? '#FFFFFF' : '#000000'),
+                fontWeight: selectedSubject === subject ? 600 : 400,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                '&:hover': {
+                  backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                },
+              }}
+            >
+              <Typography sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>{subject}</Typography>
+              {selectedSubject === subject && (
+                <CheckCircleIcon sx={{ fontSize: '18px', color: darkMode ? '#BB86FC' : '#00693E' }} />
+              )}
+            </Box>
+          ))}
+      </Paper>
+    )}
+    
+    {/* Selected subject pill/chip */}
+    {selectedSubject && (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          marginTop: '12px',
+          padding: '6px 12px',
+          backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)',
+          borderRadius: '20px',
+          alignSelf: 'flex-start',
+        }}
+      >
+        <Typography
+          sx={{
+            color: darkMode ? '#BB86FC' : '#00693E',
+            fontWeight: 600,
+            fontSize: '0.9rem',
+            marginRight: '8px',
+            fontFamily: 'SF Pro Display, sans-serif',
+          }}
+        >
+          {selectedSubject}
+        </Typography>
+        <IconButton
+          size="small"
+          onClick={() => setSelectedSubject('')}
+          sx={{
+            padding: '2px',
+            color: darkMode ? '#BB86FC' : '#00693E',
+            '&:hover': {
+              backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.25)' : 'rgba(0, 105, 62, 0.15)',
+            },
+          }}
+        >
+          <CloseIcon sx={{ fontSize: '16px' }} />
+        </IconButton>
+      </Box>
+    )}
+  </Box>
+
+  
 </Box>
+
+
 
 {/* Main "Fall '24 Timetable" Table */}
 {loading ? (
