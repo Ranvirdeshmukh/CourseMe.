@@ -750,7 +750,7 @@ const ProfilePage = ({darkMode}) => {
             marginBottom: 2,
           }}
         >
-          Spring 2025 Course Enrollment Priority.
+          Fall 2025 Course Enrollment Priority.
         </Typography>
         <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#DDD' }} />
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
