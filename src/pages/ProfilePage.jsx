@@ -97,23 +97,17 @@ const ProfilePage = ({darkMode}) => {
             pinnedCourses: userData.pinnedCourses || [],
           });
 
-          // Fetch the user's spring courses from the subcollection "springCoursestaken"
-      const springCoursesRef = collection(db, 'users', currentUser.uid, 'springCoursestaken');
-      const springCoursesSnapshot = await getDocs(springCoursesRef);
-      const springCoursesData = springCoursesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setSelectedCourses(springCoursesData);
+          // Fetch the user's fall courses from the user document
+          const fallCourses = userData.fallCoursestaken || [];
+          setSelectedCourses(fallCourses);
       
-      // Optionally, if you still need notifications from the main user document:
-      setNotifications(userData.notifications || []);
-    } else {
-      setError('Failed to fetch profile data.');
-    }
-    setLoading(false);
-  }
-
+          // Optionally, if you still need notifications from the main user document:
+          setNotifications(userData.notifications || []);
+        } else {
+          setError('Failed to fetch profile data.');
+        }
+        setLoading(false);
+      }
     };
 
     if (currentUser) {
@@ -342,7 +336,7 @@ const ProfilePage = ({darkMode}) => {
             
           }}
         >
-          Make your term more organized by adding your Spring 2025 classes to CourseMe
+          Make your term more organized by adding your Fall 2025 classes to CourseMe
           <span style={{ color: '#F26655' }}>.</span> and your personal Google Calendar.{' '}
           <span 
             style={{ 
@@ -499,297 +493,510 @@ const ProfilePage = ({darkMode}) => {
         </TableContainer>
       </Box>
     );
-    };
-    
-    return (
-      <Box
+  };
+
+  return (
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        background: darkMode ? mainBgColor : '#F9F9F9',
+        padding: { xs: '20px', sm: '40px' },
+        fontFamily: 'SF Pro Display, sans-serif',
+        letterSpacing: '0.5px',
+      }}
+    >
+      <Container
+        maxWidth="lg"
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          background: darkMode ? mainBgColor : '#F9F9F9',
-          padding: { xs: '20px', sm: '40px' },
-          fontFamily: 'SF Pro Display, sans-serif',
-          letterSpacing: '0.5px',
+          maxWidth: '1100px !important',
+          width: '100%',
         }}
       >
-        <Container
-          maxWidth="lg"
-          sx={{
-            maxWidth: '1100px !important',
-            width: '100%',
-          }}
-        >
-          {loading ? (
-            <Box
+        {loading ? (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '50vh',
+            }}
+          >
+            <CircularProgress color="primary" />
+          </Box>
+        ) : error ? (
+          <Alert severity="error">{error}</Alert>
+        ) : (
+          <>
+            <Card
               sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '50vh',
+                marginBottom: 4,
+                padding: 4,
+                backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+                color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+                borderRadius: '16px',
+                width: '100%',
               }}
             >
-              <CircularProgress color="primary" />
-            </Box>
-          ) : error ? (
-            <Alert severity="error">{error}</Alert>
-          ) : (
-            <>
-              <Card
+              <Box
                 sx={{
-                  marginBottom: 4,
-                  padding: 4,
-                  backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
-                  color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                  boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
-                  borderRadius: '16px',
-                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: 2,
+                  justifyContent: 'space-between',
+                  flexDirection: { xs: 'column', sm: 'row' },
                 }}
               >
                 <Box
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    marginBottom: 2,
-                    justifyContent: 'space-between',
-                    flexDirection: { xs: 'column', sm: 'row' },
+                    marginBottom: { xs: 2, sm: 0 },
                   }}
                 >
-                  <Box
+                  <Avatar
                     sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginBottom: { xs: 2, sm: 0 },
+                      bgcolor: '#571CE0',
+                      width: 64,
+                      height: 64,
+                      marginRight: 2,
                     }}
                   >
-                    <Avatar
+                    {currentUser.email.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Box sx={{ textAlign: 'left' }}>
+                    <Typography
+                      variant="h4"
                       sx={{
-                        bgcolor: '#571CE0',
-                        width: 64,
-                        height: 64,
-                        marginRight: 2,
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        fontWeight: 600,
+                        color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                        marginBottom: '8px',
+                        fontSize: { xs: '1.5rem', sm: '2rem' },
                       }}
                     >
-                      {currentUser.email.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Box sx={{ textAlign: 'left' }}>
-                      <Typography
-                        variant="h4"
-                        sx={{
-                          fontFamily: 'SF Pro Display, sans-serif',
-                          fontWeight: 600,
-                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                          marginBottom: '8px',
-                          fontSize: { xs: '1.5rem', sm: '2rem' },
-                        }}
-                      >
-                        {currentUser.email}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontFamily: 'SF Pro Display, sans-serif',
-                          color: darkMode ? '#CCCCCC' : '#8E8E93',
-                          fontSize: { xs: '1rem', sm: '1.25rem' },
-                        }}
-                      >
-                        Welcome to your profile.
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box>
-                    <IconButton
-                      onClick={handleMenuClick}
-                      aria-controls="profile-menu"
-                      aria-haspopup="true"
-                      sx={{ color: '#571CE0', padding: '10px', fontSize: '2rem' }}
+                      {currentUser.email}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        color: darkMode ? '#CCCCCC' : '#8E8E93',
+                        fontSize: { xs: '1rem', sm: '1.25rem' },
+                      }}
                     >
-                      <ArrowDropDown fontSize="large" />
-                    </IconButton>
-                    <Menu
-                      id="profile-menu"
-                      anchorEl={anchorEl}
-                      open={Boolean(anchorEl)}
-                      onClose={handleMenuClose}
-                      sx={{ mt: '40px' }}
-                    >
-                      <MenuItem
-                        onClick={handleReportBugOpen}
-                        sx={{
-                          borderRadius: '4px',
-                          padding: '10px',
-                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                          fontFamily: 'SF Pro Display, sans-serif',
-                          '&:hover': {
-                            backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5',
-                          },
-                        }}
-                      >
-                        <BugReport sx={{ marginRight: 1 }} /> Report a Bug
-                      </MenuItem>
-                      <MenuItem
-                        onClick={handleLogout}
-                        sx={{
-                          borderRadius: '4px',
-                          padding: '10px',
-                          color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                          fontFamily: 'SF Pro Display, sans-serif',
-                          '&:hover': {
-                            backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5',
-                          },
-                        }}
-                      >
-                        <Logout sx={{ marginRight: 1 }} /> Log Out
-                      </MenuItem>
-                    </Menu>
+                      Welcome to your profile.
+                    </Typography>
                   </Box>
                 </Box>
-                <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#DDD' }} />
-                <Box sx={{ textAlign: 'left', marginTop: 2 }}>
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                    }}
+                <Box>
+                  <IconButton
+                    onClick={handleMenuClick}
+                    aria-controls="profile-menu"
+                    aria-haspopup="true"
+                    sx={{ color: '#571CE0', padding: '10px', fontSize: '2rem' }}
                   >
-                    Profile Information
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      color: darkMode ? '#CCCCCC' : '#8E8E93',
-                      marginBottom: 0.5,
-                      fontSize: { xs: '0.875rem', sm: '1rem' },
-                    }}
+                    <ArrowDropDown fontSize="large" />
+                  </IconButton>
+                  <Menu
+                    id="profile-menu"
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
+                    sx={{ mt: '40px' }}
                   >
-                    First Name: {profileData.firstName}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      color: darkMode ? '#CCCCCC' : '#8E8E93',
-                      marginBottom: 0.5,
-                      fontSize: { xs: '0.875rem', sm: '1rem' },
-                    }}
-                  >
-                    Last Name: {profileData.lastName}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      color: darkMode ? '#CCCCCC' : '#8E8E93',
-                      marginBottom: 0.5,
-                      fontSize: { xs: '0.875rem', sm: '1rem' },
-                    }}
-                  >
-                    Major: {profileData.major}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      color: darkMode ? '#CCCCCC' : '#8E8E93',
-                      marginBottom: 0.5,
-                      fontSize: { xs: '0.875rem', sm: '1rem' },
-                    }}
-                  >
-                    Class Year: {profileData.classYear}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    onClick={handleEditProfile}
-                    sx={{
-                      mt: 2,
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      fontWeight: 500,
-                      borderRadius: '8px',
-                      boxShadow: 'none',
-                      backgroundColor: '#571CE0',
-                      '&:hover': {
-                        backgroundColor: '#005bb5',
-                      },
-                      textTransform: 'none',
-                      paddingX: 3,
-                      paddingY: 1,
-                      fontSize: { xs: '0.875rem', sm: '1rem' },
-                    }}
-                  >
-                    Edit Profile
-                  </Button>
+                    <MenuItem
+                      onClick={handleReportBugOpen}
+                      sx={{
+                        borderRadius: '4px',
+                        padding: '10px',
+                        color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        '&:hover': {
+                          backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5',
+                        },
+                      }}
+                    >
+                      <BugReport sx={{ marginRight: 1 }} /> Report a Bug
+                    </MenuItem>
+                    <MenuItem
+                      onClick={handleLogout}
+                      sx={{
+                        borderRadius: '4px',
+                        padding: '10px',
+                        color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                        fontFamily: 'SF Pro Display, sans-serif',
+                        '&:hover': {
+                          backgroundColor: darkMode ? '#2a2a2a' : '#f5f5f5',
+                        },
+                      }}
+                    >
+                      <Logout sx={{ marginRight: 1 }} /> Log Out
+                    </MenuItem>
+                  </Menu>
                 </Box>
-              </Card>
+              </Box>
+              <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#DDD' }} />
+              <Box sx={{ textAlign: 'left', marginTop: 2 }}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                  }}
+                >
+                  Profile Information
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: darkMode ? '#CCCCCC' : '#8E8E93',
+                    marginBottom: 0.5,
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  }}
+                >
+                  First Name: {profileData.firstName}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: darkMode ? '#CCCCCC' : '#8E8E93',
+                    marginBottom: 0.5,
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  }}
+                >
+                  Last Name: {profileData.lastName}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: darkMode ? '#CCCCCC' : '#8E8E93',
+                    marginBottom: 0.5,
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  }}
+                >
+                  Major: {profileData.major}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    color: darkMode ? '#CCCCCC' : '#8E8E93',
+                    marginBottom: 0.5,
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  }}
+                >
+                  Class Year: {profileData.classYear}
+                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={handleEditProfile}
+                  sx={{
+                    mt: 2,
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    fontWeight: 500,
+                    borderRadius: '8px',
+                    boxShadow: 'none',
+                    backgroundColor: '#571CE0',
+                    '&:hover': {
+                      backgroundColor: '#005bb5',
+                    },
+                    textTransform: 'none',
+                    paddingX: 3,
+                    paddingY: 1,
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  }}
+                >
+                  Edit Profile
+                </Button>
+              </Box>
+            </Card>
     
   
-              <Grid container spacing={4}>
-  <Grid item xs={12} md={6}>
-    <Card
-      sx={{
-        padding: 4,
-        backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
-        color: darkMode ? '#FFFFFF' : '#333',
-        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-        borderRadius: '12px',
-        width: '100%',
-        minHeight: 200,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Box>
-        <Typography
-          variant="h4"
-          gutterBottom
+            <Grid container spacing={4}>
+      <Grid item xs={12} md={6}>
+        <Card
           sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 600,
-            color: darkMode ? '#FFFFFF' : '#1D1D1F',
-            textAlign: 'left',
-            marginBottom: 2,
+            padding: 4,
+            backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+            color: darkMode ? '#FFFFFF' : '#333',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+            borderRadius: '12px',
+            width: '100%',
+            minHeight: 200,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
           }}
         >
-          Fall 2025 Course Enrollment Priority.
-        </Typography>
-        <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#DDD' }} />
-        <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
-          <Button
-            variant="contained"
-            onClick={handleNavigateToEnrollmentPriorities}
+          <Box>
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontWeight: 600,
+                color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                textAlign: 'left',
+                marginBottom: 2,
+              }}
+            >
+              Fall 2025 Course Enrollment Priority.
+            </Typography>
+            <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#DDD' }} />
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
+              <Button
+                variant="contained"
+                onClick={handleNavigateToEnrollmentPriorities}
+                sx={{
+                  fontFamily: 'SF Pro Display, sans-serif',
+                  fontWeight: 500,
+                  borderRadius: '8px',
+                  boxShadow: 'none',
+                  backgroundColor: '#571CE0',
+                  '&:hover': {
+                    backgroundColor: '#005bb5',
+                  },
+                  textTransform: 'none',
+                  paddingX: 3,
+                  paddingY: 1,
+                }}
+              >
+                Browse It
+              </Button>
+            </Box>
+          </Box>
+          <Typography
+            variant="caption"
             sx={{
               fontFamily: 'SF Pro Display, sans-serif',
-              fontWeight: 500,
-              borderRadius: '8px',
-              boxShadow: 'none',
-              backgroundColor: '#571CE0',
-              '&:hover': {
-                backgroundColor: '#005bb5',
-              },
-              textTransform: 'none',
-              paddingX: 3,
-              paddingY: 1,
+              color: darkMode ? '#CCCCCC' : '#8E8E93',
+              textAlign: 'left',
+              marginTop: 2,
+              display: 'block',
             }}
           >
-            Browse It
-          </Button>
-        </Box>
-      </Box>
-      <Typography
-        variant="caption"
+            * Enrollment priorities change every term and will be updated accordingly.
+          </Typography>
+        </Card>
+      </Grid>
+      <Grid item xs={12}>
+        <Card
+          sx={{
+            padding: 4,
+            backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+            color: darkMode ? '#FFFFFF' : '#1D1D1F',
+            boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+            borderRadius: '16px',
+            width: '100%',
+            minHeight: 200,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontWeight: 600,
+              color: darkMode ? '#FFFFFF' : '#1D1D1F',
+              marginBottom: 0.9,
+            }}
+          >
+            Course Drop Notifications
+          </Typography>
+          <Divider sx={{ marginBottom: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
+          {notifications.length === 0 ? (
+            <Typography
+              variant="body1"
+              sx={{
+                fontFamily: 'SF Pro Display, sans-serif',
+                color: darkMode ? '#CCCCCC' : '#8E8E93',
+                textAlign: 'left',
+                marginTop: 2,
+              }}
+            >
+              You haven't signed up for any course drop notifications yet.
+            </Typography>
+          ) : (
+            <TableContainer>
+              <Table>
+                <TableHead sx={{ backgroundColor: darkMode ? '#333333' : '#571CE0' }}>
+                  <TableRow>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Department</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Course</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Section</TableCell>
+                    {/* <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Added On</TableCell> */}
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {notifications.map((notification, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{
+                        '&:hover': { backgroundColor: darkMode ? '#2a2a2a' : '#f7f7f7' },
+                        transition: 'background-color 0.2s ease',
+                      }}
+                    >
+                      <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif', color: darkMode ? '#FFFFFF' : undefined }}>
+                        {notification.department}
+                      </TableCell>
+                      <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif', color: darkMode ? '#FFFFFF' : undefined }}>
+                        {notification.number}
+                      </TableCell>
+                      <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif', color: darkMode ? '#FFFFFF' : undefined }}>
+                        {notification.section}
+                      </TableCell>
+                      {/* <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
+                        {notification.timestamp ? new Date(notification.timestamp.toDate()).toLocaleDateString() : 'N/A'}
+                      </TableCell> */}
+                      <TableCell>
+                        <IconButton
+                          onClick={() => handleRemoveNotification(notification)}
+                          sx={{
+                            color: '#F26655',
+                            '&:hover': {
+                              backgroundColor: 'rgba(242, 102, 85, 0.1)',
+                            },
+                          }}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Card>
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+      <Card
         sx={{
-          fontFamily: 'SF Pro Display, sans-serif',
-          color: darkMode ? '#CCCCCC' : '#8E8E93',
-          textAlign: 'left',
-          marginTop: 2,
-          display: 'block',
+          padding: 4,
+          backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+          color: darkMode ? '#FFFFFF' : '#1D1D1F',
+          boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+          borderRadius: '16px',
+          width: '100%',
+          minHeight: 200,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
         }}
       >
-        * Enrollment priorities change every term and will be updated accordingly.
-      </Typography>
-    </Card>
-  </Grid>
-  <Grid item xs={12}>
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontWeight: 600,
+              color: darkMode ? '#FFFFFF' : '#1D1D1F',
+              textAlign: 'left',
+              marginBottom: 2,
+            }}
+          >
+            My Saved Courses.
+          </Typography>
+          <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
+          <List>
+            {profileData.pinnedCourses.length === 0 ? (
+              <Typography
+                sx={{
+                  fontFamily: 'SF Pro Display, sans-serif',
+                  color: darkMode ? '#CCCCCC' : '#8E8E93',
+                  textAlign: 'left',
+                }}
+              >
+                No courses pinned yet.
+              </Typography>
+            ) : (
+              profileData.pinnedCourses.map((courseId, idx) => (
+                <ListItem
+                  key={idx}
+                  sx={{
+                    backgroundColor: darkMode ? '#2a2a2a' : '#fafafa',
+                    margin: '10px 0',
+                    borderRadius: '12px',
+                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
+                    cursor: 'pointer',
+                    '&:hover': { backgroundColor: darkMode ? '#333333' : '#f0f0f0' },
+                    transition: 'background-color 0.2s ease',
+                  }}
+                  onClick={() => handleNavigateToCourseReview(courseId)}
+                >
+                  <ListItemText
+                    primary={
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontFamily: 'SF Pro Display, sans-serif',
+                          color: darkMode ? '#ffffff' : '#000000',                      fontWeight: 600,
+                        }}
+                      >
+                        {getShortCourseId(courseId)}
+                      </Typography>
+                    }
+                  />
+                  <IconButton
+                    edge="end"
+                    aria-label="unpin"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUnpinCourse(courseId);
+                    }}
+                    sx={{ color: '#571CE0' }}
+                  >
+                    <PushPin />
+                  </IconButton>
+                </ListItem>
+              ))
+            )}
+          </List>
+        </Box>
+      </Card>
+    </Grid>
+
+      
+            <Grid item xs={12}>
+              <Card
+                sx={{
+                  padding: 4,
+                  backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+      color: darkMode ? '#FFFFFF' : '#1D1D1F',
+      boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+      borderRadius: '16px',
+                  width: '100%',
+                  minHeight: 200,
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <Typography
+                  variant="h4"
+                  sx={{
+                    fontFamily: 'SF Pro Display, sans-serif',
+                    fontWeight: 600,
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                    marginBottom: 0.9,
+                  }}
+                >
+                  Fall 2025 Timetable
+                </Typography>
+                <Divider sx={{ marginBottom: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
+                {renderTimetable()}
+              </Card>
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={4} sx={{ mt: 4 }}>
+          <Grid item xs={12} md={6}>
     <Card
       sx={{
         padding: 4,
@@ -798,376 +1005,163 @@ const ProfilePage = ({darkMode}) => {
         boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
         borderRadius: '16px',
         width: '100%',
-        minHeight: 200,
-        display: 'flex',
-        flexDirection: 'column',
       }}
     >
       <Typography
         variant="h4"
+        gutterBottom
         sx={{
           fontFamily: 'SF Pro Display, sans-serif',
           fontWeight: 600,
           color: darkMode ? '#FFFFFF' : '#1D1D1F',
-          marginBottom: 0.9,
-        }}
-      >
-        Course Drop Notifications
-      </Typography>
-      <Divider sx={{ marginBottom: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
-      {notifications.length === 0 ? (
-        <Typography
-          variant="body1"
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            color: darkMode ? '#CCCCCC' : '#8E8E93',
-            textAlign: 'left',
-            marginTop: 2,
-          }}
-        >
-          You haven't signed up for any course drop notifications yet.
-        </Typography>
-      ) : (
-        <TableContainer>
-          <Table>
-            <TableHead sx={{ backgroundColor: darkMode ? '#333333' : '#571CE0' }}>
-              <TableRow>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Department</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Course</TableCell>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Section</TableCell>
-                {/* <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Added On</TableCell> */}
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {notifications.map((notification, index) => (
-                <TableRow
-                  key={index}
-                  sx={{
-                    '&:hover': { backgroundColor: darkMode ? '#2a2a2a' : '#f7f7f7' },
-                    transition: 'background-color 0.2s ease',
-                  }}
-                >
-                  <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif', color: darkMode ? '#FFFFFF' : undefined }}>
-                    {notification.department}
-                  </TableCell>
-                  <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif', color: darkMode ? '#FFFFFF' : undefined }}>
-                    {notification.number}
-                  </TableCell>
-                  <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif', color: darkMode ? '#FFFFFF' : undefined }}>
-                    {notification.section}
-                  </TableCell>
-                  {/* <TableCell sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>
-                    {notification.timestamp ? new Date(notification.timestamp.toDate()).toLocaleDateString() : 'N/A'}
-                  </TableCell> */}
-                  <TableCell>
-                    <IconButton
-                      onClick={() => handleRemoveNotification(notification)}
-                      sx={{
-                        color: '#F26655',
-                        '&:hover': {
-                          backgroundColor: 'rgba(242, 102, 85, 0.1)',
-                        },
-                      }}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </Card>
-  </Grid>
-
-  <Grid item xs={12} md={6}>
-  <Card
-    sx={{
-      padding: 4,
-      backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
-      color: darkMode ? '#FFFFFF' : '#1D1D1F',
-      boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
-      borderRadius: '16px',
-      width: '100%',
-      minHeight: 200,
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-    }}
-  >
-    <Box>
-      <Typography
-        variant="h4"
-        sx={{
-          fontFamily: 'SF Pro Display, sans-serif',
-          fontWeight: 600,
-          color: darkMode ? '#FFFFFF' : '#1D1D1F',
-          textAlign: 'left',
           marginBottom: 2,
         }}
       >
-        My Saved Courses.
+        My Reviews
       </Typography>
       <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
       <List>
-        {profileData.pinnedCourses.length === 0 ? (
-          <Typography
+        {profileData.reviews?.map((review, idx) => (
+          <ListItem
+            key={idx}
             sx={{
-              fontFamily: 'SF Pro Display, sans-serif',
-              color: darkMode ? '#CCCCCC' : '#8E8E93',
-              textAlign: 'left',
+              backgroundColor: darkMode ? '#2a2a2a' : '#fafafa',
+              margin: '10px 0',
+              borderRadius: '12px',
+              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
+              cursor: 'pointer',
+              '&:hover': { backgroundColor: darkMode ? '#333333' : '#f0f0f0' },
+              transition: 'background-color 0.2s ease',
             }}
           >
-            No courses pinned yet.
-          </Typography>
-        ) : (
-          profileData.pinnedCourses.map((courseId, idx) => (
-            <ListItem
-              key={idx}
-              sx={{
-                backgroundColor: darkMode ? '#2a2a2a' : '#fafafa',
-                margin: '10px 0',
-                borderRadius: '12px',
-                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
-                cursor: 'pointer',
-                '&:hover': { backgroundColor: darkMode ? '#333333' : '#f0f0f0' },
-                transition: 'background-color 0.2s ease',
-              }}
-              onClick={() => handleNavigateToCourseReview(courseId)}
-            >
-              <ListItemText
-                primary={
+            <ListItemText
+              primary={
+                <>
                   <Typography
                     component="span"
                     sx={{
                       fontFamily: 'SF Pro Display, sans-serif',
-                      color: darkMode ? '#ffffff' : '#000000',                      fontWeight: 600,
+                      color: '#571CE0',
+                      fontWeight: 600,
                     }}
                   >
-                    {getShortCourseId(courseId)}
-                  </Typography>
-                }
-              />
-              <IconButton
-                edge="end"
-                aria-label="unpin"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleUnpinCourse(courseId);
-                }}
-                sx={{ color: '#571CE0' }}
-              >
-                <PushPin />
-              </IconButton>
-            </ListItem>
-          ))
-        )}
-      </List>
-    </Box>
-  </Card>
-</Grid>
-
-  
-              <Grid item xs={12}>
-                <Card
-                  sx={{
-                    padding: 4,
-                    backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
-      color: darkMode ? '#FFFFFF' : '#1D1D1F',
-      boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
-      borderRadius: '16px',
-                    width: '100%',
-                    minHeight: 200,
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
-                >
+                    {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
+                  </Typography>{' '}
                   <Typography
-                    variant="h4"
+                    component="span"
                     sx={{
                       fontFamily: 'SF Pro Display, sans-serif',
-                      fontWeight: 600,
                       color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                      marginBottom: 0.9,
                     }}
                   >
-                    Spring 2025 Timetable
+                    {review.review}
                   </Typography>
-                  <Divider sx={{ marginBottom: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
-                  {renderTimetable()}
-                </Card>
-              </Grid>
-            </Grid>
-  
-            <Grid container spacing={4} sx={{ mt: 4 }}>
-            <Grid item xs={12} md={6}>
-  <Card
-    sx={{
-      padding: 4,
-      backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
-      color: darkMode ? '#FFFFFF' : '#1D1D1F',
-      boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
-      borderRadius: '16px',
-      width: '100%',
-    }}
-  >
-    <Typography
-      variant="h4"
-      gutterBottom
-      sx={{
-        fontFamily: 'SF Pro Display, sans-serif',
-        fontWeight: 600,
-        color: darkMode ? '#FFFFFF' : '#1D1D1F',
-        marginBottom: 2,
-      }}
-    >
-      My Reviews
-    </Typography>
-    <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
-    <List>
-      {profileData.reviews?.map((review, idx) => (
-        <ListItem
-          key={idx}
-          sx={{
-            backgroundColor: darkMode ? '#2a2a2a' : '#fafafa',
-            margin: '10px 0',
-            borderRadius: '12px',
-            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
-            cursor: 'pointer',
-            '&:hover': { backgroundColor: darkMode ? '#333333' : '#f0f0f0' },
-            transition: 'background-color 0.2s ease',
-          }}
-        >
-          <ListItemText
-            primary={
-              <>
-                <Typography
-                  component="span"
-                  sx={{
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    color: '#571CE0',
-                    fontWeight: 600,
-                  }}
-                >
-                  {review.term} with {review.professor} for {getShortCourseId(review.courseId)}:
-                </Typography>{' '}
-                <Typography
-                  component="span"
-                  sx={{
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                  }}
-                >
-                  {review.review}
-                </Typography>
-              </>
-            }
-          />
-          <IconButton
-            edge="end"
-            aria-label="delete"
-            onClick={() => handleDeleteReview(review)}
-            sx={{ color: '#571CE0' }}
-          >
-            <Delete />
-          </IconButton>
-        </ListItem>
-      ))}
-    </List>
-  </Card>
-</Grid>
+                </>
+              }
+            />
+            <IconButton
+              edge="end"
+              aria-label="delete"
+              onClick={() => handleDeleteReview(review)}
+              sx={{ color: '#571CE0' }}
+            >
+              <Delete />
+            </IconButton>
+          </ListItem>
+        ))}
+      </List>
+    </Card>
+  </Grid>
 
 
-<Grid item xs={12} md={6}>
-  <Card
-    sx={{
-      padding: 4,
-      backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
-      color: darkMode ? '#FFFFFF' : '#1D1D1F',
-      boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
-      borderRadius: '16px',
-      width: '100%',
-    }}
-  >
-    <Typography
-      variant="h4"
-      gutterBottom
+  <Grid item xs={12} md={6}>
+    <Card
       sx={{
-        fontFamily: 'SF Pro Display, sans-serif',
-        fontWeight: 600,
+        padding: 4,
+        backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
         color: darkMode ? '#FFFFFF' : '#1D1D1F',
-        marginBottom: 2,
+        boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.05)',
+        borderRadius: '16px',
+        width: '100%',
       }}
     >
-      My Replies
-    </Typography>
-    <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
-    <List>
-      {profileData.replies?.map((reply, idx) => (
-        <ListItem
-          key={idx}
-          sx={{
-            backgroundColor: darkMode ? '#2a2a2a' : '#fafafa',
-            margin: '10px 0',
-            borderRadius: '12px',
-            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
-            cursor: 'pointer',
-            '&:hover': { backgroundColor: darkMode ? '#333333' : '#f0f0f0' },
-            transition: 'background-color 0.2s ease',
-          }}
-        >
-          <ListItemText
-            primary={
-              <>
-                <Typography
-                  component="span"
-                  sx={{
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    color: '#571CE0',
-                    fontWeight: 600,
-                  }}
-                >
-                  Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
-                </Typography>{' '}
-                <Typography
-                  component="span"
-                  sx={{
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                  }}
-                >
-                  {reply.reply}
-                </Typography>
-                <Typography
-                  component="span"
-                  sx={{
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    color: darkMode ? '#CCCCCC' : 'grey',
-                    fontSize: '0.8rem',
-                    display: 'block',
-                  }}
-                >
-                  {new Date(reply.timestamp).toLocaleString()}
-                </Typography>
-              </>
-            }
-          />
-          <IconButton
-            edge="end"
-            aria-label="delete"
-            onClick={() => handleDeleteReply(reply)}
-            sx={{ color: '#571CE0' }}
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{
+          fontFamily: 'SF Pro Display, sans-serif',
+          fontWeight: 600,
+          color: darkMode ? '#FFFFFF' : '#1D1D1F',
+          marginBottom: 2,
+        }}
+      >
+        My Replies
+      </Typography>
+      <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
+      <List>
+        {profileData.replies?.map((reply, idx) => (
+          <ListItem
+            key={idx}
+            sx={{
+              backgroundColor: darkMode ? '#2a2a2a' : '#fafafa',
+              margin: '10px 0',
+              borderRadius: '12px',
+              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.05)',
+              cursor: 'pointer',
+              '&:hover': { backgroundColor: darkMode ? '#333333' : '#f0f0f0' },
+              transition: 'background-color 0.2s ease',
+            }}
           >
-            <Delete />
-          </IconButton>
-        </ListItem>
-      ))}
-    </List>
-  </Card>
-</Grid>
-</Grid>
+            <ListItemText
+              primary={
+                <>
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: '#571CE0',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Reply to {reply.reviewData.instructor} for {getShortCourseId(reply.courseId)}:
+                  </Typography>{' '}
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                    }}
+                  >
+                    {reply.reply}
+                  </Typography>
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      color: darkMode ? '#CCCCCC' : 'grey',
+                      fontSize: '0.8rem',
+                      display: 'block',
+                    }}
+                  >
+                    {new Date(reply.timestamp).toLocaleString()}
+                  </Typography>
+                </>
+              }
+            />
+            <IconButton
+              edge="end"
+              aria-label="delete"
+              onClick={() => handleDeleteReply(reply)}
+              sx={{ color: '#571CE0' }}
+            >
+              <Delete />
+            </IconButton>
+          </ListItem>
+        ))}
+      </List>
+    </Card>
+  </Grid>
+  </Grid>
         </>
       )}
     </Container>
