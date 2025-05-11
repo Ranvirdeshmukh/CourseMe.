@@ -752,7 +752,7 @@ const fetchAndCacheCourses = useCallback(async () => {
       transition: 'color 0.3s ease',
     }}
   >
-    Summer 2025 Layups by time
+    Fall 2025 Layups by time
   </Typography>
 
 

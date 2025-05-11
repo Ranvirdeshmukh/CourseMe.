@@ -225,7 +225,15 @@ export async function getCoursesByPeriod(periodCode, periodCodeToTiming, term = 
 
 // Extract the Firestore query logic for period courses
 async function fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming, term = 'spring') {
-  const collectionName = term === 'summer' ? 'summerTimetable' : 'springTimetable';
+  let collectionName;
+  if (term === 'summer') {
+    collectionName = 'summerTimetable';
+  } else if (term === 'fall') {
+    collectionName = 'fallTimetable2';
+  } else {
+    collectionName = 'springTimetable';
+  }
+  
   console.log(`Fetching from collection: ${collectionName} for period ${periodCode}`);
   
   // Fetch timetable data with limit to improve performance

@@ -44,7 +44,7 @@ const LayupsByTiming = ({darkMode}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState("10A");
-  const [selectedTerm, setSelectedTerm] = useState("summer");
+  const [selectedTerm, setSelectedTerm] = useState("fall");
   const [selectedDepartments, setSelectedDepartments] = useState([]);
   const [selectedDistribs, setSelectedDistribs] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -154,7 +154,7 @@ const LayupsByTiming = ({darkMode}) => {
   // This effect runs only once after the component mounts
   useEffect(() => {
     fetchDepartmentsAndDistribs();
-    fetchData("10A", "summer", [], []);
+    fetchData("10A", "fall", [], []);
     didMountRef.current = true;
   }, [fetchData, fetchDepartmentsAndDistribs]);
   
@@ -318,6 +318,15 @@ const LayupsByTiming = ({darkMode}) => {
                   }}
                 >
                   Summer Term
+                </MenuItem>
+                <MenuItem
+                  value="fall"
+                  sx={{
+                    backgroundColor: darkMode ? '#1C1F43' : undefined,
+                    color: darkMode ? '#fff' : undefined,
+                  }}
+                >
+                  Fall Term
                 </MenuItem>
               </Select>
             </FormControl>
