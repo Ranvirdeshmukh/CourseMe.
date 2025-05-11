@@ -37,6 +37,7 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
   const [isTaughtSpringTerm, setIsTaughtSpringTerm] = useState(false);
   const [isTaughtSummerTerm, setIsTaughtSummerTerm] = useState(false);
+  const [isTaughtFallTerm, setIsTaughtFallTerm] = useState(false);
   const { department, courseId } = useParams();
   const { currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
@@ -54,6 +55,7 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [winterInstructors, setWinterInstructors] = useState([]);
   const [springInstructors, setSpringInstructors] = useState([]);
   const [summerInstructors, setSummerInstructors] = useState([]);
+  const [fallInstructors, setFallInstructors] = useState([]);
   const [bothTermsInstructors, setBothTermsInstructors] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [reviewInstructors, setReviewInstructors] = useState([]);
@@ -1056,6 +1058,18 @@ const CourseReviewsPage = ({ darkMode }) => {
       }
     });
     
+    fallInstructors.forEach(instructor => {
+      if (!professorTerms[instructor]) {
+        professorTerms[instructor] = [];
+      }
+      
+      const fallTerm = currentYear + 'F';
+      if (!professorTerms[instructor].includes(fallTerm)) {
+        professorTerms[instructor].unshift(fallTerm);
+        console.log(`Added current Fall term ${fallTerm} for professor ${instructor}`);
+      }
+    });
+    
     console.log("Final professorTerms:", professorTerms);
     return professorTerms;
   };
@@ -1340,13 +1354,31 @@ const handleQualityVote = async (voteType) => {
               const summerQuery = query(summerTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumValue));
               const summerQuerySnapshot = await getDocs(summerQuery);
               
+              let summerInstructors = [];
               let summerFound = false;
               summerQuerySnapshot.forEach((doc) => {
                 const data = doc.data();
                 if (data.Instructor) {
                   summerFound = true;
-                  if (!instructors.includes(data.Instructor)) {
-                    instructors.push(data.Instructor);
+                  if (!summerInstructors.includes(data.Instructor)) {
+                    summerInstructors.push(data.Instructor);
+                  }
+                }
+              });
+              
+              // Check Fall Term
+              const fallTimetableRef = collection(db, 'fallTimetable2');
+              const fallQuery = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumValue));
+              const fallQuerySnapshot = await getDocs(fallQuery);
+              
+              let fallInstructors = [];
+              let fallFound = false;
+              fallQuerySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.Instructor) {
+                  fallFound = true;
+                  if (!fallInstructors.includes(data.Instructor)) {
+                    fallInstructors.push(data.Instructor);
                   }
                 }
               });
@@ -1356,6 +1388,7 @@ const handleQualityVote = async (voteType) => {
               setIsTaughtCurrentTerm(winterFound);
               setIsTaughtSpringTerm(springFound);
               setIsTaughtSummerTerm(summerFound);
+              setIsTaughtFallTerm(fallFound);
               if (instructors.length > 0) {
                 setCurrentInstructors(instructors);
               } else {
@@ -1477,23 +1510,43 @@ const handleQualityVote = async (voteType) => {
           }
         });
         
+        // Check Fall Term
+        const fallTimetableRef = collection(db, 'fallTimetable2');
+        const fallQuery = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+        const fallQuerySnapshot = await getDocs(fallQuery);
+        
+        let fallInstructors = [];
+        let fallFound = false;
+        fallQuerySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.Instructor) {
+            fallFound = true;
+            if (!fallInstructors.includes(data.Instructor)) {
+              fallInstructors.push(data.Instructor);
+            }
+          }
+        });
+        
         // Find instructors who teach in both terms
         const bothTermsInstructors = winterInstructors.filter(instructor => 
           springInstructors.includes(instructor)
         );
 
-        setCurrentInstructors([...winterInstructors, ...springInstructors, ...summerInstructors]);
+        setCurrentInstructors([...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors]);
         setWinterInstructors(winterInstructors);
         setSpringInstructors(springInstructors);
         setSummerInstructors(summerInstructors);
+        setFallInstructors(fallInstructors);
         setBothTermsInstructors(bothTermsInstructors);
         setIsTaughtCurrentTerm(winterFound);
         setIsTaughtSpringTerm(springFound);
         setIsTaughtSummerTerm(summerFound);
-        console.log("Current instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors]);
+        setIsTaughtFallTerm(fallFound);
+        console.log("Current instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors]);
         console.log("Winter instructors:", winterInstructors);
         console.log("Spring instructors:", springInstructors);
         console.log("Summer instructors:", summerInstructors);
+        console.log("Fall instructors:", fallInstructors);
         console.log("Both terms instructors:", bothTermsInstructors);
         let data = null;
         const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -1520,7 +1573,7 @@ const handleQualityVote = async (voteType) => {
           console.log("Review instructors:", reviewInstructors);
 
           // Compare and update if necessary
-          const instructorsToAdd = [...winterInstructors, ...springInstructors, ...summerInstructors].filter(instructor => 
+          const instructorsToAdd = [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors].filter(instructor => 
             !reviewInstructors.some(reviewInstructor => compareNames(instructor, reviewInstructor))
           );
 
@@ -1536,14 +1589,14 @@ const handleQualityVote = async (voteType) => {
         } else {
           // If the document doesn't exist, create it with the current instructors
           const newReviewsData = {};
-          [...winterInstructors, ...springInstructors, ...summerInstructors].forEach(instructor => {
+          [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors].forEach(instructor => {
             newReviewsData[instructor] = [];
           });
           await setDoc(reviewsRef, newReviewsData);
-          console.log("Created new reviews document with instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors]);
+          console.log("Created new reviews document with instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors]);
         }
 
-        setIsTaughtCurrentTerm([...winterInstructors, ...springInstructors, ...summerInstructors].length > 0);
+        setIsTaughtCurrentTerm([...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors].length > 0);
       }
     } catch (error) {
       console.error("Error fetching and updating instructors:", error);
@@ -2969,7 +3022,7 @@ useEffect(() => {
 >
           {courseName}
         </Typography>
-        {(isTaughtCurrentTerm || isTaughtSpringTerm || isTaughtSummerTerm) && (
+        {(isTaughtCurrentTerm || isTaughtSpringTerm || isTaughtSummerTerm || isTaughtFallTerm) && (
           <Box
             sx={{
               display: 'flex',
@@ -3073,6 +3126,39 @@ useEffect(() => {
                     }}
                   >
                     25X
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )}
+            
+            {isTaughtFallTerm && (
+              <Tooltip title="This course is offered in 25F" arrow placement="top">
+                <Box
+                  sx={{
+                    backgroundColor: darkMode ? '#4E342E' : '#FBE9E7', // Fall color
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
+                    transition: 'all 0.2s ease',
+                    cursor: 'help',
+                    '&:hover': {
+                      backgroundColor: darkMode ? '#6D4C41' : '#FFCCBC',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: darkMode ? '#FFCCBC' : '#D84315', // Fall text
+                    }}
+                  >
+                    25F
                   </Typography>
                 </Box>
               </Tooltip>
@@ -3306,6 +3392,7 @@ useEffect(() => {
           const isWinter = winterInstructors.includes(professor);
           const isSpring = springInstructors.includes(professor);
           const isSummer = summerInstructors.includes(professor);
+          const isFall = fallInstructors.includes(professor);
           const isBothTerms = bothTermsInstructors.includes(professor);
           const reviewCount = reviews.filter(
             (review) => review.instructor === professor
@@ -3444,6 +3531,27 @@ useEffect(() => {
                         25X
                       </Typography>
                     </Box>
+                    <Box
+                      sx={{
+                        backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
+                          color: darkMode ? '#FFCCBC' : '#D84315',
+                        }}
+                      >
+                        25F
+                      </Typography>
+                    </Box>
                   </Box>
                 ) : isWinter ? (
                   <Box
@@ -3509,6 +3617,28 @@ useEffect(() => {
                       }}
                     >
                       25X
+                    </Typography>
+                  </Box>
+                ) : isFall ? (
+                  <Box
+                    sx={{
+                      backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.8rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#FFCCBC' : '#D84315',
+                      }}
+                    >
+                      25F
                     </Typography>
                   </Box>
                 ) : (
