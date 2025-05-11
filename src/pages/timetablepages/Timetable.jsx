@@ -295,15 +295,47 @@ const accentHoverBg = darkMode
   : 'rgba(0, 105, 62, 0.08)';
 
   const getSortedCourses = useCallback((courses) => {
-    if (!sortConfig.key) return courses;
-
+    // Perform default sorting by department name and course number
     return [...courses].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'ascending' ? -1 : 1;
+      // First sort by department code (AAAS, ANTH, etc.)
+      if (a.subj !== b.subj) {
+        return a.subj.localeCompare(b.subj);
       }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'ascending' ? 1 : -1;
+      
+      // Then sort by course number numerically
+      const aNumParts = a.num.toString().split('.');
+      const bNumParts = b.num.toString().split('.');
+      
+      // Compare the integer part first
+      const aInt = parseInt(aNumParts[0], 10);
+      const bInt = parseInt(bNumParts[0], 10);
+      
+      if (aInt !== bInt) {
+        return aInt - bInt;
       }
+      
+      // If integer parts are equal, compare decimal parts if they exist
+      if (aNumParts.length > 1 && bNumParts.length > 1) {
+        const aDecimal = parseInt(aNumParts[1], 10);
+        const bDecimal = parseInt(bNumParts[1], 10);
+        return aDecimal - bDecimal;
+      } else if (aNumParts.length > 1) {
+        return 1; // a has decimal, b doesn't
+      } else if (bNumParts.length > 1) {
+        return -1; // b has decimal, a doesn't
+      }
+      
+      // If all number parts match, use sortConfig as a tiebreaker if configured
+      if (sortConfig.key) {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+      }
+      
+      // If we get here, they're equal
       return 0;
     });
   }, [sortConfig]);
@@ -325,9 +357,12 @@ const accentHoverBg = darkMode
       filtered = filtered.filter((course) => course.subj === selectedSubject);
     }
 
+    // Always apply sorting after filtering
+    filtered = getSortedCourses(filtered);
+    
     setFilteredCourses(filtered);
     setCurrentPage(1);
-  }, [courses, searchTerm, selectedSubject]);
+  }, [courses, searchTerm, selectedSubject, getSortedCourses]);
 
   const debouncedApplyFilters = useMemo(
     () => debounce(applyFilters, 300),
@@ -1457,6 +1492,20 @@ const accentHoverBg = darkMode
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
+
+  // Add effect to apply initial sorting when courses are loaded
+  useEffect(() => {
+    if (courses.length > 0) {
+      // Apply the default sorting when courses are initially loaded
+      const sortedCourses = getSortedCourses(courses);
+      setFilteredCourses(sortedCourses);
+    }
+  }, [courses, getSortedCourses]);
+
+  useEffect(() => {
+    fetchFirestoreCourses();
+    fetchUserTimetable(); 
+  }, [currentUser, termType]); // Add termType as a dependency
 
   return (
     <Box
