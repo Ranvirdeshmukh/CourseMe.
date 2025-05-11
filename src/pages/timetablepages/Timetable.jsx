@@ -11,6 +11,8 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PrintIcon from '@mui/icons-material/Print';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import CloseIcon from '@mui/icons-material/Close';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import Fab from '@mui/material/Fab';
 import Modal from '@mui/material/Modal';
 import Zoom from '@mui/material/Zoom';
@@ -2168,14 +2170,14 @@ const accentHoverBg = darkMode
     gap: '16px',
   }}
 >
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
     <Typography
       variant="h3"
       align="left"
       sx={{
         fontWeight: 600,
         color: darkMode ? '#FFFFFF' : '#000000',
-        marginBottom: '20px',
+        marginBottom: '8px',
         marginTop: '30px',
         fontFamily: 'SF Pro Display, sans-serif',
         transition: 'color 0.3s ease',
@@ -2184,54 +2186,114 @@ const accentHoverBg = darkMode
       {termType === 'summer' ? 'Summer' : 'Fall'} 2025 Timetable.
     </Typography>
     
-    {/* Term Toggle */}
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        border: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)', 
-        borderRadius: '24px', 
-        padding: '4px 12px',
-        marginBottom: '20px',
-        marginTop: '30px',
-        backgroundColor: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.7)'
-      }}
-    >
-      <Typography 
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 3,
+      marginBottom: '20px'
+    }}>
+      {/* Subtle Pill Navigation for Term Toggle */}
+      <Box 
         sx={{ 
-          color: termType === 'summer' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'),
-          fontWeight: termType === 'summer' ? 600 : 400,
-          fontSize: '0.9rem',
-          transition: 'color 0.3s'
+          display: 'flex', 
+          alignItems: 'center', 
+          borderRadius: '12px', 
+          padding: '2px',
+          backgroundColor: darkMode ? 'rgba(28, 31, 67, 0.8)' : 'rgba(240, 240, 245, 0.8)',
+          boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
+          overflow: 'hidden',
         }}
       >
-        Summer
-      </Typography>
-      <Switch
-        checked={termType === 'fall'}
-        onChange={() => setTermType(termType === 'summer' ? 'fall' : 'summer')}
-        sx={{
-          '& .MuiSwitch-switchBase.Mui-checked': {
-            color: darkMode ? '#BB86FC' : '#00693E',
+        <Box
+          onClick={() => setTermType('summer')}
+          sx={{
+            padding: '6px 14px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            backgroundColor: termType === 'summer' 
+              ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
+              : 'transparent',
+            color: termType === 'summer'
+              ? (darkMode ? '#BB86FC' : '#00693E')
+              : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
+            fontWeight: termType === 'summer' ? 600 : 400,
+            fontSize: '0.85rem',
+            fontFamily: 'SF Pro Display, sans-serif',
             '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.04)',
-            },
-          },
-          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-            backgroundColor: darkMode ? '#BB86FC' : '#00693E',
-          },
-        }}
-      />
-      <Typography 
-        sx={{ 
-          color: termType === 'fall' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'),
-          fontWeight: termType === 'fall' ? 600 : 400,
-          fontSize: '0.9rem',
-          transition: 'color 0.3s'
+              backgroundColor: termType !== 'summer'
+                ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
+                : (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.1)')
+            }
+          }}
+        >
+          Summer 2025
+        </Box>
+        <Box
+          onClick={() => setTermType('fall')}
+          sx={{
+            padding: '6px 14px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            backgroundColor: termType === 'fall' 
+              ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
+              : 'transparent',
+            color: termType === 'fall'
+              ? (darkMode ? '#BB86FC' : '#00693E')
+              : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
+            fontWeight: termType === 'fall' ? 600 : 400,
+            fontSize: '0.85rem',
+            fontFamily: 'SF Pro Display, sans-serif',
+            '&:hover': {
+              backgroundColor: termType !== 'fall'
+                ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
+                : (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.1)')
+            }
+          }}
+        >
+          Fall 2025
+        </Box>
+      </Box>
+      
+      {/* Course Toggle Button as a Subtle Chip */}
+      <Box
+        onClick={() => setShowSelectedCourses(!showSelectedCourses)}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          padding: '6px 14px',
+          borderRadius: '10px',
+          cursor: 'pointer',
+          backgroundColor: showSelectedCourses 
+            ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)') 
+            : (darkMode ? 'rgba(28, 31, 67, 0.8)' : 'rgba(240, 240, 245, 0.8)'),
+          color: showSelectedCourses
+            ? (darkMode ? '#BB86FC' : '#00693E')
+            : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
+          boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            backgroundColor: showSelectedCourses
+              ? (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.12)')
+              : (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)')
+          }
         }}
       >
-        Fall
-      </Typography>
+        {showSelectedCourses ? (
+          <VisibilityOffIcon sx={{ fontSize: '18px', color: darkMode ? '#BB86FC' : '#00693E' }} />
+        ) : (
+          <VisibilityIcon sx={{ fontSize: '18px', color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)' }} />
+        )}
+        <Typography sx={{ 
+          fontSize: '0.85rem', 
+          fontWeight: showSelectedCourses ? 600 : 400,
+          fontFamily: 'SF Pro Display, sans-serif',
+        }}>
+          {showSelectedCourses ? 'Hide My Courses' : 'My Courses'}
+        </Typography>
+      </Box>
     </Box>
   </Box>
 
@@ -2241,7 +2303,7 @@ const accentHoverBg = darkMode
       flexDirection: 'column',
       width: isMobile ? '100%' : '400px',
       position: 'relative',
-      marginTop: '25px',
+      marginTop: isMobile ? '0' : '25px',
     }}
   >
     <TextField
@@ -2418,108 +2480,10 @@ const accentHoverBg = darkMode
     )}
   </Box>
 
-  <Button
-    variant="contained"
-    sx={{
-      marginTop: '25px',
-      padding: '10px 20px',
-      borderRadius: '20px',
-      height: '40px',
-      backgroundColor: darkMode ? 'transparent' : 'transparent',
-      color: '#00693E',
-      fontWeight: '600',
-      fontSize: '16px',
-      fontFamily: 'SF Pro Display, sans-serif',
-      textTransform: 'none',
-      border: '1px solid #00693E',
-      boxShadow: darkMode
-        ? '0px 4px 12px rgba(255, 255, 255, 0.1)'
-        : '0px 4px 10px rgba(0, 0, 0, 0.1)',
-      transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
-      '&:hover': {
-        backgroundColor: darkMode
-          ? 'rgba(255, 255, 255, 0.1)'
-          : 'rgba(0, 105, 62, 0.1)',
-        borderColor: '#00693E',
-      },
-      '&:focus': {
-        outline: 'none',
-        boxShadow: darkMode
-          ? '0 0 0 4px rgba(255, 255, 255, 0.2)'
-          : '0 0 0 4px rgba(0, 105, 62, 0.5)',
-      },
-    }}
-    onClick={() => setShowSelectedCourses(!showSelectedCourses)}
-  >
-    {showSelectedCourses ? 'Hide My Courses' : 'Show My Courses'}
-  </Button>
+  
 </Box>
 
-<Box sx={{ position: 'relative' }}>
-  <Box
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'pointer',
-      marginBottom: '16px',
-      marginTop: '24px',
-      padding: '12px 16px',
-      backgroundColor: darkMode
-        ? 'rgba(255, 255, 255, 0.06)'
-        : 'rgba(0, 105, 62, 0.04)',
-      borderRadius: '8px',
-      border: darkMode
-        ? '1px solid rgba(255, 255, 255, 0.2)'
-        : '1px solid rgba(0, 105, 62, 0.1)',
-      transition: 'all 0.2s ease',
-      '&:hover': {
-        backgroundColor: darkMode
-          ? 'rgba(255, 255, 255, 0.1)'
-          : 'rgba(0, 105, 62, 0.08)',
-      },
-    }}
-    onClick={() => setShowFeatures(!showFeatures)}
-  >
-    <Typography
-      variant="h6"
-      sx={{
-        fontFamily: 'SF Pro Display, sans-serif',
-        color: '#00693E',
-        fontWeight: 600,
-        fontSize: '1.1rem',
-        flex: 1,
-      }}
-    >
-      AI-Powered Course Planning
-    </Typography>
-    <KeyboardArrowDownIcon
-      sx={{
-        color: '#00693E',
-        transform: showFeatures ? 'rotate(180deg)' : 'none',
-        transition: 'transform 0.3s ease',
-      }}
-    />
-  </Box>
 
-  <Collapse in={showFeatures}>
-    <Box
-      component="ul"
-      sx={{
-        margin: '0',
-        paddingLeft: '20px',
-        marginBottom: '20px',
-        color: darkMode ? '#FFFFFF' : '#1D1D1F',
-        fontFamily: 'SF Pro Display, sans-serif',
-        transition: 'color 0.3s ease',
-      }}
-    >
-      <li>Sync your timetable to Google Calendar in one click</li>
-      <li>Get instant notifications when a course spot opens up</li>
-      <li>Send templated emails to professors in one click.</li>
-      <li>Navigate to the course reviews in one click.</li>
-    </Box>
-  </Collapse>
-</Box>
 
 {/* Main "Fall '24 Timetable" Table */}
 {loading ? (
