@@ -266,7 +266,7 @@ const Timetable = ({darkMode}) => {
   
   var courseNameLong = ""
   // Add this near your other state declarations
-  const CACHE_VERSION = 'summerV1';
+  const CACHE_VERSION = 'summerV3';
   // Constants
   const ENROLLMENT_REFRESH_INTERVAL = 43200000; // 12 hours in milliseconds
   const MAX_COURSES = 4; // Maximum number of courses users can add
