@@ -32,7 +32,8 @@ const ParticleTextAnimation = ({
       return txt.startsWith('Good morning') || 
              txt.startsWith('Good afternoon') || 
              txt.startsWith('Good evening') ||
-             txt.startsWith('Good night');
+             txt.startsWith('Good night') ||
+             txt.startsWith('Welcome back');
     };
     
     // Determine particle color based on text
@@ -49,6 +50,8 @@ const ParticleTextAnimation = ({
           return ["#3F51B5", "#673AB7", "#9C27B0"]; // Evening colors (indigo, deep purple, purple)
         } else if (text.startsWith('Good night')) {
           return ["#673AB7", "#9C27B0", "#311B92"]; // Night colors (deeper purples and indigo)
+        } else if (text.startsWith('Welcome back')) {
+          return ["#00693e", "#4CAF50", "#8BC34A"]; // Same as afternoon for the fallback case
         }
       }
       

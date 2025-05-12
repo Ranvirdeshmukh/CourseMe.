@@ -69,7 +69,8 @@ const ParticleTextCarousel = ({
     return text.startsWith('Good morning') || 
            text.startsWith('Good afternoon') || 
            text.startsWith('Good evening') ||
-           text.startsWith('Good night');
+           text.startsWith('Good night') ||
+           text.startsWith('Welcome back'); // Add fallback case
   };
 
   // Custom color logic based on message type
@@ -88,6 +89,7 @@ const ParticleTextCarousel = ({
       if (displayedText.startsWith('Good afternoon')) return "#00693e"; // Green for afternoon
       if (displayedText.startsWith('Good evening')) return "#3F51B5"; // Indigo for evening
       if (displayedText.startsWith('Good night')) return "#673AB7"; // Deep purple for night
+      if (displayedText.startsWith('Welcome back')) return "#00693e"; // Green for fallback
       return "#00693e"; // Default green for other greetings
     }
     if (isSecondSentence) return "#571ce0"; // Purple for second sentence
