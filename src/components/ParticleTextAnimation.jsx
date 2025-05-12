@@ -27,17 +27,55 @@ const ParticleTextAnimation = ({
     const containerWidth = container.offsetWidth;
     const containerHeight = container.offsetHeight;
     
+    // Function to determine if the text is a time-based greeting
+    const isTimeGreeting = (txt) => {
+      return txt.startsWith('Good morning') || 
+             txt.startsWith('Good afternoon') || 
+             txt.startsWith('Good evening') ||
+             txt.startsWith('Good night') ||
+             txt.startsWith('Welcome back');
+    };
+    
+    // Determine particle color based on text
+    const getParticleColors = () => {
+      if (darkMode) return ["#FFFFFF"];
+      
+      // For time-based greetings, create a nice gradient effect with 2-3 colors
+      if (text && isTimeGreeting(text)) {
+        if (text.startsWith('Good morning')) {
+          return ["#FF9800", "#FFC107", "#FFEB3B"]; // Morning colors (orange, amber, yellow)
+        } else if (text.startsWith('Good afternoon')) {
+          return ["#00693e", "#4CAF50", "#8BC34A"]; // Afternoon colors (green variants)
+        } else if (text.startsWith('Good evening')) {
+          return ["#3F51B5", "#673AB7", "#9C27B0"]; // Evening colors (indigo, deep purple, purple)
+        } else if (text.startsWith('Good night')) {
+          return ["#673AB7", "#9C27B0", "#311B92"]; // Night colors (deeper purples and indigo)
+        } else if (text.startsWith('Welcome back')) {
+          return ["#00693e", "#4CAF50", "#8BC34A"]; // Same as afternoon for the fallback case
+        }
+      }
+      
+      // Default case - use the textColor or fallback
+      return [textColor || (darkMode ? "#FFFFFF" : "#000000")];
+    };
+    
+    const particleColors = getParticleColors();
+    
     // Create particles
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       // More varied sizes for visual interest
       const size = Math.random() * 3 + 1;
       
+      // Select a random color from our palette
+      const colorIndex = Math.floor(Math.random() * particleColors.length);
+      const particleColor = particleColors[colorIndex];
+      
       particle.style.position = 'absolute';
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
       particle.style.borderRadius = '50%';
-      particle.style.backgroundColor = textColor || (darkMode ? "#FFFFFF" : "#000000");
+      particle.style.backgroundColor = particleColor;
       // More subtle opacity
       particle.style.opacity = (Math.random() * 0.4 + 0.1).toString();
       particle.style.pointerEvents = 'none';
@@ -56,6 +94,7 @@ const ParticleTextAnimation = ({
         vx,
         vy,
         size,
+        color: particleColor,
         originalOpacity: parseFloat(particle.style.opacity)
       });
       

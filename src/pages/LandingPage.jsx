@@ -131,6 +131,25 @@ const LandingPage = ({ darkMode }) => {
     "Plan Your Perfect Schedule Today."
   ]);
 
+  // Time-based greeting functionality
+  const getTimeBasedGreeting = () => {
+    try {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 12) {
+        return "Good morning";
+      } else if (hour >= 12 && hour < 18) {
+        return "Good afternoon";
+      } else if (hour >= 18 && hour < 22) {
+        return "Good evening";
+      } else {
+        return "Good night";
+      }
+    } catch (error) {
+      console.error("Error determining time-based greeting:", error);
+      return "Welcome back"; // Fallback to the original greeting
+    }
+  };
+
   // Update the typing messages when user logs in
   useEffect(() => {
     const defaultMessages = [
@@ -155,7 +174,7 @@ const LandingPage = ({ darkMode }) => {
               firstName = userDoc.data().firstName;
               updateTypingMessages(firstName);
             } else {
-              // Fallback to just "Welcome" without name
+              // Fallback to just time-based greeting without name
               updateTypingMessages('');
             }
           } catch (error) {
@@ -170,6 +189,9 @@ const LandingPage = ({ darkMode }) => {
     };
 
     const updateTypingMessages = (firstName) => {
+      // Get appropriate time-based greeting
+      const greeting = getTimeBasedGreeting();
+      
       // Check if this is the first login for the user
       const isFirstLogin = !localStorage.getItem(`hasLoggedIn_${currentUser.uid}`);
       if (isFirstLogin) {
@@ -189,16 +211,16 @@ const LandingPage = ({ darkMode }) => {
           ]);
         }
       } else {
-        // Regular welcome back message for returning users
+        // Regular time-based greeting for returning users
         if (firstName) {
           setTypingMessages([
-            `Welcome back, ${firstName}.`,
+            `${greeting}, ${firstName}.`,
             ...defaultMessages.slice(1) // Skip the first message for logged-in users
           ]);
         } else {
-          // Use generic welcome if no name is available
+          // Use generic greeting if no name is available
           setTypingMessages([
-            "Welcome back.",
+            `${greeting}.`,
             ...defaultMessages.slice(1) // Skip the first message for logged-in users
           ]);
         }
