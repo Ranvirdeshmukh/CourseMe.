@@ -63,9 +63,19 @@ const ParticleTextCarousel = ({
     return () => clearTimeout(initTimer);
   }, [messages]);
 
-  // Custom color logic based on message type (preserved from LandingPage.jsx)
+  // Check if text is a time-based greeting
+  const isTimeBasedGreeting = (text) => {
+    if (!text) return false;
+    return text.startsWith('Good morning') || 
+           text.startsWith('Good afternoon') || 
+           text.startsWith('Good evening') ||
+           text.startsWith('Good night');
+  };
+
+  // Custom color logic based on message type
   const getTextColor = () => {
     const isWelcomeMessage = currentUser && currentIndex === 0;
+    const isTimeGreeting = isWelcomeMessage && displayedText && isTimeBasedGreeting(displayedText);
     const isJoinPrompt = !currentUser && currentIndex === 0 && displayedText && displayedText.includes('Join them');
     const isSecondSentence = !currentUser ? currentIndex === 1 : currentIndex === 1;
     
@@ -73,7 +83,13 @@ const ParticleTextCarousel = ({
     
     if (isJoinPrompt) return "#e91e63"; // Hot pink for "Join them?" prompt
     if (isWelcomeMessage && isFirstLogin) return "#ff5722"; // Exciting orange for first-time users
-    if (isWelcomeMessage) return "#00693e"; // Green for returning users
+    if (isTimeGreeting) {
+      if (displayedText.startsWith('Good morning')) return "#FF9800"; // Orange for morning
+      if (displayedText.startsWith('Good afternoon')) return "#00693e"; // Green for afternoon
+      if (displayedText.startsWith('Good evening')) return "#3F51B5"; // Indigo for evening
+      if (displayedText.startsWith('Good night')) return "#673AB7"; // Deep purple for night
+      return "#00693e"; // Default green for other greetings
+    }
     if (isSecondSentence) return "#571ce0"; // Purple for second sentence
     return "#000000"; // Black for other sentences
   };
