@@ -116,7 +116,7 @@ const ParticleTextCarousel = ({
   const getEndingPunctuationColor = () => {
     if (!displayedText) return "#F26655";
     
-    if (displayedText.endsWith('?')) return "#e91e63";
+    if (displayedText.endsWith('?')) return "#F26655";
     if (displayedText.endsWith('.') || displayedText.endsWith('!')) return "#F26655";
     return getTextColor();
   };
