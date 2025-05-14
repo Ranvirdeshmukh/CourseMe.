@@ -136,13 +136,40 @@ const LandingPage = ({ darkMode }) => {
     try {
       const hour = new Date().getHours();
       if (hour >= 5 && hour < 12) {
-        return "Good morning";
+        // Morning greetings
+        const morningGreetings = [
+          "Good morning",
+          "Morning",
+          "Hello, early bird",
+          "Fresh morning"
+        ];
+        return morningGreetings[Math.floor(Math.random() * morningGreetings.length)];
       } else if (hour >= 12 && hour < 18) {
-        return "Good afternoon";
+        // Afternoon greetings
+        const afternoonGreetings = [
+          "Good afternoon",
+          "Afternoon",
+          "Mid-day hello",
+        ];
+        return afternoonGreetings[Math.floor(Math.random() * afternoonGreetings.length)];
       } else if (hour >= 18 && hour < 22) {
-        return "Good evening";
+        // Evening greetings
+        const eveningGreetings = [
+          "Good evening",
+          "Evening",
+          "Hello this evening",
+        ];
+        return eveningGreetings[Math.floor(Math.random() * eveningGreetings.length)];
       } else {
-        return "Good night";
+        // More engaging late-night greetings
+        const lateNightGreetings = [
+          "Night owl",
+          "Burning the midnight oil",
+          "Late night scholar",
+          "Still studying",
+          "Up late hustling"
+        ];
+        return lateNightGreetings[Math.floor(Math.random() * lateNightGreetings.length)];
       }
     } catch (error) {
       console.error("Error determining time-based greeting:", error);
@@ -213,6 +240,8 @@ const LandingPage = ({ darkMode }) => {
       } else {
         // Regular time-based greeting for returning users
         if (firstName) {
+          // The format is important here - the punctuation should be at the end
+          // without spaces before it, for the animation component to detect it properly
           setTypingMessages([
             `${greeting}, ${firstName}.`,
             ...defaultMessages.slice(1) // Skip the first message for logged-in users

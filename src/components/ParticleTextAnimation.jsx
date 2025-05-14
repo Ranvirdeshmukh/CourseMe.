@@ -29,11 +29,31 @@ const ParticleTextAnimation = ({
     
     // Function to determine if the text is a time-based greeting
     const isTimeGreeting = (txt) => {
-      return txt.startsWith('Good morning') || 
-             txt.startsWith('Good afternoon') || 
-             txt.startsWith('Good evening') ||
-             txt.startsWith('Good night') ||
-             txt.startsWith('Welcome back');
+      // Check for traditional greetings
+      if (
+        txt.startsWith('Good morning') || 
+        txt.startsWith('Good afternoon') || 
+        txt.startsWith('Good evening')
+      ) return true;
+      
+      // Check for new greeting variations
+      if (
+        txt.startsWith('Morning') ||
+        txt.startsWith('Afternoon') ||
+        txt.startsWith('Evening') ||
+        txt.startsWith('Hello, early bird') ||
+        txt.startsWith('Fresh morning') ||
+        txt.startsWith('Mid-day hello') ||
+        txt.startsWith('Hello this evening') ||
+        txt.startsWith('Night owl') ||
+        txt.startsWith('Burning the midnight oil') ||
+        txt.startsWith('Late night scholar') ||
+        txt.startsWith('Still studying') ||
+        txt.startsWith('Up late hustling') ||
+        txt.startsWith('Welcome back')
+      ) return true;
+      
+      return false;
     };
     
     // Determine particle color based on text
@@ -42,15 +62,38 @@ const ParticleTextAnimation = ({
       
       // For time-based greetings, create a nice gradient effect with 2-3 colors
       if (text && isTimeGreeting(text)) {
-        if (text.startsWith('Good morning')) {
+        // Morning variations
+        if (text.startsWith('Good morning') || 
+            text.startsWith('Morning') || 
+            text.startsWith('Hello, early bird') ||
+            text.startsWith('Fresh morning')) {
           return ["#FF9800", "#FFC107", "#FFEB3B"]; // Morning colors (orange, amber, yellow)
-        } else if (text.startsWith('Good afternoon')) {
+        }
+        
+        // Afternoon variations
+        else if (text.startsWith('Good afternoon') || 
+                text.startsWith('Afternoon') ||
+                text.startsWith('Mid-day hello')) {
           return ["#00693e", "#4CAF50", "#8BC34A"]; // Afternoon colors (green variants)
-        } else if (text.startsWith('Good evening')) {
+        }
+        
+        // Evening variations
+        else if (text.startsWith('Good evening') || 
+                text.startsWith('Evening') ||
+                text.startsWith('Hello this evening')) {
           return ["#3F51B5", "#673AB7", "#9C27B0"]; // Evening colors (indigo, deep purple, purple)
-        } else if (text.startsWith('Good night')) {
+        }
+        
+        // Late night variations
+        else if (text.startsWith('Night owl') ||
+                text.startsWith('Burning the midnight oil') ||
+                text.startsWith('Late night scholar') ||
+                text.startsWith('Still studying') ||
+                text.startsWith('Up late hustling')) {
           return ["#673AB7", "#9C27B0", "#311B92"]; // Night colors (deeper purples and indigo)
-        } else if (text.startsWith('Welcome back')) {
+        }
+        
+        else if (text.startsWith('Welcome back')) {
           return ["#00693e", "#4CAF50", "#8BC34A"]; // Same as afternoon for the fallback case
         }
       }
@@ -156,12 +199,13 @@ const ParticleTextAnimation = ({
       setOpacity(0);
       setTimeout(() => {
         setOpacity(1);
+        // Show punctuation almost immediately with the text, with just a tiny delay
         setTimeout(() => {
           setShowPunctuation(true);
           setTimeout(() => {
             if (onComplete) onComplete(text);
-          }, 400);
-        }, 600);
+          }, 1000);
+        }, 150); // Reduced from 600ms to 150ms
       }, 200);
     }
     
@@ -275,7 +319,7 @@ const ParticleTextAnimation = ({
               color: endingPunctuationColor || "#F26655",
               marginLeft: "2px",
               opacity: showPunctuation ? 1 : 0,
-              transition: "opacity 0.5s cubic-bezier(0.4, 0.0, 0.2, 1)", // Apple-like easing
+              transition: "opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)", // Faster transition, was 0.5s
             }}
           >
             {endingPunctuation}
