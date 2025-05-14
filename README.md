@@ -2,7 +2,7 @@
 # CourseMe
 
 <div align="center">
-  <img src="public/logo.png" alt="CourseMe Logo" width="200"/>
+  <img src="public/2.png" alt="CourseMe Logo" width="200"/>
   <h3>Dartmouth's Premier Course Review Platform</h3>
   <p><em>Made for Dartmouth Students by Dartmouth Students</em></p>
   <p>Launching Fall 2024</p>
