@@ -240,6 +240,8 @@ const LandingPage = ({ darkMode }) => {
       } else {
         // Regular time-based greeting for returning users
         if (firstName) {
+          // The format is important here - the punctuation should be at the end
+          // without spaces before it, for the animation component to detect it properly
           setTypingMessages([
             `${greeting}, ${firstName}.`,
             ...defaultMessages.slice(1) // Skip the first message for logged-in users

@@ -66,11 +66,32 @@ const ParticleTextCarousel = ({
   // Check if text is a time-based greeting
   const isTimeBasedGreeting = (text) => {
     if (!text) return false;
-    return text.startsWith('Good morning') || 
-           text.startsWith('Good afternoon') || 
-           text.startsWith('Good evening') ||
-           text.startsWith('Good night') ||
-           text.startsWith('Welcome back'); // Add fallback case
+    
+    // Check for traditional greetings
+    if (
+      text.startsWith('Good morning') || 
+      text.startsWith('Good afternoon') || 
+      text.startsWith('Good evening')
+    ) return true;
+    
+    // Check for new greeting variations
+    if (
+      text.startsWith('Morning') ||
+      text.startsWith('Afternoon') ||
+      text.startsWith('Evening') ||
+      text.startsWith('Hello, early bird') ||
+      text.startsWith('Fresh morning') ||
+      text.startsWith('Mid-day hello') ||
+      text.startsWith('Hello this evening') ||
+      text.startsWith('Night owl') ||
+      text.startsWith('Burning the midnight oil') ||
+      text.startsWith('Late night scholar') ||
+      text.startsWith('Still studying') ||
+      text.startsWith('Up late hustling') ||
+      text.startsWith('Welcome back')
+    ) return true;
+    
+    return false;
   };
 
   // Custom color logic based on message type
@@ -84,14 +105,47 @@ const ParticleTextCarousel = ({
     
     if (isJoinPrompt) return "#e91e63"; // Hot pink for "Join them?" prompt
     if (isWelcomeMessage && isFirstLogin) return "#ff5722"; // Exciting orange for first-time users
+    
     if (isTimeGreeting) {
-      if (displayedText.startsWith('Good morning')) return "#FF9800"; // Orange for morning
-      if (displayedText.startsWith('Good afternoon')) return "#00693e"; // Green for afternoon
-      if (displayedText.startsWith('Good evening')) return "#3F51B5"; // Indigo for evening
-      if (displayedText.startsWith('Good night')) return "#673AB7"; // Deep purple for night
-      if (displayedText.startsWith('Welcome back')) return "#00693e"; // Green for fallback
+      // Morning variations
+      if (displayedText.startsWith('Good morning') || 
+          displayedText.startsWith('Morning') ||
+          displayedText.startsWith('Rise and shine') ||
+          displayedText.startsWith('Hello, early bird') ||
+          displayedText.startsWith('Fresh morning')) {
+        return "#FF9800"; // Orange for morning
+      }
+      
+      // Afternoon variations
+      if (displayedText.startsWith('Good afternoon') || 
+          displayedText.startsWith('Afternoon') ||
+          displayedText.startsWith('Mid-day hello')) {
+        return "#00693e"; // Green for afternoon
+      }
+      
+      // Evening variations
+      if (displayedText.startsWith('Good evening') || 
+          displayedText.startsWith('Evening') ||
+          displayedText.startsWith('Hello this evening')) {
+        return "#3F51B5"; // Indigo for evening
+      }
+      
+      // Late night variations
+      if (displayedText.startsWith('Night owl') ||
+          displayedText.startsWith('Burning the midnight oil') ||
+          displayedText.startsWith('Late night scholar') ||
+          displayedText.startsWith('Still studying') ||
+          displayedText.startsWith('Up late hustling')) {
+        return "#673AB7"; // Deep purple for night
+      }
+      
+      if (displayedText.startsWith('Welcome back')) {
+        return "#00693e"; // Green for fallback
+      }
+      
       return "#00693e"; // Default green for other greetings
     }
+    
     if (isSecondSentence) return "#571ce0"; // Purple for second sentence
     return "#000000"; // Black for other sentences
   };
