@@ -142,7 +142,15 @@ const LandingPage = ({ darkMode }) => {
       } else if (hour >= 18 && hour < 22) {
         return "Good evening";
       } else {
-        return "Good night";
+        // More engaging late-night greetings
+        const lateNightGreetings = [
+          "Night owl",
+          "Burning the midnight oil",
+          "Late night scholar",
+          "Still studying",
+          "Up late hustling"
+        ];
+        return lateNightGreetings[Math.floor(Math.random() * lateNightGreetings.length)];
       }
     } catch (error) {
       console.error("Error determining time-based greeting:", error);
