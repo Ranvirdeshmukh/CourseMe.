@@ -31,7 +31,8 @@ import { recordAnalyticsView, logAnalyticsSession } from '../services/analyticsS
 
 import useHorizontalInfiniteScroll from '../constants/useHorizontalInfiniteScroll';
 // Add this constant at the top of your file, outside the component
-const CACHE_VERSION = '2.0'; // Increment this when you push updates
+const CACHE_VERSION = '2.1'; // Increment this when you push updates
+const MAX_COURSES = 35; // Define this as a constant for clarity
 
 const LayupsPage = ({darkMode}) => {
   const [courses, setCourses] = useState([]);
@@ -46,7 +47,7 @@ const LayupsPage = ({darkMode}) => {
   const [departmentLoading, setDepartmentLoading] = useState(false);
   const [distribLoading, setDistribLoading] = useState(false); // Loading state for distrib courses
   const isMobile = useMediaQuery('(max-width:600px)');
-  const initialPageSize = 30;
+  const initialPageSize = MAX_COURSES; // Use the constant
   const [lastVisible, setLastVisible] = useState(null); // Keep track of the last document
   const [hasMore, setHasMore] = useState(true); // Track if there are more courses to load
   const [expandedBox, setExpandedBox] = useState(null); // 'left' or 'right' or null
@@ -118,7 +119,7 @@ const LayupsPage = ({darkMode}) => {
           orderBy('name', 'asc'),
           orderBy('__name__', 'asc'),
           startAfter(lastVisible),
-          limit(15)
+          limit(20)
         );
       } else {
         q = query(
@@ -126,14 +127,14 @@ const LayupsPage = ({darkMode}) => {
           orderBy('layup', 'desc'),
           orderBy('name', 'asc'),
           orderBy('__name__', 'asc'),
-          limit(15)
+          limit(20)
         );
       }
     
       const snapshot = await getDocs(q);
     
       if (snapshot.empty) {
-        // If no new courses are returned, reset courses to the initial 15
+        // If no new courses are returned, reset courses to the initial 35
         setCourses(initialCourses);
         // Optionally, reset the scroll position:
         if (scrollContainerRef.current) {
@@ -183,12 +184,13 @@ const fetchAndCacheCourses = useCallback(async () => {
       return;
     }
 
+    // Fetch more than we need to account for potential duplicates
     const q = query(
       collection(db, 'courses'),
       orderBy('layup', 'desc'),
       orderBy('name', 'asc'),
       orderBy('__name__', 'asc'),
-      limit(initialPageSize)
+      limit(MAX_COURSES * 2) // Fetch more to ensure we get at least MAX_COURSES unique courses
     );
 
     const querySnapshot = await getDocs(q);
@@ -212,7 +214,7 @@ const fetchAndCacheCourses = useCallback(async () => {
 
     coursesData.forEach((course) => {
       const normalizedCourseName = course.name.trim().toLowerCase();
-      if (!uniqueCoursesSet.has(normalizedCourseName) && uniqueCourses.length < 15) {
+      if (!uniqueCoursesSet.has(normalizedCourseName) && uniqueCourses.length < MAX_COURSES) {
         uniqueCoursesSet.add(normalizedCourseName);
         uniqueCourses.push(course);
       } else {
@@ -510,9 +512,9 @@ const fetchAndCacheCourses = useCallback(async () => {
   ) : error ? (
     <Alert severity="error">{error}</Alert>
   ) : (
-    clonedItems.map((course, index) => (
+    clonedItems.map((course) => (
       <Card
-        key={`${course.id}-${index}`}
+        key={`${course.id}-${course._loopId || 0}`}
         component={Link}
         to={`/departments/${course.department}/courses/${course.id}`}
         sx={{
@@ -536,25 +538,25 @@ const fetchAndCacheCourses = useCallback(async () => {
           },
         }}
       >
-        {/* Number Badge (reset numbering every 15 items) */}
+        {/* Number Badge (uses absolute index for continuous numbering) */}
         <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: 8,
-                  right: 8,
-                  backgroundColor: darkMode
-                    ? 'rgba(255,255,255,0.2)'
-                    : 'rgba(0,0,0,0.7)',
-                  color: '#fff',
-                  px: 1,
-                  py: 0.5,
-                  borderRadius: '4px',
-                  fontSize: '0.75rem',
-                  fontWeight: 'bold',
-                  zIndex: 1,
-                }}
+          sx={{
+            position: 'absolute',
+            bottom: 8,
+            right: 8,
+            backgroundColor: darkMode
+              ? 'rgba(255,255,255,0.2)'
+              : 'rgba(0,0,0,0.7)',
+            color: '#fff',
+            px: 1,
+            py: 0.5,
+            borderRadius: '4px',
+            fontSize: '0.75rem',
+            fontWeight: 'bold',
+            zIndex: 1,
+          }}
         >
-          {(index % 15) + 1}
+          {(course._absoluteIndex % 35) + 1}
         </Box>
 
         <CardContent>
