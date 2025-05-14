@@ -136,11 +136,30 @@ const LandingPage = ({ darkMode }) => {
     try {
       const hour = new Date().getHours();
       if (hour >= 5 && hour < 12) {
-        return "Good morning";
+        // Morning greetings
+        const morningGreetings = [
+          "Good morning",
+          "Morning",
+          "Hello, early bird",
+          "Fresh morning"
+        ];
+        return morningGreetings[Math.floor(Math.random() * morningGreetings.length)];
       } else if (hour >= 12 && hour < 18) {
-        return "Good afternoon";
+        // Afternoon greetings
+        const afternoonGreetings = [
+          "Good afternoon",
+          "Afternoon",
+          "Mid-day hello",
+        ];
+        return afternoonGreetings[Math.floor(Math.random() * afternoonGreetings.length)];
       } else if (hour >= 18 && hour < 22) {
-        return "Good evening";
+        // Evening greetings
+        const eveningGreetings = [
+          "Good evening",
+          "Evening",
+          "Hello this evening",
+        ];
+        return eveningGreetings[Math.floor(Math.random() * eveningGreetings.length)];
       } else {
         // More engaging late-night greetings
         const lateNightGreetings = [
