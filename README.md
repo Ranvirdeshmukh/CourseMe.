@@ -13,6 +13,8 @@
 
 CourseMe is an AI-powered platform designed to help Dartmouth students navigate their academic journey by providing insightful course and professor reviews, personalized recommendations, and powerful analytical tools. Our mission is to enhance the course selection experience through transparent, data-driven insights from fellow students.
 
+It is currently used by more than 3.7k MAU around nearly 90% of Dartmouth's campus.
+
 ## Features
 
 ### For Students
