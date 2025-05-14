@@ -3,7 +3,6 @@
 
 <div align="center">
   <img src="public/2.png" alt="CourseMe Logo" width="200"/>
-  <h3>Dartmouth's Premier Course Review Platform</h3>
   <p><em>Made for Dartmouth Students by Dartmouth Students</em></p>
   <p>Launching Fall 2024</p>
   
@@ -12,7 +11,7 @@
 
 ## Overview
 
-CourseMe is a comprehensive platform designed to help Dartmouth students navigate their academic journey by providing insightful course and professor reviews, personalized recommendations, and powerful analytical tools. Our mission is to enhance the course selection experience through transparent, data-driven insights from fellow students.
+CourseMe is an AI-powered platform designed to help Dartmouth students navigate their academic journey by providing insightful course and professor reviews, personalized recommendations, and powerful analytical tools. Our mission is to enhance the course selection experience through transparent, data-driven insights from fellow students.
 
 ## Features
 
