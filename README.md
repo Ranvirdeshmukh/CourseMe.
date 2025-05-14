@@ -1,11 +1,6 @@
 
-CourseMe. 
-Launching Fall 2024
+## License
 
-Made for Dartmouth Students by Dartmouth students.
-
-[https://courseme-62h3.onrender.com
-](https://courseme.ai/)
-
-
+This project is licensed under the [GNU AGPL v3.0](./LICENSE).  
+You are free to use, modify, and distribute it under the same terms.
 
