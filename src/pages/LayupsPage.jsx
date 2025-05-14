@@ -31,8 +31,8 @@ import { recordAnalyticsView, logAnalyticsSession } from '../services/analyticsS
 
 import useHorizontalInfiniteScroll from '../constants/useHorizontalInfiniteScroll';
 // Add this constant at the top of your file, outside the component
-const CACHE_VERSION = '2.1'; // Increment this when you push updates
-const MAX_COURSES = 35; // Define this as a constant for clarity
+const CACHE_VERSION = '2.2'; // Increment this when you push updates
+const MAX_COURSES = 40; // Increased from 35 to 40
 
 const LayupsPage = ({darkMode}) => {
   const [courses, setCourses] = useState([]);
@@ -556,7 +556,7 @@ const fetchAndCacheCourses = useCallback(async () => {
             zIndex: 1,
           }}
         >
-          {(course._absoluteIndex % 35) + 1}
+          {(course._absoluteIndex % MAX_COURSES) + 1}
         </Box>
 
         <CardContent>
