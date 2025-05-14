@@ -462,8 +462,8 @@ const fetchAndCacheCourses = useCallback(async () => {
           transition: 'background-color 0.3s ease, color 0.3s ease',
         }}
       >
+    <strong>Note:</strong>  Top 40 layups below are solely based on ease scores - higher scores indicate easier courses.
 
-    <strong>Note:</strong> In the context of courses, "layup" refers to the perceived ease and workload of the course.
   </Typography>
 
   
