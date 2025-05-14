@@ -257,7 +257,8 @@ async function fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCo
       layup: 0, 
       id: null,
       name: '',
-      numOfReviews: 0
+      numOfReviews: 0,
+      distribs: ''
     };
 
     return {
@@ -271,14 +272,16 @@ async function fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCo
       timing: periodCodeToTiming[data['Period Code']] || 'Unknown Timing',
       layup: courseInfo.layup,
       courseId: courseInfo.id,
-      numOfReviews: courseInfo.numOfReviews
+      numOfReviews: courseInfo.numOfReviews,
+      distribs: courseInfo.distribs // Make sure distribs are included
     };
   });
 
+  // Return all courses that have a layup score, sorted by score
+  // Don't limit to only 15 courses so that department filtering works properly
   return courses
     .filter(course => course.layup > 0)
-    .sort((a, b) => b.layup - a.layup)
-    .slice(0, 15); // Limiting to top 15 courses
+    .sort((a, b) => b.layup - a.layup);
 }
 
 // Get Hidden Layups static data with caching

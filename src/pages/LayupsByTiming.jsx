@@ -115,6 +115,7 @@ const LayupsByTiming = ({darkMode}) => {
       setLoading(true);
       setError(null);
 
+      // Get all courses for the selected period and term
       let data = await getCoursesByPeriod(periodCode, periodCodeToTiming, term);
       
       // Apply additional filters in memory if departments or distribs are selected
@@ -138,6 +139,11 @@ const LayupsByTiming = ({darkMode}) => {
       
       if (departments.length === 0 && distribs.length === 0) {
         setFilterApplied(false);
+        // If no filters are applied, limit to top 15 courses
+        data = data.slice(0, 15);
+      } else {
+        // If filters are applied, take the top 20 courses from the filtered results
+        data = data.slice(0, 20);
       }
       
       setTimeSlotCourses(data);
@@ -584,6 +590,22 @@ const LayupsByTiming = ({darkMode}) => {
             transition: 'background-color 0.3s ease',
           }}
         >
+          <Typography 
+            variant="subtitle1"
+            sx={{ 
+              padding: '10px 16px',
+              color: darkMode ? '#fff' : '#333',
+              fontStyle: 'italic',
+              opacity: 0.9,
+              fontWeight: 500
+            }}
+          >
+            {selectedDepartments.length > 0 
+              ? `Showing top ${timeSlotCourses.length} layups from ${selectedDepartments.join(', ')} department(s) for this time slot` 
+              : selectedDistribs.length > 0 
+                ? `Showing top ${timeSlotCourses.length} layups with ${selectedDistribs.join(', ')} distribution requirement(s) for this time slot`
+                : `Showing top 15 layups for this time slot`}
+          </Typography>
           <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
             <TableHead>
               <TableRow>
