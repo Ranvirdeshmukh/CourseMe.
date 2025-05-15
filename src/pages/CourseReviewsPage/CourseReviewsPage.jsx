@@ -2999,206 +2999,232 @@ useEffect(() => {
     maxWidth: '100%',
   }}
 >
-    <Box
+          <Box
       sx={{
         display: 'flex',
-        alignItems: 'center',
+        flexDirection: 'column',
         marginBottom: 3,
-        justifyContent: 'space-between',
-
+        width: '100%'
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        textAlign="left"
+      {/* Header section with course code and term tags */}
+      <Box
         sx={{
-          fontWeight: 600,
-          fontSize: '2rem',
-          marginBottom: 0,
-          color: headerTextColor, // Use dynamic header text color
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+          mb: 0.5,
         }}
->
-          {courseName}
-        </Typography>
-        {(isTaughtCurrentTerm || isTaughtSpringTerm || isTaughtSummerTerm || isTaughtFallTerm) && (
-          <Box
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography
+            variant="h3"
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              height: '2rem',
-              marginLeft: 2,
-              gap: '8px', // Add gap between tags
+              fontWeight: 700,
+              fontSize: { xs: '1.8rem', sm: '2.2rem' },
+              letterSpacing: '-0.5px',
+              color: headerTextColor,
+              fontFamily: '-apple-system, SF Pro Display, sans-serif',
             }}
           >
-            {isTaughtCurrentTerm && (
-              <Tooltip title="This course is offered in 25W" arrow placement="top">
-                <Box
-                  sx={{
-                    backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
-                    transition: 'all 0.2s ease',
-                    cursor: 'help',
-                    '&:hover': {
-                      backgroundColor: darkMode ? '#34495E' : '#B3E5FC',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                    }
-                  }}
-                >
-                  <Typography
-                    variant="body2"
+            {courseName}
+          </Typography>
+          
+          {(isTaughtCurrentTerm || isTaughtSpringTerm || isTaughtSummerTerm || isTaughtFallTerm) && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                height: '2rem',
+                marginLeft: 2,
+                gap: '8px',
+              }}
+            >
+              {isTaughtCurrentTerm && (
+                <Tooltip title="This course is offered in 25W" arrow placement="top">
+                  <Box
                     sx={{
-                      fontSize: '0.9rem',
-                      fontWeight: 500,
-                      color: darkMode ? '#B3E5FC' : '#0277BD', // Winter blue text
+                      backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
+                      transition: 'all 0.2s ease',
+                      cursor: 'help',
+                      '&:hover': {
+                        backgroundColor: darkMode ? '#34495E' : '#B3E5FC',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                      }
                     }}
                   >
-                    25W
-                  </Typography>
-                </Box>
-              </Tooltip>
-            )}
-            
-            {isTaughtSpringTerm && (
-              <Tooltip title="This course is offered in 25S" arrow placement="top">
-                <Box
-                  sx={{
-                    backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1', // Spring green color
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
-                    transition: 'all 0.2s ease',
-                    cursor: 'help',
-                    '&:hover': {
-                      backgroundColor: darkMode ? '#6D5B24' : '#FFE082',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                    }
-                  }}
-                >
-                  <Typography
-                    variant="body2"
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#B3E5FC' : '#0277BD',
+                      }}
+                    >
+                      25W
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+              
+              {isTaughtSpringTerm && (
+                <Tooltip title="This course is offered in 25S" arrow placement="top">
+                  <Box
                     sx={{
-                      fontSize: '0.9rem',
-                      fontWeight: 500,
-                      color: darkMode ? '#FFE082' : '#F57F17', // Spring green text
+                      backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
+                      transition: 'all 0.2s ease',
+                      cursor: 'help',
+                      '&:hover': {
+                        backgroundColor: darkMode ? '#6D5B24' : '#FFE082',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                      }
                     }}
                   >
-                    25S
-                  </Typography>
-                </Box>
-              </Tooltip>
-            )}
-            
-            {isTaughtSummerTerm && (
-              <Tooltip title="This course is offered in 25X" arrow placement="top">
-                <Box
-                  sx={{
-                    backgroundColor: darkMode ? '#006064' : '#E0F7FA', // Summer orange color
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
-                    transition: 'all 0.2s ease',
-                    cursor: 'help',
-                    '&:hover': {
-                      backgroundColor: darkMode ? '#00838F' : '#80DEEA',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                    }
-                  }}
-                >
-                  <Typography
-                    variant="body2"
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#FFE082' : '#F57F17',
+                      }}
+                    >
+                      25S
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+              
+              {isTaughtSummerTerm && (
+                <Tooltip title="This course is offered in 25X" arrow placement="top">
+                  <Box
                     sx={{
-                      fontSize: '0.9rem',
-                      fontWeight: 500,
-                      color: darkMode ? '#B2EBF2' : '#00838F', // Summer orange text
+                      backgroundColor: darkMode ? '#006064' : '#E0F7FA',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
+                      transition: 'all 0.2s ease',
+                      cursor: 'help',
+                      '&:hover': {
+                        backgroundColor: darkMode ? '#00838F' : '#80DEEA',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                      }
                     }}
                   >
-                    25X
-                  </Typography>
-                </Box>
-              </Tooltip>
-            )}
-            
-            {isTaughtFallTerm && (
-              <Tooltip title="This course is offered in 25F" arrow placement="top">
-                <Box
-                  sx={{
-                    backgroundColor: darkMode ? '#4E342E' : '#FBE9E7', // Fall color
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
-                    transition: 'all 0.2s ease',
-                    cursor: 'help',
-                    '&:hover': {
-                      backgroundColor: darkMode ? '#6D4C41' : '#FFCCBC',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                    }
-                  }}
-                >
-                  <Typography
-                    variant="body2"
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#B2EBF2' : '#00838F',
+                      }}
+                    >
+                      25X
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+              
+              {isTaughtFallTerm && (
+                <Tooltip title="This course is offered in 25F" arrow placement="top">
+                  <Box
                     sx={{
-                      fontSize: '0.9rem',
-                      fontWeight: 500,
-                      color: darkMode ? '#FFCCBC' : '#D84315', // Fall text
+                      backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
+                      transition: 'all 0.2s ease',
+                      cursor: 'help',
+                      '&:hover': {
+                        backgroundColor: darkMode ? '#6D4C41' : '#FFCCBC',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                      }
                     }}
                   >
-                    25F
-                  </Typography>
-                </Box>
-              </Tooltip>
-            )}
-          </Box>
-        )}
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <StyledTabs value={tabValue} onChange={handleTabChange}>
-          <StyledTab icon={<AutoAwesomeIcon />} label="Description" />
-          <StyledTab icon={<EqualizerIcon />} label="Medians" />
-          <StyledTab icon={<QueryStatsIcon />} label="Course Metrics" />
-          {isBetaUser && (
-            <StyledTab icon={<ScienceIcon />} label="Beta" />
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#FFCCBC' : '#D84315',
+                      }}
+                    >
+                      25F
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+            </Box>
           )}
-        </StyledTabs>
-        <Tooltip
-          title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}
-        >
-          <IconButton
-  onClick={handlePinCourse}
-  sx={{
-    color: pinned ? '#007AFF' : (darkMode ? '#FFFFFF' : '#8E8E93'), // Blue if pinned, white or gray otherwise
-    backgroundColor: darkMode ? (pinned ? '#007AFF' : '#1C1F43') : 'transparent', // Optional: Add background for better visibility
-    '&:hover': {
-      backgroundColor: darkMode ? (pinned ? '#0066D6' : '#24273c') : '#E0E0E0', // Darker shade on hover
-    },
-    marginLeft: 1,
-    padding: '6px', // Consistent padding
-  }}
->
-  {pinned ? (
-    <PushPin sx={{ fontSize: 24 }} />
-  ) : (
-    <PushPinOutlined sx={{ fontSize: 24 }} />
-  )}
-</IconButton>
-
-        </Tooltip>
+        </Box>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <StyledTabs value={tabValue} onChange={handleTabChange}>
+            <StyledTab icon={<AutoAwesomeIcon />} label="Description" />
+            <StyledTab icon={<EqualizerIcon />} label="Medians" />
+            <StyledTab icon={<QueryStatsIcon />} label="Course Metrics" />
+            {isBetaUser && (
+              <StyledTab icon={<ScienceIcon />} label="Beta" />
+            )}
+          </StyledTabs>
+          <Tooltip
+            title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}
+          >
+            <IconButton
+              onClick={handlePinCourse}
+              sx={{
+                color: pinned ? '#007AFF' : (darkMode ? '#FFFFFF' : '#8E8E93'),
+                backgroundColor: darkMode ? (pinned ? '#007AFF' : '#1C1F43') : 'transparent',
+                '&:hover': {
+                  backgroundColor: darkMode ? (pinned ? '#0066D6' : '#24273c') : '#E0E0E0',
+                },
+                marginLeft: 1,
+                padding: '6px',
+              }}
+            >
+              {pinned ? (
+                <PushPin sx={{ fontSize: 24 }} />
+              ) : (
+                <PushPinOutlined sx={{ fontSize: 24 }} />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
+      
+      {/* Course full name section */}
+      <Typography
+        variant="h5"
+        sx={{
+          color: darkMode ? '#34C759' : '#00693E',
+          fontWeight: 500,
+          fontFamily: '-apple-system, SF Pro Display, sans-serif',
+          fontSize: { xs: '1.1rem', sm: '1.25rem' },
+          marginBottom: 1,
+          opacity: 0.9,
+          letterSpacing: '-0.3px',
+        }}
+      >
+        {courseId.split('__')[1]?.replace(/_/g, ' ') || 'Course Details'}
+      </Typography>
     </Box>
 
     {renderTabContent()}
