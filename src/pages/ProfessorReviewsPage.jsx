@@ -102,44 +102,53 @@ const ProfessorReviewsPage = ({darkMode}) => {
             }
           }}
         >
-          <Box sx={{ p: { xs: 2.5, sm: 3.5 } }}>
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
-              <Box
-                sx={{
-                  width: '4px',
-                  height: '24px',
-                  background: darkMode ? '#0384fc' : '#0066CC',
-                  borderRadius: '4px',
-                  mr: 2,
-                  mt: 0.5
-                }}
-              />
+          <Box sx={{ p: { xs: 2.5, sm: 3.5 }, alignItems: 'flex-start' }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              mb: 1.5,
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                left: '-12px',
+                top: '2px',
+                height: '24px',
+                width: '4px',
+                borderRadius: '4px',
+                background: darkMode 
+                  ? 'linear-gradient(to bottom, #0A84FF, #0066CC)' 
+                  : 'linear-gradient(to bottom, #0071E3, #0058B0)',
+                boxShadow: darkMode ? '0 0 8px rgba(10, 132, 255, 0.5)' : 'none',
+              }
+            }}>
               <Typography
                 component="span"
                 sx={{
-                  fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                  color: darkMode ? '#FFFFFF' : '#000000',
+                  color: darkMode ? '#FFFFFF' : '#1D1D1F',
                   fontWeight: 600,
-                  letterSpacing: '-0.02em',
-                  fontSize: '1rem',
-                  lineHeight: 1.4
+                  letterSpacing: '-0.015em',
+                  fontSize: { xs: '0.95rem', sm: '1.05rem' },
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  lineHeight: 1.3,
+                  textRendering: 'optimizeLegibility',
+                  WebkitFontSmoothing: 'antialiased',
                 }}
               >
                 {prefix}
               </Typography>
             </Box>
-            
             <Typography
               component="p"
               sx={{
-                fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
-                ml: '24px',
-                pl: '0px',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                pl: '16px',
                 lineHeight: 1.6,
-                fontSize: '0.95rem',
-                letterSpacing: '-0.01em',
-                fontWeight: 400
+                fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                letterSpacing: '-0.011em',
+                fontWeight: 400,
+                position: 'relative',
               }}
             >
               {rest}
@@ -235,7 +244,7 @@ const ProfessorReviewsPage = ({darkMode}) => {
           </Box>
         </motion.div>
 
-        
+       
 
         {loading ? (
           <Box sx={{ 
