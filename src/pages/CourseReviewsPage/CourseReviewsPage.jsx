@@ -113,11 +113,35 @@ const CourseReviewsPage = ({ darkMode }) => {
 
   const StyledTab = styled(Tab)(({ theme }) => ({
     minHeight: 'auto',
-    padding: '8px 16px',
-    color: theme.palette.text.primary,
+    padding: '10px 16px',
+    marginRight: '8px',
+    color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+    fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+    fontSize: '0.85rem',
+    fontWeight: 500,
+    letterSpacing: '-0.01em',
+    textTransform: 'none',
+    borderRadius: '8px',
+    transition: 'all 0.2s ease',
     '&.Mui-selected': {
-      color: theme.palette.primary.main,
-      fontWeight: 'bold',
+      color: theme.palette.mode === 'dark' ? '#0A84FF' : '#0071E3',
+      fontWeight: 600,
+      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.05)',
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
+      transform: 'translateY(-1px)',
+    },
+    '& .MuiSvgIcon-root': {
+      fontSize: '1.1rem',
+      marginBottom: '2px',
+      transition: 'transform 0.2s ease',
+    },
+    '&:hover .MuiSvgIcon-root': {
+      transform: 'scale(1.1)',
+    },
+    '&.Mui-selected .MuiSvgIcon-root': {
+      color: theme.palette.mode === 'dark' ? '#0A84FF' : '#0071E3',
     },
   }));
 
@@ -192,12 +216,23 @@ const CourseReviewsPage = ({ darkMode }) => {
     </svg>
   );
 
-  // Custom styled Tabs component
+  // Custom styled Tabs component with Apple design language
   const StyledTabs = styled(Tabs)(({ theme }) => ({
     minHeight: 'auto',
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(30, 30, 30, 0.3)' : 'rgba(240, 240, 247, 0.6)',
+    borderRadius: '10px',
+    padding: '4px',
+    '& .MuiTabs-flexContainer': {
+      gap: '2px',
+    },
     '& .MuiTabs-indicator': {
       display: 'none',
     },
+    boxShadow: theme.palette.mode === 'dark' 
+      ? 'inset 0 1px 1px rgba(0, 0, 0, 0.2)' 
+      : 'inset 0 0 1px rgba(0, 0, 0, 0.05)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
   }));
 
   const CourseDescriptionSection = () => {
@@ -3304,11 +3339,27 @@ useEffect(() => {
         
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <StyledTabs value={tabValue} onChange={handleTabChange}>
-            <StyledTab icon={<AutoAwesomeIcon />} label="Description" />
-            <StyledTab icon={<EqualizerIcon />} label="Medians" />
-            <StyledTab icon={<QueryStatsIcon />} label="Course Metrics" />
+            <StyledTab 
+              icon={<AutoAwesomeIcon fontSize="small" />} 
+              label="Description" 
+              disableRipple
+            />
+            <StyledTab 
+              icon={<EqualizerIcon fontSize="small" />} 
+              label="Medians" 
+              disableRipple
+            />
+            <StyledTab 
+              icon={<QueryStatsIcon fontSize="small" />} 
+              label="Course Metrics" 
+              disableRipple
+            />
             {isBetaUser && (
-              <StyledTab icon={<ScienceIcon />} label="Beta" />
+              <StyledTab 
+                icon={<ScienceIcon fontSize="small" />} 
+                label="Beta" 
+                disableRipple
+              />
             )}
           </StyledTabs>
           <Tooltip
