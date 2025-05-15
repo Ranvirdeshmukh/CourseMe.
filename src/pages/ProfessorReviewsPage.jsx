@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Typography, Box, Alert, List, ListItem, ListItemText } from '@mui/material';
+import { Container, Typography, Box, Alert, List, ListItem, Paper, Divider } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useInView } from 'react-intersection-observer';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ProfessorReviewsPage = ({darkMode}) => {
   const { courseId, professor } = useParams();
@@ -58,15 +58,14 @@ const ProfessorReviewsPage = ({darkMode}) => {
       return { prefix, rest };
     } else {
       // Handle the case where the pattern does not match
-      // You can decide how to structure the prefix and rest in such cases
       return { prefix: 'Review:', rest: review };
     }
   };
   
-
   const ReviewItem = ({ prefix, rest }) => {
     const { ref, inView } = useInView({
       threshold: 0.1,
+      triggerOnce: true
     });
 
     return (
@@ -74,98 +73,95 @@ const ProfessorReviewsPage = ({darkMode}) => {
         ref={ref}
         initial={{ opacity: 0, y: 20 }}
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
         style={{ width: '100%' }}
       >
-        <Box
+        <Paper
+          elevation={0}
           sx={{
-            my: 3,
+            my: 2.5,
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
             background: darkMode 
-              ? 'linear-gradient(to right, rgba(30, 30, 30, 0.8), rgba(50, 50, 50, 0.8))' // Dark mode background
-              : 'linear-gradient(to right, rgba(238, 242, 255, 0.8), rgba(245, 243, 255, 0.8))', // Light mode background
-            borderRadius: '12px',
+              ? 'rgba(30, 35, 60, 0.65)'
+              : 'rgba(255, 255, 255, 0.65)',
+            borderRadius: '16px',
             overflow: 'hidden',
             border: darkMode 
-              ? '1px solid rgba(255, 255, 255, 0.1)' 
-              : '1px solid rgba(99, 102, 241, 0.1)',
+              ? '1px solid rgba(255, 255, 255, 0.08)' 
+              : '1px solid rgba(0, 0, 0, 0.06)',
             boxShadow: darkMode 
-              ? '0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -1px rgba(255, 255, 255, 0.03)' 
-              : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-            transition: 'all 0.3s ease',
+              ? '0 8px 32px rgba(0, 0, 0, 0.2)' 
+              : '0 8px 32px rgba(0, 0, 0, 0.08)',
+            transition: 'all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)',
             '&:hover': {
-              transform: darkMode ? 'translateY(-2px)' : 'translateY(-2px)',
+              transform: 'translateY(-4px)',
               boxShadow: darkMode 
-                ? '0 6px 12px -2px rgba(255, 255, 255, 0.08), 0 3px 6px -2px rgba(255, 255, 255, 0.05)'
-                : '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
+                ? '0 12px 40px rgba(0, 0, 0, 0.3)' 
+                : '0 12px 40px rgba(0, 0, 0, 0.12)',
             }
           }}
         >
-          <ListItem sx={{ p: 4 }}>
-            <Box sx={{ width: '100%' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                <Box
-                  sx={{
-                    width: '4px',
-                    height: '24px',
-                    bgcolor: darkMode ? '#571CE0' : 'primary.main', // Adjust color based on dark mode
-                    borderRadius: '4px'
-                  }}
-                />
-                <Typography
-                  component="span"
-                  sx={{
-                    color: darkMode ? '#FFFFFF' : 'text.primary', // Text color based on dark mode
-                    fontWeight: 600,
-                    letterSpacing: '0.3px',
-                    fontSize: '1rem'
-                  }}
-                >
-                  {prefix}
-                </Typography>
-              </Box>
-              <Typography
-                component="p"
+          <Box sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+              <Box
                 sx={{
-                  color: darkMode ? '#E0E0E0' : 'text.secondary', // Text color based on dark mode
-                  pl: '28px',
-                  lineHeight: 1.7,
-                  fontSize: '0.95rem'
+                  width: '4px',
+                  height: '24px',
+                  background: darkMode ? '#0384fc' : '#0066CC',
+                  borderRadius: '4px',
+                  mr: 2,
+                  mt: 0.5
+                }}
+              />
+              <Typography
+                component="span"
+                sx={{
+                  fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  color: darkMode ? '#FFFFFF' : '#000000',
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  fontSize: '1rem',
+                  lineHeight: 1.4
                 }}
               >
-                {rest}
+                {prefix}
               </Typography>
             </Box>
-          </ListItem>
-        </Box>
+            
+            <Typography
+              component="p"
+              sx={{
+                fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
+                ml: '24px',
+                pl: '0px',
+                lineHeight: 1.6,
+                fontSize: '0.95rem',
+                letterSpacing: '-0.01em',
+                fontWeight: 400
+              }}
+            >
+              {rest}
+            </Typography>
+          </Box>
+        </Paper>
       </motion.div>
     );
   };
 
   const renderReviews = () => (
     <List sx={{ width: '100%', p: 0 }}>
-      {reviews.map((review, idx) => {
-        const { prefix, rest } = splitReviewText(review);
-        return <ReviewItem key={idx} prefix={prefix} rest={rest} />;
-      })}
+      <AnimatePresence>
+        {reviews.map((review, idx) => {
+          const { prefix, rest } = splitReviewText(review);
+          return <ReviewItem key={idx} prefix={prefix} rest={rest} />;
+        })}
+      </AnimatePresence>
     </List>
   );
 
   const courseName = courseId.split('__')[1]?.replace(/_/g, ' ') || courseId;
-
-  // Step 2: Define color variables based on darkMode
-  const mainBgColor = darkMode 
-    ? 'linear-gradient(135deg, #1C093F 0%, #0C0F33 100%)' 
-    : 'linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%)';
-  const textPrimaryColor = darkMode ? '#FFFFFF' : '#333333';
-  const textSecondaryColor = darkMode ? '#E0E0E0' : '#666666';
-  const headerTextColor = darkMode ? '#FFFFFF' : '#34495E';
-  const alertBgColor = darkMode ? '#333333' : '#F9F9F9';
-  const alertTextColor = darkMode ? '#FFFFFF' : '#333333';
-  const listItemBgColor = darkMode ? '#1C1F43' : '#FFFFFF';
-  const listItemBorderColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(99, 102, 241, 0.1)';
-  const listItemShadow = darkMode 
-    ? '0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -1px rgba(255, 255, 255, 0.03)'
-    : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
 
   return (
     <Box
@@ -174,53 +170,135 @@ const ProfessorReviewsPage = ({darkMode}) => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        background: mainBgColor, // Apply main background color
+        background: darkMode 
+          ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)' 
+          : '#F9F9F9',
         padding: '20px',
-        fontFamily: 'SF Pro Display, sans-serif',
-        color: textPrimaryColor, // Apply primary text color
+        fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        color: darkMode ? '#FFFFFF' : '#000000',
         transition: 'background 0.3s ease, color 0.3s ease',
       }}
     >
       <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
-        <Box sx={{ mb: 6 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          <Box sx={{ mb: 4, mt: 2 }}>
+            <Typography
+              variant="h3"
+              sx={{
+                fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                color: darkMode ? '#FFFFFF' : '#000000',
+                fontWeight: 700,
+                letterSpacing: '-0.025em',
+                mb: 1.5,
+                fontSize: { xs: '2rem', sm: '2.5rem', md: '2.75rem' }
+              }}
+            >
+              {professor}
+            </Typography>
+            
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <Box
+                sx={{
+                  width: '6px',
+                  height: '26px',
+                  background: darkMode ? '#0384fc' : '#0066CC',
+                  borderRadius: '3px',
+                  mr: 2
+                }}
+              />
+              <Typography
+                variant="h5"
+                sx={{
+                  fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                  fontWeight: 500,
+                  letterSpacing: '-0.015em',
+                  fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                }}
+              >
+                {courseName}
+              </Typography>
+            </Box>
+            
+            <Divider 
+              sx={{ 
+                mb: 4, 
+                mt: 2, 
+                opacity: darkMode ? 0.1 : 0.08,
+                borderColor: darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'
+              }} 
+            />
+          </Box>
+        </motion.div>
+
+        <Box sx={{ position: 'relative' }}>
           <Typography
-            variant="h3"
+            variant="h6"
             sx={{
-              color: headerTextColor, // Header text color based on dark mode
-              fontWeight: 700,
-              letterSpacing: '-0.5px',
-              mb: 1
+              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+              fontWeight: 600,
+              letterSpacing: '-0.015em',
+              mb: 3,
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: { xs: '1.1rem', sm: '1.25rem' }
             }}
           >
-            Reviews for {professor}
-          </Typography>
-          <Typography
-            variant="h5"
-            sx={{
-              color: darkMode ? '#34C759' : 'primary.main', // Adjust color based on dark mode
-              fontWeight: 500,
-              opacity: 0.9
-            }}
-          >
-            {courseName}
+            <Box
+              sx={{
+                width: '4px',
+                height: '20px',
+                background: darkMode ? '#0384fc' : '#0066CC',
+                borderRadius: '2px',
+                mr: 2
+              }}
+            />
+            Reviews
           </Typography>
         </Box>
 
         {loading ? (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Typography sx={{ color: textSecondaryColor }}>
-              Loading...
+          <Box sx={{ 
+            textAlign: 'center', 
+            py: 4,
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            background: darkMode ? 'rgba(30, 35, 60, 0.3)' : 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
+            padding: 3
+          }}>
+            <Typography sx={{ 
+              fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+              fontWeight: 500
+            }}>
+              Loading reviews...
             </Typography>
           </Box>
         ) : error ? (
           <Alert
             severity="error"
             sx={{
-              borderRadius: 2,
-              backgroundColor: alertBgColor, // Alert background based on dark mode
-              color: alertTextColor, // Alert text color based on dark mode
+              borderRadius: '16px',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              backgroundColor: darkMode ? 'rgba(40, 40, 45, 0.65)' : 'rgba(255, 255, 255, 0.65)',
+              color: darkMode ? '#FFFFFF' : '#000000',
+              border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
+              boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.2)' : '0 8px 32px rgba(0, 0, 0, 0.08)',
               '& .MuiAlert-message': {
-                fontSize: '0.95rem'
+                fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontSize: '0.95rem',
+                fontWeight: 500
+              },
+              '& .MuiAlert-icon': {
+                color: darkMode ? '#FF3B30' : '#FF3B30'
               }
             }}
           >
@@ -229,9 +307,22 @@ const ProfessorReviewsPage = ({darkMode}) => {
         ) : reviews.length > 0 ? (
           renderReviews()
         ) : (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Typography sx={{ color: textSecondaryColor }}>
-              No reviews available
+          <Box sx={{ 
+            textAlign: 'center', 
+            py: 4,
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            background: darkMode ? 'rgba(30, 35, 60, 0.3)' : 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
+            padding: 3 
+          }}>
+            <Typography sx={{ 
+              fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+              fontWeight: 500
+            }}>
+              No reviews available for this professor
             </Typography>
           </Box>
         )}
