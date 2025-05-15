@@ -219,12 +219,12 @@ const CourseReviewsPage = ({ darkMode }) => {
         }}
       >
         {/* College Description Section - Apple Style */}
-        <Box 
-          sx={{
-            mb: 4,
-            position: 'relative',
-          }}
-        >
+                  <Box 
+            sx={{
+              mb: 3,
+              position: 'relative',
+            }}
+          >
           {/* Header with ORC link */}
           <Box 
             sx={{ 
@@ -339,12 +339,12 @@ const CourseReviewsPage = ({ darkMode }) => {
         </Box>
         
         {/* AI Summary Section - Apple Style */}
-        <Box 
-          sx={{ 
-            mt: 5,
-            position: 'relative',
-          }}
-        >
+                  <Box 
+           sx={{ 
+             mt: 4,
+             position: 'relative',
+           }}
+         >
           {/* AI Summary Header */}
           <Box
             sx={{
@@ -3342,8 +3342,8 @@ useEffect(() => {
           fontWeight: 600,
           fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
           fontSize: { xs: '1.6rem', sm: '1.9rem', md: '2.1rem' },
-          marginTop: 1,
-          marginBottom: 2,
+          marginTop: 0.5,
+          marginBottom: 1,
           letterSpacing: '-0.022em',
           lineHeight: 1.1,
           textRendering: 'optimizeLegibility',
