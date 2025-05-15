@@ -1987,58 +1987,72 @@ const handleQualityVote = async (voteType) => {
       }
     };
 
-
-
     return (
-      
       <motion.div
         ref={ref}
         initial={{ opacity: 0, y: 20 }}
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         style={{ width: '100%' }}
       >
         <Box
-        sx={{
-          my: 3,
-          background: darkMode
-            ? 'linear-gradient(to right, rgba(30, 30, 30, 0.8), rgba(50, 50, 50, 0.8))' // Dark mode background
-            : 'linear-gradient(to right, rgba(238, 242, 255, 0.8), rgba(245, 243, 255, 0.8))', // Light mode background
-          borderRadius: '12px',
-          overflow: 'hidden',
-          border: darkMode
-            ? '1px solid rgba(255, 255, 255, 0.1)'
-            : '1px solid rgba(99, 102, 241, 0.1)',
-          boxShadow: darkMode
-            ? '0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -1px rgba(255, 255, 255, 0.03)'
-            : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            transform: 'translateY(-2px)',
+          sx={{
+            my: 3,
+            background: darkMode
+              ? 'rgba(30, 35, 61, 0.6)' 
+              : 'rgba(248, 249, 251, 0.75)',
+            borderRadius: '18px',
+            overflow: 'hidden',
+            border: darkMode
+              ? '1px solid rgba(255, 255, 255, 0.08)'
+              : '1px solid rgba(0, 0, 0, 0.05)',
             boxShadow: darkMode
-              ? '0 6px 12px -2px rgba(255, 255, 255, 0.08), 0 3px 6px -2px rgba(255, 255, 255, 0.05)'
-              : '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
-          },
-        }}
-      >
-          <ListItem sx={{ p: 3, alignItems: 'flex-start' }}>
+              ? '0 12px 24px rgba(0, 0, 0, 0.15)'
+              : '0 12px 24px rgba(0, 0, 0, 0.06)',
+            transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            '&:hover': {
+              transform: 'translateY(-4px)',
+              boxShadow: darkMode
+                ? '0 16px 32px rgba(0, 0, 0, 0.2)'
+                : '0 16px 32px rgba(0, 0, 0, 0.08)',
+            },
+          }}
+        >
+          <ListItem sx={{ p: { xs: 2.5, sm: 3.5 }, alignItems: 'flex-start' }}>
             <Box sx={{ width: '100%' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                <Box
-                  sx={{
-                    width: '4px',
-                    height: '24px',
-                    bgcolor: darkMode ? '#4CAF50' : '#00693E', // Example: Lighter green in dark mode
-                    borderRadius: '4px',
-                  }}
-                />
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'flex-start', 
+                gap: 2, 
+                mb: 1.5,
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  left: '-12px',
+                  top: '2px',
+                  height: '24px',
+                  width: '4px',
+                  borderRadius: '4px',
+                  background: darkMode 
+                    ? 'linear-gradient(to bottom, #0A84FF, #0066CC)' 
+                    : 'linear-gradient(to bottom, #0071E3, #0058B0)',
+                  boxShadow: darkMode ? '0 0 8px rgba(10, 132, 255, 0.5)' : 'none',
+                }
+              }}>
                 <Typography
                   component="span"
                   sx={{
-                    color: textColor, // Use dynamic text color
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
                     fontWeight: 600,
-                    letterSpacing: '0.3px',
-                    fontSize: '1rem',
+                    letterSpacing: '-0.015em',
+                    fontSize: { xs: '0.95rem', sm: '1.05rem' },
+                    fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                    lineHeight: 1.3,
+                    textRendering: 'optimizeLegibility',
+                    WebkitFontSmoothing: 'antialiased',
                   }}
                 >
                   {prefix}
@@ -2047,10 +2061,14 @@ const handleQualityVote = async (voteType) => {
               <Typography
                 component="p"
                 sx={{
-                  color: textColor, // Use dynamic text color
-                  pl: '28px',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                  pl: '16px',
                   lineHeight: 1.6,
-                  fontSize: '0.95rem',
+                  fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  letterSpacing: '-0.011em',
+                  fontWeight: 400,
+                  position: 'relative',
                 }}
               >
                 {rest}
@@ -2059,45 +2077,94 @@ const handleQualityVote = async (voteType) => {
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  mt: 2,
-                  pl: '28px',
-                  gap: 2,
+                  mt: 2.5,
+                  pl: '16px',
+                  gap: 2.5,
                 }}
               >
-                <IconButton
-                  onClick={handleLike}
-                  sx={{
-                    color: hasLiked ? '#007AFF' : '#8E8E93',
-                    padding: '6px',
-                  }}
-                >
-                  <Typography 
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 1,
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: hasLiked 
+                    ? (darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.08)') 
+                    : 'transparent',
+                  '&:hover': {
+                    backgroundColor: hasLiked 
+                      ? (darkMode ? 'rgba(10, 132, 255, 0.2)' : 'rgba(0, 113, 227, 0.12)') 
+                      : (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
+                  }
+                }}>
+                  <IconButton
+                    onClick={handleLike}
+                    sx={{
+                      color: hasLiked ? (darkMode ? '#0A84FF' : '#0071E3') : (darkMode ? '#8E8E93' : '#8E8E93'),
+                      padding: '3px',
+                      borderRadius: '8px',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                        transform: 'scale(1.05)',
+                      }
+                    }}
+                  >
+                    <Typography 
                       variant="body2" 
                       sx={{ 
                         fontSize: '1.2rem',
-                        color: hasLiked ? '#007AFF' : (darkMode ? '#FFFFFF' : '#8E8E93'), // Dynamic color based on state and theme
+                        transition: 'transform 0.2s ease',
+                        transform: hasLiked ? 'scale(1.1)' : 'scale(1)',
                       }}
                     >
                       🔥
                     </Typography>
+                  </IconButton>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      fontSize: '0.85rem',
+                      fontWeight: hasLiked ? 600 : 500,
+                      color: hasLiked 
+                        ? (darkMode ? '#0A84FF' : '#0071E3') 
+                        : (darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)'),
+                      fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                    }}>
+                    {likeCount}
+                  </Typography>
+                </Box>
 
-                </IconButton>
-                <Typography variant="body2" sx={{ color: '#8E8E93' }}>
-                  {likeCount}
-                </Typography>
                 <Button
                   onClick={toggleReplies}
-                  startIcon={<ChatBubbleOutlineIcon fontSize="small" />}
+                  startIcon={<ChatBubbleOutlineIcon 
+                    sx={{ 
+                      fontSize: '0.95rem', 
+                      transition: 'transform 0.2s ease',
+                      transform: showReplies ? 'rotate(3deg) scale(1.1)' : 'rotate(0) scale(1)'
+                    }} 
+                  />}
                   sx={{ 
-                    color: showReplies ? (darkMode ? '#E0E0E0' : '#555555') : '#8E8E93',
-                    backgroundColor: showReplies ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)') : 'transparent',
+                    color: showReplies 
+                      ? (darkMode ? '#0A84FF' : '#0071E3')
+                      : (darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.55)'),
+                    backgroundColor: showReplies 
+                      ? (darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.08)') 
+                      : 'transparent',
                     textTransform: 'none',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
                     fontSize: '0.85rem',
-                    fontWeight: showReplies ? 600 : 400,
+                    fontWeight: showReplies ? 600 : 500,
+                    transition: 'all 0.2s ease',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                    letterSpacing: '-0.01em',
                     '&:hover': {
-                      backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                      backgroundColor: showReplies
+                        ? (darkMode ? 'rgba(10, 132, 255, 0.2)' : 'rgba(0, 113, 227, 0.12)')
+                        : (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'),
+                      transform: 'translateY(-1px)',
                     }
                   }}
                 >
@@ -2110,18 +2177,20 @@ const handleQualityVote = async (voteType) => {
             <>
               <Box 
                 sx={{ 
-                  pl: 4, 
-                  pr: 2,
-                  pb: 2,
+                  pl: { xs: 3, sm: 4 }, 
+                  pr: { xs: 2, sm: 3 },
+                  pb: 3,
                   position: 'relative',
                   '&::before': {
                     content: '""',
                     position: 'absolute',
-                    left: '40px',
+                    left: '42px',
                     top: '0',
-                    bottom: '0',
+                    bottom: '20px',
                     width: '2px',
-                    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    background: darkMode 
+                      ? 'linear-gradient(to bottom, rgba(10, 132, 255, 0.15), rgba(10, 132, 255, 0.05))'
+                      : 'linear-gradient(to bottom, rgba(0, 113, 227, 0.15), rgba(0, 113, 227, 0.05))',
                     borderRadius: '1px',
                   }
                 }}
@@ -2136,32 +2205,57 @@ const handleQualityVote = async (voteType) => {
                       '&::before': {
                         content: '""',
                         position: 'absolute',
-                        left: '-16px',
-                        top: '12px',
-                        width: '12px',
+                        left: '-14px',
+                        top: '14px',
+                        width: '10px',
                         height: '2px',
-                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                        background: darkMode 
+                          ? 'rgba(10, 132, 255, 0.3)'
+                          : 'rgba(0, 113, 227, 0.2)',
+                        borderRadius: '1px',
                       }
                     }}
                   >
                     <Box
                       sx={{
-                        backgroundColor: darkMode ? 'rgba(42, 42, 42, 0.7)' : 'rgba(249, 249, 249, 0.7)',
-                        borderRadius: '8px',
-                        p: 2,
-                        border: darkMode ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.05)',
+                        backgroundColor: darkMode 
+                          ? 'rgba(26, 30, 54, 0.6)' 
+                          : 'rgba(242, 242, 247, 0.6)',
+                        borderRadius: '16px',
+                        p: { xs: 2, sm: 2.5 },
+                        border: darkMode 
+                          ? '1px solid rgba(255, 255, 255, 0.06)' 
+                          : '1px solid rgba(0, 0, 0, 0.04)',
                         transition: 'all 0.2s ease',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        boxShadow: darkMode
+                          ? '0 4px 16px rgba(0, 0, 0, 0.1)' 
+                          : '0 4px 16px rgba(0, 0, 0, 0.04)',
                         '&:hover': {
-                          backgroundColor: darkMode ? 'rgba(50, 50, 50, 0.8)' : 'rgba(240, 240, 240, 0.8)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: darkMode
+                            ? '0 6px 20px rgba(0, 0, 0, 0.15)' 
+                            : '0 6px 20px rgba(0, 0, 0, 0.06)',
                         }
                       }}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        mb: 1, 
+                        pb: 1, 
+                        borderBottom: darkMode 
+                          ? '1px solid rgba(255, 255, 255, 0.06)' 
+                          : '1px solid rgba(0, 0, 0, 0.04)'
+                      }}>
                         <Typography
                           component="span"
                           sx={{ 
-                            color: darkMode ? '#909090' : '#8E8E93', 
-                            fontSize: '0.75rem' 
+                            color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)', 
+                            fontSize: '0.75rem',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                            letterSpacing: '-0.01em'
                           }}
                         >
                           {reply && reply.timestamp ? new Date(reply.timestamp).toLocaleString() : ''}
@@ -2170,9 +2264,11 @@ const handleQualityVote = async (voteType) => {
                       <Typography
                         component="p"
                         sx={{ 
-                          color: textColor, 
+                          color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)', 
                           fontSize: '0.9rem',
-                          lineHeight: 1.5
+                          lineHeight: 1.5,
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          letterSpacing: '-0.01em'
                         }}
                       >
                         {reply && reply.reply ? reply.reply : ''}
@@ -2191,31 +2287,44 @@ const handleQualityVote = async (voteType) => {
                       '&::before': {
                         content: '""',
                         position: 'absolute',
-                        left: '-16px',
-                        top: '12px',
-                        width: '12px',
+                        left: '-14px',
+                        top: '16px',
+                        width: '10px',
                         height: '2px',
-                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                        background: darkMode 
+                          ? 'rgba(10, 132, 255, 0.3)'
+                          : 'rgba(0, 113, 227, 0.2)',
+                        borderRadius: '1px',
                       }
                     }}
                   >
                     <Button
                       sx={{
-                        color: darkMode ? '#007AFF' : '#0056b3',
+                        color: darkMode ? '#0A84FF' : '#0071E3',
                         textTransform: 'none',
                         fontSize: '0.85rem',
-                        padding: '4px 8px',
-                        backgroundColor: 'transparent',
+                        fontWeight: 500,
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        backgroundColor: darkMode 
+                          ? 'rgba(10, 132, 255, 0.1)' 
+                          : 'rgba(0, 113, 227, 0.05)',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                        letterSpacing: '-0.01em',
+                        transition: 'all 0.2s ease',
                         '&:hover': {
-                          backgroundColor: darkMode ? 'rgba(0, 122, 255, 0.1)' : 'rgba(0, 86, 179, 0.1)',
+                          backgroundColor: darkMode 
+                            ? 'rgba(10, 132, 255, 0.15)' 
+                            : 'rgba(0, 113, 227, 0.1)',
+                          transform: 'translateY(-1px)',
                         }
                       }}
                     >
-                      Continue this thread
+                      Show more replies
                     </Button>
                   </Box>
                 )}
-                <Box sx={{ mt: 2, ml: 3 }}>
+                <Box sx={{ mt: 3, ml: 3 }}>
                   <AddReplyForm
                     reviewData={{ instructor, reviewIndex }}
                     courseId={courseId}
@@ -2231,13 +2340,13 @@ const handleQualityVote = async (voteType) => {
                       }
                     }}
                     darkMode={darkMode}
-                    textColor={textColor}
-                    backgroundColor={darkMode ? 'rgba(42, 42, 42, 0.7)' : 'rgba(249, 249, 249, 0.7)'}
-                    buttonColor={darkMode ? '#007AFF' : '#007AFF'}
-                    buttonHoverColor={darkMode ? '#0056b3' : '#0056b3'}
-                    inputBgColor={darkMode ? '#333333' : '#FFFFFF'}
-                    inputBorderColor={darkMode ? '#555555' : '#E0E0E0'}
-                    inputTextColor={textColor}
+                    textColor={darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)'}
+                    backgroundColor={darkMode ? 'rgba(26, 30, 54, 0.8)' : 'rgba(242, 242, 247, 0.8)'}
+                    buttonColor={darkMode ? '#0A84FF' : '#0071E3'}
+                    buttonHoverColor={darkMode ? '#0066CC' : '#0058B0'}
+                    inputBgColor={darkMode ? 'rgba(10, 10, 20, 0.3)' : '#FFFFFF'}
+                    inputBorderColor={darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}
+                    inputTextColor={darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)'}
                   />
                 </Box>
               </Box>
@@ -2276,17 +2385,77 @@ const handleQualityVote = async (voteType) => {
           return (
             <React.Fragment key={idx}>
               {showInstructor && (
-                <Typography
-                  variant="h6"
+                <Box
                   sx={{
-                    marginTop: '20px',
-                    color: textColor, // Use dynamic text color
-                    textAlign: 'left',
-                    fontWeight: 600,
+                    marginTop: '40px',
+                    marginBottom: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    position: 'relative',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      left: '-12px',
+                      width: '4px',
+                      height: '20px',
+                      borderRadius: '2px',
+                      background: darkMode 
+                        ? 'linear-gradient(to bottom, #FF9F0A, #FF7D0A)' 
+                        : 'linear-gradient(to bottom, #FF9500, #FF7D00)',
+                      boxShadow: darkMode ? '0 0 8px rgba(255, 159, 10, 0.5)' : 'none',
+                    }
                   }}
                 >
-                  {item.instructor}
-                </Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      fontSize: { xs: '1.1rem', sm: '1.2rem' },
+                      letterSpacing: '-0.015em',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                      textRendering: 'optimizeLegibility',
+                      WebkitFontSmoothing: 'antialiased',
+                      ml: 0.5,
+                    }}
+                  >
+                    {item.instructor}
+                  </Typography>
+                  {professorTerms[item.instructor] && professorTerms[item.instructor].length > 0 && (
+                    <Box sx={{ 
+                      display: 'flex', 
+                      ml: 2, 
+                      gap: '6px',
+                      flexWrap: 'wrap',
+                    }}>
+                      {professorTerms[item.instructor].slice(0, 2).map((termCode, idx) => (
+                        <Box
+                          key={idx}
+                          sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '2px 8px',
+                            borderRadius: '10px',
+                            backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.06)',
+                            border: darkMode ? '1px solid rgba(10, 132, 255, 0.2)' : '1px solid rgba(0, 113, 227, 0.1)',
+                          }}
+                        >
+                          <Typography 
+                            sx={{ 
+                              fontSize: '0.7rem', 
+                              fontWeight: 600,
+                              color: darkMode ? '#0A84FF' : '#0071E3',
+                              fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                            }}
+                          >
+                            {formatTermCode(termCode)}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
               )}
               <ReviewItem
                 key={idx}
@@ -2325,204 +2494,89 @@ useEffect(() => {
 
   const renderPageButtons = () => {
     let pages = [];
+    
+    // Common button styling
+    const pageButtonStyle = (i) => ({
+      onClick: () => handleChangePage(i),
+      disabled: currentPage === i,
+    });
+    
+    // Ellipsis styling (no onClick handler)
+    const ellipsisStyle = {
+      disabled: true,
+      sx: { 
+        color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)',
+        minWidth: { xs: '20px', sm: '24px' },
+        padding: 0,
+        '&.Mui-disabled': {
+          color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)',
+          backgroundColor: 'transparent',
+          boxShadow: 'none',
+          transform: 'none',
+        }
+      }
+    };
+    
     if (totalPages <= 5) {
+      // Show all pages if there are 5 or fewer
       for (let i = 1; i <= totalPages; i++) {
         pages.push(
-          <Button
-            key={i}
-            onClick={() => handleChangePage(i)}
-            disabled={currentPage === i}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={i} {...pageButtonStyle(i)}>
             {i}
           </Button>
         );
       }
     } else {
       if (currentPage <= 3) {
+        // Near the start
         for (let i = 1; i <= 4; i++) {
           pages.push(
-            <Button
-              key={i}
-              onClick={() => handleChangePage(i)}
-              disabled={currentPage === i}
-              sx={{
-                color: '#fff',
-                backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
-                '&:hover': {
-                  backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
-                },
-                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                margin: '0 2px',
-                borderRadius: '50%',
-                width: '36px',
-                height: '36px',
-              }}
-            >
+            <Button key={i} {...pageButtonStyle(i)}>
               {i}
             </Button>
           );
         }
+        pages.push(<Button key="ellipsis" {...ellipsisStyle}>•••</Button>);
         pages.push(
-          <Button key="ellipsis" disabled sx={{ color: '#fff', margin: '0 2px' }}>
-            ...
-          </Button>
-        );
-        pages.push(
-          <Button
-            key={totalPages}
-            onClick={() => handleChangePage(totalPages)}
-            disabled={currentPage === totalPages}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === totalPages ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === totalPages ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={totalPages} {...pageButtonStyle(totalPages)}>
             {totalPages}
           </Button>
         );
       } else if (currentPage > totalPages - 3) {
+        // Near the end
         pages.push(
-          <Button
-            key={1}
-            onClick={() => handleChangePage(1)}
-            disabled={currentPage === 1}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === 1 ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === 1 ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={1} {...pageButtonStyle(1)}>
             1
           </Button>
         );
-        pages.push(
-          <Button key="ellipsis" disabled sx={{ color: '#fff', margin: '0 2px' }}>
-            ...
-          </Button>
-        );
+        pages.push(<Button key="ellipsis" {...ellipsisStyle}>•••</Button>);
         for (let i = totalPages - 3; i <= totalPages; i++) {
           pages.push(
-            <Button
-              key={i}
-              onClick={() => handleChangePage(i)}
-              disabled={currentPage === i}
-              sx={{
-                color: '#fff',
-                backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
-                '&:hover': {
-                  backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
-                },
-                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                margin: '0 2px',
-                borderRadius: '50%',
-                width: '36px',
-                height: '36px',
-              }}
-            >
+            <Button key={i} {...pageButtonStyle(i)}>
               {i}
             </Button>
           );
         }
       } else {
+        // In the middle
         pages.push(
-          <Button
-            key={1}
-            onClick={() => handleChangePage(1)}
-            disabled={currentPage === 1}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === 1 ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === 1 ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={1} {...pageButtonStyle(1)}>
             1
           </Button>
         );
-        pages.push(
-          <Button key="ellipsis1" disabled sx={{ color: '#fff', margin: '0 2px' }}>
-            ...
-          </Button>
-        );
+        pages.push(<Button key="ellipsis1" {...ellipsisStyle}>•••</Button>);
+        
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
           pages.push(
-            <Button
-              key={i}
-              onClick={() => handleChangePage(i)}
-              disabled={currentPage === i}
-              sx={{
-                color: '#fff',
-                backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
-                '&:hover': {
-                  backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
-                },
-                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                margin: '0 2px',
-                borderRadius: '50%',
-                width: '36px',
-                height: '36px',
-              }}
-            >
+            <Button key={i} {...pageButtonStyle(i)}>
               {i}
             </Button>
           );
         }
+        
+        pages.push(<Button key="ellipsis2" {...ellipsisStyle}>•••</Button>);
         pages.push(
-          <Button key="ellipsis2" disabled sx={{ color: '#fff', margin: '0 2px' }}>
-            ...
-          </Button>
-        );
-        pages.push(
-          <Button
-            key={totalPages}
-            onClick={() => handleChangePage(totalPages)}
-            disabled={currentPage === totalPages}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === totalPages ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === totalPages ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={totalPages} {...pageButtonStyle(totalPages)}>
             {totalPages}
           </Button>
         );
@@ -4007,67 +4061,165 @@ useEffect(() => {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '-10px',
+    marginBottom: '8px',
     marginTop: '60px',
+    position: 'relative',
   }}
 >
-<Typography
-  variant="h5"
-  gutterBottom
-  sx={{ fontWeight: 600, color: headerTextColor }}
->
-  Reviews
-</Typography>
-
-<FormControl
-  size="small"
-  sx={{
-    minWidth: 150,
-    backgroundColor: searchBgColor,                  // Dynamic background color
-    borderRadius: '8px',
-    border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border color
-  }}
->
-  <InputLabel
-    id="select-professor-label"
-    sx={{ fontWeight: 400, color: darkMode ? '#FFFFFF' : '#00693E' }} // Dynamic text color
-  >
-    Professor
-  </InputLabel>
-  <Select
-    labelId="select-professor-label"
-    value={selectedProfessor}
-    onChange={handleProfessorFilterChange}
-    label="Professor"
+  <Box
     sx={{
-      fontWeight: 400,
-      color: textColor, // Ensure selected text color is dynamic
-      backgroundColor: searchBgColor, // Match background
-      '& .MuiSelect-select': {
-        padding: '8px 12px',
-      },
-      '& .MuiOutlinedInput-notchedOutline': {
-        borderColor: darkMode ? '#444444' : '#D1D1D6',
-      },
-      '&:hover .MuiOutlinedInput-notchedOutline': {
-        borderColor: darkMode ? '#555555' : '#A1A1A6',
-      },
-      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-        borderColor: '#571CE0', // Primary color on focus
-      },
+      display: 'flex',
+      alignItems: 'center',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        left: '-12px',
+        width: '4px',
+        height: '24px',
+        borderRadius: '2px',
+        background: darkMode 
+          ? 'linear-gradient(to bottom, #34C759, #30D158)' 
+          : 'linear-gradient(to bottom, #00693E, #00875A)',
+        boxShadow: darkMode ? '0 0 8px rgba(52, 199, 89, 0.5)' : 'none',
+      }
     }}
   >
-    <MenuItem value="">
-      <em>All</em>
-    </MenuItem>
-    {uniqueProfessors.map((professor, index) => (
-      <MenuItem key={index} value={professor} sx={{ fontWeight: 400 }}>
-        {professor}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
+    <Typography
+      variant="h5"
+      sx={{ 
+        fontWeight: 700, 
+        color: darkMode ? '#FFFFFF' : headerTextColor,
+        fontSize: { xs: '1.25rem', sm: '1.35rem', md: '1.5rem' },
+        letterSpacing: '-0.02em',
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+        textRendering: 'optimizeLegibility',
+        WebkitFontSmoothing: 'antialiased',
+      }}
+    >
+      Student Reviews
+    </Typography>
+  </Box>
 
+  <FormControl
+    size="small"
+    sx={{
+      minWidth: 180,
+      position: 'relative',
+      '& .MuiInputBase-root': {
+        backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.5)' : 'rgba(248, 249, 251, 0.8)',
+        borderRadius: '12px',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+        boxShadow: darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+          boxShadow: darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
+          transform: 'translateY(-1px)',
+        }
+      }
+    }}
+  >
+    <InputLabel
+      id="select-professor-label"
+      sx={{ 
+        fontWeight: 500, 
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontSize: '0.85rem',
+        letterSpacing: '-0.01em',
+        color: darkMode ? '#0A84FF' : '#0071E3',
+      }}
+    >
+      Filter by Professor
+    </InputLabel>
+    <Select
+      labelId="select-professor-label"
+      value={selectedProfessor}
+      onChange={handleProfessorFilterChange}
+      label="Filter by Professor"
+      sx={{
+        fontWeight: 500,
+        color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontSize: '0.9rem',
+        letterSpacing: '-0.01em',
+        '& .MuiSelect-select': {
+          padding: '10px 14px',
+        },
+        '& .MuiOutlinedInput-notchedOutline': {
+          borderColor: 'transparent',
+        },
+        '&:hover .MuiOutlinedInput-notchedOutline': {
+          borderColor: 'transparent',
+        },
+        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+          borderColor: darkMode ? '#0A84FF' : '#0071E3',
+          borderWidth: '1px',
+        },
+        '& .MuiSvgIcon-root': {
+          color: darkMode ? '#0A84FF' : '#0071E3',
+          transition: 'transform 0.2s ease',
+        },
+        '&.Mui-focused .MuiSvgIcon-root': {
+          transform: 'rotate(180deg)',
+        }
+      }}
+      MenuProps={{
+        PaperProps: {
+          sx: {
+            backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.95)' : 'rgba(248, 249, 251, 0.95)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '12px',
+            boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)',
+            border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+            marginTop: '8px',
+            '& .MuiMenuItem-root': {
+              fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+              fontSize: '0.9rem',
+              letterSpacing: '-0.01em',
+              padding: '10px 16px',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+              },
+              '&.Mui-selected': {
+                backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.08)',
+                color: darkMode ? '#0A84FF' : '#0071E3',
+                fontWeight: 600,
+                '&:hover': {
+                  backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.2)' : 'rgba(0, 113, 227, 0.12)',
+                }
+              }
+            }
+          }
+        }
+      }}
+    >
+      <MenuItem 
+        value=""
+        sx={{ 
+          fontWeight: selectedProfessor === "" ? 600 : 400,
+          color: selectedProfessor === "" ? (darkMode ? '#0A84FF' : '#0071E3') : 'inherit'
+        }}
+      >
+        <em>All Professors</em>
+      </MenuItem>
+      {uniqueProfessors.map((professor, index) => (
+        <MenuItem 
+          key={index} 
+          value={professor} 
+          sx={{ 
+            fontWeight: selectedProfessor === professor ? 600 : 400,
+            color: selectedProfessor === professor ? (darkMode ? '#0A84FF' : '#0071E3') : 'inherit'
+          }}
+        >
+          {professor}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
 </Box>
 
             {renderReviews()}
@@ -4077,90 +4229,172 @@ useEffect(() => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: '20px',
+    marginTop: '40px',
+    marginBottom: '20px',
     width: '100%',
-    gap: '16px', // Increase space between elements for a more airy feel
+    gap: { xs: '10px', sm: '16px' },
   }}
 >
-  <Tooltip title="Previous Page" placement="top">
+  <Tooltip 
+    title="Previous Page" 
+    placement="top"
+    arrow
+    enterDelay={400}
+    sx={{
+      '& .MuiTooltip-arrow': {
+        color: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+      },
+      '& .MuiTooltip-tooltip': {
+        backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+        color: '#FFFFFF',
+        fontSize: '0.75rem',
+        borderRadius: '8px',
+        padding: '6px 10px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontWeight: 500,
+        letterSpacing: '-0.01em',
+      }
+    }}
+  >
     <span>
       <IconButton
         onClick={() => handleChangePage(currentPage - 1)}
         disabled={currentPage === 1}
         sx={{
-          color: darkMode ? '#FFFFFF' : '#000000', // Dynamic text color
+          color: darkMode ? (currentPage === 1 ? 'rgba(255, 255, 255, 0.4)' : '#0A84FF') : (currentPage === 1 ? 'rgba(0, 0, 0, 0.3)' : '#0071E3'),
           backgroundColor: darkMode 
-            ? (currentPage === 1 ? '#1C1F43' : '#1C1F43') 
-            : (currentPage === 1 ? '#F5F5F7' : '#F5F5F7'), // Dark mode backgrounds
-          borderRadius: '12px',
-          padding: '12px',
-          border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border
+            ? (currentPage === 1 ? 'rgba(30, 35, 61, 0.3)' : 'rgba(30, 35, 61, 0.6)') 
+            : (currentPage === 1 ? 'rgba(248, 249, 251, 0.5)' : 'rgba(248, 249, 251, 0.8)'),
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          borderRadius: '14px',
+          padding: '10px',
+          border: darkMode 
+            ? (currentPage === 1 ? '1px solid rgba(255, 255, 255, 0.04)' : '1px solid rgba(255, 255, 255, 0.08)') 
+            : (currentPage === 1 ? '1px solid rgba(0, 0, 0, 0.03)' : '1px solid rgba(0, 0, 0, 0.05)'),
+          boxShadow: currentPage === 1 ? 'none' : (darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.06)'),
+          transition: 'all 0.2s ease',
+          transform: 'translateY(0)',
           '&:hover': {
             backgroundColor: darkMode 
-              ? (currentPage === 1 ? '#24273c' : '#24273c') 
-              : (currentPage === 1 ? '#F5F5F7' : '#E0E0E0'), // Darker shade on hover
+              ? (currentPage === 1 ? 'rgba(30, 35, 61, 0.3)' : 'rgba(30, 35, 61, 0.7)') 
+              : (currentPage === 1 ? 'rgba(248, 249, 251, 0.5)' : 'rgba(248, 249, 251, 0.9)'),
+            transform: currentPage === 1 ? 'translateY(0)' : 'translateY(-2px)',
+            boxShadow: currentPage === 1 ? 'none' : (darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)'),
           },
-          transition: 'background-color 0.3s ease',
         }}
       >
-        <ArrowBack sx={{ fontSize: '20px' }} />
+        <ArrowBack sx={{ 
+          fontSize: '18px',
+          transition: 'transform 0.2s ease',
+          transform: currentPage === 1 ? 'translateX(0)' : 'translateX(0)',
+          '&:hover': {
+            transform: currentPage === 1 ? 'translateX(0)' : 'translateX(-2px)'
+          }
+        }} />
       </IconButton>
     </span>
   </Tooltip>
 
-  <ButtonGroup
-  variant="text"
-  sx={{
-    '& .MuiButtonGroup-grouped': {
-      minWidth: '40px',
-      height: '40px',
-      borderRadius: '12px',
-      backgroundColor: darkMode ? '#1C1F43' : '#F5F5F7', // Dynamic background color
-      color: darkMode ? '#FFFFFF' : '#000000',          // Dynamic text color
-      border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border
-      margin: '0 2px',
-      fontSize: '16px',
-      '&:hover': {
-        backgroundColor: darkMode ? '#24273c' : '#E0E0E0', // Darker shade on hover
-      },
-      '&.Mui-selected': {
-        backgroundColor: '#007AFF', // Assuming selected color remains the same
-        color: '#fff',
+  <Box
+    sx={{
+      display: 'flex',
+      backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.5)' : 'rgba(248, 249, 251, 0.7)',
+      borderRadius: '18px',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+      padding: '4px 8px',
+      border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+      boxShadow: darkMode ? '0 4px 16px rgba(0, 0, 0, 0.15)' : '0 4px 16px rgba(0, 0, 0, 0.06)',
+      '& .MuiButton-root': {
+        minWidth: { xs: '32px', sm: '36px' },
+        height: { xs: '32px', sm: '36px' },
+        borderRadius: '12px',
+        padding: '0',
+        margin: '4px',
+        fontSize: { xs: '0.85rem', sm: '0.9rem' },
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontWeight: 500,
+        letterSpacing: '-0.01em',
+        backgroundColor: 'transparent',
+        color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+        border: 'none',
+        transition: 'all 0.2s ease',
         '&:hover': {
-          backgroundColor: '#0066CC',
+          backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+          transform: 'translateY(-1px)',
         },
+        '&.Mui-disabled': {
+          backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.08)',
+          color: darkMode ? '#0A84FF' : '#0071E3',
+          fontWeight: 600,
+          transform: 'scale(1.05)',
+          boxShadow: darkMode ? '0 2px 8px rgba(10, 132, 255, 0.2)' : '0 2px 8px rgba(0, 113, 227, 0.1)',
+        }
+      }
+    }}
+  >
+    {renderPageButtons()}
+  </Box>
+
+  <Tooltip 
+    title="Next Page" 
+    placement="top"
+    arrow
+    enterDelay={400}
+    sx={{
+      '& .MuiTooltip-arrow': {
+        color: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
       },
-    },
-  }}
->
-  {renderPageButtons()}
-</ButtonGroup>
-
-
-  <Tooltip title="Next Page" placement="top">
+      '& .MuiTooltip-tooltip': {
+        backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+        color: '#FFFFFF',
+        fontSize: '0.75rem',
+        borderRadius: '8px',
+        padding: '6px 10px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontWeight: 500,
+        letterSpacing: '-0.01em',
+      }
+    }}
+  >
     <span>
-            <IconButton
-          onClick={() => handleChangePage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          sx={{
-            color: darkMode ? '#FFFFFF' : '#000000', // Dynamic text color
+      <IconButton
+        onClick={() => handleChangePage(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        sx={{
+          color: darkMode ? (currentPage === totalPages ? 'rgba(255, 255, 255, 0.4)' : '#0A84FF') : (currentPage === totalPages ? 'rgba(0, 0, 0, 0.3)' : '#0071E3'),
+          backgroundColor: darkMode 
+            ? (currentPage === totalPages ? 'rgba(30, 35, 61, 0.3)' : 'rgba(30, 35, 61, 0.6)') 
+            : (currentPage === totalPages ? 'rgba(248, 249, 251, 0.5)' : 'rgba(248, 249, 251, 0.8)'),
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          borderRadius: '14px',
+          padding: '10px',
+          border: darkMode 
+            ? (currentPage === totalPages ? '1px solid rgba(255, 255, 255, 0.04)' : '1px solid rgba(255, 255, 255, 0.08)') 
+            : (currentPage === totalPages ? '1px solid rgba(0, 0, 0, 0.03)' : '1px solid rgba(0, 0, 0, 0.05)'),
+          boxShadow: currentPage === totalPages ? 'none' : (darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.06)'),
+          transition: 'all 0.2s ease',
+          transform: 'translateY(0)',
+          '&:hover': {
             backgroundColor: darkMode 
-              ? (currentPage === totalPages ? '#1C1F43' : '#1C1F43') 
-              : (currentPage === totalPages ? '#F5F5F7' : '#F5F5F7'), // Dark mode backgrounds
-            borderRadius: '12px',
-            padding: '12px',
-            border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border
-            '&:hover': {
-              backgroundColor: darkMode 
-                ? (currentPage === totalPages ? '#24273c' : '#24273c') 
-                : (currentPage === totalPages ? '#F5F5F7' : '#E0E0E0'), // Darker shade on hover
-            },
-            transition: 'background-color 0.3s ease',
-          }}
-        >
-          <ArrowForward sx={{ fontSize: '20px' }} />
-        </IconButton>
-
+              ? (currentPage === totalPages ? 'rgba(30, 35, 61, 0.3)' : 'rgba(30, 35, 61, 0.7)') 
+              : (currentPage === totalPages ? 'rgba(248, 249, 251, 0.5)' : 'rgba(248, 249, 251, 0.9)'),
+            transform: currentPage === totalPages ? 'translateY(0)' : 'translateY(-2px)',
+            boxShadow: currentPage === totalPages ? 'none' : (darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)'),
+          },
+        }}
+      >
+        <ArrowForward sx={{ 
+          fontSize: '18px',
+          transition: 'transform 0.2s ease',
+          transform: currentPage === totalPages ? 'translateX(0)' : 'translateX(0)',
+          '&:hover': {
+            transform: currentPage === totalPages ? 'translateX(0)' : 'translateX(2px)'
+          }
+        }} />
+      </IconButton>
     </span>
   </Tooltip>
 </Box>
