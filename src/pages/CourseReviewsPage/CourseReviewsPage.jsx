@@ -324,14 +324,14 @@ const CourseReviewsPage = ({ darkMode }) => {
             <Typography
               variant="body1"
               sx={{ 
-                fontSize: { xs: '0.95rem', sm: '1rem', md: '1.05rem' }, 
-                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
-                textAlign: 'left', 
-                lineHeight: 1.7,
-                letterSpacing: '-0.011em',
-                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
-                WebkitFontSmoothing: 'antialiased',
-                fontWeight: 400,
+                                 fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' }, 
+                 color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                 textAlign: 'left', 
+                 lineHeight: 1.6,
+                 letterSpacing: '-0.011em',
+                 fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                 WebkitFontSmoothing: 'antialiased',
+                 fontWeight: 400,
               }}
               dangerouslySetInnerHTML={{ __html: courseDescription }}
             />
