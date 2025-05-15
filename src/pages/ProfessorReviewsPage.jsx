@@ -214,7 +214,7 @@ const ProfessorReviewsPage = ({darkMode}) => {
                 variant="h5"
                 sx={{
                   fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                  color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                  color: darkMode ? '#34C759' : '#00693E',
                   fontWeight: 500,
                   letterSpacing: '-0.015em',
                   fontSize: { xs: '1.25rem', sm: '1.5rem' }
@@ -235,32 +235,7 @@ const ProfessorReviewsPage = ({darkMode}) => {
           </Box>
         </motion.div>
 
-        <Box sx={{ position: 'relative' }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-              color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
-              fontWeight: 600,
-              letterSpacing: '-0.015em',
-              mb: 3,
-              display: 'flex',
-              alignItems: 'center',
-              fontSize: { xs: '1.1rem', sm: '1.25rem' }
-            }}
-          >
-            <Box
-              sx={{
-                width: '4px',
-                height: '20px',
-                background: darkMode ? '#0384fc' : '#0066CC',
-                borderRadius: '2px',
-                mr: 2
-              }}
-            />
-            Reviews
-          </Typography>
-        </Box>
+        
 
         {loading ? (
           <Box sx={{ 
