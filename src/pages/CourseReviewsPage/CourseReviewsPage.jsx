@@ -214,7 +214,8 @@ const CourseReviewsPage = ({ darkMode }) => {
     return (
       <Box 
         sx={{ 
-          padding: { xs: '20px', sm: '24px', md: '32px' },
+          padding: { xs: '12px', sm: '16px', md: '20px' },
+          paddingTop: { xs: '8px', sm: '12px', md: '16px' },
           transition: 'all 0.3s ease',
         }}
       >
@@ -3105,7 +3106,8 @@ useEffect(() => {
       <Card
   sx={{
     marginBottom: 4,
-    padding: 4,
+    padding: { xs: 2, sm: 3, md: 4 },
+    paddingTop: { xs: 1.5, sm: 2, md: 2.5 },
     backgroundColor: paperBgColor, // Use dynamic paper background color
     color: textColor,               // Use dynamic text color
     boxShadow: 'none',
@@ -3119,7 +3121,7 @@ useEffect(() => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        marginBottom: 3,
+        marginBottom: 1.5,
         width: '100%'
       }}
     >
