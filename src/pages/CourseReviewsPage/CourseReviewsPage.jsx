@@ -263,7 +263,7 @@ const CourseReviewsPage = ({ darkMode }) => {
                   WebkitFontSmoothing: 'antialiased',
                 }}
               >
-                College Description
+                Course Description
               </Typography>
             </Box>
             
