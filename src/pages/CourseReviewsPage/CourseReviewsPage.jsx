@@ -541,6 +541,16 @@ const CourseReviewsPage = ({ darkMode }) => {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    
+    // If the "Add Review" tab is selected, scroll to the review form
+    if (newValue === 3) {
+      setTimeout(() => {
+        const reviewSection = document.getElementById('add-review-section');
+        if (reviewSection) {
+          reviewSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
   };
 
   const renderTabContent = () => {
@@ -637,8 +647,8 @@ const CourseReviewsPage = ({ darkMode }) => {
             </Box>
           </Box>
         );
-      case 3:
-        // Input Data tab content
+      case 4:
+        // Input Data tab content (Beta tab)
         return (
           <Box sx={{ padding: '20px'  }}>
             <Typography variant="h6" gutterBottom>
@@ -647,6 +657,10 @@ const CourseReviewsPage = ({ darkMode }) => {
             <CourseInputDataForm courseId={courseId} allProfessors={allProfessors} />
           </Box>
         );
+      
+      case 3:
+        // Add Review tab - just return null as we're scrolling to the form
+        return null;
         case 2:
   return (
     <Box sx={{ padding: '20px' }}>
@@ -2981,6 +2995,11 @@ useEffect(() => {
               label="Course Metrics" 
               disableRipple
             />
+            <StyledTab 
+              icon={<Input fontSize="small" />} 
+              label="Add Review" 
+              disableRipple
+            />
             {isBetaUser && (
               <StyledTab 
                 icon={<ScienceIcon fontSize="small" />} 
@@ -3992,6 +4011,7 @@ useEffect(() => {
           </>
         )}
         <Box
+          id="add-review-section"
           sx={{
             background: '',
             padding: '20px',
