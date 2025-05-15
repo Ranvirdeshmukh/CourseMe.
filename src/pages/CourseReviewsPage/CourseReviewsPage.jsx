@@ -3019,13 +3019,21 @@ useEffect(() => {
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography
-            variant="h3"
+            variant="h2"
             sx={{
-              fontWeight: 700,
-              fontSize: { xs: '1.8rem', sm: '2.2rem' },
-              letterSpacing: '-0.5px',
-              color: headerTextColor,
-              fontFamily: '-apple-system, SF Pro Display, sans-serif',
+              fontWeight: 800,
+              fontSize: { xs: '2.4rem', sm: '3.2rem', md: '3.6rem' },
+              letterSpacing: '-0.025em',
+              color: darkMode ? '#FFFFFF' : headerTextColor,
+              fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+              textRendering: 'optimizeLegibility',
+              marginBottom: 0.5,
+              paddingLeft: { xs: 0, sm: '2px' },
+              position: 'relative',
+              transition: 'color 0.2s ease',
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale',
+              textShadow: darkMode ? '0 0 1px rgba(255, 255, 255, 0.1)' : 'none',
             }}
           >
             {courseName}
@@ -3210,17 +3218,31 @@ useEffect(() => {
         </Box>
       </Box>
       
-      {/* Course full name section */}
+      {/* Course full name section - Apple design style */}
       <Typography
-        variant="h5"
+        variant="h4"
         sx={{
           color: darkMode ? '#34C759' : '#00693E',
-          fontWeight: 500,
-          fontFamily: '-apple-system, SF Pro Display, sans-serif',
-          fontSize: { xs: '1.1rem', sm: '1.25rem' },
-          marginBottom: 1,
-          opacity: 0.9,
-          letterSpacing: '-0.3px',
+          fontWeight: 600,
+          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+          fontSize: { xs: '1.6rem', sm: '1.9rem', md: '2.1rem' },
+          marginTop: 1,
+          marginBottom: 2,
+          letterSpacing: '-0.022em',
+          lineHeight: 1.1,
+          textRendering: 'optimizeLegibility',
+          transition: 'color 0.2s ease',
+          display: 'flex',
+          alignItems: 'center',
+          '&::before': {
+            content: '""',
+            width: '4px',
+            height: { xs: '24px', sm: '28px', md: '32px' },
+            backgroundColor: darkMode ? '#34C759' : '#00693E',
+            borderRadius: '2px',
+            marginRight: '12px',
+            boxShadow: darkMode ? '0 0 8px rgba(52, 199, 89, 0.4)' : 'none',
+          }
         }}
       >
         {courseId.split('__')[1]?.replace(/_/g, ' ') || 'Course Details'}
