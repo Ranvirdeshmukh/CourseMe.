@@ -210,177 +210,293 @@ const CourseReviewsPage = ({ darkMode }) => {
     
     // Generate ORC link for the current course
     const orcLink = generateORCLink(courseId);
-    console.log("Generated ORC link:", orcLink); // Debug log
-  
+    
     return (
-      <Box sx={{ padding: '20px' }}>
-        {/* Course title and ORC link in corner */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'flex-start', 
-          alignItems: 'center',
-          mb: 2,
-          gap: 2
-        }}>
-          <Typography 
-            variant="h6" 
+      <Box 
+        sx={{ 
+          padding: { xs: '20px', sm: '24px', md: '32px' },
+          transition: 'all 0.3s ease',
+        }}
+      >
+        {/* College Description Section - Apple Style */}
+        <Box 
+          sx={{
+            mb: 4,
+            position: 'relative',
+          }}
+        >
+          {/* Header with ORC link */}
+          <Box 
             sx={{ 
-              fontWeight: 600, 
-              color: headerTextColor,
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              mb: 2.5,
             }}
           >
-            College Description
-          </Typography>
-          
-          {orcLink && (
-            <Tooltip 
-              title="View the official information about the course released by college"
-              arrow
-              placement="top"
+            <Box
               sx={{
-                fontSize: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  left: '-12px',
+                  width: '4px',
+                  height: '24px',
+                  borderRadius: '2px',
+                  backgroundColor: darkMode ? '#0A84FF' : '#0071E3',
+                  boxShadow: darkMode ? '0 0 8px rgba(10, 132, 255, 0.5)' : 'none',
+                }
               }}
             >
+              <Typography 
+                variant="h5" 
+                sx={{ 
+                  fontWeight: 700, 
+                  color: darkMode ? '#FFFFFF' : headerTextColor,
+                  fontSize: { xs: '1.25rem', sm: '1.35rem', md: '1.5rem' },
+                  letterSpacing: '-0.02em',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                  textRendering: 'optimizeLegibility',
+                  WebkitFontSmoothing: 'antialiased',
+                }}
+              >
+                College Description
+              </Typography>
+            </Box>
+            
+            {orcLink && (
               <Button
-                variant="outlined"
-                size="small"
-                startIcon={<Description sx={{ fontSize: '1rem' }} />}
+                startIcon={<Description 
+                  sx={{ 
+                    fontSize: '1rem',
+                    transition: 'transform 0.2s ease',
+                  }} 
+                />}
                 component="a"
                 href={orcLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{
-                  color: darkMode ? '#90caf9' : '#571CE0',
-                  borderColor: darkMode ? 'rgba(144, 202, 249, 0.5)' : 'rgba(87, 28, 224, 0.3)',
+                  color: darkMode ? '#0A84FF' : '#0071E3',
+                  backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.05)',
+                  borderRadius: '12px',
                   textTransform: 'none',
-                  fontSize: '0.75rem',
-                  fontWeight: 500,
-                  letterSpacing: '0.02em',
-                  padding: '3px 10px',
-                  borderRadius: '4px',
-                  boxShadow: 'none',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  letterSpacing: '-0.01em',
+                  padding: '8px 16px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                  transition: 'all 0.2s ease',
+                  border: 'none',
                   '&:hover': {
-                    borderColor: darkMode ? '#90caf9' : '#571CE0',
-                    backgroundColor: darkMode ? 'rgba(144, 202, 249, 0.08)' : 'rgba(87, 28, 224, 0.04)',
+                    backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.1)',
+                    transform: 'translateY(-1px)',
+                    '& .MuiSvgIcon-root': {
+                      transform: 'translateY(-1px)',
+                    }
                   }
                 }}
               >
-                ORC Catalog
+                View in ORC Catalog
               </Button>
-            </Tooltip>
-          )}
-        </Box>
-  
-        {/* Course description content */}
-        <Typography
-          variant="body1"
-          sx={{ 
-            fontSize: '0.95rem', 
-            color: textColor,
-            textAlign: 'left', 
-            lineHeight: '1.6',
-            marginBottom: '1rem'
-          }}
-          dangerouslySetInnerHTML={{ __html: courseDescription }}
-        />
-        
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 2, 
-          marginBottom: '1rem'
-        }}>
-          {/* AI Summary header */}
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 600, 
-              color: headerTextColor,
-            }}
-          >
-            AI Summary of Reviews
-          </Typography>
-  
-          {/* 4. Update Tooltip Background and Text Colors */}
-          <Box className="flex-shrink-0 relative group">
-            <Sparkles className="w-5 h-5 text-indigo-600 cursor-help" />
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: '100%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                mb: 2,
-                display: 'none',
-                width: '200px',
-                p: 2,
-                bgcolor: tooltipBgColor,          // Changed from 'bg-white' to dynamic variable
-                color: tooltipTextColor,          // Changed from 'text-gray-600' to dynamic variable
-                borderRadius: '8px',
-                boxShadow: 3,
-                textAlign: 'center',
-                fontSize: '0.875rem',
-                border: darkMode ? '1px solid #444444' : '1px solid #e9ecef', // Optional: Add border based on darkMode
-                '& .MuiBox-root': {
-                  position: 'absolute',
-                  top: '100%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '0',
-                  height: '0',
-                  borderLeft: '6px solid transparent',
-                  borderRight: '6px solid transparent',
-                  borderTop: `6px solid ${tooltipBgColor}`, // Triangle arrow matching tooltip background
-                },
-                '.group:hover &': {
-                  display: 'block',
-                },
-              }}
-            >
-              AI-generated summary based on student reviews
-              <Box />
-            </Box>
+            )}
           </Box>
-        </Box>
   
-        {/* 5. Update Summary Typography and Box */}
-        {course?.summary ? (
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: '0.95rem',
-              color: textColor,                   // Changed from 'text.primary' to dynamic variable
-              textAlign: 'left',
-              lineHeight: '1.6',
-              padding: '1rem',
-              backgroundColor: paperBgColor,      // Changed from '#f8f9fa' to dynamic variable
-              borderRadius: '8px',
-              border: darkMode ? '1px solid #444444' : '1px solid #e9ecef', // Changed from '#e9ecef' to dynamic border
-            }}
-          >
-            {course.summary}
-          </Typography>
-        ) : (
+          {/* Course description content */}
           <Box
             sx={{
-              padding: '1rem',
-              backgroundColor: paperBgColor,      // Changed from '#f8f9fa' to dynamic variable
-              borderRadius: '8px',
-              border: darkMode ? '1px solid #444444' : '1px solid #e9ecef', // Changed from '#e9ecef' to dynamic border
+              position: 'relative',
+              backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)',
+              borderRadius: '16px',
+              padding: { xs: '20px', sm: '24px' },
+              transition: 'all 0.3s ease',
+              border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+              boxShadow: darkMode ? 'none' : '0 2px 12px rgba(0, 0, 0, 0.03)',
+              '&:hover': {
+                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.03)',
+                boxShadow: darkMode ? '0 2px 12px rgba(0, 0, 0, 0.15)' : '0 4px 16px rgba(0, 0, 0, 0.06)',
+              }
             }}
           >
             <Typography
               variant="body1"
-              sx={{
-                fontSize: '0.95rem',
-                color: darkMode ? '#FFFFFF' : '#8E8E93', // Changed from 'text.secondary' to dynamic color
-                fontStyle: 'italic'
+              sx={{ 
+                fontSize: { xs: '0.95rem', sm: '1rem', md: '1.05rem' }, 
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                textAlign: 'left', 
+                lineHeight: 1.7,
+                letterSpacing: '-0.011em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                WebkitFontSmoothing: 'antialiased',
+                fontWeight: 400,
+              }}
+              dangerouslySetInnerHTML={{ __html: courseDescription }}
+            />
+          </Box>
+        </Box>
+        
+        {/* AI Summary Section - Apple Style */}
+        <Box 
+          sx={{ 
+            mt: 5,
+            position: 'relative',
+          }}
+        >
+          {/* AI Summary Header */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mb: 2.5,
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                left: '-12px',
+                width: '4px',
+                height: '24px',
+                borderRadius: '2px',
+                background: darkMode 
+                  ? 'linear-gradient(to bottom, #34C759, #30D158)' 
+                  : 'linear-gradient(to bottom, #00693E, #00875A)',
+                boxShadow: darkMode ? '0 0 8px rgba(52, 199, 89, 0.5)' : 'none',
+              }
+            }}
+          >
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                fontWeight: 700,
+                color: darkMode ? '#FFFFFF' : headerTextColor,
+                fontSize: { xs: '1.25rem', sm: '1.35rem', md: '1.5rem' },
+                letterSpacing: '-0.02em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                mr: 1.5,
               }}
             >
-              Not enough data to generate an AI summary. This will be available once more students review the course.
+              AI Summary of Reviews
             </Typography>
+            
+            <Tooltip
+              title="AI-generated summary based on student reviews"
+              arrow
+              placement="top"
+              sx={{
+                '& .MuiTooltip-tooltip': {
+                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+                  color: '#FFFFFF',
+                  fontSize: '0.75rem',
+                  borderRadius: '10px',
+                  padding: '8px 12px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  fontWeight: 500,
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  letterSpacing: '-0.01em',
+                },
+                '& .MuiTooltip-arrow': {
+                  color: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+                }
+              }}
+            >
+              <Box 
+                sx={{ 
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  cursor: 'help' 
+                }}
+              >
+                <AutoAwesomeIcon 
+                  sx={{ 
+                    fontSize: '1.1rem',
+                    color: darkMode ? '#34C759' : '#00693E',
+                    opacity: 0.9,
+                    transform: 'rotate(10deg)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      opacity: 1,
+                      transform: 'rotate(25deg) scale(1.1)',
+                    }
+                  }} 
+                />
+              </Box>
+            </Tooltip>
           </Box>
-        )}
+  
+          {/* AI Summary Content */}
+          <Box
+            sx={{
+              borderRadius: '16px',
+              overflow: 'hidden',
+              boxShadow: darkMode 
+                ? '0 4px 16px rgba(0, 0, 0, 0.15)' 
+                : '0 4px 24px rgba(0, 0, 0, 0.06)',
+              transition: 'all 0.3s ease',
+              border: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.08)' 
+                : '1px solid rgba(0, 0, 0, 0.05)',
+              backgroundColor: darkMode 
+                ? 'rgba(30, 35, 61, 0.5)' 
+                : 'rgba(248, 249, 251, 1)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: darkMode 
+                  ? '0 8px 24px rgba(0, 0, 0, 0.2)' 
+                  : '0 8px 32px rgba(0, 0, 0, 0.08)',
+              }
+            }}
+          >
+            {course?.summary ? (
+              <Typography
+                variant="body1"
+                sx={{
+                  fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' },
+                  color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                  textAlign: 'left',
+                  lineHeight: 1.6,
+                  padding: { xs: '20px', sm: '24px' },
+                  letterSpacing: '-0.011em',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  WebkitFontSmoothing: 'antialiased',
+                  position: 'relative'
+                }}
+              >
+                {course.summary}
+              </Typography>
+            ) : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: { xs: '32px 20px', sm: '40px 24px' },
+                  minHeight: '150px',
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                                      fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                  color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                  textAlign: 'center',
+                  lineHeight: 1.5,
+                  fontStyle: 'italic',
+                  maxWidth: '400px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  letterSpacing: '-0.011em',
+                  }}
+                >
+                  Not enough data to generate an AI summary. This will be available once more students review the course.
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
       </Box>
     );
   };
