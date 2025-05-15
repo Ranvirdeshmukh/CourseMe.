@@ -3535,156 +3535,330 @@ useEffect(() => {
             </Box>
           )} */}
         
-        <Typography
-  variant="h5"
-  gutterBottom
-  sx={{ fontWeight: 600, color: headerTextColor, marginTop: 4 }}
->
-  Professors
-</Typography>
-
-<TableContainer
-  component={Paper}
+        <Box
   sx={{
-    backgroundColor: paperBgColor,              // Dynamic background color
-    marginTop: '20px',
-    borderRadius: '12px',
-    boxShadow: 'none',
-    border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border color
+    position: 'relative',
+    mb: 5,
+    mt: 5,
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      left: '-12px',
+      top: '8px',
+      width: '4px',
+      height: '24px',
+      borderRadius: '2px',
+      backgroundColor: darkMode ? '#0A84FF' : '#0071E3',
+      boxShadow: darkMode ? '0 0 8px rgba(10, 132, 255, 0.5)' : 'none',
+    }
   }}
 >
-  <Table>
-    <TableHead>
-      <TableRow>
-              <TableCell
-          sx={{
-            color: textColor,              // Use dynamic text color
-            textAlign: 'left',
-            fontWeight: 600,
-            fontSize: '1rem',
-            padding: '12px 16px',
-            backgroundColor: tableHeaderBgColor, // Optional: Add background for headers
-          }}
-        >
-          Name
-        </TableCell>
-        <TableCell
-          sx={{
-            color: textColor,              // Use dynamic text color
-            textAlign: 'left',
-            fontWeight: 600,
-            fontSize: '1rem',
-            padding: '12px 16px',
-            backgroundColor: tableHeaderBgColor, // Optional: Add background for headers
-          }}
-        >
-          Reviews
-        </TableCell>
-        <TableCell
-          sx={{
-            color: textColor,
-            textAlign: 'left',
-            fontWeight: 600,
-            fontSize: '1rem',
-            padding: '12px 16px',
-            backgroundColor: tableHeaderBgColor,
-          }}
-        >
-          Terms from Reviews
-        </TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {allProfessors
-        .sort((a, b) => {
-          const aIsCurrent = currentInstructors.includes(a);
-          const bIsCurrent = currentInstructors.includes(b);
-          if (aIsCurrent && !bIsCurrent) return -1;
-          if (!aIsCurrent && bIsCurrent) return 1;
-          return 0;
-        })
-        .slice(0, showAllProfessors ? undefined : 12)
-        .map((professor, index) => {
-          const isCurrent = currentInstructors.includes(professor);
-          const isWinter = winterInstructors.includes(professor);
-          const isSpring = springInstructors.includes(professor);
-          const isSummer = summerInstructors.includes(professor);
-          const isFall = fallInstructors.includes(professor);
-          const isBothTerms = bothTermsInstructors.includes(professor);
-          const reviewCount = reviews.filter(
-            (review) => review.instructor === professor
-          ).length;
-          return (
-            <TableRow
-              key={index}
-              component={Link}
-              to={`/departments/${department}/courses/${courseId}/professors/${encodeURIComponent(professor)}`}
-              onClick={() => {
-                // Only smooth scroll to top for better UX
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              sx={{
-                backgroundColor: isBothTerms
-                  ? (darkMode ? '#2C2F73' : '#D0E0FF') // Highlighted color for both terms
-                  : isCurrent
-                    ? (darkMode ? '#1C1F43' : '#E5F0FF') // Dark mode or light blue
-                    : (index % 2 === 0 ? tableRowEvenBgColor : tableRowOddBgColor),
-                '&:hover': { backgroundColor: darkMode ? '#2a2a2a' : '#E5E5EA' }, // Darker on hover for dark mode
-                cursor: 'pointer',
-                textDecoration: 'none',
-                color: 'inherit',
-              }}
-            >
-              <TableCell
+  <Typography
+    variant="h5"
+    sx={{ 
+      fontWeight: 700, 
+      color: darkMode ? '#FFFFFF' : headerTextColor, 
+      marginBottom: 2,
+      fontSize: { xs: '1.25rem', sm: '1.35rem', md: '1.5rem' },
+      letterSpacing: '-0.02em',
+      fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+      textRendering: 'optimizeLegibility',
+      WebkitFontSmoothing: 'antialiased',
+      ml: 0.5
+    }}
+  >
+    Professors
+  </Typography>
+
+  <Box
+    sx={{
+      backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.5)' : 'rgba(248, 249, 251, 1)',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      boxShadow: darkMode 
+        ? '0 4px 16px rgba(0, 0, 0, 0.15)' 
+        : '0 4px 24px rgba(0, 0, 0, 0.06)',
+      border: darkMode 
+        ? '1px solid rgba(255, 255, 255, 0.08)' 
+        : '1px solid rgba(0, 0, 0, 0.05)',
+      transition: 'all 0.3s ease',
+      backdropFilter: 'blur(5px)',
+      WebkitBackdropFilter: 'blur(5px)',
+    }}
+  >
+    <Table
+      sx={{
+        borderCollapse: 'separate',
+        borderSpacing: 0,
+        '& .MuiTableCell-root': {
+          borderBottom: darkMode 
+            ? '1px solid rgba(255, 255, 255, 0.08)' 
+            : '1px solid rgba(0, 0, 0, 0.05)',
+          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        }
+      }}
+    >
+      <TableHead>
+        <TableRow>
+          <TableCell
+            sx={{
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              padding: '16px 20px',
+              letterSpacing: '-0.01em',
+              borderBottom: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.12)' 
+                : '1px solid rgba(0, 0, 0, 0.08)',
+              backgroundColor: darkMode ? 'rgba(20, 25, 51, 0.5)' : 'rgba(238, 239, 241, 0.7)',
+            }}
+          >
+            Name
+          </TableCell>
+          <TableCell
+            sx={{
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              padding: '16px 20px',
+              letterSpacing: '-0.01em',
+              borderBottom: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.12)' 
+                : '1px solid rgba(0, 0, 0, 0.08)',
+              backgroundColor: darkMode ? 'rgba(20, 25, 51, 0.5)' : 'rgba(238, 239, 241, 0.7)',
+            }}
+          >
+            Reviews
+          </TableCell>
+          <TableCell
+            sx={{
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              padding: '16px 20px',
+              letterSpacing: '-0.01em',
+              borderBottom: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.12)' 
+                : '1px solid rgba(0, 0, 0, 0.08)',
+              backgroundColor: darkMode ? 'rgba(20, 25, 51, 0.5)' : 'rgba(238, 239, 241, 0.7)',
+            }}
+          >
+            Terms from Reviews
+          </TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {allProfessors
+          .sort((a, b) => {
+            const aIsCurrent = currentInstructors.includes(a);
+            const bIsCurrent = currentInstructors.includes(b);
+            if (aIsCurrent && !bIsCurrent) return -1;
+            if (!aIsCurrent && bIsCurrent) return 1;
+            return 0;
+          })
+          .slice(0, showAllProfessors ? undefined : 12)
+          .map((professor, index) => {
+            const isCurrent = currentInstructors.includes(professor);
+            const isWinter = winterInstructors.includes(professor);
+            const isSpring = springInstructors.includes(professor);
+            const isSummer = summerInstructors.includes(professor);
+            const isFall = fallInstructors.includes(professor);
+            const isBothTerms = bothTermsInstructors.includes(professor);
+            const reviewCount = reviews.filter(
+              (review) => review.instructor === professor
+            ).length;
+            return (
+              <TableRow
+                key={index}
+                component={Link}
+                to={`/departments/${department}/courses/${courseId}/professors/${encodeURIComponent(professor)}`}
+                onClick={() => {
+                  // Only smooth scroll to top for better UX
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 sx={{
-                  color: textColor,              // Use dynamic text color
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontWeight: isBothTerms ? 700 : (isCurrent ? 600 : 400),
+                  backgroundColor: isBothTerms
+                    ? (darkMode ? 'rgba(44, 47, 115, 0.5)' : 'rgba(208, 224, 255, 0.5)') 
+                    : isCurrent
+                      ? (darkMode ? 'rgba(28, 31, 67, 0.5)' : 'rgba(229, 240, 255, 0.5)') 
+                      : (darkMode ? 'transparent' : 'transparent'),
+                  transition: 'all 0.2s ease',
+                  '&:hover': { 
+                    backgroundColor: darkMode ? 'rgba(42, 42, 42, 0.5)' : 'rgba(229, 229, 234, 0.5)',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+                  },
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                  color: 'inherit',
                 }}
               >
-                {professor}
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: textColor,              // Use dynamic text color
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontWeight: 400,
-                }}
-              >
-                {reviewCount}
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: textColor,
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontWeight: isBothTerms ? 700 : 400,
-                }}
-              >
-                {professorTerms[professor] && professorTerms[professor].length > 0 ? (
-                  <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                    {professorTerms[professor].slice(0, 3).map((termCode, idx) => (
-                      <React.Fragment key={idx}>
-                        {renderTermChip(termCode, darkMode)}
-                      </React.Fragment>
-                    ))}
-                    {professorTerms[professor].length > 3 && (
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          fontSize: '0.8rem', 
-                          color: darkMode ? '#A0A0A0' : '#6E6E6E',
-                          ml: 1 
+                <TableCell
+                  sx={{
+                    color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.85)',
+                    padding: '14px 20px',
+                    textAlign: 'left',
+                    fontSize: '0.95rem',
+                    fontWeight: isBothTerms ? 600 : (isCurrent ? 500 : 400),
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  {professor}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.85)',
+                    padding: '14px 20px',
+                    textAlign: 'left',
+                    fontSize: '0.95rem',
+                    fontWeight: 400,
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  <Box 
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '28px',
+                      height: '28px',
+                      backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.05)',
+                      color: darkMode ? '#0A84FF' : '#0071E3',
+                      borderRadius: '14px',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      padding: '0 10px',
+                    }}
+                  >
+                    {reviewCount}
+                  </Box>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.85)',
+                    padding: '14px 20px',
+                    textAlign: 'left',
+                    fontSize: '0.95rem',
+                    fontWeight: isBothTerms ? 600 : 400,
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  {professorTerms[professor] && professorTerms[professor].length > 0 ? (
+                    <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      {professorTerms[professor].slice(0, 3).map((termCode, idx) => (
+                        <React.Fragment key={idx}>
+                          {renderTermChip(termCode, darkMode)}
+                        </React.Fragment>
+                      ))}
+                      {professorTerms[professor].length > 3 && (
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontSize: '0.8rem', 
+                            color: darkMode ? '#A0A0A0' : '#6E6E6E',
+                            ml: 1,
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          +{professorTerms[professor].length - 3} more
+                        </Typography>
+                      )}
+                    </Box>
+                  ) : isBothTerms ? (
+                    <Box sx={{ display: 'flex', gap: '8px' }}>
+                      <Box
+                        sx={{
+                          backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
                         }}
                       >
-                        +{professorTerms[professor].length - 3} more
-                      </Typography>
-                    )}
-                  </Box>
-                ) : isBothTerms ? (
-                  <Box sx={{ display: 'flex', gap: '8px' }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            color: darkMode ? '#B3E5FC' : '#0277BD',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          25W
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            color: darkMode ? '#FFE082' : '#F57F17',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          25S
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          backgroundColor: darkMode ? '#006064' : '#E0F7FA',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            color: darkMode ? '#B2EBF2' : '#00838F',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          25X
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            color: darkMode ? '#FFCCBC' : '#D84315',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          25F
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ) : isWinter ? (
                     <Box
                       sx={{
                         backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF',
@@ -3701,11 +3875,13 @@ useEffect(() => {
                           fontSize: '0.8rem',
                           fontWeight: 500,
                           color: darkMode ? '#B3E5FC' : '#0277BD',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
                         }}
                       >
                         25W
                       </Typography>
                     </Box>
+                  ) : isSpring ? (
                     <Box
                       sx={{
                         backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
@@ -3722,11 +3898,13 @@ useEffect(() => {
                           fontSize: '0.8rem',
                           fontWeight: 500,
                           color: darkMode ? '#FFE082' : '#F57F17',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
                         }}
                       >
                         25S
                       </Typography>
                     </Box>
+                  ) : isSummer ? (
                     <Box
                       sx={{
                         backgroundColor: darkMode ? '#006064' : '#E0F7FA',
@@ -3743,11 +3921,13 @@ useEffect(() => {
                           fontSize: '0.8rem',
                           fontWeight: 500,
                           color: darkMode ? '#B2EBF2' : '#00838F',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
                         }}
                       >
                         25X
                       </Typography>
                     </Box>
+                  ) : isFall ? (
                     <Box
                       sx={{
                         backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
@@ -3764,135 +3944,63 @@ useEffect(() => {
                           fontSize: '0.8rem',
                           fontWeight: 500,
                           color: darkMode ? '#FFCCBC' : '#D84315',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
                         }}
                       >
                         25F
                       </Typography>
                     </Box>
-                  </Box>
-                ) : isWinter ? (
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontSize: '0.8rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#B3E5FC' : '#0277BD',
+                  ) : (
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontSize: '0.85rem', 
+                        color: darkMode ? '#888888' : '#999999',
+                        fontStyle: 'italic',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
                       }}
                     >
-                      25W
+                      No term data
                     </Typography>
-                  </Box>
-                ) : isSpring ? (
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontSize: '0.8rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#FFE082' : '#F57F17',
-                      }}
-                    >
-                      25S
-                    </Typography>
-                  </Box>
-                ) : isSummer ? (
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#006064' : '#E0F7FA',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontSize: '0.8rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#B2EBF2' : '#00838F',
-                      }}
-                    >
-                      25X
-                    </Typography>
-                  </Box>
-                ) : isFall ? (
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontSize: '0.8rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#FFCCBC' : '#D84315',
-                      }}
-                    >
-                      25F
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      fontSize: '0.85rem', 
-                      color: darkMode ? '#888888' : '#999999',
-                      fontStyle: 'italic' 
-                    }}
-                  >
-                    No term data
-                  </Typography>
-                )}
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      {allProfessors.length > 12 && (
-        <TableRow>
-          <TableCell colSpan={3} align="center">
-            <Button
-              variant="text"
-              onClick={() => setShowAllProfessors(!showAllProfessors)}
-              sx={{
-                color: darkMode ? '#007AFF' : '#007AFF',
-                '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
-              }}
-            >
-              {showAllProfessors ? 'Show Less' : 'Show All'}
-            </Button>
-          </TableCell>
-        </TableRow>
-      )}
-    </TableBody>
-  </Table>
-</TableContainer>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        {allProfessors.length > 12 && (
+          <TableRow>
+            <TableCell colSpan={3} align="center">
+              <Button
+                onClick={() => setShowAllProfessors(!showAllProfessors)}
+                sx={{
+                  color: darkMode ? '#0A84FF' : '#0071E3',
+                  backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.05)',
+                  borderRadius: '12px',
+                  textTransform: 'none',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  letterSpacing: '-0.01em',
+                  padding: '8px 16px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                  transition: 'all 0.2s ease',
+                  mt: 1,
+                  mb: 1,
+                  border: 'none',
+                  '&:hover': {
+                    backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.1)',
+                    transform: 'translateY(-1px)',
+                  }
+                }}
+              >
+                {showAllProfessors ? 'Show Less' : 'Show All'}
+              </Button>
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  </Box>
+</Box>
 
 <Box
   sx={{
