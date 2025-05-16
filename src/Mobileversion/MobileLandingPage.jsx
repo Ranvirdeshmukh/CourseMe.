@@ -12,7 +12,10 @@ import {
   Chip,
   LinearProgress,
   Fade,
-  Tooltip
+  Tooltip,
+  List,
+  ListItem,
+  ClickAwayListener
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,7 +24,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useNavigate } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
-import ReactTypingEffect from 'react-typing-effect';
+import ParticleTextCarousel from '../components/ParticleTextCarousel';
 import { doc, getDoc } from 'firebase/firestore';
 
 const MobileLandingPage = ({ 
@@ -43,7 +46,16 @@ const MobileLandingPage = ({
   getColor,
   currentUser,
   handleLoginRedirect,
-  typingMessages
+  typingMessages,
+  // New props for autocomplete
+  searchSuggestions = [],
+  showSuggestions = false,
+  setShowSuggestions = () => {},
+  handleSearchInputChange = () => {},
+  handleSuggestionClick = () => {},
+  isTyping = false,
+  popularSearches = [],
+  searchProfessors
 }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
   const navigate = useNavigate();
@@ -200,67 +212,235 @@ const MobileLandingPage = ({
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              backgroundColor: darkMode ? '#1C093F' : '#ffffff',
-              padding: '10px',
-              borderRadius: '10px',
-              boxShadow: '0 3px 10px rgba(0, 0, 0, 0.2)',
+              bgcolor: darkMode ? 'rgba(12, 15, 51, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+              p: 2,
+              borderRadius: '12px',
               width: '100vw',
-              maxWidth: '100%',
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              zIndex: 1200,
+              maxWidth: '350px',
+              boxShadow: '0 3px 10px rgba(0, 0, 0, 0.2)',
+              animation: 'fadeIn 0.3s ease-out',
+              position: 'relative'
             }}
           >
-            <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-              <TextField
-                autoFocus
-                fullWidth
-                variant="outlined"
-                placeholder="Ask anything about courses..."
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '20px',
-                    backgroundColor: darkMode ? '#0C0F33' : '#f5f5f5',
-                  },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon color={darkMode ? 'primary' : 'action'} />
-                    </InputAdornment>
-                  )
-                }}
-              />
+            <Box sx={{ display: 'flex', mb: showSuggestions ? 0 : 2, position: 'relative' }}>
+              <ClickAwayListener onClickAway={() => {
+                setShowSuggestions(false);
+                // Don't collapse the entire search bar when clicking away from suggestions
+              }}>
+                <Box sx={{ flexGrow: 1, position: 'relative' }}>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Search courses..."
+                    value={question}
+                    onChange={handleSearchInputChange}
+                    autoComplete="off"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '25px',
+                        bgcolor: darkMode ? '#252836' : '#f5f5f5',
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ color: darkMode ? '#bbbbbb' : '#757575' }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: question ? (
+                        <InputAdornment position="end">
+                          <IconButton 
+                            size="small" 
+                            onClick={() => {
+                              setQuestion('');
+                              setShowSuggestions(false);
+                            }}
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        </InputAdornment>
+                      ) : null,
+                    }}
+                  />
+                  
+                  {/* Mobile search suggestions dropdown */}
+                  {showSuggestions && (
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        position: 'absolute',
+                        top: '50px',
+                        left: 0,
+                        right: 0,
+                        maxHeight: '300px',
+                        overflowY: 'auto',
+                        borderRadius: '12px',
+                        zIndex: 10,
+                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                        bgcolor: darkMode ? '#1C093F' : '#ffffff',
+                      }}
+                    >
+                      <List dense disablePadding>
+                        {isTyping ? (
+                          <ListItem sx={{ justifyContent: 'center', py: 2 }}>
+                            <CircularProgress size={20} color="inherit" />
+                          </ListItem>
+                        ) : (
+                          searchSuggestions.map((suggestion, index) => (
+                            <ListItem
+                              button
+                              key={index}
+                              onClick={() => {
+                                handleSuggestionClick(suggestion);
+                                // Keep the search expanded after selection
+                              }}
+                              sx={{
+                                py: 1.5,
+                                borderBottom: index < searchSuggestions.length - 1
+                                  ? '1px solid rgba(0, 0, 0, 0.05)'
+                                  : 'none',
+                              }}
+                            >
+                              <Box sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                width: '100%',
+                                color: darkMode ? '#ffffff' : '#333333' 
+                              }}>
+                                <Typography sx={{ 
+                                  mr: 1.5, 
+                                  fontSize: '1.2rem',
+                                  width: '24px',
+                                  textAlign: 'center'
+                                }}>
+                                  {suggestion.icon}
+                                </Typography>
+                                <Box sx={{ 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis',
+                                  flex: 1
+                                }}>
+                                  <Typography 
+                                    variant="body2" 
+                                    sx={{ fontWeight: suggestion.type === 'recent' ? 400 : 500 }}
+                                  >
+                                    {suggestion.text}
+                                  </Typography>
+                                  {suggestion.type === 'course' && (
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                                        display: 'block'
+                                      }}
+                                    >
+                                      View course details
+                                    </Typography>
+                                  )}
+                                  {suggestion.type === 'professor' && (
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                                        display: 'block'
+                                      }}
+                                    >
+                                      View professor profile
+                                    </Typography>
+                                  )}
+                                </Box>
+                                {suggestion.type === 'professor' && (
+                                  <Box
+                                    sx={{
+                                      bgcolor: darkMode ? 'rgba(87, 28, 224, 0.2)' : 'rgba(87, 28, 224, 0.1)',
+                                      borderRadius: '4px',
+                                      px: 1,
+                                      py: 0.3,
+                                      ml: 1,
+                                      minWidth: 'auto'
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        color: darkMode ? '#bb86fc' : '#571CE0',
+                                        fontSize: '0.7rem',
+                                        fontWeight: 'medium'
+                                      }}
+                                    >
+                                      Prof
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </Box>
+                            </ListItem>
+                          ))
+                        )}
+                      </List>
+                    </Paper>
+                  )}
+                </Box>
+              </ClickAwayListener>
+
               <IconButton 
                 onClick={toggleSearch} 
-                sx={{ ml: 1 }}
-                color={darkMode ? 'primary' : 'default'}
+                sx={{ ml: 1, color: darkMode ? '#F26655' : '#757575' }}
               >
                 <CloseIcon />
               </IconButton>
             </Box>
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={loading}
-              disableElevation
-              sx={{
-                backgroundColor: darkMode ? '#bb86fc' : '#000000',
-                borderRadius: '20px',
-                color: 'white',
-                fontWeight: 'bold',
-                mt: 1,
-                width: '100%',
-                '&:hover': {
-                  backgroundColor: darkMode ? '#9b6efc' : '#571CE0',
-                },
-              }}
-            >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
-            </Button>
+            
+            {!showSuggestions && (
+              <Button
+                fullWidth
+                variant="contained"
+                type="submit"
+                disabled={loading || !question.trim()}
+                sx={{
+                  mt: 1,
+                  backgroundColor: darkMode ? '#bb86fc' : '#000000',
+                  color: '#FFFFFF',
+                  borderRadius: '25px',
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: darkMode ? '#9b6efc' : '#571CE0',
+                  },
+                }}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Search'}
+              </Button>
+            )}
+            
+            {/* Display popular searches for mobile when no query */}
+            {!question && !showSuggestions && popularSearches.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="caption" sx={{ 
+                  color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                  display: 'block',
+                  mb: 1
+                }}>
+                  Popular searches:
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {popularSearches.slice(0, 3).map((search, index) => (
+                    <Chip
+                      key={index}
+                      label={search.query}
+                      size="small"
+                      onClick={() => {
+                        setQuestion(search.query);
+                        handleSearch(new Event('submit'));
+                      }}
+                      sx={{
+                        bgcolor: darkMode ? 'rgba(87, 28, 224, 0.15)' : 'rgba(0, 0, 0, 0.05)',
+                        color: darkMode ? '#ffffff' : '#333333',
+                        fontSize: '0.75rem',
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
           </Box>
         </Collapse>
       </Box>
@@ -279,59 +459,19 @@ const MobileLandingPage = ({
             letterSpacing: '0.03rem',
             textAlign: 'center',
             px: 2,
+            height: '80px', // Fixed height for the container
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <ReactTypingEffect
-            text={typingMessages}
-            typingDelay={1000}
-            speed={80}
-            eraseSpeed={50}
-            eraseDelay={currentUser ? 2000 : 3000}
-            displayTextRenderer={(text, i) => {
-              const isWelcomeMessage = currentUser && i === 0;
-              const isFirstLogin = localStorage.getItem(`hasLoggedIn_${currentUser?.uid}`) === 'true' && 
-                                  !localStorage.getItem(`hasSeenWelcome_${currentUser?.uid}`);
-              const isJoinPrompt = !currentUser && i === 0 && text.includes('Join them');
-              const isSecondSentence = !currentUser ? i === 1 : i === 1;
-              
-              // Set color based on message type
-              const sentenceColor = darkMode
-                ? '#FFFFFF'
-                : isJoinPrompt
-                ? '#e91e63' // Hot pink for "Join them?" prompt
-                : isWelcomeMessage && isFirstLogin
-                ? '#ff5722' // Exciting orange for first-time users
-                : isWelcomeMessage
-                ? '#00693e' // Green for returning users
-                : isSecondSentence
-                ? '#571ce0' // Purple for second sentence
-                : '#000000'; // Black for other sentences
-              
-              const hasFullStop = text.endsWith('.');
-              const hasExclamation = text.endsWith('!');
-              const hasQuestion = text.endsWith('?');
-              const textWithoutEnding = hasFullStop ? text.slice(0, -1) : 
-                                         hasExclamation ? text.slice(0, -1) : 
-                                         hasQuestion ? text.slice(0, -1) : text;
-              const ending = hasFullStop ? '.' : 
-                             hasExclamation ? '!' : 
-                             hasQuestion ? '?' : '';
-  
-              return (
-                <span>
-                  <span
-                    style={{
-                      color: sentenceColor,
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      fontWeight: '600',
-                    }}
-                  >
-                    {textWithoutEnding}
-                  </span>
-                  {ending && <span style={{ color: ending === '?' ? '#e91e63' : '#F26655' }}>{ending}</span>}
-                </span>
-              );
-            }}
+          <ParticleTextCarousel
+            messages={typingMessages}
+            typingDelay={2500}
+            darkMode={darkMode}
+            currentUser={currentUser}
+            isFirstLogin={localStorage.getItem(`hasLoggedIn_${currentUser?.uid}`) === 'true' && 
+                          !localStorage.getItem(`hasSeenWelcome_${currentUser?.uid}`)}
           />
         </Typography>
         

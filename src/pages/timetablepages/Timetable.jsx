@@ -348,10 +348,12 @@ const Timetable = ({ darkMode }) => {
       <html>
         <head>
           <title>Summer 2025 Schedule</title>
+          <title>Summer 2025 Schedule</title>
           ${printCSS}
         </head>
         <body>
           <div class="schedule-print-container">
+            <div class="schedule-title">Summer 2025 Weekly Schedule</div>
             <div class="schedule-title">Summer 2025 Weekly Schedule</div>
             <div class="schedule-subtitle">Dartmouth College</div>
             ${printContent.innerHTML}

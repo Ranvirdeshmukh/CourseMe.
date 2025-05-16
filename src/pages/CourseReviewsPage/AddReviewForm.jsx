@@ -13,6 +13,7 @@ import {
 import { doc, updateDoc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { motion } from 'framer-motion';
 
 const AddReviewForm = ({ onReviewAdded, darkMode }) => {
   const { courseId } = useParams();
@@ -122,173 +123,310 @@ const AddReviewForm = ({ onReviewAdded, darkMode }) => {
   });
 
   return (
-    <Box
-      sx={{
-        background: darkMode ? '#1C1F43' : '#f9f9f9',
-        padding: '40px',
-        borderRadius: '16px',
-        width: '100%',
-        maxWidth: '800px',
-        margin: '0 auto',
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
     >
-      <Paper
-        elevation={3}
+      <Box
         sx={{
-          padding: '32px',
-          backgroundColor: darkMode ? '#24273c' : '#FFFFFF',
-          borderRadius: '16px',
-          border: darkMode ? '1px solid #44475a' : '1px solid #D1D1D6',
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+          background: darkMode 
+            ? 'rgba(30, 35, 61, 0.6)' 
+            : 'rgba(248, 249, 251, 0.7)',
+          padding: { xs: '24px', sm: '32px', md: '40px' },
+          borderRadius: '24px',
+          width: '100%',
+          maxWidth: '800px',
+          margin: '0 auto',
+          border: darkMode 
+            ? '1px solid rgba(255, 255, 255, 0.08)' 
+            : '1px solid rgba(0, 0, 0, 0.05)',
+          boxShadow: darkMode 
+            ? '0 8px 32px rgba(0, 0, 0, 0.2)' 
+            : '0 8px 32px rgba(0, 0, 0, 0.08)',
+          transition: 'all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)',
         }}
       >
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{
-            fontFamily: 'SF Pro Display, sans-serif',
-            fontWeight: 600,
-            color: darkMode ? '#FFFFFF' : '#1D1D1F',
-            marginBottom: '24px',
-          }}
-        >
-          Write a Review for {courseId.split('_')[1]}
-        </Typography>
+        <Box sx={{ position: 'relative', mb: 4 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              position: 'relative',
+              mb: 1,
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                left: '-12px',
+                width: '4px',
+                height: '28px',
+                borderRadius: '2px',
+                background: darkMode 
+                  ? 'linear-gradient(to bottom, #FF9F0A, #FF7D0A)' 
+                  : 'linear-gradient(to bottom, #FF9500, #FF7D00)',
+                boxShadow: darkMode ? '0 0 8px rgba(255, 159, 10, 0.5)' : 'none',
+              }
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                fontWeight: 700,
+                color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                fontSize: { xs: '1.25rem', sm: '1.35rem', md: '1.5rem' },
+                letterSpacing: '-0.02em',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+              }}
+            >
+              Write a Review
+            </Typography>
+          </Box>
+          <Typography
+            variant="body1"
+            sx={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+              fontSize: { xs: '0.9rem', sm: '0.95rem' },
+              ml: 0.5,
+              letterSpacing: '-0.01em',
+              fontWeight: 400,
+            }}
+          >
+            for {courseId.split('_')[1].replace(/_/g, ' ')}
+          </Typography>
+        </Box>
+
         {error && (
           <Alert
             severity="error"
             sx={{
-              marginBottom: '16px',
-              backgroundColor: darkMode ? '#8B0000' : undefined,
-              color: darkMode ? '#FFF' : undefined,
+              marginBottom: '24px',
+              borderRadius: '12px',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              backgroundColor: darkMode ? 'rgba(255, 59, 48, 0.15)' : 'rgba(255, 59, 48, 0.08)',
+              color: darkMode ? '#FF3B30' : '#FF3B30',
+              border: darkMode ? '1px solid rgba(255, 59, 48, 0.2)' : '1px solid rgba(255, 59, 48, 0.15)',
+              padding: '12px 16px',
+              '& .MuiAlert-icon': {
+                color: darkMode ? '#FF3B30' : '#FF3B30',
+              },
+              '& .MuiAlert-message': {
+                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                fontSize: '0.95rem',
+                fontWeight: 500,
+                letterSpacing: '-0.01em',
+              }
             }}
           >
             {error}
           </Alert>
         )}
+
         <form onSubmit={handleSubmit}>
-          <TextField
-            label="Term"
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            fullWidth
-            margin="normal"
-            required
-            placeholder="e.g., 24F"
-            InputProps={{
-              sx: {
-                backgroundColor: darkMode ? '#333' : '#F2F2F7',
-                color: darkMode ? '#FFF' : '#1D1D1F',
-                borderRadius: '12px',
-                '&:hover': {
-                  backgroundColor: darkMode ? '#444' : '#E5E5EA',
-                },
-                '&.Mui-focused': {
-                  backgroundColor: darkMode ? '#444' : '#E5E5EA',
-                },
-              },
-            }}
-            InputLabelProps={{
-              sx: {
-                color: darkMode ? '#BBB' : '#8E8E93',
-              },
-            }}
-          />
-          <Autocomplete
-            options={professorsList}
-            filterOptions={filterOptions}
-            getOptionLabel={(option) => option}
-            freeSolo
-            value={professor}
-            onChange={(event, newValue) => {
-              setProfessor(newValue);
-            }}
-            onInputChange={(event, newInputValue) => {
-              setProfessor(newInputValue);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Professor"
-                margin="normal"
-                required
-                placeholder="Select or type a professor"
-                fullWidth
-                InputProps={{
-                  ...params.InputProps,
-                  sx: {
-                    backgroundColor: darkMode ? '#333' : '#F2F2F7',
-                    color: darkMode ? '#FFF' : '#1D1D1F',
-                    borderRadius: '12px',
-                    '&:hover': {
-                      backgroundColor: darkMode ? '#444' : '#E5E5EA',
-                    },
-                    '&.Mui-focused': {
-                      backgroundColor: darkMode ? '#444' : '#E5E5EA',
-                    },
-                  },
-                }}
-                InputLabelProps={{
-                  sx: {
-                    color: darkMode ? '#BBB' : '#8E8E93',
-                  },
-                }}
-              />
-            )}
-          />
-          <TextField
-            label="Review"
-            value={review}
-            onChange={(e) => setReview(e.target.value)}
-            fullWidth
-            margin="normal"
-            multiline
-            rows={4}
-            required
-            placeholder="Write your review here..."
-            InputProps={{
-              sx: {
-                backgroundColor: darkMode ? '#333' : '#F2F2F7',
-                color: darkMode ? '#FFF' : '#1D1D1F',
-                borderRadius: '12px',
-                '&:hover': {
-                  backgroundColor: darkMode ? '#444' : '#E5E5EA',
-                },
-                '&.Mui-focused': {
-                  backgroundColor: darkMode ? '#444' : '#E5E5EA',
-                },
-              },
-            }}
-            InputLabelProps={{
-              sx: {
-                color: darkMode ? '#BBB' : '#8E8E93',
-              },
-            }}
-          />
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
+          <Box sx={{ mb: 3 }}>
+            <Typography
               sx={{
-                fontFamily: 'SF Pro Display, sans-serif',
-                fontWeight: 500,
-                borderRadius: '12px',
-                boxShadow: 'none',
-                backgroundColor: darkMode ? '#571CE0' : '#571CE0',
-                '&:hover': {
-                  backgroundColor: darkMode ? '#684ACD' : '#7E55CC',
-                },
-                textTransform: 'none',
-                paddingX: 4,
-                paddingY: 1.5,
+                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                mb: 1,
+                letterSpacing: '-0.01em',
+                ml: 0.5,
               }}
             >
-              Submit Review
-            </Button>
+              Term
+            </Typography>
+            <TextField
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              fullWidth
+              required
+              placeholder="e.g., 24F"
+              variant="outlined"
+              size="medium"
+              InputProps={{
+                sx: {
+                  backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.8)' : 'rgba(255, 255, 255, 0.7)',
+                  color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                  borderRadius: '12px',
+                  border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  boxShadow: darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+                  transition: 'all 0.2s ease',
+                  height: '56px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  letterSpacing: '-0.01em',
+                  '&:hover': {
+                    backgroundColor: darkMode ? 'rgba(40, 45, 71, 0.8)' : 'rgba(248, 249, 251, 0.9)',
+                    boxShadow: darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
+                  },
+                  '&.Mui-focused': {
+                    boxShadow: darkMode ? '0 0 0 3px rgba(10, 132, 255, 0.3)' : '0 0 0 3px rgba(0, 113, 227, 0.2)',
+                  }
+                },
+              }}
+            />
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              sx={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                mb: 1,
+                letterSpacing: '-0.01em',
+                ml: 0.5,
+              }}
+            >
+              Professor
+            </Typography>
+            <Autocomplete
+              options={professorsList}
+              filterOptions={filterOptions}
+              getOptionLabel={(option) => option}
+              freeSolo
+              value={professor}
+              onChange={(event, newValue) => {
+                setProfessor(newValue);
+              }}
+              onInputChange={(event, newInputValue) => {
+                setProfessor(newInputValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  required
+                  placeholder="Select or type a professor"
+                  fullWidth
+                  variant="outlined"
+                  size="medium"
+                  InputProps={{
+                    ...params.InputProps,
+                    sx: {
+                      backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.8)' : 'rgba(255, 255, 255, 0.7)',
+                      color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                      borderRadius: '12px',
+                      border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      boxShadow: darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+                      transition: 'all 0.2s ease',
+                      height: '56px',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                      letterSpacing: '-0.01em',
+                      '&:hover': {
+                        backgroundColor: darkMode ? 'rgba(40, 45, 71, 0.8)' : 'rgba(248, 249, 251, 0.9)',
+                        boxShadow: darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
+                      },
+                      '&.Mui-focused': {
+                        boxShadow: darkMode ? '0 0 0 3px rgba(10, 132, 255, 0.3)' : '0 0 0 3px rgba(0, 113, 227, 0.2)',
+                      }
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              sx={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                mb: 1,
+                letterSpacing: '-0.01em',
+                ml: 0.5,
+              }}
+            >
+              Review
+            </Typography>
+            <TextField
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+              fullWidth
+              multiline
+              rows={5}
+              required
+              placeholder="Write your review here..."
+              variant="outlined"
+              InputProps={{
+                sx: {
+                  backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.8)' : 'rgba(255, 255, 255, 0.7)',
+                  color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                  borderRadius: '12px',
+                  border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  boxShadow: darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+                  transition: 'all 0.2s ease',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  fontSize: '0.95rem',
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.6,
+                  padding: '16px',
+                  '&:hover': {
+                    backgroundColor: darkMode ? 'rgba(40, 45, 71, 0.8)' : 'rgba(248, 249, 251, 0.9)',
+                    boxShadow: darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
+                  },
+                  '&.Mui-focused': {
+                    boxShadow: darkMode ? '0 0 0 3px rgba(10, 132, 255, 0.3)' : '0 0 0 3px rgba(0, 113, 227, 0.2)',
+                  }
+                },
+              }}
+            />
+          </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <motion.div
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  fontWeight: 600,
+                  borderRadius: '12px',
+                  boxShadow: darkMode 
+                    ? '0 4px 16px rgba(10, 132, 255, 0.3)' 
+                    : '0 4px 16px rgba(0, 113, 227, 0.2)',
+                  background: darkMode 
+                    ? 'linear-gradient(135deg, #0A84FF 0%, #0066CC 100%)' 
+                    : 'linear-gradient(135deg, #0071E3 0%, #0058B0 100%)',
+                  padding: '12px 24px',
+                  fontSize: '0.95rem',
+                  letterSpacing: '-0.01em',
+                  textTransform: 'none',
+                  transition: 'all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1)',
+                  '&:hover': {
+                    background: darkMode 
+                      ? 'linear-gradient(135deg, #0091FF 0%, #0077E6 100%)' 
+                      : 'linear-gradient(135deg, #0077ED 0%, #0062C4 100%)',
+                    boxShadow: darkMode 
+                      ? '0 6px 20px rgba(10, 132, 255, 0.4)' 
+                      : '0 6px 20px rgba(0, 113, 227, 0.3)',
+                  }
+                }}
+              >
+                Submit Review
+              </Button>
+            </motion.div>
           </Box>
         </form>
-      </Paper>
-    </Box>
+      </Box>
+    </motion.div>
   );
 };
 

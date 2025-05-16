@@ -1,6 +1,6 @@
 import moment from 'moment-timezone';
 
-// Period code to timing mapping
+// Period code to timing mapping - Summer term might have different formats for some periods
 export const periodCodeToTiming = {
   "11": "MWF 11:30-12:35, Tu 12:15-1:05",
   "10": "MWF 10:10-11:15, Th 12:15-1:05",
@@ -19,6 +19,7 @@ export const periodCodeToTiming = {
   "6B": "W 6:30-9:30, Tu 7:30-8:20",
   "8S": "MTThF 7:45-8:35, Wed 7:45-8:35",
   "LSA": "Language Study Abroad",
+  // Add any Summer-specific period codes here if needed
 };
 
 /**
@@ -33,7 +34,9 @@ export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, se
   const details = `&details=${encodeURIComponent(`Instructor: ${course.instructor}`)}`;
   const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;
 
-  const events = getEventTiming(course.period, course.title, course.subj, course.num);
+  // Determine the term from the course object
+  const isSummer = course.term && course.term.toLowerCase().includes('summer');
+  const events = getEventTiming(course.period, course.title, course.subj, course.num, isSummer);
   
   if (events.length === 0) {
     alert('No valid meeting times found for this course.');
@@ -83,14 +86,19 @@ export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, se
  * @param {string} courseTitle - The title of the course
  * @param {string} subj - The course subject code (e.g., "AAAS")
  * @param {string} num - The course number (e.g., "23")
+ * @param {boolean} isSummer - Whether the course is in the summer term
  * @returns {Array} - Array of event objects ready for Google Calendar
  */
-const getEventTiming = (periodCode, courseTitle, subj, num) => {
+const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = true) => {
   const timing = periodCodeToTiming[periodCode];
   if (!timing) return [];
 
-  const eventStartDate = '20250331'; // March 31, 2025 (Monday)
-  const eventEndDate = '20250609'; // June 9, 2025
+  // Use different date ranges depending on the term
+  // Summer 2025: June 26 - September 2
+  // Fall 2025: September 15 - November 21
+  const eventStartDate = isSummer ? '20250626' : '20250915'; // Summer or Fall start date
+  const eventEndDate = isSummer ? '20250902' : '20251121'; // Summer or Fall end date
+  
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);
   

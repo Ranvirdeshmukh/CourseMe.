@@ -31,12 +31,14 @@ import ScienceIcon from '@mui/icons-material/Science';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import CourseAnalytics from './CourseAnalytics.jsx';
 import CourseVoting from './CourseVoting.jsx';
-import { recordAnalyticsView, logAnalyticsSession } from '../../services/analyticsService';
+import generateORCLink from './ORCLinkGenerator';
 
 
 const CourseReviewsPage = ({ darkMode }) => {
   const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
   const [isTaughtSpringTerm, setIsTaughtSpringTerm] = useState(false);
+  const [isTaughtSummerTerm, setIsTaughtSummerTerm] = useState(false);
+  const [isTaughtFallTerm, setIsTaughtFallTerm] = useState(false);
   const { department, courseId } = useParams();
   const { currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
@@ -53,6 +55,8 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [currentInstructors, setCurrentInstructors] = useState([]);
   const [winterInstructors, setWinterInstructors] = useState([]);
   const [springInstructors, setSpringInstructors] = useState([]);
+  const [summerInstructors, setSummerInstructors] = useState([]);
+  const [fallInstructors, setFallInstructors] = useState([]);
   const [bothTermsInstructors, setBothTermsInstructors] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [reviewInstructors, setReviewInstructors] = useState([]);
@@ -113,11 +117,35 @@ const CourseReviewsPage = ({ darkMode }) => {
 
   const StyledTab = styled(Tab)(({ theme }) => ({
     minHeight: 'auto',
-    padding: '8px 16px',
-    color: theme.palette.text.primary,
+    padding: '10px 16px',
+    marginRight: '8px',
+    color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+    fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+    fontSize: '0.85rem',
+    fontWeight: 500,
+    letterSpacing: '-0.01em',
+    textTransform: 'none',
+    borderRadius: '8px',
+    transition: 'all 0.2s ease',
     '&.Mui-selected': {
-      color: theme.palette.primary.main,
-      fontWeight: 'bold',
+      color: theme.palette.mode === 'dark' ? '#0A84FF' : '#0071E3',
+      fontWeight: 600,
+      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.05)',
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
+      transform: 'translateY(-1px)',
+    },
+    '& .MuiSvgIcon-root': {
+      fontSize: '1.1rem',
+      marginBottom: '2px',
+      transition: 'transform 0.2s ease',
+    },
+    '&:hover .MuiSvgIcon-root': {
+      transform: 'scale(1.1)',
+    },
+    '&.Mui-selected .MuiSvgIcon-root': {
+      color: theme.palette.mode === 'dark' ? '#0A84FF' : '#0071E3',
     },
   }));
 
@@ -224,12 +252,23 @@ useEffect(() => {
     </svg>
   );
 
-  // Custom styled Tabs component
+  // Custom styled Tabs component with Apple design language
   const StyledTabs = styled(Tabs)(({ theme }) => ({
     minHeight: 'auto',
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(30, 30, 30, 0.3)' : 'rgba(240, 240, 247, 0.6)',
+    borderRadius: '10px',
+    padding: '4px',
+    '& .MuiTabs-flexContainer': {
+      gap: '2px',
+    },
     '& .MuiTabs-indicator': {
       display: 'none',
     },
+    boxShadow: theme.palette.mode === 'dark' 
+      ? 'inset 0 1px 1px rgba(0, 0, 0, 0.2)' 
+      : 'inset 0 0 1px rgba(0, 0, 0, 0.05)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
   }));
 
   const CourseDescriptionSection = () => {
@@ -242,177 +281,294 @@ useEffect(() => {
     
     // Generate ORC link for the current course
     const orcLink = generateORCLink(courseId);
-    console.log("Generated ORC link:", orcLink); // Debug log
-  
+    
     return (
-      <Box sx={{ padding: '20px' }}>
-        {/* Course title and ORC link in corner */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'flex-start', 
-          alignItems: 'center',
-          mb: 2,
-          gap: 2
-        }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 600, 
-              color: headerTextColor,
+      <Box 
+        sx={{ 
+          padding: { xs: '12px', sm: '16px', md: '20px' },
+          paddingTop: { xs: '8px', sm: '12px', md: '16px' },
+          transition: 'all 0.3s ease',
+        }}
+      >
+        {/* College Description Section - Apple Style */}
+                  <Box 
+            sx={{
+              mb: 3,
+              position: 'relative',
             }}
           >
-            College Description
-          </Typography>
-          
-          {orcLink && (
-            <Tooltip 
-              title="View the official information about the course released by college"
-              arrow
-              placement="top"
+          {/* Header with ORC link */}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              mb: 2.5,
+            }}
+          >
+            <Box
               sx={{
-                fontSize: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  left: '-12px',
+                  width: '4px',
+                  height: '24px',
+                  borderRadius: '2px',
+                  backgroundColor: darkMode ? '#0A84FF' : '#0071E3',
+                  boxShadow: darkMode ? '0 0 8px rgba(10, 132, 255, 0.5)' : 'none',
+                }
               }}
             >
+              <Typography 
+                variant="h5" 
+                sx={{ 
+                  fontWeight: 700, 
+                  color: darkMode ? '#FFFFFF' : headerTextColor,
+                  fontSize: { xs: '1.25rem', sm: '1.35rem', md: '1.5rem' },
+                  letterSpacing: '-0.02em',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                  textRendering: 'optimizeLegibility',
+                  WebkitFontSmoothing: 'antialiased',
+                }}
+              >
+                Course Description
+              </Typography>
+            </Box>
+            
+            {orcLink && (
               <Button
-                variant="outlined"
-                size="small"
-                startIcon={<Description sx={{ fontSize: '1rem' }} />}
+                startIcon={<Description 
+                  sx={{ 
+                    fontSize: '1rem',
+                    transition: 'transform 0.2s ease',
+                  }} 
+                />}
                 component="a"
                 href={orcLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{
-                  color: darkMode ? '#90caf9' : '#571CE0',
-                  borderColor: darkMode ? 'rgba(144, 202, 249, 0.5)' : 'rgba(87, 28, 224, 0.3)',
+                  color: darkMode ? '#0A84FF' : '#0071E3',
+                  backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.05)',
+                  borderRadius: '12px',
                   textTransform: 'none',
-                  fontSize: '0.75rem',
-                  fontWeight: 500,
-                  letterSpacing: '0.02em',
-                  padding: '3px 10px',
-                  borderRadius: '4px',
-                  boxShadow: 'none',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  letterSpacing: '-0.01em',
+                  padding: '8px 16px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                  transition: 'all 0.2s ease',
+                  border: 'none',
                   '&:hover': {
-                    borderColor: darkMode ? '#90caf9' : '#571CE0',
-                    backgroundColor: darkMode ? 'rgba(144, 202, 249, 0.08)' : 'rgba(87, 28, 224, 0.04)',
+                    backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.1)',
+                    transform: 'translateY(-1px)',
+                    '& .MuiSvgIcon-root': {
+                      transform: 'translateY(-1px)',
+                    }
                   }
                 }}
               >
-                ORC Catalog
+                View in ORC Catalog
               </Button>
-            </Tooltip>
-          )}
-        </Box>
-  
-        {/* Course description content */}
-        <Typography
-          variant="body1"
-          sx={{ 
-            fontSize: '0.95rem', 
-            color: textColor,
-            textAlign: 'left', 
-            lineHeight: '1.6',
-            marginBottom: '1rem'
-          }}
-          dangerouslySetInnerHTML={{ __html: courseDescription }}
-        />
-        
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 2, 
-          marginBottom: '1rem'
-        }}>
-          {/* AI Summary header */}
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 600, 
-              color: headerTextColor,
-            }}
-          >
-            AI Summary of Reviews
-          </Typography>
-  
-          {/* 4. Update Tooltip Background and Text Colors */}
-          <Box className="flex-shrink-0 relative group">
-            <Sparkles className="w-5 h-5 text-indigo-600 cursor-help" />
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: '100%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                mb: 2,
-                display: 'none',
-                width: '200px',
-                p: 2,
-                bgcolor: tooltipBgColor,          // Changed from 'bg-white' to dynamic variable
-                color: tooltipTextColor,          // Changed from 'text-gray-600' to dynamic variable
-                borderRadius: '8px',
-                boxShadow: 3,
-                textAlign: 'center',
-                fontSize: '0.875rem',
-                border: darkMode ? '1px solid #444444' : '1px solid #e9ecef', // Optional: Add border based on darkMode
-                '& .MuiBox-root': {
-                  position: 'absolute',
-                  top: '100%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '0',
-                  height: '0',
-                  borderLeft: '6px solid transparent',
-                  borderRight: '6px solid transparent',
-                  borderTop: `6px solid ${tooltipBgColor}`, // Triangle arrow matching tooltip background
-                },
-                '.group:hover &': {
-                  display: 'block',
-                },
-              }}
-            >
-              AI-generated summary based on student reviews
-              <Box />
-            </Box>
+            )}
           </Box>
-        </Box>
   
-        {/* 5. Update Summary Typography and Box */}
-        {course?.summary ? (
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: '0.95rem',
-              color: textColor,                   // Changed from 'text.primary' to dynamic variable
-              textAlign: 'left',
-              lineHeight: '1.6',
-              padding: '1rem',
-              backgroundColor: paperBgColor,      // Changed from '#f8f9fa' to dynamic variable
-              borderRadius: '8px',
-              border: darkMode ? '1px solid #444444' : '1px solid #e9ecef', // Changed from '#e9ecef' to dynamic border
-            }}
-          >
-            {course.summary}
-          </Typography>
-        ) : (
+          {/* Course description content */}
           <Box
             sx={{
-              padding: '1rem',
-              backgroundColor: paperBgColor,      // Changed from '#f8f9fa' to dynamic variable
-              borderRadius: '8px',
-              border: darkMode ? '1px solid #444444' : '1px solid #e9ecef', // Changed from '#e9ecef' to dynamic border
+              position: 'relative',
+              backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)',
+              borderRadius: '16px',
+              padding: { xs: '20px', sm: '24px' },
+              transition: 'all 0.3s ease',
+              border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+              boxShadow: darkMode ? 'none' : '0 2px 12px rgba(0, 0, 0, 0.03)',
+              '&:hover': {
+                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.03)',
+                boxShadow: darkMode ? '0 2px 12px rgba(0, 0, 0, 0.15)' : '0 4px 16px rgba(0, 0, 0, 0.06)',
+              }
             }}
           >
             <Typography
               variant="body1"
-              sx={{
-                fontSize: '0.95rem',
-                color: darkMode ? '#FFFFFF' : '#8E8E93', // Changed from 'text.secondary' to dynamic color
-                fontStyle: 'italic'
+              sx={{ 
+                                 fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' }, 
+                 color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                 textAlign: 'left', 
+                 lineHeight: 1.6,
+                 letterSpacing: '-0.011em',
+                 fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                 WebkitFontSmoothing: 'antialiased',
+                 fontWeight: 400,
+              }}
+              dangerouslySetInnerHTML={{ __html: courseDescription }}
+            />
+          </Box>
+        </Box>
+        
+        {/* AI Summary Section - Apple Style */}
+                  <Box 
+           sx={{ 
+             mt: 4,
+             position: 'relative',
+           }}
+         >
+          {/* AI Summary Header */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mb: 2.5,
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                left: '-12px',
+                width: '4px',
+                height: '24px',
+                borderRadius: '2px',
+                background: darkMode 
+                  ? 'linear-gradient(to bottom, #34C759, #30D158)' 
+                  : 'linear-gradient(to bottom, #00693E, #00875A)',
+                boxShadow: darkMode ? '0 0 8px rgba(52, 199, 89, 0.5)' : 'none',
+              }
+            }}
+          >
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                fontWeight: 700,
+                color: darkMode ? '#FFFFFF' : headerTextColor,
+                fontSize: { xs: '1.25rem', sm: '1.35rem', md: '1.5rem' },
+                letterSpacing: '-0.02em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                mr: 1.5,
               }}
             >
-              Not enough data to generate an AI summary. This will be available once more students review the course.
+              AI Summary of Reviews
             </Typography>
+            
+            <Tooltip
+              title="AI-generated summary based on student reviews"
+              arrow
+              placement="top"
+              sx={{
+                '& .MuiTooltip-tooltip': {
+                  backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+                  color: '#FFFFFF',
+                  fontSize: '0.75rem',
+                  borderRadius: '10px',
+                  padding: '8px 12px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  fontWeight: 500,
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  letterSpacing: '-0.01em',
+                },
+                '& .MuiTooltip-arrow': {
+                  color: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+                }
+              }}
+            >
+              <Box 
+                sx={{ 
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  cursor: 'help' 
+                }}
+              >
+                <AutoAwesomeIcon 
+                  sx={{ 
+                    fontSize: '1.1rem',
+                    color: darkMode ? '#34C759' : '#00693E',
+                    opacity: 0.9,
+                    transform: 'rotate(10deg)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      opacity: 1,
+                      transform: 'rotate(25deg) scale(1.1)',
+                    }
+                  }} 
+                />
+              </Box>
+            </Tooltip>
           </Box>
-        )}
+  
+          {/* AI Summary Content */}
+          <Box
+            sx={{
+              borderRadius: '16px',
+              overflow: 'hidden',
+              boxShadow: darkMode 
+                ? '0 4px 16px rgba(0, 0, 0, 0.15)' 
+                : '0 4px 24px rgba(0, 0, 0, 0.06)',
+              transition: 'all 0.3s ease',
+              border: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.08)' 
+                : '1px solid rgba(0, 0, 0, 0.05)',
+              backgroundColor: darkMode 
+                ? 'rgba(30, 35, 61, 0.5)' 
+                : 'rgba(248, 249, 251, 1)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: darkMode 
+                  ? '0 8px 24px rgba(0, 0, 0, 0.2)' 
+                  : '0 8px 32px rgba(0, 0, 0, 0.08)',
+              }
+            }}
+          >
+            {course?.summary ? (
+              <Typography
+                variant="body1"
+                sx={{
+                  fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' },
+                  color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                  textAlign: 'left',
+                  lineHeight: 1.6,
+                  padding: { xs: '20px', sm: '24px' },
+                  letterSpacing: '-0.011em',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  WebkitFontSmoothing: 'antialiased',
+                  position: 'relative'
+                }}
+              >
+                {course.summary}
+              </Typography>
+            ) : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: { xs: '32px 20px', sm: '40px 24px' },
+                  minHeight: '150px',
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                                      fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                  color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                  textAlign: 'center',
+                  lineHeight: 1.5,
+                  fontStyle: 'italic',
+                  maxWidth: '400px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  letterSpacing: '-0.011em',
+                  }}
+                >
+                  Not enough data to generate an AI summary. This will be available once more students review the course.
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
       </Box>
     );
   };
@@ -420,6 +576,16 @@ useEffect(() => {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    
+    // If the "Add Review" tab is selected, scroll to the review form
+    if (newValue === 3) {
+      setTimeout(() => {
+        const reviewSection = document.getElementById('add-review-section');
+        if (reviewSection) {
+          reviewSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
   };
 
   const renderTabContent = () => {
@@ -516,8 +682,8 @@ useEffect(() => {
             </Box>
           </Box>
         );
-      case 3:
-        // Input Data tab content
+      case 4:
+        // Input Data tab content (Beta tab)
         return (
           <Box sx={{ padding: '20px'  }}>
             <Typography variant="h6" gutterBottom>
@@ -526,6 +692,10 @@ useEffect(() => {
             <CourseInputDataForm courseId={courseId} allProfessors={allProfessors} />
           </Box>
         );
+      
+      case 3:
+        // Add Review tab - just return null as we're scrolling to the form
+        return null;
         case 2:
   return (
     <Box sx={{ padding: '20px' }}>
@@ -1078,6 +1248,30 @@ useEffect(() => {
       }
     });
     
+    summerInstructors.forEach(instructor => {
+      if (!professorTerms[instructor]) {
+        professorTerms[instructor] = [];
+      }
+      
+      const summerTerm = currentYear + 'X';
+      if (!professorTerms[instructor].includes(summerTerm)) {
+        professorTerms[instructor].unshift(summerTerm);
+        console.log(`Added current Summer term ${summerTerm} for professor ${instructor}`);
+      }
+    });
+    
+    fallInstructors.forEach(instructor => {
+      if (!professorTerms[instructor]) {
+        professorTerms[instructor] = [];
+      }
+      
+      const fallTerm = currentYear + 'F';
+      if (!professorTerms[instructor].includes(fallTerm)) {
+        professorTerms[instructor].unshift(fallTerm);
+        console.log(`Added current Fall term ${fallTerm} for professor ${instructor}`);
+      }
+    });
+    
     console.log("Final professorTerms:", professorTerms);
     return professorTerms;
   };
@@ -1171,28 +1365,28 @@ useEffect(() => {
     };
     
     switch (term) {
-      case 'W': // Winter - Blue
+      case 'W': // Winter
         colors = {
           bg: darkMode ? '#2C3E50' : '#E0F7FF',
           border: darkMode ? '#4A6572' : '#B3E5FC',
           text: darkMode ? '#B3E5FC' : '#0277BD'
         };
         break;
-      case 'S': // Spring - Yellow
+      case 'S': // Spring
         colors = {
           bg: darkMode ? '#4D3C14' : '#FFF8E1',
           border: darkMode ? '#6D5B24' : '#FFE082',
           text: darkMode ? '#FFE082' : '#F57F17'
         };
         break;
-      case 'X': // Summer - Green
+      case 'X': // Summer
         colors = {
-          bg: darkMode ? '#1B5E20' : '#E8F5E9',
-          border: darkMode ? '#388E3C' : '#A5D6A7',
-          text: darkMode ? '#A5D6A7' : '#2E7D32'
+          bg: darkMode ? '#006064' : '#E0F7FA',
+          border: darkMode ? '#00838F' : '#80DEEA',
+          text: darkMode ? '#B2EBF2' : '#00838F'
         };
         break;
-      case 'F': // Fall - Orange/Red
+      case 'F': // Fall
         colors = {
           bg: darkMode ? '#4E342E' : '#FBE9E7',
           border: darkMode ? '#6D4C41' : '#FFCCBC',
@@ -1357,10 +1551,46 @@ const handleQualityVote = async (voteType) => {
                 }
               });
               
+              // Check Summer Term
+              const summerTimetableRef = collection(db, 'summerTimetable');
+              const summerQuery = query(summerTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumValue));
+              const summerQuerySnapshot = await getDocs(summerQuery);
+              
+              let summerInstructors = [];
+              let summerFound = false;
+              summerQuerySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.Instructor) {
+                  summerFound = true;
+                  if (!summerInstructors.includes(data.Instructor)) {
+                    summerInstructors.push(data.Instructor);
+                  }
+                }
+              });
+              
+              // Check Fall Term
+              const fallTimetableRef = collection(db, 'fallTimetable2');
+              const fallQuery = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumValue));
+              const fallQuerySnapshot = await getDocs(fallQuery);
+              
+              let fallInstructors = [];
+              let fallFound = false;
+              fallQuerySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.Instructor) {
+                  fallFound = true;
+                  if (!fallInstructors.includes(data.Instructor)) {
+                    fallInstructors.push(data.Instructor);
+                  }
+                }
+              });
+              
               console.log("Matching instructors:", instructors);
 
               setIsTaughtCurrentTerm(winterFound);
               setIsTaughtSpringTerm(springFound);
+              setIsTaughtSummerTerm(summerFound);
+              setIsTaughtFallTerm(fallFound);
               if (instructors.length > 0) {
                 setCurrentInstructors(instructors);
               } else {
@@ -1465,20 +1695,60 @@ const handleQualityVote = async (voteType) => {
           }
         });
 
+        // Check Summer Term
+        const summerTimetableRef = collection(db, 'summerTimetable');
+        const summerQuery = query(summerTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+        const summerQuerySnapshot = await getDocs(summerQuery);
+        
+        let summerInstructors = [];
+        let summerFound = false;
+        summerQuerySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.Instructor) {
+            summerFound = true;
+            if (!summerInstructors.includes(data.Instructor)) {
+              summerInstructors.push(data.Instructor);
+            }
+          }
+        });
+        
+        // Check Fall Term
+        const fallTimetableRef = collection(db, 'fallTimetable2');
+        const fallQuery = query(fallTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
+        const fallQuerySnapshot = await getDocs(fallQuery);
+        
+        let fallInstructors = [];
+        let fallFound = false;
+        fallQuerySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.Instructor) {
+            fallFound = true;
+            if (!fallInstructors.includes(data.Instructor)) {
+              fallInstructors.push(data.Instructor);
+            }
+          }
+        });
+        
         // Find instructors who teach in both terms
         const bothTermsInstructors = winterInstructors.filter(instructor => 
           springInstructors.includes(instructor)
         );
 
-        setCurrentInstructors([...winterInstructors, ...springInstructors]);
+        setCurrentInstructors([...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors]);
         setWinterInstructors(winterInstructors);
         setSpringInstructors(springInstructors);
+        setSummerInstructors(summerInstructors);
+        setFallInstructors(fallInstructors);
         setBothTermsInstructors(bothTermsInstructors);
         setIsTaughtCurrentTerm(winterFound);
         setIsTaughtSpringTerm(springFound);
-        console.log("Current instructors:", [...winterInstructors, ...springInstructors]);
+        setIsTaughtSummerTerm(summerFound);
+        setIsTaughtFallTerm(fallFound);
+        console.log("Current instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors]);
         console.log("Winter instructors:", winterInstructors);
         console.log("Spring instructors:", springInstructors);
+        console.log("Summer instructors:", summerInstructors);
+        console.log("Fall instructors:", fallInstructors);
         console.log("Both terms instructors:", bothTermsInstructors);
         let data = null;
         const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -1505,7 +1775,7 @@ const handleQualityVote = async (voteType) => {
           console.log("Review instructors:", reviewInstructors);
 
           // Compare and update if necessary
-          const instructorsToAdd = [...winterInstructors, ...springInstructors].filter(instructor => 
+          const instructorsToAdd = [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors].filter(instructor => 
             !reviewInstructors.some(reviewInstructor => compareNames(instructor, reviewInstructor))
           );
 
@@ -1521,14 +1791,14 @@ const handleQualityVote = async (voteType) => {
         } else {
           // If the document doesn't exist, create it with the current instructors
           const newReviewsData = {};
-          [...winterInstructors, ...springInstructors].forEach(instructor => {
+          [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors].forEach(instructor => {
             newReviewsData[instructor] = [];
           });
           await setDoc(reviewsRef, newReviewsData);
-          console.log("Created new reviews document with instructors:", [...winterInstructors, ...springInstructors]);
+          console.log("Created new reviews document with instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors]);
         }
 
-        setIsTaughtCurrentTerm([...winterInstructors, ...springInstructors].length > 0);
+        setIsTaughtCurrentTerm([...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors].length > 0);
       }
     } catch (error) {
       console.error("Error fetching and updating instructors:", error);
@@ -1767,58 +2037,72 @@ const handleQualityVote = async (voteType) => {
       }
     };
 
-
-
     return (
-      
       <motion.div
         ref={ref}
         initial={{ opacity: 0, y: 20 }}
         animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         style={{ width: '100%' }}
       >
         <Box
-        sx={{
-          my: 3,
-          background: darkMode
-            ? 'linear-gradient(to right, rgba(30, 30, 30, 0.8), rgba(50, 50, 50, 0.8))' // Dark mode background
-            : 'linear-gradient(to right, rgba(238, 242, 255, 0.8), rgba(245, 243, 255, 0.8))', // Light mode background
-          borderRadius: '12px',
-          overflow: 'hidden',
-          border: darkMode
-            ? '1px solid rgba(255, 255, 255, 0.1)'
-            : '1px solid rgba(99, 102, 241, 0.1)',
-          boxShadow: darkMode
-            ? '0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -1px rgba(255, 255, 255, 0.03)'
-            : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            transform: 'translateY(-2px)',
+          sx={{
+            my: 3,
+            background: darkMode
+              ? 'rgba(30, 35, 61, 0.6)' 
+              : 'rgba(248, 249, 251, 0.75)',
+            borderRadius: '18px',
+            overflow: 'hidden',
+            border: darkMode
+              ? '1px solid rgba(255, 255, 255, 0.08)'
+              : '1px solid rgba(0, 0, 0, 0.05)',
             boxShadow: darkMode
-              ? '0 6px 12px -2px rgba(255, 255, 255, 0.08), 0 3px 6px -2px rgba(255, 255, 255, 0.05)'
-              : '0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.05)',
-          },
-        }}
-      >
-          <ListItem sx={{ p: 3, alignItems: 'flex-start' }}>
+              ? '0 12px 24px rgba(0, 0, 0, 0.15)'
+              : '0 12px 24px rgba(0, 0, 0, 0.06)',
+            transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            '&:hover': {
+              transform: 'translateY(-4px)',
+              boxShadow: darkMode
+                ? '0 16px 32px rgba(0, 0, 0, 0.2)'
+                : '0 16px 32px rgba(0, 0, 0, 0.08)',
+            },
+          }}
+        >
+          <ListItem sx={{ p: { xs: 2.5, sm: 3.5 }, alignItems: 'flex-start' }}>
             <Box sx={{ width: '100%' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                <Box
-                  sx={{
-                    width: '4px',
-                    height: '24px',
-                    bgcolor: darkMode ? '#4CAF50' : '#00693E', // Example: Lighter green in dark mode
-                    borderRadius: '4px',
-                  }}
-                />
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'flex-start', 
+                gap: 2, 
+                mb: 1.5,
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  left: '-12px',
+                  top: '2px',
+                  height: '24px',
+                  width: '4px',
+                  borderRadius: '4px',
+                  background: darkMode 
+                    ? 'linear-gradient(to bottom, #0A84FF, #0066CC)' 
+                    : 'linear-gradient(to bottom, #0071E3, #0058B0)',
+                  boxShadow: darkMode ? '0 0 8px rgba(10, 132, 255, 0.5)' : 'none',
+                }
+              }}>
                 <Typography
                   component="span"
                   sx={{
-                    color: textColor, // Use dynamic text color
+                    color: darkMode ? '#FFFFFF' : '#1D1D1F',
                     fontWeight: 600,
-                    letterSpacing: '0.3px',
-                    fontSize: '1rem',
+                    letterSpacing: '-0.015em',
+                    fontSize: { xs: '0.95rem', sm: '1.05rem' },
+                    fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                    lineHeight: 1.3,
+                    textRendering: 'optimizeLegibility',
+                    WebkitFontSmoothing: 'antialiased',
                   }}
                 >
                   {prefix}
@@ -1827,10 +2111,14 @@ const handleQualityVote = async (voteType) => {
               <Typography
                 component="p"
                 sx={{
-                  color: textColor, // Use dynamic text color
-                  pl: '28px',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                  pl: '16px',
                   lineHeight: 1.6,
-                  fontSize: '0.95rem',
+                  fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                  letterSpacing: '-0.011em',
+                  fontWeight: 400,
+                  position: 'relative',
                 }}
               >
                 {rest}
@@ -1839,45 +2127,94 @@ const handleQualityVote = async (voteType) => {
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  mt: 2,
-                  pl: '28px',
-                  gap: 2,
+                  mt: 2.5,
+                  pl: '16px',
+                  gap: 2.5,
                 }}
               >
-                <IconButton
-                  onClick={handleLike}
-                  sx={{
-                    color: hasLiked ? '#007AFF' : '#8E8E93',
-                    padding: '6px',
-                  }}
-                >
-                  <Typography 
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 1,
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: hasLiked 
+                    ? (darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.08)') 
+                    : 'transparent',
+                  '&:hover': {
+                    backgroundColor: hasLiked 
+                      ? (darkMode ? 'rgba(10, 132, 255, 0.2)' : 'rgba(0, 113, 227, 0.12)') 
+                      : (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
+                  }
+                }}>
+                  <IconButton
+                    onClick={handleLike}
+                    sx={{
+                      color: hasLiked ? (darkMode ? '#0A84FF' : '#0071E3') : (darkMode ? '#8E8E93' : '#8E8E93'),
+                      padding: '3px',
+                      borderRadius: '8px',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                        transform: 'scale(1.05)',
+                      }
+                    }}
+                  >
+                    <Typography 
                       variant="body2" 
                       sx={{ 
                         fontSize: '1.2rem',
-                        color: hasLiked ? '#007AFF' : (darkMode ? '#FFFFFF' : '#8E8E93'), // Dynamic color based on state and theme
+                        transition: 'transform 0.2s ease',
+                        transform: hasLiked ? 'scale(1.1)' : 'scale(1)',
                       }}
                     >
                       🔥
                     </Typography>
+                  </IconButton>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      fontSize: '0.85rem',
+                      fontWeight: hasLiked ? 600 : 500,
+                      color: hasLiked 
+                        ? (darkMode ? '#0A84FF' : '#0071E3') 
+                        : (darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)'),
+                      fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                    }}>
+                    {likeCount}
+                  </Typography>
+                </Box>
 
-                </IconButton>
-                <Typography variant="body2" sx={{ color: '#8E8E93' }}>
-                  {likeCount}
-                </Typography>
                 <Button
                   onClick={toggleReplies}
-                  startIcon={<ChatBubbleOutlineIcon fontSize="small" />}
+                  startIcon={<ChatBubbleOutlineIcon 
+                    sx={{ 
+                      fontSize: '0.95rem', 
+                      transition: 'transform 0.2s ease',
+                      transform: showReplies ? 'rotate(3deg) scale(1.1)' : 'rotate(0) scale(1)'
+                    }} 
+                  />}
                   sx={{ 
-                    color: showReplies ? (darkMode ? '#E0E0E0' : '#555555') : '#8E8E93',
-                    backgroundColor: showReplies ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)') : 'transparent',
+                    color: showReplies 
+                      ? (darkMode ? '#0A84FF' : '#0071E3')
+                      : (darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.55)'),
+                    backgroundColor: showReplies 
+                      ? (darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.08)') 
+                      : 'transparent',
                     textTransform: 'none',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
                     fontSize: '0.85rem',
-                    fontWeight: showReplies ? 600 : 400,
+                    fontWeight: showReplies ? 600 : 500,
+                    transition: 'all 0.2s ease',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                    letterSpacing: '-0.01em',
                     '&:hover': {
-                      backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                      backgroundColor: showReplies
+                        ? (darkMode ? 'rgba(10, 132, 255, 0.2)' : 'rgba(0, 113, 227, 0.12)')
+                        : (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'),
+                      transform: 'translateY(-1px)',
                     }
                   }}
                 >
@@ -1890,18 +2227,20 @@ const handleQualityVote = async (voteType) => {
             <>
               <Box 
                 sx={{ 
-                  pl: 4, 
-                  pr: 2,
-                  pb: 2,
+                  pl: { xs: 3, sm: 4 }, 
+                  pr: { xs: 2, sm: 3 },
+                  pb: 3,
                   position: 'relative',
                   '&::before': {
                     content: '""',
                     position: 'absolute',
-                    left: '40px',
+                    left: '42px',
                     top: '0',
-                    bottom: '0',
+                    bottom: '20px',
                     width: '2px',
-                    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    background: darkMode 
+                      ? 'linear-gradient(to bottom, rgba(10, 132, 255, 0.15), rgba(10, 132, 255, 0.05))'
+                      : 'linear-gradient(to bottom, rgba(0, 113, 227, 0.15), rgba(0, 113, 227, 0.05))',
                     borderRadius: '1px',
                   }
                 }}
@@ -1916,32 +2255,57 @@ const handleQualityVote = async (voteType) => {
                       '&::before': {
                         content: '""',
                         position: 'absolute',
-                        left: '-16px',
-                        top: '12px',
-                        width: '12px',
+                        left: '-14px',
+                        top: '14px',
+                        width: '10px',
                         height: '2px',
-                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                        background: darkMode 
+                          ? 'rgba(10, 132, 255, 0.3)'
+                          : 'rgba(0, 113, 227, 0.2)',
+                        borderRadius: '1px',
                       }
                     }}
                   >
                     <Box
                       sx={{
-                        backgroundColor: darkMode ? 'rgba(42, 42, 42, 0.7)' : 'rgba(249, 249, 249, 0.7)',
-                        borderRadius: '8px',
-                        p: 2,
-                        border: darkMode ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.05)',
+                        backgroundColor: darkMode 
+                          ? 'rgba(26, 30, 54, 0.6)' 
+                          : 'rgba(242, 242, 247, 0.6)',
+                        borderRadius: '16px',
+                        p: { xs: 2, sm: 2.5 },
+                        border: darkMode 
+                          ? '1px solid rgba(255, 255, 255, 0.06)' 
+                          : '1px solid rgba(0, 0, 0, 0.04)',
                         transition: 'all 0.2s ease',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        boxShadow: darkMode
+                          ? '0 4px 16px rgba(0, 0, 0, 0.1)' 
+                          : '0 4px 16px rgba(0, 0, 0, 0.04)',
                         '&:hover': {
-                          backgroundColor: darkMode ? 'rgba(50, 50, 50, 0.8)' : 'rgba(240, 240, 240, 0.8)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: darkMode
+                            ? '0 6px 20px rgba(0, 0, 0, 0.15)' 
+                            : '0 6px 20px rgba(0, 0, 0, 0.06)',
                         }
                       }}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        mb: 1, 
+                        pb: 1, 
+                        borderBottom: darkMode 
+                          ? '1px solid rgba(255, 255, 255, 0.06)' 
+                          : '1px solid rgba(0, 0, 0, 0.04)'
+                      }}>
                         <Typography
                           component="span"
                           sx={{ 
-                            color: darkMode ? '#909090' : '#8E8E93', 
-                            fontSize: '0.75rem' 
+                            color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)', 
+                            fontSize: '0.75rem',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                            letterSpacing: '-0.01em'
                           }}
                         >
                           {reply && reply.timestamp ? new Date(reply.timestamp).toLocaleString() : ''}
@@ -1950,9 +2314,11 @@ const handleQualityVote = async (voteType) => {
                       <Typography
                         component="p"
                         sx={{ 
-                          color: textColor, 
+                          color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)', 
                           fontSize: '0.9rem',
-                          lineHeight: 1.5
+                          lineHeight: 1.5,
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          letterSpacing: '-0.01em'
                         }}
                       >
                         {reply && reply.reply ? reply.reply : ''}
@@ -1971,31 +2337,44 @@ const handleQualityVote = async (voteType) => {
                       '&::before': {
                         content: '""',
                         position: 'absolute',
-                        left: '-16px',
-                        top: '12px',
-                        width: '12px',
+                        left: '-14px',
+                        top: '16px',
+                        width: '10px',
                         height: '2px',
-                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                        background: darkMode 
+                          ? 'rgba(10, 132, 255, 0.3)'
+                          : 'rgba(0, 113, 227, 0.2)',
+                        borderRadius: '1px',
                       }
                     }}
                   >
                     <Button
                       sx={{
-                        color: darkMode ? '#007AFF' : '#0056b3',
+                        color: darkMode ? '#0A84FF' : '#0071E3',
                         textTransform: 'none',
                         fontSize: '0.85rem',
-                        padding: '4px 8px',
-                        backgroundColor: 'transparent',
+                        fontWeight: 500,
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        backgroundColor: darkMode 
+                          ? 'rgba(10, 132, 255, 0.1)' 
+                          : 'rgba(0, 113, 227, 0.05)',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                        letterSpacing: '-0.01em',
+                        transition: 'all 0.2s ease',
                         '&:hover': {
-                          backgroundColor: darkMode ? 'rgba(0, 122, 255, 0.1)' : 'rgba(0, 86, 179, 0.1)',
+                          backgroundColor: darkMode 
+                            ? 'rgba(10, 132, 255, 0.15)' 
+                            : 'rgba(0, 113, 227, 0.1)',
+                          transform: 'translateY(-1px)',
                         }
                       }}
                     >
-                      Continue this thread
+                      Show more replies
                     </Button>
                   </Box>
                 )}
-                <Box sx={{ mt: 2, ml: 3 }}>
+                <Box sx={{ mt: 3, ml: 3 }}>
                   <AddReplyForm
                     reviewData={{ instructor, reviewIndex }}
                     courseId={courseId}
@@ -2011,13 +2390,13 @@ const handleQualityVote = async (voteType) => {
                       }
                     }}
                     darkMode={darkMode}
-                    textColor={textColor}
-                    backgroundColor={darkMode ? 'rgba(42, 42, 42, 0.7)' : 'rgba(249, 249, 249, 0.7)'}
-                    buttonColor={darkMode ? '#007AFF' : '#007AFF'}
-                    buttonHoverColor={darkMode ? '#0056b3' : '#0056b3'}
-                    inputBgColor={darkMode ? '#333333' : '#FFFFFF'}
-                    inputBorderColor={darkMode ? '#555555' : '#E0E0E0'}
-                    inputTextColor={textColor}
+                    textColor={darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)'}
+                    backgroundColor={darkMode ? 'rgba(26, 30, 54, 0.8)' : 'rgba(242, 242, 247, 0.8)'}
+                    buttonColor={darkMode ? '#0A84FF' : '#0071E3'}
+                    buttonHoverColor={darkMode ? '#0066CC' : '#0058B0'}
+                    inputBgColor={darkMode ? 'rgba(10, 10, 20, 0.3)' : '#FFFFFF'}
+                    inputBorderColor={darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}
+                    inputTextColor={darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)'}
                   />
                 </Box>
               </Box>
@@ -2056,17 +2435,77 @@ const handleQualityVote = async (voteType) => {
           return (
             <React.Fragment key={idx}>
               {showInstructor && (
-                <Typography
-                  variant="h6"
+                <Box
                   sx={{
-                    marginTop: '20px',
-                    color: textColor, // Use dynamic text color
-                    textAlign: 'left',
-                    fontWeight: 600,
+                    marginTop: '40px',
+                    marginBottom: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    position: 'relative',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      left: '-12px',
+                      width: '4px',
+                      height: '20px',
+                      borderRadius: '2px',
+                      background: darkMode 
+                        ? 'linear-gradient(to bottom, #FF9F0A, #FF7D0A)' 
+                        : 'linear-gradient(to bottom, #FF9500, #FF7D00)',
+                      boxShadow: darkMode ? '0 0 8px rgba(255, 159, 10, 0.5)' : 'none',
+                    }
                   }}
                 >
-                  {item.instructor}
-                </Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      fontSize: { xs: '1.1rem', sm: '1.2rem' },
+                      letterSpacing: '-0.015em',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                      textRendering: 'optimizeLegibility',
+                      WebkitFontSmoothing: 'antialiased',
+                      ml: 0.5,
+                    }}
+                  >
+                    {item.instructor}
+                  </Typography>
+                  {professorTerms[item.instructor] && professorTerms[item.instructor].length > 0 && (
+                    <Box sx={{ 
+                      display: 'flex', 
+                      ml: 2, 
+                      gap: '6px',
+                      flexWrap: 'wrap',
+                    }}>
+                      {professorTerms[item.instructor].slice(0, 2).map((termCode, idx) => (
+                        <Box
+                          key={idx}
+                          sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '2px 8px',
+                            borderRadius: '10px',
+                            backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.06)',
+                            border: darkMode ? '1px solid rgba(10, 132, 255, 0.2)' : '1px solid rgba(0, 113, 227, 0.1)',
+                          }}
+                        >
+                          <Typography 
+                            sx={{ 
+                              fontSize: '0.7rem', 
+                              fontWeight: 600,
+                              color: darkMode ? '#0A84FF' : '#0071E3',
+                              fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                            }}
+                          >
+                            {formatTermCode(termCode)}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
               )}
               <ReviewItem
                 key={idx}
@@ -2105,204 +2544,89 @@ useEffect(() => {
 
   const renderPageButtons = () => {
     let pages = [];
+    
+    // Common button styling
+    const pageButtonStyle = (i) => ({
+      onClick: () => handleChangePage(i),
+      disabled: currentPage === i,
+    });
+    
+    // Ellipsis styling (no onClick handler)
+    const ellipsisStyle = {
+      disabled: true,
+      sx: { 
+        color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)',
+        minWidth: { xs: '20px', sm: '24px' },
+        padding: 0,
+        '&.Mui-disabled': {
+          color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)',
+          backgroundColor: 'transparent',
+          boxShadow: 'none',
+          transform: 'none',
+        }
+      }
+    };
+    
     if (totalPages <= 5) {
+      // Show all pages if there are 5 or fewer
       for (let i = 1; i <= totalPages; i++) {
         pages.push(
-          <Button
-            key={i}
-            onClick={() => handleChangePage(i)}
-            disabled={currentPage === i}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={i} {...pageButtonStyle(i)}>
             {i}
           </Button>
         );
       }
     } else {
       if (currentPage <= 3) {
+        // Near the start
         for (let i = 1; i <= 4; i++) {
           pages.push(
-            <Button
-              key={i}
-              onClick={() => handleChangePage(i)}
-              disabled={currentPage === i}
-              sx={{
-                color: '#fff',
-                backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
-                '&:hover': {
-                  backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
-                },
-                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                margin: '0 2px',
-                borderRadius: '50%',
-                width: '36px',
-                height: '36px',
-              }}
-            >
+            <Button key={i} {...pageButtonStyle(i)}>
               {i}
             </Button>
           );
         }
+        pages.push(<Button key="ellipsis" {...ellipsisStyle}>•••</Button>);
         pages.push(
-          <Button key="ellipsis" disabled sx={{ color: '#fff', margin: '0 2px' }}>
-            ...
-          </Button>
-        );
-        pages.push(
-          <Button
-            key={totalPages}
-            onClick={() => handleChangePage(totalPages)}
-            disabled={currentPage === totalPages}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === totalPages ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === totalPages ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={totalPages} {...pageButtonStyle(totalPages)}>
             {totalPages}
           </Button>
         );
       } else if (currentPage > totalPages - 3) {
+        // Near the end
         pages.push(
-          <Button
-            key={1}
-            onClick={() => handleChangePage(1)}
-            disabled={currentPage === 1}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === 1 ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === 1 ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={1} {...pageButtonStyle(1)}>
             1
           </Button>
         );
-        pages.push(
-          <Button key="ellipsis" disabled sx={{ color: '#fff', margin: '0 2px' }}>
-            ...
-          </Button>
-        );
+        pages.push(<Button key="ellipsis" {...ellipsisStyle}>•••</Button>);
         for (let i = totalPages - 3; i <= totalPages; i++) {
           pages.push(
-            <Button
-              key={i}
-              onClick={() => handleChangePage(i)}
-              disabled={currentPage === i}
-              sx={{
-                color: '#fff',
-                backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
-                '&:hover': {
-                  backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
-                },
-                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                margin: '0 2px',
-                borderRadius: '50%',
-                width: '36px',
-                height: '36px',
-              }}
-            >
+            <Button key={i} {...pageButtonStyle(i)}>
               {i}
             </Button>
           );
         }
       } else {
+        // In the middle
         pages.push(
-          <Button
-            key={1}
-            onClick={() => handleChangePage(1)}
-            disabled={currentPage === 1}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === 1 ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === 1 ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={1} {...pageButtonStyle(1)}>
             1
           </Button>
         );
-        pages.push(
-          <Button key="ellipsis1" disabled sx={{ color: '#fff', margin: '0 2px' }}>
-            ...
-          </Button>
-        );
+        pages.push(<Button key="ellipsis1" {...ellipsisStyle}>•••</Button>);
+        
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
           pages.push(
-            <Button
-              key={i}
-              onClick={() => handleChangePage(i)}
-              disabled={currentPage === i}
-              sx={{
-                color: '#fff',
-                backgroundColor: currentPage === i ? '#571CE0' : '#A074E8',
-                '&:hover': {
-                  backgroundColor: currentPage === i ? '#7E55CC' : '#7E55CC',
-                },
-                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                margin: '0 2px',
-                borderRadius: '50%',
-                width: '36px',
-                height: '36px',
-              }}
-            >
+            <Button key={i} {...pageButtonStyle(i)}>
               {i}
             </Button>
           );
         }
+        
+        pages.push(<Button key="ellipsis2" {...ellipsisStyle}>•••</Button>);
         pages.push(
-          <Button key="ellipsis2" disabled sx={{ color: '#fff', margin: '0 2px' }}>
-            ...
-          </Button>
-        );
-        pages.push(
-          <Button
-            key={totalPages}
-            onClick={() => handleChangePage(totalPages)}
-            disabled={currentPage === totalPages}
-            sx={{
-              color: '#fff',
-              backgroundColor: currentPage === totalPages ? '#571CE0' : '#A074E8',
-              '&:hover': {
-                backgroundColor: currentPage === totalPages ? '#7E55CC' : '#7E55CC',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              margin: '0 2px',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-            }}
-          >
+          <Button key={totalPages} {...pageButtonStyle(totalPages)}>
             {totalPages}
           </Button>
         );
@@ -2432,6 +2756,12 @@ useEffect(() => {
             terms.add(springTerm);
             console.log(`Manual extraction: No terms found for ${professor}, adding current spring term ${springTerm}`);
           }
+          
+          if (summerInstructors.includes(professor)) {
+            const summerTerm = currentYear + 'X';
+            terms.add(summerTerm);
+            console.log(`Manual extraction: No terms found for ${professor}, adding current summer term ${summerTerm}`);
+          }
         }
         
         // Update the professor's terms if we found any
@@ -2468,434 +2798,6 @@ useEffect(() => {
     }
   }, [reviews, professorTerms]);
 
-  // Function to generate ORC link for course catalog
-  const generateORCLink = (courseId) => {
-    try {
-      // Extract department code and course number from courseId
-      const courseIdParts = courseId.split('__');
-      const deptCodeMatch = courseIdParts[0].match(/([A-Z]+)/);
-      const courseNumMatch = courseIdParts[0].match(/(\d+(?:\.\d+)?)/); // Modified to also match decimal numbers
-      
-      if (deptCodeMatch && courseNumMatch) {
-        const deptCode = deptCodeMatch[0].toLowerCase();
-        
-        // Process course number - handle different formats
-        let courseNum = courseNumMatch[0];
-        // Remove leading zeros but preserve single-digit course numbers
-        if (courseNum.length > 1 && !courseNum.includes('.')) {
-          courseNum = courseNum.replace(/^0+/, '');
-        }
-        
-        // List of departments that use decimal-point course numbers
-        const decimalCourseNumDepts = [
-          'ascl',
-          'cosc',
-          'engs',
-          'psyc',
-          'wgss'
-          // Add more as needed
-        ];
-        
-        // Check if this course might need a decimal format
-        if (decimalCourseNumDepts.includes(deptCode) && !courseNum.includes('.')) {
-          // For ASCL and other departments with decimal course numbers
-          // If we have just the integer part, try to append ".01" which is common
-          if (deptCode === 'ascl') {
-            courseNum = `${courseNum}.01`;
-            console.log(`ASCL course detected, trying with decimal: ${courseNum}`);
-          }
-        }
-        
-        // Map department codes to full department names as they appear in the URL
-        // These must EXACTLY match the paths in the ORC URLs
-        const deptUrlMap = {
-          'aaas': 'african-and-african-american-studies',
-          'amel': 'asian-and-middle-eastern-languages-and-literatures',
-          'ames': 'asian-and-middle-eastern-studies',
-          'anth': 'anthropology',
-          'arab': 'middle-eastern-studies', // Arabic is under MES
-          'arth': 'art-history',
-          'ascl': 'asian-societies-cultures-and-languages',
-          'astr': 'physics-and-astronomy', // Updated from 'astronomy' to 'physics-and-astronomy'
-          'biol': 'biological-sciences',
-          'chem': 'chemistry',
-          'chin': 'asian-societies-cultures-and-languages', // Chinese is under ASCL
-          'clst': 'classics-classical-studies-greek-latin',
-          'coco': 'college-courses',
-          'cogs': 'cognitive-science', // Fixed: was 'cognitive-science-program'
-          'colt': 'comparative-literature',
-          'cosc': 'computer-science',
-          'crwt': 'english-and-creative-writing',
-          'ears': 'earth-sciences',
-          'econ': 'economics',
-          'educ': 'education',
-          'engl': 'english-and-creative-writing',
-          'engs': 'engineering-sciences',
-          'envs': 'environmental-studies-program', // Updated path for Environmental Studies
-          'film': 'film-and-media-studies',
-          'fren': 'french-and-italian-languages-and-literatures',
-          'frit': 'french-and-italian-languages-and-literatures',
-          'geog': 'geography',
-          'germ': 'german-studies',
-          'govt': 'government',
-          'grk': 'classics-classical-studies-greek-latin',
-          'hebr': 'middle-eastern-studies',
-          'hist': 'history',
-          'hum': 'humanities',
-          'ints': 'the-john-sloan-dickey-center-for-international-understanding',
-          'ital': 'french-and-italian-languages-and-literatures',
-          'japn': 'asian-societies-cultures-and-languages',
-          'jwst': 'jewish-studies',
-          'lacs': 'latin-american-latino-and-caribbean-studies',
-          'lat': 'classics-classical-studies-greek-latin',
-          'lats': 'latin-american-latino-and-caribbean-studies',
-          'ling': 'linguistics',
-          'math': 'mathematics',
-          'mes': 'middle-eastern-studies',
-          'mus': 'music',
-          'nais': 'native-american-and-indigenous-studies',
-          'nas': 'native-american-and-indigenous-studies',
-          'pbpl': 'the-nelson-a-rockefeller-center-for-public-policy',
-          'phil': 'philosophy',
-          'phys': 'physics-and-astronomy',
-          'port': 'spanish-and-portuguese-languages-and-literatures',
-          'psyc': 'psychological-and-brain-sciences',
-          'qss': 'quantitative-social-science',
-          'rel': 'religion',
-          'russ': 'east-european-eurasian-and-russian-studies',
-          'sart': 'studio-art',
-          'socy': 'sociology',
-          'span': 'spanish-and-portuguese-languages-and-literatures',
-          'spee': 'speech',
-          'ssoc': 'social-science',
-          'thea': 'theater',
-          'tuck': 'tuck-undergraduate',
-          'wgss': 'womens-gender-and-sexualities-studies-program',
-          'writ': 'institute-for-writing-and-rhetoric'
-        };
-        
-        // List of departments that use "-undergraduate" suffix in their URLs
-        const undergraduateSuffixDepts = [
-          'chem',
-          'cosc',
-          'math',
-          'phys',
-          'engs',
-          'biol',
-          'ears',
-          // Removing 'psyc' from this list as it doesn't use -undergraduate in that part of the URL
-          // Add more as needed
-        ];
-        
-        // List of departments that need "/en/" in the URL
-        const enPathDepts = [
-          'arth',
-          'grk', // Adding Greek to the departments that need /en/ in the URL
-          'span', // Adding Spanish to the departments that need /en/ in the URL
-          'envs', // Adding Environmental Studies to the departments that need /en/ in the URL
-          // Add more as needed
-        ];
-        
-        // Special case handling for certain departments
-        let deptUrlPath = deptUrlMap[deptCode];
-        
-        // If mapping doesn't exist, handle special cases
-        if (!deptUrlPath) {
-          // For departments with numbers in them like QBS
-          if (deptCode.match(/[a-z]+\d+/i)) {
-            deptUrlPath = deptCode;
-          } else {
-            // Default fallback - just use the department code
-            deptUrlPath = deptCode;
-          }
-        }
-        
-        // Check if this department needs the "-undergraduate" suffix
-        const needsUndergraduateSuffix = undergraduateSuffixDepts.includes(deptCode);
-        
-        // Get the department name for the file path segment
-        // Special case for AAAS which has a different pattern
-        let deptNameInPath;
-        
-        if (deptCode === 'aaas') {
-          deptNameInPath = 'african-and-african-american-studies';
-        } else if (deptCode === 'wgss') {
-          deptNameInPath = 'womens-gender-and-sexualities-studies';
-        } else if (deptCode === 'nas' || deptCode === 'nais') {
-          deptNameInPath = 'native-american-studies';
-        } else if (deptCode === 'tuck') {
-          deptNameInPath = 'tuck-undergraduate';
-        } else if (deptCode === 'chin') {
-          deptNameInPath = 'chinese'; // Fix for Chinese courses
-        } else if (deptCode === 'span') {
-          deptNameInPath = 'spanish'; // Fix for Spanish courses
-        } else {
-          deptNameInPath = deptUrlPath;
-        }
-        
-        // Determine if we need to add the "en" path segment
-        const enPath = enPathDepts.includes(deptCode) ? 'en/' : '';
-        
-        // Construct URL with or without "-undergraduate" based on the department
-        const deptSuffix = needsUndergraduateSuffix ? '-undergraduate' : '';
-        
-        // Special case for PSYC - it has a different URL structure
-        if (deptCode === 'psyc') {
-          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-psychological-and-brain-sciences/${deptCode}-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${url}`);
-          return url;
-        }
-        
-        // Special case for GRK - it has a different URL structure
-        if (deptCode === 'grk') {
-          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-greek/${deptCode}-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${url}`);
-          return url;
-        }
-        
-        // Special case for LAT - it has a different URL structure
-        if (deptCode === 'lat') {
-          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-latin/${deptCode}-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${url}`);
-          return url;
-        }
-        
-        // Special case for COLT - it has a different URL structure and needs -undergraduate suffix
-        if (deptCode === 'colt') {
-          // For COLT, make sure we're using the correct format for the course number
-          // The real URLs use hyphenated format (e.g., 51-01 instead of 51.01)
-          let formattedCourseNum = courseNum;
-          if (courseNum.includes('.')) {
-            formattedCourseNum = courseNum.replace('.', '-');
-          }
-          
-          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-comparative-literature-undergraduate/${deptCode}-${formattedCourseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${url}`);
-          return url;
-        }
-        
-        // Special case for COGS - it has a different URL structure
-        if (deptCode === 'cogs') {
-          const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-cognitive-science/${deptCode}-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${url}`);
-          return url;
-        }
-        
-        // Special case for CLST - it has a different URL structure
-        if (deptCode === 'clst') {
-          const clstUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/clst-classical-studies/${deptCode}-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${clstUrl}`);
-          return clstUrl;
-        }
-        
-        // Special case for ASTR - it has a different URL structure
-        if (deptCode === 'astr') {
-          const astrUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/physics-and-astronomy/astr-astronomy-undergraduate/${deptCode}-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${astrUrl}`);
-          return astrUrl;
-        }
-        
-        // Special case for SPAN - it has a different URL structure than PORT
-        if (deptCode === 'span') {
-          // Format course number - convert decimal to hyphen
-          let formattedCourseNum = courseNum;
-          if (courseNum.includes('.')) {
-            formattedCourseNum = courseNum.replace('.', '-');
-          }
-          
-          const spanUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/spanish-and-portuguese-languages-and-literatures/${deptCode}-spanish/${deptCode}-${formattedCourseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${spanUrl}`);
-          return spanUrl;
-        }
-        
-        // Special case for PORT - add this if needed
-        if (deptCode === 'port') {
-          const portUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/spanish-and-portuguese-languages-and-literatures/${deptCode}-portuguese/${deptCode}-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${portUrl}`);
-          return portUrl;
-        }
-        
-        // Special case for ENVS - it has a different URL structure
-        if (deptCode === 'envs') {
-          const envsUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/environmental-studies-program/${deptCode}-environmental-studies/${deptCode}-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${envsUrl}`);
-          return envsUrl;
-        }
-        
-        // Special case for MUS - it has a different URL structure with course ranges
-        if (deptCode === 'mus') {
-          // Convert course number to number for range comparisons
-          // Handle decimal course numbers (e.g., 3.02)
-          const courseNumBase = courseNum.includes('.') ? 
-            parseInt(courseNum.split('.')[0]) : 
-            parseInt(courseNum);
-          
-          let rangeSegment = '';
-          
-          // Determine range segment based on course number
-          if (courseNumBase >= 1 && courseNumBase <= 19) {
-            rangeSegment = 'mus-1-mus-19';
-          } else if (courseNumBase >= 20 && courseNumBase <= 39) {
-            rangeSegment = 'mus-20-mus-39';
-          } else if (courseNumBase >= 40 && courseNumBase <= 49) {
-            rangeSegment = 'mus-40-mus-49';
-          } else if (courseNumBase >= 50 && courseNumBase <= 52) {
-            rangeSegment = 'mus-50-mus-52';
-          } else if (courseNumBase >= 53 && courseNumBase <= 69) {
-            rangeSegment = 'mus-53-mus-69';
-          } else if (courseNumBase >= 70 && courseNumBase <= 79) {
-            rangeSegment = 'mus-70-mus-79-foreign-study-courses';
-          } else if (courseNumBase >= 80 && courseNumBase <= 99) {
-            rangeSegment = 'mus-80-mus-99';
-          }
-          
-          // Format course number for URL
-          let formattedCourseNum = courseNum;
-          if (courseNum.includes('.')) {
-            formattedCourseNum = courseNum.replace('.', '-');
-          }
-          
-          // If we identified a valid range, use it in the URL
-          if (rangeSegment) {
-            const musUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/music/${deptCode}-music-undergraduate-courses/${rangeSegment}/${deptCode}-${formattedCourseNum}/`;
-            console.log(`Generated ORC link for ${courseId}: ${musUrl}`);
-            return musUrl;
-          }
-        }
-        
-        // Special case for ITAL - it has a different URL structure
-        if (deptCode === 'ital') {
-          // Format course number for URL
-          let formattedCourseNum = courseNum;
-          if (courseNum.includes('.')) {
-            formattedCourseNum = courseNum.replace('.', '-');
-          }
-          
-          const italUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/french-and-italian-languages-and-literatures/${deptCode}-italian/${deptCode}-${formattedCourseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${italUrl}`);
-          return italUrl;
-        }
-        
-        // Special case for FREN - add French handling similar to Italian
-        if (deptCode === 'fren') {
-          // Format course number for URL
-          let formattedCourseNum = courseNum;
-          if (courseNum.includes('.')) {
-            formattedCourseNum = courseNum.replace('.', '-');
-          }
-          
-          const frenUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/french-and-italian-languages-and-literatures/${deptCode}-french/${deptCode}-${formattedCourseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${frenUrl}`);
-          return frenUrl;
-        }
-        
-        // Special case for FRIT - French and Italian in Translation
-        if (deptCode === 'frit') {
-          // Format course number for URL
-          let formattedCourseNum = courseNum;
-          if (courseNum.includes('.')) {
-            formattedCourseNum = courseNum.replace('.', '-');
-          }
-          
-          const fritUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/french-and-italian-languages-and-literatures/${deptCode}-french-and-italian-in-translation/${deptCode}-${formattedCourseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${fritUrl}`);
-          return fritUrl;
-        }
-        
-        // Special case for PBPL - Public Policy courses
-        if (deptCode === 'pbpl') {
-          const pbplUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/the-nelson-a-rockefeller-center-for-public-policy/public-policy-minor/pbpl-public-policy/pbpl-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${pbplUrl}`);
-          return pbplUrl;
-        }
-        
-        // Special case for HEBR - Hebrew courses
-        if (deptCode === 'hebr') {
-          const hebrUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/middle-eastern-studies/hebr-hebrew/hebr-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${hebrUrl}`);
-          return hebrUrl;
-        }
-        
-        // Special case for ARAB - Arabic courses
-        if (deptCode === 'arab') {
-          const arabUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/middle-eastern-studies/arab-arabic/arab-${courseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${arabUrl}`);
-          return arabUrl;
-        }
-        
-        // Special case for MES - Middle Eastern Studies courses
-        if (deptCode === 'mes') {
-          // Format course number for URL - MES courses use decimal format
-          let formattedCourseNum = courseNum;
-          // If the course number doesn't already have a decimal point, add ".01"
-          if (!formattedCourseNum.includes('.')) {
-            formattedCourseNum += '.01';
-          }
-          // Convert decimal point to hyphen for URL format
-          formattedCourseNum = formattedCourseNum.replace('.', '-');
-          
-          const mesUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/middle-eastern-studies/mes-middle-eastern-studies/mes-${formattedCourseNum}/`;
-          console.log(`Generated ORC link for ${courseId}: ${mesUrl}`);
-          return mesUrl;
-        }
-        
-        // Special case for GOVT - it has different URL structures based on course number ranges
-        if (deptCode === 'govt') {
-          // Convert course number to number for range comparisons
-          // Handle decimal course numbers (e.g., 20.01)
-          const courseNumBase = courseNum.includes('.') ? 
-            parseInt(courseNum.split('.')[0]) : 
-            parseInt(courseNum);
-          
-          let subcategory = '';
-          
-          // Determine subcategory based on course number range
-          if (courseNumBase >= 1 && courseNumBase <= 9) {
-            subcategory = 'introductory-courses';
-          } else if (courseNumBase >= 10 && courseNumBase <= 19) {
-            subcategory = 'political-analysis';
-          } else if (courseNumBase >= 20 && courseNumBase <= 29) {
-            subcategory = 'upper-level-courses-that-cross-subfields';
-          } else if (courseNumBase >= 30 && courseNumBase <= 39) {
-            subcategory = 'american-government';
-          } else if (courseNumBase >= 40 && courseNumBase <= 49) {
-            subcategory = 'comparative-politics';
-          } else if (courseNumBase >= 50 && courseNumBase <= 59) {
-            subcategory = 'international-relations';
-          } else if (courseNumBase >= 60 && courseNumBase <= 69) {
-            subcategory = 'political-theory-and-public-law';
-          } else if (courseNumBase >= 80 && courseNumBase <= 99) {
-            subcategory = 'advanced-courses';
-          }
-          
-          // If we identified a valid subcategory, use it in the URL
-          if (subcategory) {
-            // Format course number for URL - convert decimal to hyphen if needed
-            let formattedCourseNum = courseNum;
-            if (courseNum.includes('.')) {
-              formattedCourseNum = courseNum.replace('.', '-');
-            }
-            
-            const govtUrl = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-government/${subcategory}/${deptCode}-${formattedCourseNum}/`;
-            console.log(`Generated ORC link for ${courseId}: ${govtUrl}`);
-            return govtUrl;
-          }
-        }
-        
-        const url = `https://dartmouth.smartcatalogiq.com/${enPath}current/orc/departments-programs-undergraduate/${deptUrlPath}/${deptCode}-${deptNameInPath}${deptSuffix}/${deptCode}-${courseNum}/`;
-        
-        // Log for debugging
-        console.log(`Generated ORC link for ${courseId}: ${url}`);
-        
-        return url;
-      }
-      return null;
-    } catch (error) {
-      console.error('Error generating ORC link:', error);
-      return null;
-    }
-  };
-
   return (
     <Box
   sx={{
@@ -2915,7 +2817,8 @@ useEffect(() => {
       <Card
   sx={{
     marginBottom: 4,
-    padding: 4,
+    padding: { xs: 2, sm: 3, md: 4 },
+    paddingTop: { xs: 1.5, sm: 2, md: 2.5 },
     backgroundColor: paperBgColor, // Use dynamic paper background color
     color: textColor,               // Use dynamic text color
     boxShadow: 'none',
@@ -2925,140 +2828,275 @@ useEffect(() => {
     maxWidth: '100%',
   }}
 >
-    <Box
+          <Box
       sx={{
         display: 'flex',
-        alignItems: 'center',
-        marginBottom: 3,
-        justifyContent: 'space-between',
-
+        flexDirection: 'column',
+        marginBottom: 1.5,
+        width: '100%'
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        textAlign="left"
+      {/* Header section with course code and term tags */}
+      <Box
         sx={{
-          fontWeight: 600,
-          fontSize: '2rem',
-          marginBottom: 0,
-          color: headerTextColor, // Use dynamic header text color
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+          mb: 0.5,
         }}
->
-          {courseName}
-        </Typography>
-        {(isTaughtCurrentTerm || isTaughtSpringTerm) && (
-          <Box
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography
+            variant="h2"
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              height: '2rem',
-              marginLeft: 2,
-              gap: '8px', // Add gap between tags
+              fontWeight: 800,
+              fontSize: { xs: '2.4rem', sm: '3.2rem', md: '3.6rem' },
+              letterSpacing: '-0.025em',
+              color: darkMode ? '#FFFFFF' : headerTextColor,
+              fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+              textRendering: 'optimizeLegibility',
+              marginBottom: 0.5,
+              paddingLeft: { xs: 0, sm: '2px' },
+              position: 'relative',
+              transition: 'color 0.2s ease',
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale',
+              textShadow: darkMode ? '0 0 1px rgba(255, 255, 255, 0.1)' : 'none',
             }}
           >
-            {isTaughtCurrentTerm && (
-              <Tooltip title="This course is offered in W25" arrow placement="top">
-                <Box
-                  sx={{
-                    backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
-                    transition: 'all 0.2s ease',
-                    cursor: 'help',
-                    '&:hover': {
-                      backgroundColor: darkMode ? '#34495E' : '#B3E5FC',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                    }
-                  }}
-                >
-                  <Typography
-                    variant="body2"
+            {courseName}
+          </Typography>
+          
+          {(isTaughtCurrentTerm || isTaughtSpringTerm || isTaughtSummerTerm || isTaughtFallTerm) && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                height: '2rem',
+                marginLeft: 2,
+                gap: '8px',
+              }}
+            >
+              {isTaughtCurrentTerm && (
+                <Tooltip title="This course is offered in 25W" arrow placement="top">
+                  <Box
                     sx={{
-                      fontSize: '0.9rem',
-                      fontWeight: 500,
-                      color: darkMode ? '#B3E5FC' : '#0277BD', // Winter blue text
+                      backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
+                      transition: 'all 0.2s ease',
+                      cursor: 'help',
+                      '&:hover': {
+                        backgroundColor: darkMode ? '#34495E' : '#B3E5FC',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                      }
                     }}
                   >
-                    25W
-                  </Typography>
-                </Box>
-              </Tooltip>
-            )}
-            
-            {isTaughtSpringTerm && (
-              <Tooltip title="This course is offered in 25S" arrow placement="top">
-                <Box
-                  sx={{
-                    backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9', // Spring green color
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
-                    transition: 'all 0.2s ease',
-                    cursor: 'help',
-                    '&:hover': {
-                      backgroundColor: darkMode ? '#2E7D32' : '#A5D6A7',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                    }
-                  }}
-                >
-                  <Typography
-                    variant="body2"
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#B3E5FC' : '#0277BD',
+                      }}
+                    >
+                      25W
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+              
+              {isTaughtSpringTerm && (
+                <Tooltip title="This course is offered in 25S" arrow placement="top">
+                  <Box
                     sx={{
-                      fontSize: '0.9rem',
-                      fontWeight: 500,
-                      color: darkMode ? '#A5D6A7' : '#2E7D32', // Spring green text
+                      backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
+                      transition: 'all 0.2s ease',
+                      cursor: 'help',
+                      '&:hover': {
+                        backgroundColor: darkMode ? '#6D5B24' : '#FFE082',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                      }
                     }}
                   >
-                    25S
-                  </Typography>
-                </Box>
-              </Tooltip>
-            )}
-          </Box>
-        )}
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <StyledTabs value={tabValue} onChange={handleTabChange}>
-          <StyledTab icon={<AutoAwesomeIcon />} label="Description" />
-          <StyledTab icon={<EqualizerIcon />} label="Medians" />
-          <StyledTab icon={<QueryStatsIcon />} label="Course Metrics" />
-          {isBetaUser && (
-            <StyledTab icon={<ScienceIcon />} label="Beta" />
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#FFE082' : '#F57F17',
+                      }}
+                    >
+                      25S
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+              
+              {isTaughtSummerTerm && (
+                <Tooltip title="This course is offered in 25X" arrow placement="top">
+                  <Box
+                    sx={{
+                      backgroundColor: darkMode ? '#006064' : '#E0F7FA',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
+                      transition: 'all 0.2s ease',
+                      cursor: 'help',
+                      '&:hover': {
+                        backgroundColor: darkMode ? '#00838F' : '#80DEEA',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                      }
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#B2EBF2' : '#00838F',
+                      }}
+                    >
+                      25X
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+              
+              {isTaughtFallTerm && (
+                <Tooltip title="This course is offered in 25F" arrow placement="top">
+                  <Box
+                    sx={{
+                      backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
+                      transition: 'all 0.2s ease',
+                      cursor: 'help',
+                      '&:hover': {
+                        backgroundColor: darkMode ? '#6D4C41' : '#FFCCBC',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                      }
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#FFCCBC' : '#D84315',
+                      }}
+                    >
+                      25F
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+            </Box>
           )}
-        </StyledTabs>
-        <Tooltip
-          title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}
-        >
-          <IconButton
-  onClick={handlePinCourse}
-  sx={{
-    color: pinned ? '#007AFF' : (darkMode ? '#FFFFFF' : '#8E8E93'), // Blue if pinned, white or gray otherwise
-    backgroundColor: darkMode ? (pinned ? '#007AFF' : '#1C1F43') : 'transparent', // Optional: Add background for better visibility
-    '&:hover': {
-      backgroundColor: darkMode ? (pinned ? '#0066D6' : '#24273c') : '#E0E0E0', // Darker shade on hover
-    },
-    marginLeft: 1,
-    padding: '6px', // Consistent padding
-  }}
->
-  {pinned ? (
-    <PushPin sx={{ fontSize: 24 }} />
-  ) : (
-    <PushPinOutlined sx={{ fontSize: 24 }} />
-  )}
-</IconButton>
-
-        </Tooltip>
+        </Box>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <StyledTabs value={tabValue} onChange={handleTabChange}>
+            <StyledTab 
+              icon={<AutoAwesomeIcon fontSize="small" />} 
+              label="Description" 
+              disableRipple
+            />
+            <StyledTab 
+              icon={<EqualizerIcon fontSize="small" />} 
+              label="Medians" 
+              disableRipple
+            />
+            <StyledTab 
+              icon={<QueryStatsIcon fontSize="small" />} 
+              label="Course Metrics" 
+              disableRipple
+            />
+            <StyledTab 
+              icon={<Input fontSize="small" />} 
+              label="Add Review" 
+              disableRipple
+            />
+            {isBetaUser && (
+              <StyledTab 
+                icon={<ScienceIcon fontSize="small" />} 
+                label="Beta" 
+                disableRipple
+              />
+            )}
+          </StyledTabs>
+          <Tooltip
+            title={pinned ? 'Unpin Course' : 'Pin course on your Profile'}
+          >
+            <IconButton
+              onClick={handlePinCourse}
+              sx={{
+                color: pinned ? '#007AFF' : (darkMode ? '#FFFFFF' : '#8E8E93'),
+                backgroundColor: darkMode ? (pinned ? '#007AFF' : '#1C1F43') : 'transparent',
+                '&:hover': {
+                  backgroundColor: darkMode ? (pinned ? '#0066D6' : '#24273c') : '#E0E0E0',
+                },
+                marginLeft: 1,
+                padding: '6px',
+              }}
+            >
+              {pinned ? (
+                <PushPin sx={{ fontSize: 24 }} />
+              ) : (
+                <PushPinOutlined sx={{ fontSize: 24 }} />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
+      
+      {/* Course full name section - Apple design style */}
+      <Typography
+        variant="h4"
+        sx={{
+          color: darkMode ? '#34C759' : '#00693E',
+          fontWeight: 600,
+          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+          fontSize: { xs: '1.6rem', sm: '1.9rem', md: '2.1rem' },
+          marginTop: 0.5,
+          marginBottom: 1,
+          letterSpacing: '-0.022em',
+          lineHeight: 1.1,
+          textRendering: 'optimizeLegibility',
+          transition: 'color 0.2s ease',
+          display: 'flex',
+          alignItems: 'center',
+          '&::before': {
+            content: '""',
+            width: '4px',
+            height: { xs: '24px', sm: '28px', md: '32px' },
+            backgroundColor: darkMode ? '#34C759' : '#00693E',
+            borderRadius: '2px',
+            marginRight: '12px',
+            boxShadow: darkMode ? '0 0 8px rgba(52, 199, 89, 0.4)' : 'none',
+          }
+        }}
+      >
+        {courseId.split('__')[1]?.replace(/_/g, ' ') || 'Course Details'}
+      </Typography>
     </Box>
 
     {renderTabContent()}
@@ -3178,154 +3216,330 @@ useEffect(() => {
             </Box>
           )} */}
         
-        <Typography
-  variant="h5"
-  gutterBottom
-  sx={{ fontWeight: 600, color: headerTextColor, marginTop: 4 }}
->
-  Professors
-</Typography>
-
-<TableContainer
-  component={Paper}
+        <Box
   sx={{
-    backgroundColor: paperBgColor,              // Dynamic background color
-    marginTop: '20px',
-    borderRadius: '12px',
-    boxShadow: 'none',
-    border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border color
+    position: 'relative',
+    mb: 5,
+    mt: 5,
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      left: '-12px',
+      top: '8px',
+      width: '4px',
+      height: '24px',
+      borderRadius: '2px',
+      backgroundColor: darkMode ? '#0A84FF' : '#0071E3',
+      boxShadow: darkMode ? '0 0 8px rgba(10, 132, 255, 0.5)' : 'none',
+    }
   }}
 >
-  <Table>
-    <TableHead>
-      <TableRow>
-              <TableCell
-          sx={{
-            color: textColor,              // Use dynamic text color
-            textAlign: 'left',
-            fontWeight: 600,
-            fontSize: '1rem',
-            padding: '12px 16px',
-            backgroundColor: tableHeaderBgColor, // Optional: Add background for headers
-          }}
-        >
-          Name
-        </TableCell>
-        <TableCell
-          sx={{
-            color: textColor,              // Use dynamic text color
-            textAlign: 'left',
-            fontWeight: 600,
-            fontSize: '1rem',
-            padding: '12px 16px',
-            backgroundColor: tableHeaderBgColor, // Optional: Add background for headers
-          }}
-        >
-          Reviews
-        </TableCell>
-        <TableCell
-          sx={{
-            color: textColor,
-            textAlign: 'left',
-            fontWeight: 600,
-            fontSize: '1rem',
-            padding: '12px 16px',
-            backgroundColor: tableHeaderBgColor,
-          }}
-        >
-          Terms from Reviews
-        </TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {allProfessors
-        .sort((a, b) => {
-          const aIsCurrent = currentInstructors.includes(a);
-          const bIsCurrent = currentInstructors.includes(b);
-          if (aIsCurrent && !bIsCurrent) return -1;
-          if (!aIsCurrent && bIsCurrent) return 1;
-          return 0;
-        })
-        .slice(0, showAllProfessors ? undefined : 12)
-        .map((professor, index) => {
-          const isCurrent = currentInstructors.includes(professor);
-          const isWinter = winterInstructors.includes(professor);
-          const isSpring = springInstructors.includes(professor);
-          const isBothTerms = bothTermsInstructors.includes(professor);
-          const reviewCount = reviews.filter(
-            (review) => review.instructor === professor
-          ).length;
-          return (
-            <TableRow
-              key={index}
-              component={Link}
-              to={`/departments/${department}/courses/${courseId}/professors/${encodeURIComponent(professor)}`}
-              onClick={() => {
-                // Only smooth scroll to top for better UX
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              sx={{
-                backgroundColor: isBothTerms
-                  ? (darkMode ? '#2C2F73' : '#D0E0FF') // Highlighted color for both terms
-                  : isCurrent
-                    ? (darkMode ? '#1C1F43' : '#E5F0FF') // Dark mode or light blue
-                    : (index % 2 === 0 ? tableRowEvenBgColor : tableRowOddBgColor),
-                '&:hover': { backgroundColor: darkMode ? '#2a2a2a' : '#E5E5EA' }, // Darker on hover for dark mode
-                cursor: 'pointer',
-                textDecoration: 'none',
-                color: 'inherit',
-              }}
-            >
-              <TableCell
+  <Typography
+    variant="h5"
+    sx={{ 
+      fontWeight: 700, 
+      color: darkMode ? '#FFFFFF' : headerTextColor, 
+      marginBottom: 2,
+      fontSize: { xs: '1.25rem', sm: '1.35rem', md: '1.5rem' },
+      letterSpacing: '-0.02em',
+      fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+      textRendering: 'optimizeLegibility',
+      WebkitFontSmoothing: 'antialiased',
+      ml: 0.5
+    }}
+  >
+    Professors
+  </Typography>
+
+  <Box
+    sx={{
+      backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.5)' : 'rgba(248, 249, 251, 1)',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      boxShadow: darkMode 
+        ? '0 4px 16px rgba(0, 0, 0, 0.15)' 
+        : '0 4px 24px rgba(0, 0, 0, 0.06)',
+      border: darkMode 
+        ? '1px solid rgba(255, 255, 255, 0.08)' 
+        : '1px solid rgba(0, 0, 0, 0.05)',
+      transition: 'all 0.3s ease',
+      backdropFilter: 'blur(5px)',
+      WebkitBackdropFilter: 'blur(5px)',
+    }}
+  >
+    <Table
+      sx={{
+        borderCollapse: 'separate',
+        borderSpacing: 0,
+        '& .MuiTableCell-root': {
+          borderBottom: darkMode 
+            ? '1px solid rgba(255, 255, 255, 0.08)' 
+            : '1px solid rgba(0, 0, 0, 0.05)',
+          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        }
+      }}
+    >
+      <TableHead>
+        <TableRow>
+          <TableCell
+            sx={{
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              padding: '16px 20px',
+              letterSpacing: '-0.01em',
+              borderBottom: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.12)' 
+                : '1px solid rgba(0, 0, 0, 0.08)',
+              backgroundColor: darkMode ? 'rgba(20, 25, 51, 0.5)' : 'rgba(238, 239, 241, 0.7)',
+            }}
+          >
+            Name
+          </TableCell>
+          <TableCell
+            sx={{
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              padding: '16px 20px',
+              letterSpacing: '-0.01em',
+              borderBottom: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.12)' 
+                : '1px solid rgba(0, 0, 0, 0.08)',
+              backgroundColor: darkMode ? 'rgba(20, 25, 51, 0.5)' : 'rgba(238, 239, 241, 0.7)',
+            }}
+          >
+            Reviews
+          </TableCell>
+          <TableCell
+            sx={{
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+              textAlign: 'left',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              padding: '16px 20px',
+              letterSpacing: '-0.01em',
+              borderBottom: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.12)' 
+                : '1px solid rgba(0, 0, 0, 0.08)',
+              backgroundColor: darkMode ? 'rgba(20, 25, 51, 0.5)' : 'rgba(238, 239, 241, 0.7)',
+            }}
+          >
+            Terms from Reviews
+          </TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {allProfessors
+          .sort((a, b) => {
+            const aIsCurrent = currentInstructors.includes(a);
+            const bIsCurrent = currentInstructors.includes(b);
+            if (aIsCurrent && !bIsCurrent) return -1;
+            if (!aIsCurrent && bIsCurrent) return 1;
+            return 0;
+          })
+          .slice(0, showAllProfessors ? undefined : 12)
+          .map((professor, index) => {
+            const isCurrent = currentInstructors.includes(professor);
+            const isWinter = winterInstructors.includes(professor);
+            const isSpring = springInstructors.includes(professor);
+            const isSummer = summerInstructors.includes(professor);
+            const isFall = fallInstructors.includes(professor);
+            const isBothTerms = bothTermsInstructors.includes(professor);
+            const reviewCount = reviews.filter(
+              (review) => review.instructor === professor
+            ).length;
+            return (
+              <TableRow
+                key={index}
+                component={Link}
+                to={`/departments/${department}/courses/${courseId}/professors/${encodeURIComponent(professor)}`}
+                onClick={() => {
+                  // Only smooth scroll to top for better UX
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 sx={{
-                  color: textColor,              // Use dynamic text color
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontWeight: isBothTerms ? 700 : (isCurrent ? 600 : 400),
+                  backgroundColor: isBothTerms
+                    ? (darkMode ? 'rgba(44, 47, 115, 0.5)' : 'rgba(208, 224, 255, 0.5)') 
+                    : isCurrent
+                      ? (darkMode ? 'rgba(28, 31, 67, 0.5)' : 'rgba(229, 240, 255, 0.5)') 
+                      : (darkMode ? 'transparent' : 'transparent'),
+                  transition: 'all 0.2s ease',
+                  '&:hover': { 
+                    backgroundColor: darkMode ? 'rgba(42, 42, 42, 0.5)' : 'rgba(229, 229, 234, 0.5)',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+                  },
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                  color: 'inherit',
                 }}
               >
-                {professor}
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: textColor,              // Use dynamic text color
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontWeight: 400,
-                }}
-              >
-                {reviewCount}
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: textColor,
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontWeight: isBothTerms ? 700 : 400,
-                }}
-              >
-                {professorTerms[professor] && professorTerms[professor].length > 0 ? (
-                  <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                    {professorTerms[professor].slice(0, 3).map((termCode, idx) => (
-                      <React.Fragment key={idx}>
-                        {renderTermChip(termCode, darkMode)}
-                      </React.Fragment>
-                    ))}
-                    {professorTerms[professor].length > 3 && (
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          fontSize: '0.8rem', 
-                          color: darkMode ? '#A0A0A0' : '#6E6E6E',
-                          ml: 1 
+                <TableCell
+                  sx={{
+                    color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.85)',
+                    padding: '14px 20px',
+                    textAlign: 'left',
+                    fontSize: '0.95rem',
+                    fontWeight: isBothTerms ? 600 : (isCurrent ? 500 : 400),
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  {professor}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.85)',
+                    padding: '14px 20px',
+                    textAlign: 'left',
+                    fontSize: '0.95rem',
+                    fontWeight: 400,
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  <Box 
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '28px',
+                      height: '28px',
+                      backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.05)',
+                      color: darkMode ? '#0A84FF' : '#0071E3',
+                      borderRadius: '14px',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      padding: '0 10px',
+                    }}
+                  >
+                    {reviewCount}
+                  </Box>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.85)',
+                    padding: '14px 20px',
+                    textAlign: 'left',
+                    fontSize: '0.95rem',
+                    fontWeight: isBothTerms ? 600 : 400,
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  {professorTerms[professor] && professorTerms[professor].length > 0 ? (
+                    <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      {professorTerms[professor].slice(0, 3).map((termCode, idx) => (
+                        <React.Fragment key={idx}>
+                          {renderTermChip(termCode, darkMode)}
+                        </React.Fragment>
+                      ))}
+                      {professorTerms[professor].length > 3 && (
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontSize: '0.8rem', 
+                            color: darkMode ? '#A0A0A0' : '#6E6E6E',
+                            ml: 1,
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          +{professorTerms[professor].length - 3} more
+                        </Typography>
+                      )}
+                    </Box>
+                  ) : isBothTerms ? (
+                    <Box sx={{ display: 'flex', gap: '8px' }}>
+                      <Box
+                        sx={{
+                          backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
                         }}
                       >
-                        +{professorTerms[professor].length - 3} more
-                      </Typography>
-                    )}
-                  </Box>
-                ) : isBothTerms ? (
-                  <Box sx={{ display: 'flex', gap: '8px' }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            color: darkMode ? '#B3E5FC' : '#0277BD',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          25W
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            color: darkMode ? '#FFE082' : '#F57F17',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          25S
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          backgroundColor: darkMode ? '#006064' : '#E0F7FA',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            color: darkMode ? '#B2EBF2' : '#00838F',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          25X
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            color: darkMode ? '#FFCCBC' : '#D84315',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          25F
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ) : isWinter ? (
                     <Box
                       sx={{
                         backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF',
@@ -3342,19 +3556,21 @@ useEffect(() => {
                           fontSize: '0.8rem',
                           fontWeight: 500,
                           color: darkMode ? '#B3E5FC' : '#0277BD',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
                         }}
                       >
                         25W
                       </Typography>
                     </Box>
+                  ) : isSpring ? (
                     <Box
                       sx={{
-                        backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                        backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
                         padding: '2px 8px',
                         borderRadius: '12px',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
+                        border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
                       }}
                     >
                       <Typography
@@ -3362,159 +3578,275 @@ useEffect(() => {
                         sx={{
                           fontSize: '0.8rem',
                           fontWeight: 500,
-                          color: darkMode ? '#A5D6A7' : '#2E7D32',
+                          color: darkMode ? '#FFE082' : '#F57F17',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
                         }}
                       >
                         25S
                       </Typography>
                     </Box>
-                  </Box>
-                ) : isWinter ? (
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
+                  ) : isSummer ? (
+                    <Box
                       sx={{
-                        fontSize: '0.8rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#B3E5FC' : '#0277BD',
+                        backgroundColor: darkMode ? '#006064' : '#E0F7FA',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
                       }}
                     >
-                      25W
-                    </Typography>
-                  </Box>
-                ) : isSpring ? (
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #388E3C' : '1px solid #A5D6A7',
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
+                          color: darkMode ? '#B2EBF2' : '#00838F',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                        }}
+                      >
+                        25X
+                      </Typography>
+                    </Box>
+                  ) : isFall ? (
+                    <Box
                       sx={{
-                        fontSize: '0.8rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#A5D6A7' : '#2E7D32',
+                        backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
                       }}
                     >
-                      25S
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
+                          color: darkMode ? '#FFCCBC' : '#D84315',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                        }}
+                      >
+                        25F
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontSize: '0.85rem', 
+                        color: darkMode ? '#888888' : '#999999',
+                        fontStyle: 'italic',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                      }}
+                    >
+                      No term data
                     </Typography>
-                  </Box>
-                ) : (
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      fontSize: '0.85rem', 
-                      color: darkMode ? '#888888' : '#999999',
-                      fontStyle: 'italic' 
-                    }}
-                  >
-                    No term data
-                  </Typography>
-                )}
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      {allProfessors.length > 12 && (
-        <TableRow>
-          <TableCell colSpan={3} align="center">
-            <Button
-              variant="text"
-              onClick={() => setShowAllProfessors(!showAllProfessors)}
-              sx={{
-                color: darkMode ? '#007AFF' : '#007AFF',
-                '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
-              }}
-            >
-              {showAllProfessors ? 'Show Less' : 'Show All'}
-            </Button>
-          </TableCell>
-        </TableRow>
-      )}
-    </TableBody>
-  </Table>
-</TableContainer>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        {allProfessors.length > 12 && (
+          <TableRow>
+            <TableCell colSpan={3} align="center">
+              <Button
+                onClick={() => setShowAllProfessors(!showAllProfessors)}
+                sx={{
+                  color: darkMode ? '#0A84FF' : '#0071E3',
+                  backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.1)' : 'rgba(0, 113, 227, 0.05)',
+                  borderRadius: '12px',
+                  textTransform: 'none',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  letterSpacing: '-0.01em',
+                  padding: '8px 16px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+                  transition: 'all 0.2s ease',
+                  mt: 1,
+                  mb: 1,
+                  border: 'none',
+                  '&:hover': {
+                    backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.1)',
+                    transform: 'translateY(-1px)',
+                  }
+                }}
+              >
+                {showAllProfessors ? 'Show Less' : 'Show All'}
+              </Button>
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  </Box>
+</Box>
 
 <Box
   sx={{
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '-10px',
+    marginBottom: '8px',
     marginTop: '60px',
+    position: 'relative',
   }}
 >
-<Typography
-  variant="h5"
-  gutterBottom
-  sx={{ fontWeight: 600, color: headerTextColor }}
->
-  Reviews
-</Typography>
-
-<FormControl
-  size="small"
-  sx={{
-    minWidth: 150,
-    backgroundColor: searchBgColor,                  // Dynamic background color
-    borderRadius: '8px',
-    border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border color
-  }}
->
-  <InputLabel
-    id="select-professor-label"
-    sx={{ fontWeight: 400, color: darkMode ? '#FFFFFF' : '#00693E' }} // Dynamic text color
-  >
-    Professor
-  </InputLabel>
-  <Select
-    labelId="select-professor-label"
-    value={selectedProfessor}
-    onChange={handleProfessorFilterChange}
-    label="Professor"
+  <Box
     sx={{
-      fontWeight: 400,
-      color: textColor, // Ensure selected text color is dynamic
-      backgroundColor: searchBgColor, // Match background
-      '& .MuiSelect-select': {
-        padding: '8px 12px',
-      },
-      '& .MuiOutlinedInput-notchedOutline': {
-        borderColor: darkMode ? '#444444' : '#D1D1D6',
-      },
-      '&:hover .MuiOutlinedInput-notchedOutline': {
-        borderColor: darkMode ? '#555555' : '#A1A1A6',
-      },
-      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-        borderColor: '#571CE0', // Primary color on focus
-      },
+      display: 'flex',
+      alignItems: 'center',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        left: '-12px',
+        width: '4px',
+        height: '24px',
+        borderRadius: '2px',
+        background: darkMode 
+          ? 'linear-gradient(to bottom, #34C759, #30D158)' 
+          : 'linear-gradient(to bottom, #00693E, #00875A)',
+        boxShadow: darkMode ? '0 0 8px rgba(52, 199, 89, 0.5)' : 'none',
+      }
     }}
   >
-    <MenuItem value="">
-      <em>All</em>
-    </MenuItem>
-    {uniqueProfessors.map((professor, index) => (
-      <MenuItem key={index} value={professor} sx={{ fontWeight: 400 }}>
-        {professor}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
+    <Typography
+      variant="h5"
+      sx={{ 
+        fontWeight: 700, 
+        color: darkMode ? '#FFFFFF' : headerTextColor,
+        fontSize: { xs: '1.25rem', sm: '1.35rem', md: '1.5rem' },
+        letterSpacing: '-0.02em',
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+        textRendering: 'optimizeLegibility',
+        WebkitFontSmoothing: 'antialiased',
+      }}
+    >
+      Student Reviews
+    </Typography>
+  </Box>
 
+  <FormControl
+    size="small"
+    sx={{
+      minWidth: 180,
+      position: 'relative',
+      '& .MuiInputBase-root': {
+        backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.5)' : 'rgba(248, 249, 251, 0.8)',
+        borderRadius: '12px',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+        boxShadow: darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+          boxShadow: darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
+          transform: 'translateY(-1px)',
+        }
+      }
+    }}
+  >
+    <InputLabel
+      id="select-professor-label"
+      sx={{ 
+        fontWeight: 500, 
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontSize: '0.85rem',
+        letterSpacing: '-0.01em',
+        color: darkMode ? '#0A84FF' : '#0071E3',
+      }}
+    >
+      Filter by Professor
+    </InputLabel>
+    <Select
+      labelId="select-professor-label"
+      value={selectedProfessor}
+      onChange={handleProfessorFilterChange}
+      label="Filter by Professor"
+      sx={{
+        fontWeight: 500,
+        color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontSize: '0.9rem',
+        letterSpacing: '-0.01em',
+        '& .MuiSelect-select': {
+          padding: '10px 14px',
+        },
+        '& .MuiOutlinedInput-notchedOutline': {
+          borderColor: 'transparent',
+        },
+        '&:hover .MuiOutlinedInput-notchedOutline': {
+          borderColor: 'transparent',
+        },
+        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+          borderColor: darkMode ? '#0A84FF' : '#0071E3',
+          borderWidth: '1px',
+        },
+        '& .MuiSvgIcon-root': {
+          color: darkMode ? '#0A84FF' : '#0071E3',
+          transition: 'transform 0.2s ease',
+        },
+        '&.Mui-focused .MuiSvgIcon-root': {
+          transform: 'rotate(180deg)',
+        }
+      }}
+      MenuProps={{
+        PaperProps: {
+          sx: {
+            backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.95)' : 'rgba(248, 249, 251, 0.95)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: '12px',
+            boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)',
+            border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+            marginTop: '8px',
+            '& .MuiMenuItem-root': {
+              fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+              fontSize: '0.9rem',
+              letterSpacing: '-0.01em',
+              padding: '10px 16px',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+              },
+              '&.Mui-selected': {
+                backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.08)',
+                color: darkMode ? '#0A84FF' : '#0071E3',
+                fontWeight: 600,
+                '&:hover': {
+                  backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.2)' : 'rgba(0, 113, 227, 0.12)',
+                }
+              }
+            }
+          }
+        }
+      }}
+    >
+      <MenuItem 
+        value=""
+        sx={{ 
+          fontWeight: selectedProfessor === "" ? 600 : 400,
+          color: selectedProfessor === "" ? (darkMode ? '#0A84FF' : '#0071E3') : 'inherit'
+        }}
+      >
+        <em>All Professors</em>
+      </MenuItem>
+      {uniqueProfessors.map((professor, index) => (
+        <MenuItem 
+          key={index} 
+          value={professor} 
+          sx={{ 
+            fontWeight: selectedProfessor === professor ? 600 : 400,
+            color: selectedProfessor === professor ? (darkMode ? '#0A84FF' : '#0071E3') : 'inherit'
+          }}
+        >
+          {professor}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
 </Box>
 
             {renderReviews()}
@@ -3524,90 +3856,172 @@ useEffect(() => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: '20px',
+    marginTop: '40px',
+    marginBottom: '20px',
     width: '100%',
-    gap: '16px', // Increase space between elements for a more airy feel
+    gap: { xs: '10px', sm: '16px' },
   }}
 >
-  <Tooltip title="Previous Page" placement="top">
+  <Tooltip 
+    title="Previous Page" 
+    placement="top"
+    arrow
+    enterDelay={400}
+    sx={{
+      '& .MuiTooltip-arrow': {
+        color: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+      },
+      '& .MuiTooltip-tooltip': {
+        backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+        color: '#FFFFFF',
+        fontSize: '0.75rem',
+        borderRadius: '8px',
+        padding: '6px 10px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontWeight: 500,
+        letterSpacing: '-0.01em',
+      }
+    }}
+  >
     <span>
       <IconButton
         onClick={() => handleChangePage(currentPage - 1)}
         disabled={currentPage === 1}
         sx={{
-          color: darkMode ? '#FFFFFF' : '#000000', // Dynamic text color
+          color: darkMode ? (currentPage === 1 ? 'rgba(255, 255, 255, 0.4)' : '#0A84FF') : (currentPage === 1 ? 'rgba(0, 0, 0, 0.3)' : '#0071E3'),
           backgroundColor: darkMode 
-            ? (currentPage === 1 ? '#1C1F43' : '#1C1F43') 
-            : (currentPage === 1 ? '#F5F5F7' : '#F5F5F7'), // Dark mode backgrounds
-          borderRadius: '12px',
-          padding: '12px',
-          border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border
+            ? (currentPage === 1 ? 'rgba(30, 35, 61, 0.3)' : 'rgba(30, 35, 61, 0.6)') 
+            : (currentPage === 1 ? 'rgba(248, 249, 251, 0.5)' : 'rgba(248, 249, 251, 0.8)'),
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          borderRadius: '14px',
+          padding: '10px',
+          border: darkMode 
+            ? (currentPage === 1 ? '1px solid rgba(255, 255, 255, 0.04)' : '1px solid rgba(255, 255, 255, 0.08)') 
+            : (currentPage === 1 ? '1px solid rgba(0, 0, 0, 0.03)' : '1px solid rgba(0, 0, 0, 0.05)'),
+          boxShadow: currentPage === 1 ? 'none' : (darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.06)'),
+          transition: 'all 0.2s ease',
+          transform: 'translateY(0)',
           '&:hover': {
             backgroundColor: darkMode 
-              ? (currentPage === 1 ? '#24273c' : '#24273c') 
-              : (currentPage === 1 ? '#F5F5F7' : '#E0E0E0'), // Darker shade on hover
+              ? (currentPage === 1 ? 'rgba(30, 35, 61, 0.3)' : 'rgba(30, 35, 61, 0.7)') 
+              : (currentPage === 1 ? 'rgba(248, 249, 251, 0.5)' : 'rgba(248, 249, 251, 0.9)'),
+            transform: currentPage === 1 ? 'translateY(0)' : 'translateY(-2px)',
+            boxShadow: currentPage === 1 ? 'none' : (darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)'),
           },
-          transition: 'background-color 0.3s ease',
         }}
       >
-        <ArrowBack sx={{ fontSize: '20px' }} />
+        <ArrowBack sx={{ 
+          fontSize: '18px',
+          transition: 'transform 0.2s ease',
+          transform: currentPage === 1 ? 'translateX(0)' : 'translateX(0)',
+          '&:hover': {
+            transform: currentPage === 1 ? 'translateX(0)' : 'translateX(-2px)'
+          }
+        }} />
       </IconButton>
     </span>
   </Tooltip>
 
-  <ButtonGroup
-  variant="text"
-  sx={{
-    '& .MuiButtonGroup-grouped': {
-      minWidth: '40px',
-      height: '40px',
-      borderRadius: '12px',
-      backgroundColor: darkMode ? '#1C1F43' : '#F5F5F7', // Dynamic background color
-      color: darkMode ? '#FFFFFF' : '#000000',          // Dynamic text color
-      border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border
-      margin: '0 2px',
-      fontSize: '16px',
-      '&:hover': {
-        backgroundColor: darkMode ? '#24273c' : '#E0E0E0', // Darker shade on hover
-      },
-      '&.Mui-selected': {
-        backgroundColor: '#007AFF', // Assuming selected color remains the same
-        color: '#fff',
+  <Box
+    sx={{
+      display: 'flex',
+      backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.5)' : 'rgba(248, 249, 251, 0.7)',
+      borderRadius: '18px',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+      padding: '4px 8px',
+      border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+      boxShadow: darkMode ? '0 4px 16px rgba(0, 0, 0, 0.15)' : '0 4px 16px rgba(0, 0, 0, 0.06)',
+      '& .MuiButton-root': {
+        minWidth: { xs: '32px', sm: '36px' },
+        height: { xs: '32px', sm: '36px' },
+        borderRadius: '12px',
+        padding: '0',
+        margin: '4px',
+        fontSize: { xs: '0.85rem', sm: '0.9rem' },
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontWeight: 500,
+        letterSpacing: '-0.01em',
+        backgroundColor: 'transparent',
+        color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+        border: 'none',
+        transition: 'all 0.2s ease',
         '&:hover': {
-          backgroundColor: '#0066CC',
+          backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+          transform: 'translateY(-1px)',
         },
+        '&.Mui-disabled': {
+          backgroundColor: darkMode ? 'rgba(10, 132, 255, 0.15)' : 'rgba(0, 113, 227, 0.08)',
+          color: darkMode ? '#0A84FF' : '#0071E3',
+          fontWeight: 600,
+          transform: 'scale(1.05)',
+          boxShadow: darkMode ? '0 2px 8px rgba(10, 132, 255, 0.2)' : '0 2px 8px rgba(0, 113, 227, 0.1)',
+        }
+      }
+    }}
+  >
+    {renderPageButtons()}
+  </Box>
+
+  <Tooltip 
+    title="Next Page" 
+    placement="top"
+    arrow
+    enterDelay={400}
+    sx={{
+      '& .MuiTooltip-arrow': {
+        color: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
       },
-    },
-  }}
->
-  {renderPageButtons()}
-</ButtonGroup>
-
-
-  <Tooltip title="Next Page" placement="top">
+      '& .MuiTooltip-tooltip': {
+        backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.75)',
+        color: '#FFFFFF',
+        fontSize: '0.75rem',
+        borderRadius: '8px',
+        padding: '6px 10px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+        fontWeight: 500,
+        letterSpacing: '-0.01em',
+      }
+    }}
+  >
     <span>
-            <IconButton
-          onClick={() => handleChangePage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          sx={{
-            color: darkMode ? '#FFFFFF' : '#000000', // Dynamic text color
+      <IconButton
+        onClick={() => handleChangePage(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        sx={{
+          color: darkMode ? (currentPage === totalPages ? 'rgba(255, 255, 255, 0.4)' : '#0A84FF') : (currentPage === totalPages ? 'rgba(0, 0, 0, 0.3)' : '#0071E3'),
+          backgroundColor: darkMode 
+            ? (currentPage === totalPages ? 'rgba(30, 35, 61, 0.3)' : 'rgba(30, 35, 61, 0.6)') 
+            : (currentPage === totalPages ? 'rgba(248, 249, 251, 0.5)' : 'rgba(248, 249, 251, 0.8)'),
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          borderRadius: '14px',
+          padding: '10px',
+          border: darkMode 
+            ? (currentPage === totalPages ? '1px solid rgba(255, 255, 255, 0.04)' : '1px solid rgba(255, 255, 255, 0.08)') 
+            : (currentPage === totalPages ? '1px solid rgba(0, 0, 0, 0.03)' : '1px solid rgba(0, 0, 0, 0.05)'),
+          boxShadow: currentPage === totalPages ? 'none' : (darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.06)'),
+          transition: 'all 0.2s ease',
+          transform: 'translateY(0)',
+          '&:hover': {
             backgroundColor: darkMode 
-              ? (currentPage === totalPages ? '#1C1F43' : '#1C1F43') 
-              : (currentPage === totalPages ? '#F5F5F7' : '#F5F5F7'), // Dark mode backgrounds
-            borderRadius: '12px',
-            padding: '12px',
-            border: darkMode ? '1px solid #444444' : '1px solid #D1D1D6', // Dynamic border
-            '&:hover': {
-              backgroundColor: darkMode 
-                ? (currentPage === totalPages ? '#24273c' : '#24273c') 
-                : (currentPage === totalPages ? '#F5F5F7' : '#E0E0E0'), // Darker shade on hover
-            },
-            transition: 'background-color 0.3s ease',
-          }}
-        >
-          <ArrowForward sx={{ fontSize: '20px' }} />
-        </IconButton>
-
+              ? (currentPage === totalPages ? 'rgba(30, 35, 61, 0.3)' : 'rgba(30, 35, 61, 0.7)') 
+              : (currentPage === totalPages ? 'rgba(248, 249, 251, 0.5)' : 'rgba(248, 249, 251, 0.9)'),
+            transform: currentPage === totalPages ? 'translateY(0)' : 'translateY(-2px)',
+            boxShadow: currentPage === totalPages ? 'none' : (darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)'),
+          },
+        }}
+      >
+        <ArrowForward sx={{ 
+          fontSize: '18px',
+          transition: 'transform 0.2s ease',
+          transform: currentPage === totalPages ? 'translateX(0)' : 'translateX(0)',
+          '&:hover': {
+            transform: currentPage === totalPages ? 'translateX(0)' : 'translateX(2px)'
+          }
+        }} />
+      </IconButton>
     </span>
   </Tooltip>
 </Box>
@@ -3632,6 +4046,7 @@ useEffect(() => {
           </>
         )}
         <Box
+          id="add-review-section"
           sx={{
             background: '',
             padding: '20px',
