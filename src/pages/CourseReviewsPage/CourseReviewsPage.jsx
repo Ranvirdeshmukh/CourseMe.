@@ -5,7 +5,7 @@ import {
   MenuItem, Select, FormControl, InputLabel, CircularProgress, Card, Badge, Tabs, Tab, LinearProgress,
   TextField, Autocomplete, Link as MuiLink
 } from '@mui/material';
-import { useParams, Link ,useLocation } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin, Description, Grade, Input } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
@@ -71,10 +71,7 @@ const CourseReviewsPage = ({ darkMode }) => {
     'F': 0
   };
   const numToGrade = Object.fromEntries(Object.entries(gradeToNum).map(([k, v]) => [v, k]));
-  const [viewStartTime, setViewStartTime] = useState(null);
 
-
-  const location = useLocation();
 
   // Define color variables based on darkMode
   const mainBgColor = darkMode 
@@ -210,38 +207,6 @@ const CourseReviewsPage = ({ darkMode }) => {
     setSelectedProfessor(event.target.value);
     setCurrentPage(1); // Reset to the first page
   };
-
-
-  // Analytics tracking for course reviews page views
-useEffect(() => {
-  // Set the view start time for session duration tracking
-  setViewStartTime(new Date());
-  
-  // Record that this user is viewing the course reviews page
-  if (currentUser) {
-    recordAnalyticsView(
-      currentUser.uid, 
-      'course_review_page', 
-      `${department}_${courseId}`,
-      location.pathname
-    );
-  }
-  
-  // When component unmounts, log the session duration
-  return () => {
-    if (currentUser && viewStartTime) {
-      const sessionDuration = new Date() - viewStartTime;
-      if (sessionDuration > 1000) { // Only log sessions longer than 1 second
-        logAnalyticsSession(
-          currentUser.uid,
-          'course_review_page',
-          `${department}_${courseId}`,
-          sessionDuration
-        );
-      }
-    }
-  };
-}, [currentUser, location.pathname, viewStartTime, department, courseId]);
   
   
 
