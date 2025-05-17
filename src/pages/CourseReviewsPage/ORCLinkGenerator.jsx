@@ -254,6 +254,13 @@ export const generateORCLink = (courseId) => {
         return envsUrl;
       }
       
+      // Special case for BIOL - it has a specific URL structure
+      if (deptCode === 'biol') {
+        const biolUrl = `https://dartmouth.smartcatalogiq.com/current/orc/departments-programs-undergraduate/biological-sciences/biol-biological-sciences-undergraduate/biol-${courseNum}/`;
+        console.log(`Generated ORC link for ${courseId}: ${biolUrl}`);
+        return biolUrl;
+      }
+      
       // Special case for MUS - it has a different URL structure with course ranges
       if (deptCode === 'mus') {
         // Convert course number to number for range comparisons
