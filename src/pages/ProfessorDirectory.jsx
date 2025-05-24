@@ -1,4 +1,4 @@
-import { getFirestore, collection, query as firestoreQuery, getDocs, limit, orderBy, where, doc, getDoc } from 'firebase/firestore';
+import { collection, query as firestoreQuery, getDocs, limit, orderBy, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase'; 
 import { Mail, Search, X } from 'lucide-react';
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
@@ -172,35 +172,81 @@ const generateSearchTokens = (text) => {
 const calculateRelevanceScore = (professor, searchTerms) => {
   let score = 0;
   const normalizedName = normalizeText(professor.name);
+  const nameWords = normalizedName.split(' ').filter(word => word.length > 0);
   const normalizedDepartments = Object.keys(professor.departments || {}).map(normalizeText);
   
   for (const term of searchTerms) {
-    if (normalizedName.includes(term)) {
-      score += 10;
-      if (normalizedName.startsWith(term)) {
-        score += 5;
+    // Exact word matches (high priority)
+    for (let i = 0; i < nameWords.length; i++) {
+      const word = nameWords[i];
+      
+      if (word === term) {
+        // Exact word match
+        if (i === 0) {
+          score += 15; // First name exact match
+        } else {
+          score += 12; // Last name exact match
+        }
+      } else if (word.startsWith(term)) {
+        // Word starts with search term
+        if (i === 0) {
+          score += 10; // First name prefix
+        } else {
+          score += 8; // Last name prefix
+        }
+      } else if (word.includes(term) && term.length >= 3) {
+        // Word contains search term (partial match)
+        if (i === 0) {
+          score += 6; // First name partial
+        } else {
+          score += 6; // Last name partial
+        }
       }
     }
     
-    for (const dept of normalizedDepartments) {
-      if (dept.includes(term)) {
+    // Full name contains search term (fallback)
+    if (normalizedName.includes(term)) {
+      score += 4;
+      
+      // Bonus if the full name starts with the term
+      if (normalizedName.startsWith(term)) {
         score += 3;
       }
     }
     
+    // Department matches (lower priority)
+    for (const dept of normalizedDepartments) {
+      if (dept.includes(term)) {
+        score += 2;
+      }
+    }
+    
+    // Additional scoring for partial word matches
     if (term.length >= 3) {
-      const partialMatches = normalizedName.split(' ')
+      const partialMatches = nameWords
         .filter(word => word.startsWith(term) || word.endsWith(term))
         .length;
-      score += partialMatches * 2;
+      score += partialMatches * 1;
+    }
+  }
+  
+  // Bonus for matching multiple search terms
+  if (searchTerms.length > 1) {
+    const matchedTerms = searchTerms.filter(term => 
+      nameWords.some(word => word.includes(term))
+    ).length;
+    
+    if (matchedTerms === searchTerms.length) {
+      score += 5; // All terms matched
+    } else if (matchedTerms > 1) {
+      score += 2; // Multiple terms matched
     }
   }
   
   return score;
 };
 
-// Separate search function
-// Replace the existing searchProfessors function with this implementation:
+// Enhanced search function that handles both first and last name searches
 const searchProfessors = async (searchTerm, db) => {
   if (!searchTerm?.trim() || !db) {
     return { results: [], isPartialMatch: false };
@@ -211,9 +257,9 @@ const searchProfessors = async (searchTerm, db) => {
     const professorsRef = collection(db, "professor");
     const searchResults = new Map();
     
-    // Create queries for each search token
-    const queries = searchTokens.flatMap(token => [
-      // Name search
+    // Strategy 1: Prefix-based search (works well for first names and exact matches)
+    const prefixQueries = searchTokens.flatMap(token => [
+      // Name prefix search
       getDocs(
         firestoreQuery(
           professorsRef,
@@ -232,11 +278,11 @@ const searchProfessors = async (searchTerm, db) => {
       )
     ]);
 
-    // Execute all queries in parallel
-    const querySnapshots = await Promise.all(queries);
+    // Execute prefix queries
+    const prefixSnapshots = await Promise.all(prefixQueries);
     
-    // Process results
-    for (const snapshot of querySnapshots) {
+    // Process prefix results
+    for (const snapshot of prefixSnapshots) {
       for (const doc of snapshot.docs) {
         if (!searchResults.has(doc.id)) {
           searchResults.set(doc.id, { id: doc.id, ...doc.data() });
@@ -244,7 +290,61 @@ const searchProfessors = async (searchTerm, db) => {
       }
     }
 
-    // Process and sort results
+    // Strategy 2: Broader search for last names and partial matches
+    // If we don't have enough results from prefix search, do a broader search
+    const currentResultCount = searchResults.size;
+    
+    if (currentResultCount < 5) {
+      // Get a broader set of professors to search through client-side
+      const broadSearchPromises = [];
+      
+      // Get professors by review count (most popular ones first)
+      broadSearchPromises.push(
+        getDocs(
+          firestoreQuery(
+            professorsRef,
+            where('overall_metrics.review_count', '>=', 1),
+            orderBy('overall_metrics.review_count', 'desc'),
+            limit(200)
+          )
+        )
+      );
+
+      // Also try searching with different case variations and partial matches
+      for (const token of searchTokens) {
+        if (token.length >= 2) {
+          // Try capitalized version (for last names like "Tregubov")
+          const capitalizedToken = token.charAt(0).toUpperCase() + token.slice(1);
+          broadSearchPromises.push(
+            getDocs(
+              firestoreQuery(
+                professorsRef,
+                where("name", ">=", capitalizedToken),
+                where("name", "<=", capitalizedToken + "\uf8ff"),
+                limit(30)
+              )
+            )
+          );
+        }
+      }
+
+      try {
+        const broadSnapshots = await Promise.all(broadSearchPromises);
+        
+        // Process broader search results
+        for (const snapshot of broadSnapshots) {
+          for (const doc of snapshot.docs) {
+            if (!searchResults.has(doc.id)) {
+              searchResults.set(doc.id, { id: doc.id, ...doc.data() });
+            }
+          }
+        }
+      } catch (broadError) {
+        console.warn('Broad search failed, using prefix results only:', broadError);
+      }
+    }
+
+    // Process and sort all results with enhanced relevance scoring
     let results = Array.from(searchResults.values())
       .map(prof => ({
         ...prof,
@@ -253,6 +353,14 @@ const searchProfessors = async (searchTerm, db) => {
       .filter(prof => prof.relevanceScore > 0)
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
       .slice(0, 20);
+
+    // Debug logging for search results
+    if (results.length > 0) {
+      console.log(`Search for "${searchTerm}" found ${results.length} results:`);
+      results.slice(0, 5).forEach(prof => {
+        console.log(`  - ${prof.name} (score: ${prof.relevanceScore})`);
+      });
+    }
 
     const isPartialMatch = results.length > 0 && 
       results[0].relevanceScore < (searchTokens.length * 15);
