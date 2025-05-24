@@ -12,6 +12,6 @@ export const hiddenLayupCourseIds = [  'PHIL_PHIL026__Philosophy_and_Computers',
   'SPEE_SPEE020__Public_Speaking',
   'HIST_HIST092_04__Partition_in_South_Asia',
   'ENGL_ENGL055_01__Modern_American_Women_Poets',
-'SOCY_SOCY001__Introductory_Sociology',
-'MUS_MUS003_02__American_Music__Covers__Theft__and_Musical_Borrowing',
+  'SOCY_SOCY001__Introductory_Sociology',
+  'MUS_MUS003_02__American_Music__Covers__Theft__and_Musical_Borrowing',
 ];

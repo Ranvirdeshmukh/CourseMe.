@@ -311,7 +311,8 @@ const searchProfessors = async (searchTerm, db) => {
           )
         )
       );
-
+      
+      
       // Strategy 2: Get ALL professors (including those with 0 reviews)
       // This catches professors who might not have reviews yet
       broadSearchPromises.push(
