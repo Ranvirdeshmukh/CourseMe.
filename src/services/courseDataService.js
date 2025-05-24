@@ -27,7 +27,7 @@ const CACHE_CONFIG = {
   },
   HIDDEN_LAYUPS: {
     KEY: 'hidden_layups_static_data',
-    VERSION: 'v2',
+    VERSION: 'v5',
     DURATION: 3 * 24 * 60 * 60 * 1000, // 3 days
   },
   MAX_RETRY_ATTEMPTS: 3
