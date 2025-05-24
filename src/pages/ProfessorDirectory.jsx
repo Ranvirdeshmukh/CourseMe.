@@ -293,12 +293,14 @@ const searchProfessors = async (searchTerm, db) => {
     // Strategy 2: Broader search for last names and partial matches
     // If we don't have enough results from prefix search, do a broader search
     const currentResultCount = searchResults.size;
+    console.log(`After prefix search: ${currentResultCount} professors found`);
     
     if (currentResultCount < 5) {
+      console.log(`Triggering broad search (found < 5 results from prefix)`);
       // Get a broader set of professors to search through client-side
       const broadSearchPromises = [];
       
-      // Get professors by review count (most popular ones first)
+      // Strategy 1: Get professors with reviews (most popular ones first)
       broadSearchPromises.push(
         getDocs(
           firestoreQuery(
@@ -310,38 +312,160 @@ const searchProfessors = async (searchTerm, db) => {
         )
       );
 
-      // Also try searching with different case variations and partial matches
+      // Strategy 2: Get ALL professors (including those with 0 reviews)
+      // This catches professors who might not have reviews yet
+      broadSearchPromises.push(
+        getDocs(
+          firestoreQuery(
+            professorsRef,
+            limit(1000) // Increased limit to catch more professors
+          )
+        )
+      );
+
+      // Strategy 2b: Get professors ordered by name to ensure we catch alphabetically distant names
+      broadSearchPromises.push(
+        getDocs(
+          firestoreQuery(
+            professorsRef,
+            orderBy('name'),
+            limit(500)
+          )
+        )
+      );
+
+      // Strategy 3: Get professors ordered differently to catch edge cases
+      broadSearchPromises.push(
+        getDocs(
+          firestoreQuery(
+            professorsRef,
+            orderBy('name', 'desc'),
+            limit(300)
+          )
+        )
+      );
+
+      // Strategy 4: Try searching with different case variations  
       for (const token of searchTokens) {
         if (token.length >= 2) {
           // Try capitalized version (for last names like "Tregubov")
           const capitalizedToken = token.charAt(0).toUpperCase() + token.slice(1);
+          console.log(`Trying capitalized search for: "${capitalizedToken}"`);
           broadSearchPromises.push(
             getDocs(
               firestoreQuery(
                 professorsRef,
                 where("name", ">=", capitalizedToken),
                 where("name", "<=", capitalizedToken + "\uf8ff"),
-                limit(30)
+                limit(50)
               )
             )
           );
+
+          // Try all uppercase version
+          const upperToken = token.toUpperCase();
+          if (upperToken !== capitalizedToken) {
+            console.log(`Trying uppercase search for: "${upperToken}"`);
+            broadSearchPromises.push(
+              getDocs(
+                firestoreQuery(
+                  professorsRef,
+                  where("name", ">=", upperToken),
+                  where("name", "<=", upperToken + "\uf8ff"),
+                  limit(50)
+                )
+              )
+            );
+          }
+
+          // Try all lowercase version 
+          const lowerToken = token.toLowerCase();
+          if (lowerToken !== token) {
+            console.log(`Trying lowercase search for: "${lowerToken}"`);
+            broadSearchPromises.push(
+              getDocs(
+                firestoreQuery(
+                  professorsRef,
+                  where("name", ">=", lowerToken),
+                  where("name", "<=", lowerToken + "\uf8ff"),
+                  limit(50)
+                )
+              )
+            );
+          }
+
+          // Strategy 5: Try reverse searches - search for names that come BEFORE our token
+          // This catches cases where "Tregubov" might be stored as "Tim Tregubov" 
+          // and we need to find it by scanning backwards alphabetically
+          const reversedCapitalized = capitalizedToken.split('').reverse().join('');
+          if (reversedCapitalized !== capitalizedToken) {
+            broadSearchPromises.push(
+              getDocs(
+                firestoreQuery(
+                  professorsRef,
+                  where("name", ">=", "A"),
+                  where("name", "<=", capitalizedToken + "\uf8ff"),
+                  limit(200)
+                )
+              )
+            );
+          }
         }
       }
 
       try {
         const broadSnapshots = await Promise.all(broadSearchPromises);
+        let addedCount = 0;
         
         // Process broader search results
         for (const snapshot of broadSnapshots) {
           for (const doc of snapshot.docs) {
             if (!searchResults.has(doc.id)) {
               searchResults.set(doc.id, { id: doc.id, ...doc.data() });
+              addedCount++;
             }
           }
         }
+        console.log(`Broad search added ${addedCount} more professors. Total: ${searchResults.size}`);
+        
+        // Log some sample names to see if Tregubov is in there
+        const allNames = Array.from(searchResults.values()).map(p => p.name);
+        const tregubovMatches = allNames.filter(name => 
+          name.toLowerCase().includes('tregubov')
+        );
+        
+        if (tregubovMatches.length > 0) {
+          console.log(`Found Tregubov matches:`, tregubovMatches);
+        } else {
+          console.log(`No Tregubov found. Let's search for similar names...`);
+          
+          // Look for names containing "tim" 
+          const timNames = allNames.filter(name => 
+            name.toLowerCase().includes('tim')
+          );
+          console.log(`Names containing "tim":`, timNames.slice(0, 10));
+          
+          // Look for names containing "treg"
+          const tregNames = allNames.filter(name => 
+            name.toLowerCase().includes('treg')
+          );
+          console.log(`Names containing "treg":`, tregNames);
+          
+          // Look for names starting with "t"
+          const tNames = allNames.filter(name => 
+            name.toLowerCase().startsWith('t')
+          );
+          console.log(`Names starting with "t":`, tNames.slice(0, 10));
+          
+          console.log(`Total professors in database: ${allNames.length}`);
+          console.log(`Random sample:`, allNames.slice(0, 15));
+        }
+        
       } catch (broadError) {
         console.warn('Broad search failed, using prefix results only:', broadError);
       }
+    } else {
+      console.log(`Skipping broad search (already have ${currentResultCount} results)`);
     }
 
     // Process and sort all results with enhanced relevance scoring
@@ -355,12 +479,28 @@ const searchProfessors = async (searchTerm, db) => {
       .slice(0, 20);
 
     // Debug logging for search results
+    console.log(`\n=== SEARCH DEBUG for "${searchTerm}" ===`);
+    console.log(`Search tokens:`, searchTokens);
+    console.log(`Total professors found in queries: ${searchResults.size}`);
+    console.log(`Results after scoring: ${results.length}`);
+    
     if (results.length > 0) {
-      console.log(`Search for "${searchTerm}" found ${results.length} results:`);
+      console.log(`Top results:`);
       results.slice(0, 5).forEach(prof => {
         console.log(`  - ${prof.name} (score: ${prof.relevanceScore})`);
       });
+    } else {
+      console.log(`No results found. Let's check what we got from queries:`);
+      const allProfs = Array.from(searchResults.values());
+      console.log(`Sample professors from queries:`, allProfs.slice(0, 3).map(p => p.name));
+      
+      if (allProfs.length > 0) {
+        console.log(`Testing relevance scoring on first professor:`, allProfs[0].name);
+        const testScore = calculateRelevanceScore(allProfs[0], searchTokens);
+        console.log(`Test score: ${testScore}`);
+      }
     }
+    console.log(`=== END SEARCH DEBUG ===\n`);
 
     const isPartialMatch = results.length > 0 && 
       results[0].relevanceScore < (searchTokens.length * 15);
