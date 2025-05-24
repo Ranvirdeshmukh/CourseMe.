@@ -4,7 +4,7 @@ export const hiddenLayupCourseIds = [  'PHIL_PHIL026__Philosophy_and_Computers',
   'ENGS_ENGS011__The_Way_Things_Work__A_Visual_Introduction_to_Engineering',
   'TUCK_TUCK002__Principles_of_Marketing',
   'ASCL_ASCL010_01__Introduction_to_Chinese_Culture',
-  'ANTH_ANTH050_34__Peoples_of_Oceania',  // Note: Adjust if the '/courses/' prefix is part of the ID in Firestore.
+  'SPEE_SPEE036__Organizational_Communication_and_Sustainability',
   'ANTH_ANTH006__Introduction_to_Biological_Anthropology',
   'MATH_MATH030_04__Evolutionary_Game_Theory_and_Applications',
   'COSC_COSC021__Foundations_of_Digital_Design',
