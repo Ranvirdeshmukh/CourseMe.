@@ -23,21 +23,21 @@ const NewStartPage = () => {
   
   // Text scrambling animation effect
   useEffect(() => {
-    // Letters to use for scrambling effect - similar looking letters for each position
+    // More elegant letter substitutions - fewer, more typographically similar choices
     const letterSubstitutions = {
-      'C': ['G', 'O', 'Q', 'D', 'P', 'R', 'B'],
-      'o': ['e', 'a', 'u', 'c', 'n', 'd', 'p'],
-      'u': ['n', 'v', 'w', 'o', 'a', 'e', 'i'],
-      'r': ['n', 't', 'f', 'l', 'v', 'w', 'y'],
-      's': ['z', 'x', 'c', 'a', 'e', 'o', 'g'],
-      'e': ['o', 'a', 'c', 'd', 'g', 'q', 'b'],
-      'M': ['N', 'W', 'H', 'K', 'R', 'P', 'B'],
+      'C': ['O', 'G', 'Q'],
+      'o': ['e', 'a', 'c'],
+      'u': ['n', 'v', 'o'],
+      'r': ['n', 'f', 'l'],
+      's': ['c', 'e', 'o'],
+      'e': ['o', 'a', 'c'],
+      'M': ['N', 'W', 'H'],
       '.': ['.'] // Keep the period as is
     };
     
     let frame = 0;
-    const frameRate = 30; // Slightly increased for smoother letter transitions
-    const finalFrameHold = 5;
+    const frameRate = 35; // Slightly slower for more elegance
+    const finalFrameHold = 8; // Slightly longer hold for sophistication
     let holdCount = 0;
     let isComplete = false;
     
@@ -52,12 +52,13 @@ const NewStartPage = () => {
       
       frame++;
       
-      // Calculate progress - how much of target text to show correctly
-      const progress = Math.min(frame / frameRate, 1);
+      // Calculate progress with a slight easing for elegance
+      const rawProgress = Math.min(frame / frameRate, 1);
+      const progress = rawProgress * rawProgress * (3 - 2 * rawProgress); // Smooth ease-in-out
       const textLength = targetText.length;
       const scrambleLength = Math.floor(textLength * progress);
       
-      // Build the displayed text with letter substitution effect
+      // Build the displayed text with refined letter substitution
       let displayString = '';
       
       for (let i = 0; i < textLength; i++) {
@@ -65,19 +66,19 @@ const NewStartPage = () => {
           // Character is now correct
           displayString += targetText[i];
         } else if (i === scrambleLength) {
-          // Active scrambling character - cycle through similar letters
+          // Active character - elegant cycling through minimal substitutes
           const currentChar = targetText[i];
-          const substitutes = letterSubstitutions[currentChar] || ['X', 'Y', 'Z'];
-          const cycleIndex = Math.floor((frame * 2) % substitutes.length); // Faster cycling
+          const substitutes = letterSubstitutions[currentChar] || ['X'];
+          const cycleIndex = Math.floor((frame * 1.2) % substitutes.length); // More deliberate cycling
           displayString += substitutes[cycleIndex];
-        } else if (i < scrambleLength + 3) {
-          // Show some upcoming letters with subtle animation
+        } else if (i === scrambleLength + 1) {
+          // Show only the next character with very subtle preview
           const currentChar = targetText[i];
-          const substitutes = letterSubstitutions[currentChar] || ['X', 'Y', 'Z'];
-          const slowCycleIndex = Math.floor((frame * 0.5 + i) % substitutes.length);
+          const substitutes = letterSubstitutions[currentChar] || ['X'];
+          const slowCycleIndex = Math.floor((frame * 0.3 + i) % substitutes.length);
           displayString += substitutes[slowCycleIndex];
         } else {
-          // Spaces for not-yet-reached characters
+          // Clean spaces for untouched characters
           displayString += " ";
         }
       }
@@ -90,7 +91,7 @@ const NewStartPage = () => {
       }
     };
     
-    // Run the animation at 30fps
+    // Run the animation at 30fps for smoothness
     const interval = setInterval(scramble, 1000 / 30);
     
     return () => clearInterval(interval);
