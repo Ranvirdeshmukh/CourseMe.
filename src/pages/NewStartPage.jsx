@@ -23,12 +23,21 @@ const NewStartPage = () => {
   
   // Text scrambling animation effect
   useEffect(() => {
-    // Characters to use for scrambling effect
-    const chars = "!<>-_\\/[]{}—=+*^?#________";
+    // Letters to use for scrambling effect - similar looking letters for each position
+    const letterSubstitutions = {
+      'C': ['G', 'O', 'Q', 'D', 'P', 'R', 'B'],
+      'o': ['e', 'a', 'u', 'c', 'n', 'd', 'p'],
+      'u': ['n', 'v', 'w', 'o', 'a', 'e', 'i'],
+      'r': ['n', 't', 'f', 'l', 'v', 'w', 'y'],
+      's': ['z', 'x', 'c', 'a', 'e', 'o', 'g'],
+      'e': ['o', 'a', 'c', 'd', 'g', 'q', 'b'],
+      'M': ['N', 'W', 'H', 'K', 'R', 'P', 'B'],
+      '.': ['.'] // Keep the period as is
+    };
     
     let frame = 0;
-    const frameRate = 25;
-    const finalFrameHold = 5; // Significantly reduced from 22 frames to minimize pause
+    const frameRate = 30; // Slightly increased for smoother letter transitions
+    const finalFrameHold = 5;
     let holdCount = 0;
     let isComplete = false;
     
@@ -48,18 +57,25 @@ const NewStartPage = () => {
       const textLength = targetText.length;
       const scrambleLength = Math.floor(textLength * progress);
       
-      // Build the displayed text:
-      // 1. Characters that should now be correct
-      // 2. Scrambled characters for the rest
+      // Build the displayed text with letter substitution effect
       let displayString = '';
       
       for (let i = 0; i < textLength; i++) {
         if (i < scrambleLength) {
+          // Character is now correct
           displayString += targetText[i];
         } else if (i === scrambleLength) {
-          // Active scrambling character
-          const charIndex = Math.floor(Math.random() * chars.length);
-          displayString += chars[charIndex];
+          // Active scrambling character - cycle through similar letters
+          const currentChar = targetText[i];
+          const substitutes = letterSubstitutions[currentChar] || ['X', 'Y', 'Z'];
+          const cycleIndex = Math.floor((frame * 2) % substitutes.length); // Faster cycling
+          displayString += substitutes[cycleIndex];
+        } else if (i < scrambleLength + 3) {
+          // Show some upcoming letters with subtle animation
+          const currentChar = targetText[i];
+          const substitutes = letterSubstitutions[currentChar] || ['X', 'Y', 'Z'];
+          const slowCycleIndex = Math.floor((frame * 0.5 + i) % substitutes.length);
+          displayString += substitutes[slowCycleIndex];
         } else {
           // Spaces for not-yet-reached characters
           displayString += " ";
