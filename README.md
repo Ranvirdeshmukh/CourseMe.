@@ -1,5 +1,4 @@
 
-# CourseMe
 
 <div align="center">
   <img src="public/2.png" alt="CourseMe Logo" width="200"/>
