@@ -3,17 +3,17 @@
   "name": "CourseMe - Simplify your major, Amplify your college experience",
   "icons": [
     {
-      "src": "faviconfortab.png",
+      "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/png"
+      "type": "image/x-icon"
     },
     {
-      "src": "faviconfortab.png",
+      "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "faviconfortab.png",
+      "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
