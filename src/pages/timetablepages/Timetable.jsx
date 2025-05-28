@@ -16,7 +16,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PrintIcon from '@mui/icons-material/Print';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, getDoc, doc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { recordAnalyticsView, logAnalyticsSession } from '../../services/analyticsService';
 import { addToGoogleCalendar } from './googleCalendarLogic';
@@ -49,6 +49,10 @@ const Timetable = ({ darkMode }) => {
   const [openPopupMessage, setOpenPopupMessage] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', type: 'info' });
   const [termType, setTermType] = useState('fall'); // Default to 'fall'
+  
+  // User data state
+  const [userReviews, setUserReviews] = useState([]);
+  const [userGradeSubmissions, setUserGradeSubmissions] = useState([]);
   
   // Notification State
   const [isPriorityEligible, setIsPriorityEligible] = useState(false);
@@ -91,6 +95,38 @@ const Timetable = ({ darkMode }) => {
     const endIndex = startIndex + classesPerPage;
     return filteredCourses.slice(startIndex, endIndex);
   }, [filteredCourses, currentPage, classesPerPage]);
+  
+  // Fetch user data for reviews and grade submissions
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!currentUser) {
+        setUserReviews([]);
+        setUserGradeSubmissions([]);
+        return;
+      }
+      
+      try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserReviews(userData.reviews || []);
+          setUserGradeSubmissions(userData.gradeSubmissions || []);
+          console.log('Fetched user reviews:', userData.reviews || []);
+          console.log('Fetched user grade submissions:', userData.gradeSubmissions || []);
+        } else {
+          console.log('No user document found');
+          setUserReviews([]);
+          setUserGradeSubmissions([]);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setUserReviews([]);
+        setUserGradeSubmissions([]);
+      }
+    };
+
+    fetchUserData();
+  }, [currentUser, db]);
   
   // User notification eligibility
   useEffect(() => {
@@ -348,12 +384,10 @@ const Timetable = ({ darkMode }) => {
       <html>
         <head>
           <title>Summer 2025 Schedule</title>
-          <title>Summer 2025 Schedule</title>
           ${printCSS}
         </head>
         <body>
           <div class="schedule-print-container">
-            <div class="schedule-title">Summer 2025 Weekly Schedule</div>
             <div class="schedule-title">Summer 2025 Weekly Schedule</div>
             <div class="schedule-subtitle">Dartmouth College</div>
             ${printContent.innerHTML}
@@ -403,6 +437,11 @@ const Timetable = ({ darkMode }) => {
   const handlePopupMessageClose = () => {
     setPopupMessageOpen(false);
   };
+
+  // Handler for adding reviews
+  const handleAddReview = () => {
+    navigate('/reviews'); // Adjust this path to your review page
+  };
   
   return (
     <Box
@@ -415,7 +454,6 @@ const Timetable = ({ darkMode }) => {
         transition: 'background-color 0.3s ease, color 0.3s ease',
         padding: '40px 20px',
         fontFamily: 'SF Pro Display, sans-serif',
-        // src/pages/timetablepages/Timetable.jsx (continued)
         position: 'relative',
       }}
     >
@@ -565,6 +603,10 @@ const Timetable = ({ darkMode }) => {
                 toggleNotificationPriority={toggleNotificationPriority}
                 enrollmentDataReady={enrollmentDataReady}
                 isMobile={isMobile}
+                userReviews={userReviews}
+                userGradeSubmissions={userGradeSubmissions}
+                currentTerm="25S"
+                onAddReview={handleAddReview}
               />
             )}
             
@@ -623,8 +665,8 @@ const Timetable = ({ darkMode }) => {
           showSelectedCourses={showSelectedCourses}
           setShowSelectedCourses={setShowSelectedCourses}
           isMobile={isMobile}
-          termType={termType}       // Add this
-          setTermType={setTermType} // Add this
+          termType={termType}       
+          setTermType={setTermType} 
         />
 
         {/* Main Course Listing */}
@@ -650,6 +692,10 @@ const Timetable = ({ darkMode }) => {
               toggleNotificationPriority={toggleNotificationPriority}
               enrollmentDataReady={enrollmentDataReady}
               isMobile={isMobile}
+              userReviews={userReviews}
+              userGradeSubmissions={userGradeSubmissions}
+              currentTerm="25S"
+              onAddReview={handleAddReview}
             />
 
             <PaginationControls
@@ -688,7 +734,6 @@ const Timetable = ({ darkMode }) => {
       {!miniScheduleOpen && (
         <Zoom in={true}>
           <Box sx={{ position: 'fixed', bottom: 32, right: 32, zIndex: 1000 }}>
-            {/* Feature discovery tooltip */}
             <FeatureHighlight
               show={showFeatureHighlight}
               darkMode={darkMode}
@@ -704,7 +749,7 @@ const Timetable = ({ darkMode }) => {
                 color: darkMode ? '#FFFFFF' : '#000000',
                 width: 64,
                 height: 64,
-                backdropFilter: 'blur(10px)', // Frosted glass effect for iOS feel
+                backdropFilter: 'blur(10px)',
                 border: darkMode ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.05)',
                 boxShadow: darkMode 
                   ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
@@ -720,7 +765,6 @@ const Timetable = ({ darkMode }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                // Add subtle pulse animation when tooltip is visible
                 animation: showFeatureHighlight 
                   ? 'pulse 2s infinite cubic-bezier(0.455, 0.03, 0.515, 0.955)'
                   : 'none',
@@ -849,4 +893,3 @@ const Timetable = ({ darkMode }) => {
 };
 
 export default Timetable;
-        

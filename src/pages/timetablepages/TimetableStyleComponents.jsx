@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import ButtonBase from '@mui/material/ButtonBase';
 import React from 'react';
 
-// Google Calendar Button - Fixing darkMode prop issue by using a proper styled component
+// Google Calendar Button - Fixed to prevent darkMode prop from reaching DOM
 export const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -47,8 +47,10 @@ export const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => 
   },
 }));
 
-// Apple Calendar Button
-export const AppleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
+// Apple Calendar Button - Fixed to prevent darkMode prop from reaching DOM
+export const AppleCalendarButton = styled(ButtonBase, {
+  shouldForwardProp: (prop) => prop !== 'darkMode',
+})(({ theme, darkMode }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -128,8 +130,10 @@ export const AppleIcon = () => (
   </svg>
 );
 
-// Enrollment Display components
-export const EnrollmentDisplay = styled('div')(({ theme, status, darkMode }) => ({
+// Enrollment Display components - Fixed to prevent darkMode prop from reaching DOM
+export const EnrollmentDisplay = styled('div', {
+  shouldForwardProp: (prop) => prop !== 'status' && prop !== 'darkMode',
+})(({ theme, status, darkMode }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -145,7 +149,9 @@ export const EnrollmentDisplay = styled('div')(({ theme, status, darkMode }) => 
   fontFamily: 'SF Pro Display, sans-serif',
 }));
 
-export const EnrollmentText = styled('div')(({ theme, status, darkMode }) => ({
+export const EnrollmentText = styled('div', {
+  shouldForwardProp: (prop) => prop !== 'status' && prop !== 'darkMode',
+})(({ theme, status, darkMode }) => ({
   fontWeight: 600,
   fontSize: '0.9rem',
   color: status === 'full' 
@@ -157,7 +163,9 @@ export const EnrollmentText = styled('div')(({ theme, status, darkMode }) => ({
         : (darkMode ? '#adb5bd' : '#8e8e93'),
 }));
 
-export const EnrollmentProgressBar = styled('div')(({ theme, status, darkMode, percentage }) => ({
+export const EnrollmentProgressBar = styled('div', {
+  shouldForwardProp: (prop) => prop !== 'status' && prop !== 'darkMode' && prop !== 'percentage',
+})(({ theme, status, darkMode, percentage }) => ({
   width: '100%',
   height: '4px',
   marginTop: '6px',

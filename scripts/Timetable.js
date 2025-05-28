@@ -28,7 +28,7 @@ async function uploadData() {
 
     // Add the document to Firestore
     try {
-      await db.collection('fallTimetable').doc(docName).set(entry);
+      await db.collection('fallTimetable2').doc(docName).set(entry);
       console.log(`Uploaded: ${docName}`);
     } catch (error) {
       console.error(`Error uploading ${docName}: `, error);

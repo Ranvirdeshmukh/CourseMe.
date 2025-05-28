@@ -3,7 +3,7 @@ import { collection, doc, getDoc, getDocs, query, updateDoc, where, setDoc } fro
 import localforage from 'localforage';
 import { periodCodeToTiming } from '../pages/timetablepages/googleCalendarLogic';
 
-const CACHE_VERSION = 'summerV5';
+const CACHE_VERSION = 'summerV6';
 const CACHE_TTL = 5184000000; // 60 days in milliseconds
 
 export const fetchCourseData = async (db, dept, course) => {
