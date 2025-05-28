@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico?v=2" />
+    
+    <!-- Favicon switching based on color scheme -->
+    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico?v=2" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/darkmode-favicon.ico?v=2" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico?v=2" /> <!-- Fallback for browsers that don't support media queries -->
+    
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     
@@ -12,9 +17,13 @@
     <!-- Apple Touch Icon for iOS -->
     <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png" />
 
-    <!-- Favicon for different resolutions -->
-    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
+    <!-- Favicon for different resolutions - Light mode -->
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" media="(prefers-color-scheme: light)" />
+    
+    <!-- Favicon for different resolutions - Dark mode -->
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/darkmode-favicon-32x32.png" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/darkmode-favicon-16x16.png" media="(prefers-color-scheme: dark)" />
 
     <!-- Android Chrome Icons -->
     <link rel="icon" type="image/png" sizes="192x192" href="%PUBLIC_URL%/android-chrome-192x192.png" />
@@ -113,6 +122,30 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-WRMTLBGR');</script>
     <!-- End Google Tag Manager -->
+    
+    <!-- Dynamic Favicon Switching Script -->
+    <script>
+      // Function to update favicon based on color scheme
+      function updateFavicon() {
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const faviconLink = document.querySelector('link[rel="icon"]:not([media])');
+        const basePath = '%PUBLIC_URL%';
+        
+        if (faviconLink) {
+          faviconLink.href = isDarkMode 
+            ? `${basePath}/darkmode-favicon.ico?v=2`
+            : `${basePath}/favicon.ico?v=2`;
+        }
+      }
+      
+      // Update favicon when page loads
+      document.addEventListener('DOMContentLoaded', updateFavicon);
+      
+      // Listen for color scheme changes and update favicon
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addListener(updateFavicon);
+      }
+    </script>
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->
