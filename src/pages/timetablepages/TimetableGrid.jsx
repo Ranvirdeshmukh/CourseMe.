@@ -176,17 +176,17 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
   const needed = Math.max(0, 3 - totalContributions);
 
   const handleNavigateToReviews = () => {
-    navigate('/courses'); // Navigate to AllClassesPage
+    navigate('/classes'); // Navigate to AllClassesPage (correct route)
   };
 
   return (
     <Box
       sx={{
         position: 'absolute',
-        top: '8px',
-        left: 0,
-        right: '-200%',
-        bottom: '8px',
+        top: '4px',
+        left: '-12px',
+        right: '-212%', // Extended to fully cover all 3 columns
+        bottom: '4px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -197,7 +197,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         backdropFilter: 'blur(25px)',
         WebkitBackdropFilter: 'blur(25px)',
         borderRadius: '20px',
-        padding: '28px 24px',
+        padding: '32px 28px',
         zIndex: 10,
         cursor: 'default',
         boxShadow: darkMode
@@ -217,7 +217,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         sx={{
           position: 'absolute',
           top: '-10px',
-          right: '-10px',
+          right: '20px',
           width: '60px',
           height: '60px',
           background: darkMode 
@@ -237,7 +237,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         sx={{
           position: 'absolute',
           bottom: '-5px',
-          left: '-5px',
+          left: '20px',
           width: '40px',
           height: '40px',
           background: darkMode 
@@ -346,7 +346,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         />
       </Box>
       
-      {/* Description */}
+      {/* Description with Specific Benefits */}
       <Typography
         sx={{
           fontSize: '0.9rem',
@@ -354,16 +354,54 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
           textAlign: 'center',
           mb: 3,
           lineHeight: 1.5,
-          maxWidth: '280px',
+          maxWidth: '320px',
           fontWeight: 500,
           fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
         }}
       >
         {needed > 0 
-          ? `Complete ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock enrollment data, notifications, and calendar features.`
-          : `You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median grade${gradeCount !== 1 ? 's' : ''} from ${requiredTerms.join(' and ')}.`
+          ? `Complete ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock:`
+          : `🎉 Premium features unlocked! You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median grade${gradeCount !== 1 ? 's' : ''}.`
         }
       </Typography>
+
+      {/* Feature Benefits List */}
+      {needed > 0 && (
+        <Box sx={{ mb: 3, textAlign: 'center' }}>
+          <Typography
+            sx={{
+              fontSize: '0.85rem',
+              color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+              fontWeight: 600,
+              mb: 1,
+              fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            ✨ Get notified when someone drops a class
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: '0.85rem',
+              color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+              fontWeight: 600,
+              mb: 1,
+              fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            📅 Add to Google & Apple Calendar in one click
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: '0.85rem',
+              color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+              fontWeight: 600,
+              fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+            }}
+          >
+            📊 Real-time enrollment data for the rest of the term
+          </Typography>
+        </Box>
+      )}
 
       {/* Call to Action Button */}
       <Button
