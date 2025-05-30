@@ -1,12 +1,10 @@
 // src/pages/timetablepages/FilterSection.jsx
 import React, { useState } from 'react';
 import {
-  Box, TextField, FormControl, InputLabel, Select, MenuItem,
-  Button, Typography, InputAdornment, IconButton, ClickAwayListener, Paper,
+  Box, TextField, Button, Typography, InputAdornment, IconButton, Paper,
   CircularProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';

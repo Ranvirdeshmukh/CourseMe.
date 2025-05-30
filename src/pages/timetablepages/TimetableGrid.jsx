@@ -2,11 +2,10 @@
 import React from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-  Paper, IconButton, Box, Tooltip, Typography, Button
+  Paper, IconButton, Box, Tooltip, Typography
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import RateReviewIcon from '@mui/icons-material/RateReview';
 import LockIcon from '@mui/icons-material/Lock';
 import { ProfessorCell } from '../ProfessorCell';
 import NotificationButton from './NotificationButton';
