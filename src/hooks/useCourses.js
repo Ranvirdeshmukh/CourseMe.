@@ -1,6 +1,6 @@
 // src/hooks/useCourses.js
-import { useState, useEffect, useCallback, useRef, doc, setDoc, getDoc } from 'react';
-import { getFirestore } from 'firebase/firestore';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import CourseService from '../services/courseService';
 import EnrollmentService from '../services/enrollmentService';
 import { useAuth } from '../contexts/AuthContext';
