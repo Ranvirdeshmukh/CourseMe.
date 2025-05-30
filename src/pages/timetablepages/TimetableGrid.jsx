@@ -191,30 +191,19 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: darkMode 
-          ? 'linear-gradient(135deg, rgba(45, 55, 89, 0.98) 0%, rgba(28, 31, 67, 0.98) 100%)' 
-          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
-        backdropFilter: 'blur(25px)',
-        WebkitBackdropFilter: 'blur(25px)',
         borderRadius: '20px',
         padding: '32px 28px',
         zIndex: 10,
         cursor: 'default',
-        boxShadow: darkMode
-          ? '0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-          : '0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
         transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         '&:hover': {
           transform: 'translateY(-2px)',
-          boxShadow: darkMode
-            ? '0 25px 70px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
-            : '0 25px 70px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.95)',
-        }
+        },
       }}
     >
       {/* Decorative Elements */}
       <Box
-        sx={{
+            sx={{ 
           position: 'absolute',
           top: '-10px',
           right: '20px',
@@ -294,8 +283,8 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
       </Box>
       
       {/* Main Heading */}
-      <Typography
-        sx={{
+          <Typography
+            sx={{
           fontSize: '1.25rem',
           fontWeight: 800,
           background: darkMode 
@@ -304,16 +293,16 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
-          textAlign: 'center',
-          mb: 1,
+              textAlign: 'center',
+              mb: 1,
           lineHeight: 1.3,
           letterSpacing: '-0.02em',
           fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
-        }}
-      >
+            }}
+          >
         Unlock Premium Features
-      </Typography>
-
+          </Typography>
+          
       {/* Status Chips */}
       <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
         <Chip
@@ -347,24 +336,24 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
       </Box>
       
       {/* Description with Specific Benefits */}
-      <Typography
-        sx={{
+          <Typography
+            sx={{
           fontSize: '0.9rem',
-          color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
-          textAlign: 'center',
+              color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+              textAlign: 'center',
           mb: 3,
           lineHeight: 1.5,
           maxWidth: '320px',
           fontWeight: 500,
           fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
-        }}
-      >
-        {needed > 0 
+            }}
+          >
+            {needed > 0 
           ? `Complete ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock:`
           : `🎉 Premium features unlocked! You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median grade${gradeCount !== 1 ? 's' : ''}.`
-        }
-      </Typography>
-
+            }
+          </Typography>
+          
       {/* Feature Benefits List */}
       {needed > 0 && (
         <Box sx={{ mb: 3, textAlign: 'center' }}>
@@ -413,26 +402,48 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
             : 'linear-gradient(135deg, #007AFF 0%, #0056CC 100%)',
           color: 'white',
           fontWeight: 700,
-          fontSize: '0.9rem',
+          fontSize: '0.95rem',
           fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
           textTransform: 'none',
-          borderRadius: '12px',
-          padding: '12px 24px',
+          borderRadius: '14px',
+          padding: '14px 28px',
+          minHeight: '48px', // Ensure minimum touch target
+          minWidth: '200px', // Ensure adequate button width
+          position: 'relative',
+          zIndex: 20, // Higher z-index to ensure it's above everything
           boxShadow: darkMode
-            ? '0 8px 24px rgba(187, 134, 252, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-            : '0 8px 24px rgba(0, 122, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+            ? '0 12px 32px rgba(187, 134, 252, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25)'
+            : '0 12px 32px rgba(0, 122, 255, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+          border: darkMode 
+            ? '1px solid rgba(255, 255, 255, 0.2)'
+            : '1px solid rgba(255, 255, 255, 0.3)',
           transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           '&:hover': {
-            transform: 'translateY(-2px) scale(1.02)',
+            transform: 'translateY(-3px) scale(1.03)',
             boxShadow: darkMode
-              ? '0 12px 32px rgba(187, 134, 252, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-              : '0 12px 32px rgba(0, 122, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+              ? '0 16px 40px rgba(187, 134, 252, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+              : '0 16px 40px rgba(0, 122, 255, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
             background: darkMode 
               ? 'linear-gradient(135deg, #C89FFF 0%, #A855DD 100%)'
               : 'linear-gradient(135deg, #1A8FFF 0%, #0A66DD 100%)',
+            border: darkMode 
+              ? '1px solid rgba(255, 255, 255, 0.3)'
+              : '1px solid rgba(255, 255, 255, 0.4)',
           },
           '&:active': {
-            transform: 'translateY(0px) scale(0.98)',
+            transform: 'translateY(-1px) scale(0.99)',
+          },
+          // Ensure the button area is clearly defined
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '-4px',
+            left: '-4px',
+            right: '-4px',
+            bottom: '-4px',
+            background: 'transparent',
+            borderRadius: '18px',
+            zIndex: -1,
           }
         }}
       >
@@ -901,7 +912,7 @@ const TimetableGrid = ({
                   >
                     {!hasUnlockedFeatures ? (
                       // Only render the overlay in the middle column every 5 rows, but span across all 3
-                      index % 5 === 2 && (
+                      index % 8 === 2 && (
                         <AppleInspiredLockOverlay 
                           darkMode={darkMode}
                           currentTerm={currentTerm}
@@ -1112,7 +1123,7 @@ const TimetableGrid = ({
                         }}>
                           <Tooltip title="Add to Google Calendar" arrow placement="top">
                             <span>
-                              <GoogleCalendarButton 
+                            <GoogleCalendarButton 
                                 darkMode={darkMode} 
                                 onClick={() => handleAddToCalendar(course)}
                                 sx={{
@@ -1124,11 +1135,11 @@ const TimetableGrid = ({
                                     transform: 'scale(1.1) translateY(-1px)',
                                   }
                                 }}
-                              >
+                            >
                                 <div className="icon">
-                                  <GoogleIcon />
+                                <GoogleIcon />
                                 </div>
-                              </GoogleCalendarButton>
+                            </GoogleCalendarButton>
                             </span>
                           </Tooltip>
                           
