@@ -1,5 +1,5 @@
 // src/pages/timetablepages/TimetableGrid.jsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
   Paper, IconButton, Box, Tooltip, Typography, Button, Chip
@@ -196,10 +196,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         zIndex: 10,
         cursor: 'default',
         pointerEvents: 'auto', // Ensure this captures all mouse events
-        transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        '&:hover': {
-          transform: 'translateY(-2px)',
-        },
+        willChange: 'transform', // Optimize for animations
       }}
     >
       {/* Content Container with Background */}
@@ -226,7 +223,8 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          willChange: 'transform, box-shadow', // Optimize for animations
+          transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease',
           '&:hover': {
             boxShadow: darkMode
               ? '0 25px 70px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
@@ -581,6 +579,25 @@ const TimetableGrid = ({
   // Check if user has enough reviews to unlock features
   const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm);
 
+  // Memoize the base cell styles to prevent recalculation
+  const lockedCellStyles = useMemo(() => ({
+    pointerEvents: 'none',
+    '&:hover': {},
+    borderLeft: 'none',
+    borderRight: 'none', 
+    borderTop: 'none',
+    borderBottom: 'none',
+  }), []);
+
+  const unlockedCellStyles = useMemo(() => ({
+    pointerEvents: 'auto',
+    '&:hover': {
+      backgroundColor: darkMode 
+        ? 'rgba(255, 255, 255, 0.03)' 
+        : 'rgba(0, 0, 0, 0.02)',
+    },
+  }), [darkMode]);
+
   return (
     <>
       <TableContainer
@@ -705,13 +722,7 @@ const TimetableGrid = ({
                         backgroundColor: darkMode 
                           ? 'rgba(255, 255, 255, 0.05)' 
                           : 'rgba(0, 0, 0, 0.03)',
-                      },
-                      // Don't apply hover effects to locked premium columns
-                      ...(hasUnlockedFeatures ? {} : {
-                        '& .course-row-content:nth-of-type(5), & .course-row-content:nth-of-type(6), & .course-row-content:nth-of-type(7)': {
-                          backgroundColor: 'transparent',
-                        }
-                      })
+                      }
                     },
                     '&::after': {
                       content: '""',
@@ -944,20 +955,7 @@ const TimetableGrid = ({
                       position: 'relative',
                       width: '12%',
                       border: 'none',
-                      // Disable interactions when locked
-                      pointerEvents: !hasUnlockedFeatures ? 'none' : 'auto',
-                      // Remove hover effects when locked
-                      '&:hover': !hasUnlockedFeatures ? {} : {
-                        backgroundColor: darkMode 
-                          ? 'rgba(255, 255, 255, 0.03)' 
-                          : 'rgba(0, 0, 0, 0.02)',
-                      },
-                      ...(!hasUnlockedFeatures && {
-                        borderLeft: 'none',
-                        borderRight: 'none',
-                        borderTop: 'none',
-                        borderBottom: 'none',
-                      })
+                      ...(hasUnlockedFeatures ? unlockedCellStyles : lockedCellStyles)
                     }}
                     className={hasUnlockedFeatures ? "course-row-content" : ""}
                   >
@@ -1066,20 +1064,7 @@ const TimetableGrid = ({
                       position: 'relative',
                       width: '12%',
                       border: 'none',
-                      // Disable interactions when locked
-                      pointerEvents: !hasUnlockedFeatures ? 'none' : 'auto',
-                      // Remove hover effects when locked
-                      '&:hover': !hasUnlockedFeatures ? {} : {
-                        backgroundColor: darkMode 
-                          ? 'rgba(255, 255, 255, 0.03)' 
-                          : 'rgba(0, 0, 0, 0.02)',
-                      },
-                      ...(!hasUnlockedFeatures && {
-                        borderLeft: 'none',
-                        borderRight: 'none',
-                        borderTop: 'none',
-                        borderBottom: 'none',
-                      }),
+                      ...(hasUnlockedFeatures ? unlockedCellStyles : lockedCellStyles),
                       '& > *': {
                         display: 'flex',
                         justifyContent: 'center',
@@ -1160,20 +1145,7 @@ const TimetableGrid = ({
                       width: '12%',
                       position: 'relative',
                       border: 'none',
-                      // Disable interactions when locked
-                      pointerEvents: !hasUnlockedFeatures ? 'none' : 'auto',
-                      // Remove hover effects when locked
-                      '&:hover': !hasUnlockedFeatures ? {} : {
-                        backgroundColor: darkMode 
-                          ? 'rgba(255, 255, 255, 0.03)' 
-                          : 'rgba(0, 0, 0, 0.02)',
-                      },
-                      ...(!hasUnlockedFeatures && {
-                        borderLeft: 'none',
-                        borderRight: 'none',
-                        borderTop: 'none',
-                        borderBottom: 'none',
-                      })
+                      ...(hasUnlockedFeatures ? unlockedCellStyles : lockedCellStyles)
                     }}
                     className={hasUnlockedFeatures ? "course-row-content" : ""}
                   >
