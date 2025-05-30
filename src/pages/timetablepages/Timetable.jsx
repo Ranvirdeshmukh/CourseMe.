@@ -49,6 +49,7 @@ const Timetable = ({ darkMode }) => {
   const [openPopupMessage, setOpenPopupMessage] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', type: 'info' });
   const [termType, setTermType] = useState('fall'); // Default to 'fall'
+  const [isRefreshingEnrollments, setIsRefreshingEnrollments] = useState(false);
   
   // User data state
   const [userReviews, setUserReviews] = useState([]);
@@ -204,6 +205,61 @@ const Timetable = ({ darkMode }) => {
       }
     };
   }, [currentUser, location.pathname]);
+
+
+const handleForceRefreshEnrollments = async () => {
+  if (isRefreshingEnrollments) return;
+  
+  // Don't allow refresh for summer courses
+  if (termType === 'summer') {
+    setPopupMessage({
+      message: "Enrollment data refresh is not available for summer courses",
+      type: 'info',
+    });
+    setOpenPopupMessage(true);
+    return;
+  }
+  
+  setIsRefreshingEnrollments(true);
+  
+  try {
+    // Show immediate feedback
+    setPopupMessage({
+      message: "Refreshing enrollment data...",
+      type: 'info',
+    });
+    setOpenPopupMessage(true);
+    
+    // Call your course service to refresh enrollment data
+    const result = await CourseService.refreshEnrollmentData(db, termType);
+    
+    if (result.success) {
+      // Update the courses with new enrollment data
+      setCourses(result.courses);
+      
+      setPopupMessage({
+        message: result.message || "Enrollment data refreshed successfully!",
+        type: 'success',
+      });
+    } else {
+      setPopupMessage({
+        message: result.message || "Failed to refresh enrollment data",
+        type: 'error',
+      });
+    }
+    setOpenPopupMessage(true);
+    
+  } catch (error) {
+    console.error('Error refreshing enrollment data:', error);
+    setPopupMessage({
+      message: "Error refreshing enrollment data. Please try again.",
+      type: 'error',
+    });
+    setOpenPopupMessage(true);
+  } finally {
+    setIsRefreshingEnrollments(false);
+  }
+};
   
   // Handlers
   const handleSearch = (event) => {
@@ -587,28 +643,33 @@ const Timetable = ({ darkMode }) => {
 
             {/* Selected Courses Views */}
             {viewMode === 'table' && (
-              <TimetableGrid 
-                courses={selectedCourses}
-                darkMode={darkMode}
-                handleCourseClick={handleCourseClick}
-                handleAddCourse={handleAddCourse}
-                handleRemoveCourse={handleRemoveCourse}
-                handleNotifyDrop={handleNotifyDrop}
-                handleAddToCalendar={handleAddToCalendar}
-                handleAddToAppleCalendar={handleAddToAppleCalendar}
-                selectedCourses={selectedCourses}
-                isFallAddDropClosed={false}
-                isPriorityEligible={isPriorityEligible}
-                notificationPriority={notificationPriority}
-                toggleNotificationPriority={toggleNotificationPriority}
-                enrollmentDataReady={enrollmentDataReady}
-                isMobile={isMobile}
-                userReviews={userReviews}
-                userGradeSubmissions={userGradeSubmissions}
-                currentTerm="25S"
-                onAddReview={handleAddReview}
-              />
-            )}
+  <TimetableGrid 
+    courses={selectedCourses}
+    darkMode={darkMode}
+    handleCourseClick={handleCourseClick}
+    handleAddCourse={handleAddCourse}
+    handleRemoveCourse={handleRemoveCourse}
+    handleNotifyDrop={handleNotifyDrop}
+    handleAddToCalendar={handleAddToCalendar}
+    handleAddToAppleCalendar={handleAddToAppleCalendar}
+    selectedCourses={selectedCourses}
+    isFallAddDropClosed={false}
+    isPriorityEligible={false}
+    notificationPriority={notificationPriority}
+    toggleNotificationPriority={toggleNotificationPriority}
+    enrollmentDataReady={enrollmentDataReady}
+    isMobile={isMobile}
+    userReviews={userReviews}
+    userGradeSubmissions={userGradeSubmissions}
+    currentTerm="25S"
+    onAddReview={handleAddReview}
+    // Add these new props
+    onRefreshEnrollments={handleForceRefreshEnrollments}
+    isRefreshingEnrollments={isRefreshingEnrollments}
+    showRefreshButton={true}
+    termType={termType} // Pass the current term type
+  />
+)}
             
             {viewMode === 'calendar' && (
               <Box id="schedule-to-print">
@@ -677,26 +738,31 @@ const Timetable = ({ darkMode }) => {
         ) : filteredCourses.length > 0 ? (
           <>
             <TimetableGrid 
-              courses={paginatedCourses}
-              darkMode={darkMode}
-              handleCourseClick={handleCourseClick}
-              handleAddCourse={handleAddCourse}
-              handleRemoveCourse={handleRemoveCourse}
-              handleNotifyDrop={handleNotifyDrop}
-              handleAddToCalendar={handleAddToCalendar}
-              handleAddToAppleCalendar={handleAddToAppleCalendar}
-              selectedCourses={selectedCourses}
-              isFallAddDropClosed={false}
-              isPriorityEligible={isPriorityEligible}
-              notificationPriority={notificationPriority}
-              toggleNotificationPriority={toggleNotificationPriority}
-              enrollmentDataReady={enrollmentDataReady}
-              isMobile={isMobile}
-              userReviews={userReviews}
-              userGradeSubmissions={userGradeSubmissions}
-              currentTerm="25S"
-              onAddReview={handleAddReview}
-            />
+  courses={paginatedCourses}
+  darkMode={darkMode}
+  handleCourseClick={handleCourseClick}
+  handleAddCourse={handleAddCourse}
+  handleRemoveCourse={handleRemoveCourse}
+  handleNotifyDrop={handleNotifyDrop}
+  handleAddToCalendar={handleAddToCalendar}
+  handleAddToAppleCalendar={handleAddToAppleCalendar}
+  selectedCourses={selectedCourses}
+  isFallAddDropClosed={false}
+  isPriorityEligible={isPriorityEligible}
+  notificationPriority={notificationPriority}
+  toggleNotificationPriority={toggleNotificationPriority}
+  enrollmentDataReady={enrollmentDataReady}
+  isMobile={isMobile}
+  userReviews={userReviews}
+  userGradeSubmissions={userGradeSubmissions}
+  currentTerm="25S"
+  onAddReview={handleAddReview}
+  // Add these new props
+  onRefreshEnrollments={handleForceRefreshEnrollments}
+  isRefreshingEnrollments={isRefreshingEnrollments}
+  showRefreshButton={true}
+  termType={termType} // Pass the current term type
+/>
 
             <PaginationControls
               currentPage={currentPage}

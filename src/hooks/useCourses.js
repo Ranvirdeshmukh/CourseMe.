@@ -5,6 +5,63 @@ import CourseService from '../services/courseService';
 import EnrollmentService from '../services/enrollmentService';
 import { useAuth } from '../contexts/AuthContext';
 
+// Helper function to parse course numbers for proper numerical sorting
+const parseCourseNumber = (courseNum) => {
+  if (!courseNum) return { numeric: 0, suffix: '' };
+  
+  // Handle course numbers like "10", "10A", "101.5", "10.01", etc.
+  const match = courseNum.toString().match(/^(\d+(?:\.\d+)?)\s*([A-Z]*)/i);
+  
+  if (match) {
+    const numeric = parseFloat(match[1]);
+    const suffix = match[2] || '';
+    return { numeric, suffix };
+  }
+  
+  // Fallback for non-standard formats
+  return { numeric: 0, suffix: courseNum.toString() };
+};
+
+// Filter out courses with missing essential data
+const filterValidCourses = (courses) => {
+  return courses.filter(course => 
+    course.subj && 
+    course.subj.trim() !== '' && 
+    course.num && 
+    course.num.toString().trim() !== ''
+  );
+};
+
+// Enhanced sorting function for courses
+const sortCourses = (courses) => {
+  // First filter out invalid courses, then sort
+  const validCourses = filterValidCourses(courses);
+  
+  return validCourses.sort((a, b) => {
+    // First sort by subject (department)
+    const subjComparison = a.subj.localeCompare(b.subj);
+    if (subjComparison !== 0) return subjComparison;
+    
+    // Then sort by course number (numeric)
+    const aParsed = parseCourseNumber(a.num);
+    const bParsed = parseCourseNumber(b.num);
+    
+    // Compare numeric parts first
+    if (aParsed.numeric !== bParsed.numeric) {
+      return aParsed.numeric - bParsed.numeric;
+    }
+    
+    // If numeric parts are equal, compare suffix (A, B, etc.)
+    const suffixComparison = aParsed.suffix.localeCompare(bParsed.suffix);
+    if (suffixComparison !== 0) return suffixComparison;
+    
+    // Finally sort by section
+    const aSec = parseInt(a.sec) || 0;
+    const bSec = parseInt(b.sec) || 0;
+    return aSec - bSec;
+  });
+};
+
 const useCourses = (termType = 'summer') => {
   // State
   const [courses, setCourses] = useState([]);
@@ -52,16 +109,19 @@ const useCourses = (termType = 'summer') => {
       // Enhance with enrollment data
       const enhancedCourses = await EnrollmentService.enhanceCourseDataWithEnrollment(coursesData);
       
-      // Extract subjects
-      const extractedSubjects = CourseService.extractSubjects(enhancedCourses);
+      // Sort the courses before setting them
+      const sortedCourses = sortCourses(enhancedCourses);
       
-      setCourses(enhancedCourses);
-      setFilteredCourses(enhancedCourses);
-      setSubjects(extractedSubjects);
+      // Extract subjects
+      const extractedSubjects = CourseService.extractSubjects(sortedCourses);
+      
+      setCourses(sortedCourses);
+      setFilteredCourses(sortedCourses);
+      setSubjects(extractedSubjects.sort()); // Sort subjects alphabetically too
       setEnrollmentDataReady(true);
       setLoading(false);
       
-      return enhancedCourses;
+      return sortedCourses;
     } catch (error) {
       console.error('Error in fetchCourses:', error);
       setError(error);
@@ -87,7 +147,9 @@ const useCourses = (termType = 'summer') => {
         const fieldName = termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken';
         const termCourses = userData[fieldName] || [];
         
-        setSelectedCourses(termCourses);
+        // Sort user's selected courses too
+        const sortedSelectedCourses = sortCourses(termCourses);
+        setSelectedCourses(sortedSelectedCourses);
       } else {
         // Create user document with empty courses array
         const initialData = {};
@@ -119,7 +181,9 @@ const useCourses = (termType = 'summer') => {
       filtered = filtered.filter((course) => course.subj === selectedSubject);
     }
 
-    setFilteredCourses(filtered);
+    // Sort the filtered courses
+    const sortedFiltered = sortCourses(filtered);
+    setFilteredCourses(sortedFiltered);
   }, [courses, searchTerm, selectedSubject]);
 
   // Initial fetch of courses
@@ -153,7 +217,10 @@ const useCourses = (termType = 'summer') => {
     const result = await CourseService.addCourseToTimetable(db, currentUser, course, termType);
     
     if (result.success) {
-      setSelectedCourses(prev => [...prev, result.course]);
+      // Sort the updated selected courses
+      const updatedCourses = [...selectedCourses, result.course];
+      const sortedSelectedCourses = sortCourses(updatedCourses);
+      setSelectedCourses(sortedSelectedCourses);
     }
     
     return result;
@@ -162,17 +229,51 @@ const useCourses = (termType = 'summer') => {
   // Remove a course from the user's timetable
   const removeCourse = useCallback(async (course) => {
     // Remove from UI immediately for better UX
-    setSelectedCourses(prev => prev.filter(c => c.id !== course.id));
+    // Use a more robust comparison since courses might not have consistent ID fields
+    const updatedCourses = selectedCourses.filter(c => 
+      !(c.subj === course.subj && 
+        c.num === course.num && 
+        c.sec === course.sec)
+    );
+    const sortedSelectedCourses = sortCourses(updatedCourses);
+    setSelectedCourses(sortedSelectedCourses);
     
     const result = await CourseService.removeCourseFromTimetable(db, currentUser, course, termType);
     
     if (!result.success) {
-      // Add it back if there was an error
-      setSelectedCourses(prev => [...prev, course]);
+      // Add it back if there was an error (and re-sort)
+      const restoredCourses = [...selectedCourses, course];
+      const sortedRestoredCourses = sortCourses(restoredCourses);
+      setSelectedCourses(sortedRestoredCourses);
     }
     
     return result;
-  }, [currentUser, db, termType]);
+  }, [currentUser, db, selectedCourses, termType]);
+
+  // Custom setCourses that maintains sorting
+  const setSortedCourses = useCallback((newCourses) => {
+    if (Array.isArray(newCourses)) {
+      const sorted = sortCourses(newCourses);
+      setCourses(sorted);
+      // If no filters are applied, update filtered courses too
+      if (!searchTerm && !selectedSubject) {
+        setFilteredCourses(sorted);
+      } else {
+        // Re-apply filters to the new sorted courses
+        applyFilters();
+      }
+    } else if (typeof newCourses === 'function') {
+      setCourses(prevCourses => {
+        const updated = newCourses(prevCourses);
+        const sorted = sortCourses(updated);
+        // If no filters are applied, update filtered courses too
+        if (!searchTerm && !selectedSubject) {
+          setFilteredCourses(sorted);
+        }
+        return sorted;
+      });
+    }
+  }, [searchTerm, selectedSubject, applyFilters]);
 
   return {
     courses,
@@ -190,7 +291,7 @@ const useCourses = (termType = 'summer') => {
     addCourse,
     removeCourse,
     enrollmentDataReady,
-    setCourses
+    setCourses: setSortedCourses // Use the sorting version
   };
 };
 

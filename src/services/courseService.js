@@ -2,8 +2,9 @@
 import { collection, doc, getDoc, getDocs, query, updateDoc, where, setDoc } from 'firebase/firestore';
 import localforage from 'localforage';
 import { periodCodeToTiming } from '../pages/timetablepages/googleCalendarLogic';
+import { fetchEnrollmentData, enhanceCourseDataWithEnrollment } from './enrollmentDataService';
 
-const CACHE_VERSION = 'summerV6';
+const CACHE_VERSION = 'summerV8';
 const CACHE_TTL = 5184000000; // 60 days in milliseconds
 
 export const fetchCourseData = async (db, dept, course) => {
@@ -54,8 +55,7 @@ export const normalizeCourseNumber = (number) => {
   if (number.includes('.')) {
     const [integerPart, decimalPart] = number.split('.');
     return `${integerPart.padStart(3, '0')}.${decimalPart}`;
-  // src/services/courseService.js (continued)
-} else {
+  } else {
     return number.padStart(3, '0');
   }
 };
@@ -122,21 +122,121 @@ export const fetchFirestoreCourses = async (db, termType = 'summer') => {
       };
     });
 
+    // Enhance with enrollment data only for winter/fall terms (not summer)
+    let enhancedCourses = coursesData;
+    if (termType !== 'summer') {
+      try {
+        enhancedCourses = await enhanceCourseDataWithEnrollment(coursesData);
+        console.log(`Enhanced ${termType} courses with enrollment data`);
+      } catch (error) {
+        console.warn(`Failed to enhance ${termType} courses with enrollment data:`, error);
+        // Continue with basic courses data if enrollment enhancement fails
+      }
+    }
+
     // Store the new data in cache
     await Promise.all([
-      localforage.setItem(cacheKey, coursesData),
+      localforage.setItem(cacheKey, enhancedCourses),
       localforage.setItem(cacheTimestampKey, now),
       localforage.setItem(cacheVersionKey, CACHE_VERSION)
     ]);
 
     console.log(`New ${termType} data cached`);
     return {
-      courses: coursesData,
+      courses: enhancedCourses,
       fromCache: false
     };
   } catch (error) {
     console.error(`Error fetching ${termType} Firestore courses:`, error);
     throw error;
+  }
+};
+
+export const refreshEnrollmentData = async (db, termType = 'summer') => {
+  try {
+    // Summer doesn't have enrollment data, so return early
+    if (termType === 'summer') {
+      return {
+        success: false,
+        message: 'Enrollment data refresh is not available for summer courses',
+        courses: []
+      };
+    }
+
+    console.log(`Force refreshing enrollment data for ${termType}`);
+    
+    // Clear enrollment data cache to force fresh fetch
+    await localforage.removeItem('enrollmentData');
+    await localforage.removeItem('enrollmentDataTimestamp');
+    
+    // Clear course cache to force re-enhancement with fresh enrollment data
+    const cacheKey = `cachedCourses_${termType}`;
+    const cacheTimestampKey = `cacheTimestamp_${termType}`;
+    const cacheVersionKey = `cacheVersion_${termType}`;
+    
+    await Promise.all([
+      localforage.removeItem(cacheKey),
+      localforage.removeItem(cacheTimestampKey),
+      localforage.removeItem(cacheVersionKey)
+    ]);
+
+    // Fetch fresh course data from Firestore
+    const collectionName = termType === 'summer' ? 'summerTimetable' : 'fallTimetable2';
+    console.log(`Fetching fresh data from ${collectionName} collection`);
+    
+    const coursesSnapshot = await getDocs(collection(db, collectionName));
+    const coursesData = coursesSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      const periodCode = data['Period Code'];
+
+      // Use the period code to get the timing information
+      const timing = periodCodeToTiming[periodCode] || 'Unknown Timing';
+
+      return {
+        documentName: doc.id,
+        subj: data.Subj,
+        num: data.Num,
+        sec: data.Section,
+        title: data.Title,
+        period: periodCode,
+        timing: timing,
+        room: data.Room,
+        building: data.Building,
+        instructor: data.Instructor,
+        isNotified: false
+      };
+    });
+
+    // Force fresh enrollment data fetch by calling the enrollment service
+    console.log('Forcing fresh enrollment data fetch...');
+    const freshEnrollmentData = await fetchEnrollmentData();
+    
+    // Enhance courses with fresh enrollment data
+    const enhancedCourses = await enhanceCourseDataWithEnrollment(coursesData);
+
+    // Store the refreshed data in cache
+    const now = Date.now();
+    await Promise.all([
+      localforage.setItem(cacheKey, enhancedCourses),
+      localforage.setItem(cacheTimestampKey, now),
+      localforage.setItem(cacheVersionKey, CACHE_VERSION)
+    ]);
+
+    console.log(`Refreshed ${termType} enrollment data cached`);
+    
+    return {
+      success: true,
+      courses: enhancedCourses,
+      message: `Successfully refreshed enrollment data for ${enhancedCourses.length} courses`
+    };
+
+  } catch (error) {
+    console.error('Error refreshing enrollment data:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to refresh enrollment data',
+      courses: []
+    };
   }
 };
 
@@ -234,15 +334,6 @@ export const removeCourseFromTimetable = async (db, currentUser, course, termTyp
     };
   }
 
-  // Check if we have the course ID (needed for deletion)
-  if (!course.id) {
-    console.error('Course ID not found, cannot remove from database', course);
-    return {
-      success: false,
-      message: `Error removing ${course.subj} ${course.num}: Course ID not found.`
-    };
-  }
-
   try {
     // Get reference to user document
     const userDocRef = doc(db, 'users', currentUser.uid);
@@ -256,8 +347,26 @@ export const removeCourseFromTimetable = async (db, currentUser, course, termTyp
       const fieldName = termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken';
       const currentCourses = userData[fieldName] || [];
       
-      // Filter out the course to remove
-      const updatedCourses = currentCourses.filter(c => c.id !== course.id);
+      // Filter out the course to remove using multiple possible identifiers
+      const updatedCourses = currentCourses.filter(c => {
+        // If both courses have IDs, use ID comparison
+        if (c.id && course.id) {
+          return c.id !== course.id;
+        }
+        
+        // Otherwise, use subject, number, and section combination
+        return !(c.subj === course.subj && 
+                c.num === course.num && 
+                c.sec === course.sec);
+      });
+      
+      // Check if any course was actually removed
+      if (updatedCourses.length === currentCourses.length) {
+        return {
+          success: false,
+          message: `${course.subj} ${course.num} was not found in your timetable.`
+        };
+      }
       
       // Update the document with the filtered array
       const updateData = {};
@@ -288,6 +397,7 @@ export default {
   fetchCourseData,
   normalizeCourseNumber,
   fetchFirestoreCourses,
+  refreshEnrollmentData,
   extractSubjects,
   addCourseToTimetable,
   removeCourseFromTimetable
