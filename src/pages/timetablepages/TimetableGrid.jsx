@@ -2,11 +2,15 @@
 import React from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-  Paper, IconButton, Box, Tooltip, Typography
+  Paper, IconButton, Box, Tooltip, Typography, Button, Chip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import LockIcon from '@mui/icons-material/Lock';
+import StarIcon from '@mui/icons-material/Star';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { useNavigate } from 'react-router-dom';
 import { ProfessorCell } from '../ProfessorCell';
 import NotificationButton from './NotificationButton';
 import { 
@@ -163,82 +167,294 @@ const formatLocation = (room, building) => {
   return 'Location not yet available';
 };
 
-// Frosted overlay component for locked features
-const FrostedOverlay = ({ darkMode, onAddReview, currentTerm, userReviews = [], userGradeSubmissions = [], showMessage = false }) => {
+// Apple-Inspired Lock Overlay Component
+const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], userGradeSubmissions = [] }) => {
+  const navigate = useNavigate();
   const requiredTerms = getPreviousTerms(currentTerm);
-  const reviewCount = userReviews.filter(review => 
-    requiredTerms.includes(review.term)
-  ).length;
-  const gradeCount = userGradeSubmissions.filter(submission => 
-    requiredTerms.includes(submission.Term)
-  ).length;
+  const { reviewCount, gradeCount } = getContributionCounts(userReviews, userGradeSubmissions, currentTerm);
   const totalContributions = reviewCount + gradeCount;
   const needed = Math.max(0, 3 - totalContributions);
+
+  const handleNavigateToReviews = () => {
+    navigate('/courses'); // Navigate to AllClassesPage
+  };
 
   return (
     <Box
       sx={{
         position: 'absolute',
-        top: 0,
+        top: '8px',
         left: 0,
-        right: 0,
-        bottom: 0,
+        right: '-200%',
+        bottom: '8px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: darkMode 
-          ? 'rgba(28, 31, 67, 0.85)' 
-          : 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(12px)',
-        borderRadius: '8px',
-        padding: '16px',
+        background: darkMode 
+          ? 'linear-gradient(135deg, rgba(45, 55, 89, 0.98) 0%, rgba(28, 31, 67, 0.98) 100%)' 
+          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+        backdropFilter: 'blur(25px)',
+        WebkitBackdropFilter: 'blur(25px)',
+        borderRadius: '20px',
+        padding: '28px 24px',
         zIndex: 10,
         cursor: 'default',
+        boxShadow: darkMode
+          ? '0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          : '0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+        transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: darkMode
+            ? '0 25px 70px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
+            : '0 25px 70px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.95)',
+        }
       }}
     >
-      {showMessage && (
-        <>
-          <LockIcon 
+      {/* Decorative Elements */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '-10px',
+          right: '-10px',
+          width: '60px',
+          height: '60px',
+          background: darkMode 
+            ? 'linear-gradient(45deg, #BB86FC 0%, #9C4DCC 100%)' 
+            : 'linear-gradient(45deg, #007AFF 0%, #0056CC 100%)',
+          borderRadius: '50%',
+          opacity: 0.1,
+          animation: 'float 3s ease-in-out infinite',
+          '@keyframes float': {
+            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+            '50%': { transform: 'translateY(-10px) rotate(180deg)' }
+          }
+        }}
+      />
+      
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: '-5px',
+          left: '-5px',
+          width: '40px',
+          height: '40px',
+          background: darkMode 
+            ? 'linear-gradient(45deg, #BB86FC 0%, #9C4DCC 100%)' 
+            : 'linear-gradient(45deg, #007AFF 0%, #0056CC 100%)',
+          borderRadius: '30%',
+          opacity: 0.08,
+          animation: 'float 4s ease-in-out infinite reverse',
+        }}
+      />
+
+      {/* Premium Icon with Glow */}
+      <Box
+        sx={{
+          position: 'relative',
+          mb: 3,
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '80px',
+            height: '80px',
+            background: darkMode 
+              ? 'radial-gradient(circle, rgba(187, 134, 252, 0.2) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(0, 122, 255, 0.15) 0%, transparent 70%)',
+            borderRadius: '50%',
+            zIndex: -1,
+          }
+        }}
+      >
+        <Box
+          sx={{
+            position: 'relative',
+            background: darkMode 
+              ? 'linear-gradient(135deg, rgba(187, 134, 252, 0.15) 0%, rgba(156, 77, 204, 0.15) 100%)'
+              : 'linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 86, 204, 0.1) 100%)',
+            borderRadius: '20px',
+            padding: '16px',
+            border: darkMode 
+              ? '1px solid rgba(187, 134, 252, 0.2)'
+              : '1px solid rgba(0, 122, 255, 0.15)',
+          }}
+        >
+          <StarIcon 
             sx={{ 
-              fontSize: '2rem', 
-              color: darkMode ? '#BB86FC' : '#571ce0',
-              mb: 1,
-              opacity: 0.8
+              fontSize: '2.5rem', 
+              color: darkMode ? '#BB86FC' : '#007AFF',
+              filter: 'drop-shadow(0 0 8px rgba(187, 134, 252, 0.3))',
             }} 
           />
-          
-          <Typography
-            sx={{
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              color: darkMode ? '#FFFFFF' : '#1D1D1F',
-              textAlign: 'center',
-              mb: 1,
-              lineHeight: 1.4,
-            }}
-          >
-            Unlock with Course Reviews
-          </Typography>
-          
-          <Typography
-            sx={{
-              fontSize: '0.8rem',
-              color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
-              textAlign: 'center',
-              mb: 2,
-              lineHeight: 1.3,
-              maxWidth: '200px',
-            }}
-          >
-            {needed > 0 
-              ? `Need ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock`
-              : `You have ${totalContributions} contributions from ${requiredTerms.join(' and ')}`
+        </Box>
+      </Box>
+      
+      {/* Main Heading */}
+      <Typography
+        sx={{
+          fontSize: '1.25rem',
+          fontWeight: 800,
+          background: darkMode 
+            ? 'linear-gradient(135deg, #FFFFFF 0%, #BB86FC 100%)'
+            : 'linear-gradient(135deg, #1D1D1F 0%, #007AFF 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          textAlign: 'center',
+          mb: 1,
+          lineHeight: 1.3,
+          letterSpacing: '-0.02em',
+          fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+        }}
+      >
+        Unlock Premium Features
+      </Typography>
+
+      {/* Status Chips */}
+      <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <Chip
+          icon={<RateReviewIcon sx={{ fontSize: '16px !important' }} />}
+          label={`${reviewCount} Review${reviewCount !== 1 ? 's' : ''}`}
+          size="small"
+          sx={{
+            backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
+            color: darkMode ? '#BB86FC' : '#007AFF',
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            '& .MuiChip-icon': {
+              color: darkMode ? '#BB86FC' : '#007AFF',
             }
+          }}
+        />
+        <Chip
+          icon={<StarIcon sx={{ fontSize: '16px !important' }} />}
+          label={`${gradeCount} Grade${gradeCount !== 1 ? 's' : ''}`}
+          size="small"
+          sx={{
+            backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
+            color: darkMode ? '#BB86FC' : '#007AFF',
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            '& .MuiChip-icon': {
+              color: darkMode ? '#BB86FC' : '#007AFF',
+            }
+          }}
+        />
+      </Box>
+      
+      {/* Description */}
+      <Typography
+        sx={{
+          fontSize: '0.9rem',
+          color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+          textAlign: 'center',
+          mb: 3,
+          lineHeight: 1.5,
+          maxWidth: '280px',
+          fontWeight: 500,
+          fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+        }}
+      >
+        {needed > 0 
+          ? `Complete ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock enrollment data, notifications, and calendar features.`
+          : `You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median grade${gradeCount !== 1 ? 's' : ''} from ${requiredTerms.join(' and ')}.`
+        }
+      </Typography>
+
+      {/* Call to Action Button */}
+      <Button
+        onClick={handleNavigateToReviews}
+        endIcon={<ArrowForwardIcon sx={{ fontSize: '18px' }} />}
+        sx={{
+          background: darkMode 
+            ? 'linear-gradient(135deg, #BB86FC 0%, #9C4DCC 100%)'
+            : 'linear-gradient(135deg, #007AFF 0%, #0056CC 100%)',
+          color: 'white',
+          fontWeight: 700,
+          fontSize: '0.9rem',
+          fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+          textTransform: 'none',
+          borderRadius: '12px',
+          padding: '12px 24px',
+          boxShadow: darkMode
+            ? '0 8px 24px rgba(187, 134, 252, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+            : '0 8px 24px rgba(0, 122, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+          transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          '&:hover': {
+            transform: 'translateY(-2px) scale(1.02)',
+            boxShadow: darkMode
+              ? '0 12px 32px rgba(187, 134, 252, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+              : '0 12px 32px rgba(0, 122, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+            background: darkMode 
+              ? 'linear-gradient(135deg, #C89FFF 0%, #A855DD 100%)'
+              : 'linear-gradient(135deg, #1A8FFF 0%, #0A66DD 100%)',
+          },
+          '&:active': {
+            transform: 'translateY(0px) scale(0.98)',
+          }
+        }}
+      >
+        Write Your First Review
+      </Button>
+
+      {/* Progress Indicator */}
+      <Box sx={{ mt: 2, width: '100%', maxWidth: '200px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 1,
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: '0.75rem',
+              color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}
+          >
+            Progress
           </Typography>
-          
-        </>
-      )}
+          <Typography
+            sx={{
+              fontSize: '0.75rem',
+              color: darkMode ? '#BB86FC' : '#007AFF',
+              fontWeight: 700,
+            }}
+          >
+            {totalContributions}/3
+          </Typography>
+        </Box>
+        
+        <Box
+          sx={{
+            height: '6px',
+            backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+            borderRadius: '3px',
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
+          <Box
+            sx={{
+              height: '100%',
+              width: `${Math.min((totalContributions / 3) * 100, 100)}%`,
+              background: darkMode 
+                ? 'linear-gradient(90deg, #BB86FC 0%, #9C4DCC 100%)'
+                : 'linear-gradient(90deg, #007AFF 0%, #0056CC 100%)',
+              borderRadius: '3px',
+              transition: 'width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            }}
+          />
+        </Box>
+      </Box>
     </Box>
   );
 };
@@ -648,80 +864,12 @@ const TimetableGrid = ({
                     {!hasUnlockedFeatures ? (
                       // Only render the overlay in the middle column every 5 rows, but span across all 3
                       index % 5 === 2 && (
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            top: '8px',
-                            left: 0,
-                            right: '-200%',
-                            bottom: '8px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: darkMode 
-                              ? 'rgba(28, 31, 67, 0.95)' 
-                              : 'rgba(255, 255, 255, 0.95)',
-                            backdropFilter: 'blur(20px)',
-                            WebkitBackdropFilter: 'blur(20px)',
-                            borderRadius: '16px',
-                            padding: '20px',
-                            zIndex: 10,
-                            cursor: 'default',
-                            boxShadow: darkMode
-                              ? '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
-                              : '0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)',
-                          }}
-                        >
-                          <LockIcon 
-                            sx={{ 
-                              fontSize: '2.5rem', 
-                              color: darkMode ? '#BB86FC' : '#007AFF',
-                              mb: 2,
-                              opacity: 0.9
-                            }} 
-                          />
-                          
-                          <Typography
-                            sx={{
-                              fontSize: '1rem',
-                              fontWeight: 700,
-                              color: darkMode ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.95)',
-                              textAlign: 'center',
-                              mb: 1,
-                              lineHeight: 1.4,
-                              letterSpacing: '0.3px',
-                            }}
-                          >
-                            Unlock Premium Features
-                          </Typography>
-                          
-                          <Typography
-                            sx={{
-                              fontSize: '0.85rem',
-                              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
-                              textAlign: 'center',
-                              mb: 2,
-                              lineHeight: 1.4,
-                              maxWidth: '240px',
-                              fontWeight: 500,
-                            }}
-                          >
-                            {(() => {
-                              const requiredTerms = getPreviousTerms(currentTerm);
-                              const { reviewCount, gradeCount } = getContributionCounts(userReviews, userGradeSubmissions, currentTerm);
-                              const totalContributions = reviewCount + gradeCount;
-                              const needed = Math.max(0, 3 - totalContributions);
-                              
-                              if (needed > 0) {
-                                return `Complete ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock enrollment data, notifications, and calendar features.`;
-                              } else {
-                                return `You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median grade${gradeCount !== 1 ? 's' : ''} from ${requiredTerms.join(' and ')}.`;
-                              }
-                            })()}
-                          </Typography>
-                          
-                        </Box>
+                        <AppleInspiredLockOverlay 
+                          darkMode={darkMode}
+                          currentTerm={currentTerm}
+                          userReviews={userReviews}
+                          userGradeSubmissions={userGradeSubmissions}
+                        />
                       )
                     ) : enableEnrollmentData ? (
                       // Normal enrollment display when enabled and unlocked
