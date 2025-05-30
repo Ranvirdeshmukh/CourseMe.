@@ -624,7 +624,7 @@ const handleForceRefreshEnrollments = async () => {
             align="left"
             sx={{
               color: darkMode ? '#BB86FC' : '#00693E',
-              fontSize: isMobile ? '1.2rem' : '1.4rem',
+              fontSize: isMobile ? '1.5rem' : '1.8rem',
               fontWeight: 700,
               marginTop: '10px',
               fontFamily: 'SF Pro Display, sans-serif',
