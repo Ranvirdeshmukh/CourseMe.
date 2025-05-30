@@ -1,5 +1,5 @@
 // src/pages/timetablepages/TimetableGrid.jsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
   Paper, IconButton, Box, Tooltip, Typography, Button, Chip
@@ -195,10 +195,8 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         padding: '32px 28px',
         zIndex: 10,
         cursor: 'default',
-        transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        '&:hover': {
-          transform: 'translateY(-2px)',
-        },
+        pointerEvents: 'auto', // Ensure this captures all mouse events
+        willChange: 'transform', // Optimize for animations
       }}
     >
       {/* Content Container with Background */}
@@ -225,7 +223,8 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          willChange: 'transform, box-shadow', // Optimize for animations
+          transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease',
           '&:hover': {
             boxShadow: darkMode
               ? '0 25px 70px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
@@ -579,6 +578,25 @@ const TimetableGrid = ({
   
   // Check if user has enough reviews to unlock features
   const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm);
+
+  // Memoize the base cell styles to prevent recalculation
+  const lockedCellStyles = useMemo(() => ({
+    pointerEvents: 'none',
+    '&:hover': {},
+    borderLeft: 'none',
+    borderRight: 'none', 
+    borderTop: 'none',
+    borderBottom: 'none',
+  }), []);
+
+  const unlockedCellStyles = useMemo(() => ({
+    pointerEvents: 'auto',
+    '&:hover': {
+      backgroundColor: darkMode 
+        ? 'rgba(255, 255, 255, 0.03)' 
+        : 'rgba(0, 0, 0, 0.02)',
+    },
+  }), [darkMode]);
 
   return (
     <>
@@ -937,14 +955,9 @@ const TimetableGrid = ({
                       position: 'relative',
                       width: '12%',
                       border: 'none',
-                      ...(!hasUnlockedFeatures && {
-                        borderLeft: 'none',
-                        borderRight: 'none',
-                        borderTop: 'none',
-                        borderBottom: 'none',
-                      })
+                      ...(hasUnlockedFeatures ? unlockedCellStyles : lockedCellStyles)
                     }}
-                    className="course-row-content"
+                    className={hasUnlockedFeatures ? "course-row-content" : ""}
                   >
                     {!hasUnlockedFeatures ? (
                       // Only render the overlay in the middle column every 5 rows, but span across all 3
@@ -1051,12 +1064,7 @@ const TimetableGrid = ({
                       position: 'relative',
                       width: '12%',
                       border: 'none',
-                      ...(!hasUnlockedFeatures && {
-                        borderLeft: 'none',
-                        borderRight: 'none',
-                        borderTop: 'none',
-                        borderBottom: 'none',
-                      }),
+                      ...(hasUnlockedFeatures ? unlockedCellStyles : lockedCellStyles),
                       '& > *': {
                         display: 'flex',
                         justifyContent: 'center',
@@ -1065,7 +1073,7 @@ const TimetableGrid = ({
                         borderBottom: 'none !important',
                       }
                     }}
-                    className="course-row-content"
+                    className={hasUnlockedFeatures ? "course-row-content" : ""}
                   >
                     {!hasUnlockedFeatures ? (
                       // Empty for locked state - overlay is handled by first column
@@ -1137,14 +1145,9 @@ const TimetableGrid = ({
                       width: '12%',
                       position: 'relative',
                       border: 'none',
-                      ...(!hasUnlockedFeatures && {
-                        borderLeft: 'none',
-                        borderRight: 'none',
-                        borderTop: 'none',
-                        borderBottom: 'none',
-                      })
+                      ...(hasUnlockedFeatures ? unlockedCellStyles : lockedCellStyles)
                     }}
-                    className="course-row-content"
+                    className={hasUnlockedFeatures ? "course-row-content" : ""}
                   >
                     {!hasUnlockedFeatures ? (
                       // Empty for locked state - overlay is handled by first column
