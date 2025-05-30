@@ -8,8 +8,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import LockIcon from '@mui/icons-material/Lock';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import CircularProgress from '@mui/material/CircularProgress';
 import { ProfessorCell } from '../ProfessorCell';
 import NotificationButton from './NotificationButton';
 import { 
@@ -271,10 +269,6 @@ const TimetableGrid = ({
   userReviews = [],
   userGradeSubmissions = [],
   onAddReview = () => {}, // Callback to open review modal/page
-  // Add these new props for enrollment refresh
-  onRefreshEnrollments = () => {},
-  isRefreshingEnrollments = false,
-  showRefreshButton = false,
 }) => {
   
   // Debug logging to see what props are received
@@ -286,60 +280,13 @@ const TimetableGrid = ({
   // Check if user has enough reviews to unlock features
   const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm);
 
-  // Refresh enrollment button component
-  const RefreshEnrollmentButton = () => (
-    <Box sx={{ 
-      display: 'flex', 
-      justifyContent: 'flex-end', 
-      mb: 2,
-      mt: 1 
-    }}>
-      <Button
-        variant="outlined"
-        size="small"
-        startIcon={isRefreshingEnrollments ? (
-          <CircularProgress size={16} sx={{ color: darkMode ? '#BB86FC' : '#571ce0' }} />
-        ) : (
-          <RefreshIcon />
-        )}
-        onClick={onRefreshEnrollments}
-        disabled={isRefreshingEnrollments}
-        sx={{
-          color: darkMode ? '#BB86FC' : '#571ce0',
-          borderColor: darkMode ? '#BB86FC' : '#571ce0',
-          fontSize: '0.8rem',
-          padding: '4px 12px',
-          borderRadius: '6px',
-          textTransform: 'none',
-          fontWeight: 500,
-          '&:hover': {
-            backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.08)' : 'rgba(87, 28, 224, 0.08)',
-            borderColor: darkMode ? '#A374E8' : '#4a18c7',
-          },
-          '&:disabled': {
-            opacity: 0.7,
-            color: darkMode ? 'rgba(187, 134, 252, 0.5)' : 'rgba(87, 28, 224, 0.5)',
-            borderColor: darkMode ? 'rgba(187, 134, 252, 0.3)' : 'rgba(87, 28, 224, 0.3)',
-          }
-        }}
-      >
-        {isRefreshingEnrollments ? 'Refreshing...' : 'Refresh Enrollments'}
-      </Button>
-    </Box>
-  );
-
   return (
     <>
-      {/* Add the refresh button before the table if showRefreshButton is true AND user has unlocked features */}
-      {showRefreshButton && enableEnrollmentData && hasUnlockedFeatures && (
-        <RefreshEnrollmentButton />
-      )}
-      
       <TableContainer
         component={Paper}
         sx={{
           backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
-          marginTop: showRefreshButton ? '0px' : '10px',
+          marginTop: '10px',
           boxShadow: darkMode
             ? '0 6px 16px rgba(255, 255, 255, 0.1)'
             : '0 2px 8px rgba(0, 0, 0, 0.06)',

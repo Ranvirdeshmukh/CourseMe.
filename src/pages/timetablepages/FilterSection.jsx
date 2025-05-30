@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import {
   Box, TextField, FormControl, InputLabel, Select, MenuItem,
-  Button, Typography, InputAdornment, IconButton, ClickAwayListener, Paper
+  Button, Typography, InputAdornment, IconButton, ClickAwayListener, Paper,
+  CircularProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -10,6 +11,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const FilterSection = ({
   darkMode,
@@ -22,7 +24,12 @@ const FilterSection = ({
   setShowSelectedCourses,
   isMobile,
   termType,
-  setTermType
+  setTermType,
+  onRefreshEnrollments,
+  isRefreshingEnrollments,
+  showRefreshButton,
+  hasUnlockedFeatures,
+  enableEnrollmentData
 }) => {
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
 
@@ -158,6 +165,38 @@ const FilterSection = ({
           >
             My Courses
           </Button>
+
+          {/* Refresh Enrollment Button */}
+          {showRefreshButton && enableEnrollmentData && hasUnlockedFeatures && (
+            <Button
+              variant="text"
+              size="small"
+              startIcon={isRefreshingEnrollments ? (
+                <CircularProgress size={16} sx={{ color: darkMode ? '#BB86FC' : '#571ce0' }} />
+              ) : (
+                <RefreshIcon />
+              )}
+              onClick={onRefreshEnrollments}
+              disabled={isRefreshingEnrollments}
+              sx={{
+                color: darkMode ? '#BB86FC' : '#571ce0',
+                fontSize: '0.9rem',
+                fontWeight: 500,
+                textTransform: 'none',
+                borderRadius: '6px',
+                padding: '8px 16px',
+                '&:hover': {
+                  backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.08)' : 'rgba(87, 28, 224, 0.08)',
+                },
+                '&:disabled': {
+                  opacity: 0.7,
+                  color: darkMode ? 'rgba(187, 134, 252, 0.5)' : 'rgba(87, 28, 224, 0.5)',
+                }
+              }}
+            >
+              {isRefreshingEnrollments ? 'Refreshing...' : 'Refresh Enrollments'}
+            </Button>
+          )}
         </Box>
         
         {/* Search Box */}

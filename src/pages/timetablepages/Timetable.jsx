@@ -35,6 +35,73 @@ import FeatureHighlight from './FeatureHighlight';
 import LoadingState from './LoadingState';
 import ScheduleVisualization from './ScheduleVisualization';
 
+// Helper function to get previous terms for review requirement
+const getPreviousTerms = (currentTerm) => {
+  // For current term "25S", we want previous 2 terms: ["25W", "24F"]
+  const termOrder = ['W', 'S', 'X', 'F'];
+  
+  // Parse the current term
+  const year = parseInt(currentTerm.substring(0, 2));
+  const termLetter = currentTerm.substring(2);
+  const currentIndex = termOrder.indexOf(termLetter);
+  
+  if (currentIndex === -1) {
+    console.error('Invalid term letter:', termLetter);
+    return [];
+  }
+  
+  const previousTerms = [];
+  
+  // Get exactly the previous 2 terms
+  for (let i = 1; i <= 2; i++) {
+    let prevIndex = currentIndex - i;
+    let prevYear = year;
+    
+    // Handle year rollover
+    if (prevIndex < 0) {
+      prevIndex = termOrder.length + prevIndex;
+      prevYear = year - 1;
+    }
+    
+    // Format year as 2 digits with leading zero if needed
+    const yearStr = prevYear.toString().padStart(2, '0');
+    const prevTermStr = `${yearStr}${termOrder[prevIndex]}`;
+    previousTerms.push(prevTermStr);
+  }
+  
+  return previousTerms;
+};
+
+// Helper function to check if user has enough reviews
+const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25S') => {
+  const requiredTerms = getPreviousTerms(currentTerm);
+  
+  console.log('hasEnoughReviews check:');
+  console.log('Required terms:', requiredTerms);
+  console.log('Reviews:', reviews);
+  console.log('Grade submissions:', gradeSubmissions);
+  
+  // Count reviews from required terms
+  const reviewCount = reviews.filter(review => 
+    review && review.term && requiredTerms.includes(review.term)
+  ).length;
+  
+  // Count grade submissions from required terms
+  const gradeCount = gradeSubmissions.filter(submission => 
+    submission && submission.Term && requiredTerms.includes(submission.Term)
+  ).length;
+  
+  const totalContributions = reviewCount + gradeCount;
+  const hasEnough = totalContributions >= 3; // Changed from 3 to 1 for testing
+  
+  console.log('Review count:', reviewCount);
+  console.log('Grade count:', gradeCount);
+  console.log('Total contributions:', totalContributions);
+  console.log('Has enough?', hasEnough);
+  
+  return hasEnough;
+};
+
 const Timetable = ({ darkMode }) => {
   // UI State
   const [viewMode, setViewMode] = useState('table');
@@ -86,6 +153,9 @@ const Timetable = ({ darkMode }) => {
     enrollmentDataReady,
     setCourses 
   } = useCourses(termType); // Pass termType to useCourses
+  
+  // Calculate if user has unlocked features
+  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, "25S");
   
   // Pagination
   const classesPerPage = 50;
@@ -663,10 +733,6 @@ const handleForceRefreshEnrollments = async () => {
     userGradeSubmissions={userGradeSubmissions}
     currentTerm="25S"
     onAddReview={handleAddReview}
-    // Add these new props
-    onRefreshEnrollments={handleForceRefreshEnrollments}
-    isRefreshingEnrollments={isRefreshingEnrollments}
-    showRefreshButton={true}
     termType={termType} // Pass the current term type
   />
 )}
@@ -728,6 +794,11 @@ const handleForceRefreshEnrollments = async () => {
           isMobile={isMobile}
           termType={termType}       
           setTermType={setTermType} 
+          hasUnlockedFeatures={hasUnlockedFeatures}
+          onRefreshEnrollments={handleForceRefreshEnrollments}
+          isRefreshingEnrollments={isRefreshingEnrollments}
+          showRefreshButton={true}
+          enableEnrollmentData={true}
         />
 
         {/* Main Course Listing */}
@@ -757,10 +828,6 @@ const handleForceRefreshEnrollments = async () => {
   userGradeSubmissions={userGradeSubmissions}
   currentTerm="25S"
   onAddReview={handleAddReview}
-  // Add these new props
-  onRefreshEnrollments={handleForceRefreshEnrollments}
-  isRefreshingEnrollments={isRefreshingEnrollments}
-  showRefreshButton={true}
   termType={termType} // Pass the current term type
 />
 
