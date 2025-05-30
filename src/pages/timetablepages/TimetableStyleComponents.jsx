@@ -3,99 +3,206 @@ import { styled } from '@mui/material/styles';
 import ButtonBase from '@mui/material/ButtonBase';
 import React from 'react';
 
-// Google Calendar Button - Fixed to prevent darkMode prop from reaching DOM
+// Enhanced Google Calendar Button - More prominent with Apple-inspired design
 export const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.12)' : 'rgba(255, 255, 255, 0.8)',
-  borderRadius: '50%',
-  height: '44px',
-  width: '44px',
+  // Enhanced background with subtle gradient
+  background: darkMode 
+    ? 'linear-gradient(135deg, rgba(66, 133, 244, 0.15) 0%, rgba(66, 133, 244, 0.08) 100%)'
+    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(66, 133, 244, 0.02) 100%)',
+  borderRadius: '50%', // Circular design consistent with other buttons
+  height: '42px',
+  width: '42px',
   padding: 0,
-  color: darkMode ? '#8ab4f8' : '#4285F4',
-  fontFamily: 'Google Sans, Roboto, arial, sans-serif',
+  color: darkMode ? '#8AB4F8' : '#4285F4',
+  fontFamily: 'SF Pro Display, Google Sans, Roboto, arial, sans-serif',
   fontSize: '0.85rem',
-  fontWeight: 500,
+  fontWeight: 600,
+  // Enhanced shadow for depth
   boxShadow: darkMode 
-    ? '0 1px 2px rgba(0, 0, 0, 0.2)'
-    : '0 1px 2px rgba(60, 64, 67, 0.1)',
-  transition: 'all 0.2s ease',
+    ? '0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(66, 133, 244, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+    : '0 3px 12px rgba(66, 133, 244, 0.15), 0 1px 3px rgba(60, 64, 67, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   cursor: 'pointer',
-  border: darkMode ? '1px solid rgba(66, 133, 244, 0.3)' : '1px solid rgba(218, 220, 224, 0.8)',
+  // Refined border
+  border: darkMode 
+    ? '1px solid rgba(66, 133, 244, 0.25)' 
+    : '1px solid rgba(66, 133, 244, 0.1)',
+  backdropFilter: 'blur(20px)',
+  WebkitBackdropFilter: 'blur(20px)',
+  position: 'relative',
+  overflow: 'hidden',
+  
+  // Subtle inner glow effect
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: darkMode
+      ? 'radial-gradient(circle at 50% 0%, rgba(66, 133, 244, 0.1) 0%, transparent 50%)'
+      : 'radial-gradient(circle at 50% 0%, rgba(66, 133, 244, 0.05) 0%, transparent 50%)',
+    borderRadius: '50%',
+    opacity: 0,
+    transition: 'opacity 0.3s ease',
+  },
+  
   '&:hover': {
-    backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.2)' : 'rgba(66, 133, 244, 0.08)',
+    background: darkMode 
+      ? 'linear-gradient(135deg, rgba(66, 133, 244, 0.25) 0%, rgba(66, 133, 244, 0.12) 100%)'
+      : 'linear-gradient(135deg, rgba(66, 133, 244, 0.08) 0%, rgba(66, 133, 244, 0.04) 100%)',
     boxShadow: darkMode 
-      ? '0 2px 4px rgba(0, 0, 0, 0.3)'
-      : '0 1px 3px rgba(60, 64, 67, 0.2)',
-    transform: 'translateY(-1px)',
+      ? '0 6px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(66, 133, 244, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
+      : '0 4px 20px rgba(66, 133, 244, 0.2), 0 2px 6px rgba(60, 64, 67, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+    transform: 'translateY(-2px) scale(1.05)',
+    border: darkMode 
+      ? '1px solid rgba(66, 133, 244, 0.4)' 
+      : '1px solid rgba(66, 133, 244, 0.2)',
+    
+    '&::before': {
+      opacity: 1,
+    },
   },
+  
   '&:active': {
-    backgroundColor: darkMode ? 'rgba(66, 133, 244, 0.3)' : 'rgba(66, 133, 244, 0.12)',
-    transform: 'translateY(0)',
+    transform: 'translateY(-1px) scale(1.02)',
+    boxShadow: darkMode 
+      ? '0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(66, 133, 244, 0.3)'
+      : '0 2px 8px rgba(66, 133, 244, 0.2), 0 1px 3px rgba(60, 64, 67, 0.15)',
   },
+  
   '&:focus': {
     outline: 'none',
     boxShadow: darkMode 
-      ? '0 0 0 2px rgba(138, 180, 248, 0.5)'
-      : '0 0 0 2px rgba(66, 133, 244, 0.3)',
+      ? '0 0 0 3px rgba(138, 180, 248, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15)'
+      : '0 0 0 3px rgba(66, 133, 244, 0.25), 0 3px 12px rgba(66, 133, 244, 0.15)',
   },
+  
   '& .icon': {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+    zIndex: 1,
+    transition: 'transform 0.2s ease',
+  },
+  
+  '&:hover .icon': {
+    transform: 'scale(1.1)',
   },
 }));
 
-// Apple Calendar Button - Fixed to prevent darkMode prop from reaching DOM
+// Enhanced Apple Calendar Button - More prominent with signature Apple design
 export const AppleCalendarButton = styled(ButtonBase, {
   shouldForwardProp: (prop) => prop !== 'darkMode',
 })(({ theme, darkMode }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.03)',
-  borderRadius: '50%',
-  height: '44px',
-  width: '44px',
+  // Signature Apple translucent design
+  background: darkMode 
+    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)'
+    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(0, 0, 0, 0.01) 100%)',
+  borderRadius: '50%', // Circular design consistent with other buttons
+  height: '42px',
+  width: '42px',
   padding: 0,
-  color: darkMode ? '#ffffff' : '#1d1d1f',
-  fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+  color: darkMode ? '#FFFFFF' : '#1D1D1F',
+  fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
   fontSize: '0.85rem',
-  boxShadow: 'none',
-  transition: 'all 0.2s ease',
+  fontWeight: 600,
+  // Apple's signature shadow style
+  boxShadow: darkMode
+    ? '0 4px 12px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+    : '0 3px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   cursor: 'pointer',
-  border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.06)',
-  backdropFilter: darkMode ? 'blur(20px)' : 'none',
+  border: darkMode 
+    ? '1px solid rgba(255, 255, 255, 0.15)' 
+    : '1px solid rgba(0, 0, 0, 0.06)',
+  backdropFilter: 'blur(25px)',
+  WebkitBackdropFilter: 'blur(25px)',
+  position: 'relative',
+  overflow: 'hidden',
+  
+  // Apple's signature light reflection
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    background: darkMode
+      ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%)'
+      : 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, transparent 100%)',
+    borderRadius: '50% 50% 0 0',
+    opacity: 0,
+    transition: 'opacity 0.3s ease',
+  },
+  
   '&:hover': {
-    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)',
-    transform: 'scale(1.02)',
+    background: darkMode 
+      ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%)'
+      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(0, 0, 0, 0.02) 100%)',
+    boxShadow: darkMode
+      ? '0 6px 20px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.25)'
+      : '0 4px 20px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95)',
+    transform: 'translateY(-2px) scale(1.05)',
+    border: darkMode 
+      ? '1px solid rgba(255, 255, 255, 0.25)' 
+      : '1px solid rgba(0, 0, 0, 0.08)',
+    
+    '&::before': {
+      opacity: 1,
+    },
   },
+  
   '&:active': {
-    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)',
-    transform: 'scale(0.98)',
+    transform: 'translateY(-1px) scale(1.02)',
+    background: darkMode 
+      ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%)'
+      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(0, 0, 0, 0.02) 100%)',
+    boxShadow: darkMode
+      ? '0 2px 8px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.1)'
+      : '0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
   },
+  
   '&:focus': {
     outline: 'none',
     boxShadow: darkMode 
-      ? '0 0 0 2px rgba(255, 255, 255, 0.3)'
-      : '0 0 0 2px rgba(0, 0, 0, 0.06)',
+      ? '0 0 0 3px rgba(255, 255, 255, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25)'
+      : '0 0 0 3px rgba(0, 122, 255, 0.25), 0 3px 12px rgba(0, 0, 0, 0.08)',
   },
+  
   '& .icon': {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     opacity: darkMode ? 1 : 0.9,
+    position: 'relative',
+    zIndex: 1,
+    transition: 'all 0.2s ease',
+  },
+  
+  '&:hover .icon': {
+    opacity: 1,
+    transform: 'scale(1.1)',
   },
 }));
 
-// Google Icon
+// Enhanced Google Icon with better sizing
 export const GoogleIcon = () => (
   <svg
-    width="24"
-    height="24"
+    width="20"
+    height="20"
     viewBox="0 0 48 48"
     xmlns="http://www.w3.org/2000/svg"
+    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' }}
   >
     <path
       fill="#EA4335"
@@ -117,14 +224,15 @@ export const GoogleIcon = () => (
   </svg>
 );
 
-// Apple Icon
+// Enhanced Apple Icon with better sizing
 export const AppleIcon = () => (
   <svg 
-    width="24" 
-    height="24" 
+    width="20" 
+    height="20" 
     viewBox="0 0 24 24" 
     fill="currentColor" 
     xmlns="http://www.w3.org/2000/svg"
+    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' }}
   >
     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
   </svg>

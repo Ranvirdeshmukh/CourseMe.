@@ -672,19 +672,19 @@ const TimetableGrid = ({
               
               {/* Other table headers */}
               {[
-                { header: 'Schedule', width: '12%' },
-                { header: 'Location', width: '12%' },
-                { header: 'Professor', width: '12%' },
-                { header: 'Enrollment', width: '12%' },
-                { header: 'Notifications', width: '12%' },
-                { header: 'Calendar', width: '12%' },
-                { header: 'Add', width: '8%' },
-              ].map(({ header, width }, index) => (
+                { header: 'Schedule', width: '12%', align: 'left' },
+                { header: 'Location', width: '11%', align: 'left' },
+                { header: 'Professor', width: '11%', align: 'left' },
+                { header: 'Enrollment', width: '11%', align: 'center' },
+                { header: 'Notifications', width: '11%', align: 'center' },
+                { header: 'Calendar', width: '14%', align: 'center' },
+                { header: 'Add', width: '8%', align: 'center' },
+              ].map(({ header, width, align }, index) => (
                 <TableCell
                   key={index}
                   sx={{
                     color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
-                    textAlign: 'left',
+                    textAlign: align || 'left',
                     fontWeight: 700,
                     fontSize: '0.875rem',
                     padding: '20px 24px',
@@ -875,7 +875,7 @@ const TimetableGrid = ({
                       fontSize: '0.9rem',
                       textAlign: 'left',
                       fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
-                      width: '12%',
+                      width: '11%',
                       border: 'none',
                     }}
                     className="course-row-content"
@@ -903,8 +903,8 @@ const TimetableGrid = ({
                       fontSize: '0.9rem',
                       textAlign: 'left',
                       fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
-                      width: '12%',
-                      maxWidth: '12%',
+                      width: '11%',
+                      maxWidth: '11%',
                       whiteSpace: 'normal',
                       border: 'none',
                       '& *': {
@@ -941,7 +941,7 @@ const TimetableGrid = ({
                       padding: '20px 24px', 
                       verticalAlign: 'middle', 
                       position: 'relative',
-                      width: '12%',
+                      width: '11%',
                       border: 'none',
                       ...(hasUnlockedFeatures ? unlockedCellStyles : lockedCellStyles)
                     }}
@@ -1050,7 +1050,7 @@ const TimetableGrid = ({
                       textAlign: 'center', 
                       verticalAlign: 'middle',
                       position: 'relative',
-                      width: '12%',
+                      width: '11%',
                       border: 'none',
                       ...(hasUnlockedFeatures ? unlockedCellStyles : lockedCellStyles),
                       '& > *': {
@@ -1126,11 +1126,11 @@ const TimetableGrid = ({
                   {/* Add to Calendar Button - with review gate */}
                   <TableCell
                     sx={{
-                      padding: '20px 24px',
-                      textAlign: 'left',
-                      height: '48px',
+                      padding: '16px 20px',
+                      textAlign: 'center',
+                      height: '72px',
                       verticalAlign: 'middle',
-                      width: '12%',
+                      width: '14%', // Slightly wider to accommodate the enhanced buttons
                       position: 'relative',
                       border: 'none',
                       ...(hasUnlockedFeatures ? unlockedCellStyles : lockedCellStyles)
@@ -1144,53 +1144,106 @@ const TimetableGrid = ({
                       course.period !== 'ARR' && course.period !== 'FS' && (
                         <Box sx={{ 
                           display: 'flex', 
-                          gap: '8px',
+                          flexDirection: 'column',
+                          gap: '10px',
                           alignItems: 'center',
                           justifyContent: 'center',
+                          width: '100%',
                         }}>
-                          <Tooltip title="Add to Google Calendar" arrow placement="top">
-                            <span>
-                            <GoogleCalendarButton 
-                                darkMode={darkMode} 
-                                onClick={() => handleAddToCalendar(course)}
-                                sx={{
-                                  height: '36px',
-                                  width: '36px',
-                                  borderRadius: '50%',
-                                  transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                                  '&:hover': {
-                                    transform: 'scale(1.1) translateY(-1px)',
+                          {/* Calendar Buttons Container */}
+                          <Box sx={{
+                            display: 'flex',
+                            gap: '12px',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                            <Tooltip 
+                              title="Add to Google Calendar" 
+                              arrow 
+                              placement="top"
+                              PopperProps={{
+                                sx: {
+                                  '& .MuiTooltip-tooltip': {
+                                    fontSize: '0.75rem',
+                                    fontWeight: 600,
+                                    fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+                                    backgroundColor: darkMode ? 'rgba(60, 60, 67, 0.95)' : 'rgba(0, 0, 0, 0.8)',
+                                    backdropFilter: 'blur(20px)',
+                                    WebkitBackdropFilter: 'blur(20px)',
                                   }
-                                }}
+                                }
+                              }}
                             >
-                                <div className="icon">
-                                <GoogleIcon />
-                                </div>
-                            </GoogleCalendarButton>
-                            </span>
-                          </Tooltip>
-                          
-                          <Tooltip title="Add to Apple Calendar" arrow placement="top">
-                            <span>
-                              <AppleCalendarButton 
-                                darkMode={darkMode} 
-                                onClick={() => handleAddToAppleCalendar(course)}
-                                sx={{
-                                  height: '36px',
-                                  width: '36px',
-                                  borderRadius: '50%',
-                                  transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                                  '&:hover': {
-                                    transform: 'scale(1.1) translateY(-1px)',
+                              <span>
+                                <GoogleCalendarButton 
+                                  darkMode={darkMode} 
+                                  onClick={() => handleAddToCalendar(course)}
+                                  sx={{
+                                    height: '42px',
+                                    width: '42px',
+                                  }}
+                                >
+                                  <div className="icon">
+                                    <GoogleIcon />
+                                  </div>
+                                </GoogleCalendarButton>
+                              </span>
+                            </Tooltip>
+                            
+                            <Tooltip 
+                              title="Add to Apple Calendar" 
+                              arrow 
+                              placement="top"
+                              PopperProps={{
+                                sx: {
+                                  '& .MuiTooltip-tooltip': {
+                                    fontSize: '0.75rem',
+                                    fontWeight: 600,
+                                    fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+                                    backgroundColor: darkMode ? 'rgba(60, 60, 67, 0.95)' : 'rgba(0, 0, 0, 0.8)',
+                                    backdropFilter: 'blur(20px)',
+                                    WebkitBackdropFilter: 'blur(20px)',
                                   }
-                                }}
-                              >
-                                <div className="icon">
-                                  <AppleIcon />
-                                </div>
-                              </AppleCalendarButton>
-                            </span>
-                          </Tooltip>
+                                }
+                              }}
+                            >
+                              <span>
+                                <AppleCalendarButton 
+                                  darkMode={darkMode} 
+                                  onClick={() => handleAddToAppleCalendar(course)}
+                                  sx={{
+                                    height: '42px',
+                                    width: '42px',
+                                  }}
+                                >
+                                  <div className="icon">
+                                    <AppleIcon />
+                                  </div>
+                                </AppleCalendarButton>
+                              </span>
+                            </Tooltip>
+                          </Box>
+                          
+                          {/* Subtle Calendar Label */}
+                          <Typography
+                            sx={{
+                              fontSize: '0.7rem',
+                              fontWeight: 500,
+                              color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                              fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px',
+                              lineHeight: 1,
+                              textAlign: 'center',
+                              opacity: 0.8,
+                              transition: 'opacity 0.2s ease',
+                              '&:hover': {
+                                opacity: 1,
+                              }
+                            }}
+                          >
+                            Add to Calendar
+                          </Typography>
                         </Box>
                       )
                     )}
