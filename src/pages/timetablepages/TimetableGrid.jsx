@@ -240,26 +240,6 @@ const FrostedOverlay = ({ darkMode, onAddReview, currentTerm, userReviews = [], 
             }
           </Typography>
           
-          <Button
-            onClick={onAddReview}
-            variant="contained"
-            size="small"
-            startIcon={<RateReviewIcon />}
-            sx={{
-              backgroundColor: darkMode ? '#BB86FC' : '#571ce0',
-              color: darkMode ? '#1D1D1F' : '#FFFFFF',
-              fontSize: '0.75rem',
-              textTransform: 'none',
-              borderRadius: '6px',
-              padding: '4px 12px',
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: darkMode ? '#A374E8' : '#4a18c7',
-              },
-            }}
-          >
-            Add Review
-          </Button>
         </>
       )}
     </Box>
@@ -295,7 +275,6 @@ const TimetableGrid = ({
   onRefreshEnrollments = () => {},
   isRefreshingEnrollments = false,
   showRefreshButton = false,
-  termType = 'summer', // Add termType to determine if refresh should be available
 }) => {
   
   // Debug logging to see what props are received
@@ -351,8 +330,8 @@ const TimetableGrid = ({
 
   return (
     <>
-      {/* Add the refresh button before the table if showRefreshButton is true and not summer */}
-      {showRefreshButton && enableEnrollmentData && termType !== 'summer' && (
+      {/* Add the refresh button before the table if showRefreshButton is true AND user has unlocked features */}
+      {showRefreshButton && enableEnrollmentData && hasUnlockedFeatures && (
         <RefreshEnrollmentButton />
       )}
       
@@ -736,26 +715,6 @@ const TimetableGrid = ({
                             })()}
                           </Typography>
                           
-                          <Button
-                            onClick={onAddReview}
-                            variant="contained"
-                            size="small"
-                            startIcon={<RateReviewIcon />}
-                            sx={{
-                              backgroundColor: darkMode ? '#BB86FC' : '#571ce0',
-                              color: darkMode ? '#1D1D1F' : '#FFFFFF',
-                              fontSize: '0.75rem',
-                              textTransform: 'none',
-                              borderRadius: '6px',
-                              padding: '4px 12px',
-                              fontWeight: 500,
-                              '&:hover': {
-                                backgroundColor: darkMode ? '#A374E8' : '#4a18c7',
-                              },
-                            }}
-                          >
-                            Add Review
-                          </Button>
                         </Box>
                       )
                     ) : enableEnrollmentData ? (
