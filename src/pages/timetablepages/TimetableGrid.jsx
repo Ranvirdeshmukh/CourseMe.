@@ -946,8 +946,6 @@ const TimetableGrid = ({
                       border: 'none',
                       // Disable interactions when locked
                       pointerEvents: !hasUnlockedFeatures ? 'none' : 'auto',
-                      // Reduce opacity when locked to show it's disabled
-                      opacity: !hasUnlockedFeatures ? 0.4 : 1,
                       // Remove hover effects when locked
                       '&:hover': !hasUnlockedFeatures ? {} : {
                         backgroundColor: darkMode 
@@ -1070,8 +1068,6 @@ const TimetableGrid = ({
                       border: 'none',
                       // Disable interactions when locked
                       pointerEvents: !hasUnlockedFeatures ? 'none' : 'auto',
-                      // Reduce opacity when locked to show it's disabled
-                      opacity: !hasUnlockedFeatures ? 0.4 : 1,
                       // Remove hover effects when locked
                       '&:hover': !hasUnlockedFeatures ? {} : {
                         backgroundColor: darkMode 
@@ -1166,8 +1162,6 @@ const TimetableGrid = ({
                       border: 'none',
                       // Disable interactions when locked
                       pointerEvents: !hasUnlockedFeatures ? 'none' : 'auto',
-                      // Reduce opacity when locked to show it's disabled
-                      opacity: !hasUnlockedFeatures ? 0.4 : 1,
                       // Remove hover effects when locked
                       '&:hover': !hasUnlockedFeatures ? {} : {
                         backgroundColor: darkMode 
