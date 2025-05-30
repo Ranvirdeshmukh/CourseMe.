@@ -2,11 +2,15 @@
 import React from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-  Paper, IconButton, Box, Tooltip, Typography
+  Paper, IconButton, Box, Tooltip, Typography, Button, Chip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import LockIcon from '@mui/icons-material/Lock';
+import StarIcon from '@mui/icons-material/Star';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { useNavigate } from 'react-router-dom';
 import { ProfessorCell } from '../ProfessorCell';
 import NotificationButton from './NotificationButton';
 import { 
@@ -163,82 +167,379 @@ const formatLocation = (room, building) => {
   return 'Location not yet available';
 };
 
-// Frosted overlay component for locked features
-const FrostedOverlay = ({ darkMode, onAddReview, currentTerm, userReviews = [], userGradeSubmissions = [], showMessage = false }) => {
+// Apple-Inspired Lock Overlay Component
+const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], userGradeSubmissions = [] }) => {
+  const navigate = useNavigate();
   const requiredTerms = getPreviousTerms(currentTerm);
-  const reviewCount = userReviews.filter(review => 
-    requiredTerms.includes(review.term)
-  ).length;
-  const gradeCount = userGradeSubmissions.filter(submission => 
-    requiredTerms.includes(submission.Term)
-  ).length;
+  const { reviewCount, gradeCount } = getContributionCounts(userReviews, userGradeSubmissions, currentTerm);
   const totalContributions = reviewCount + gradeCount;
   const needed = Math.max(0, 3 - totalContributions);
+
+  const handleNavigateToReviews = () => {
+    navigate('/classes'); // Navigate to AllClassesPage (correct route)
+  };
 
   return (
     <Box
       sx={{
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: '4px',
+        left: '-12px',
+        right: '-212%', // Extended to fully cover all 3 columns
+        bottom: '4px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: darkMode 
-          ? 'rgba(28, 31, 67, 0.85)' 
-          : 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(12px)',
-        borderRadius: '8px',
-        padding: '16px',
+        borderRadius: '20px',
+        padding: '32px 28px',
         zIndex: 10,
         cursor: 'default',
+        transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+        },
       }}
     >
-      {showMessage && (
-        <>
-          <LockIcon 
-            sx={{ 
-              fontSize: '2rem', 
-              color: darkMode ? '#BB86FC' : '#571ce0',
-              mb: 1,
-              opacity: 0.8
-            }} 
-          />
-          
-          <Typography
-            sx={{
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              color: darkMode ? '#FFFFFF' : '#1D1D1F',
-              textAlign: 'center',
-              mb: 1,
-              lineHeight: 1.4,
-            }}
-          >
-            Unlock with Course Reviews
-          </Typography>
-          
-          <Typography
-            sx={{
-              fontSize: '0.8rem',
-              color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
-              textAlign: 'center',
-              mb: 2,
-              lineHeight: 1.3,
-              maxWidth: '200px',
-            }}
-          >
-            {needed > 0 
-              ? `Need ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock`
-              : `You have ${totalContributions} contributions from ${requiredTerms.join(' and ')}`
+      {/* Content Container with Background */}
+      <Box
+        sx={{
+          // Background that covers just the content area
+          background: darkMode 
+            ? 'linear-gradient(135deg, rgba(28, 31, 67, 0.95) 0%, rgba(45, 55, 89, 0.95) 50%, rgba(28, 31, 67, 0.95) 100%)' 
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 50%, rgba(255, 255, 255, 0.95) 100%)',
+          backdropFilter: 'blur(25px)',
+          WebkitBackdropFilter: 'blur(25px)',
+          borderRadius: '20px',
+          padding: '24px 20px',
+          // Enhanced shadow and border for better definition
+          boxShadow: darkMode
+            ? '0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
+            : '0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+          // Add a subtle border for better definition
+          border: darkMode 
+            ? '1px solid rgba(187, 134, 252, 0.3)'
+            : '1px solid rgba(0, 122, 255, 0.2)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          '&:hover': {
+            boxShadow: darkMode
+              ? '0 25px 70px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+              : '0 25px 70px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.95)',
+            border: darkMode 
+              ? '1px solid rgba(187, 134, 252, 0.4)'
+              : '1px solid rgba(0, 122, 255, 0.3)',
+          },
+        }}
+      >
+        {/* Decorative Elements */}
+        <Box
+              sx={{ 
+            position: 'absolute',
+            top: '-10px',
+            right: '20px',
+            width: '60px',
+            height: '60px',
+            background: darkMode 
+              ? 'linear-gradient(45deg, #BB86FC 0%, #9C4DCC 100%)' 
+              : 'linear-gradient(45deg, #007AFF 0%, #0056CC 100%)',
+            borderRadius: '50%',
+            opacity: 0.1,
+            animation: 'float 3s ease-in-out infinite',
+            '@keyframes float': {
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-10px) rotate(180deg)' }
             }
-          </Typography>
+          }}
+        />
+        
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '-5px',
+            left: '20px',
+            width: '40px',
+            height: '40px',
+            background: darkMode 
+              ? 'linear-gradient(45deg, #BB86FC 0%, #9C4DCC 100%)' 
+              : 'linear-gradient(45deg, #007AFF 0%, #0056CC 100%)',
+            borderRadius: '30%',
+            opacity: 0.08,
+            animation: 'float 4s ease-in-out infinite reverse',
+          }}
+        />
+
+        {/* Premium Icon with Glow */}
+        <Box
+          sx={{
+            position: 'relative',
+            mb: 3,
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '80px',
+              height: '80px',
+              background: darkMode 
+                ? 'radial-gradient(circle, rgba(187, 134, 252, 0.2) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(0, 122, 255, 0.15) 0%, transparent 70%)',
+              borderRadius: '50%',
+              zIndex: -1,
+            }
+          }}
+        >
+          <Box
+            sx={{
+              position: 'relative',
+              background: darkMode 
+                ? 'linear-gradient(135deg, rgba(187, 134, 252, 0.15) 0%, rgba(156, 77, 204, 0.15) 100%)'
+                : 'linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 86, 204, 0.1) 100%)',
+              borderRadius: '20px',
+              padding: '16px',
+              border: darkMode 
+                ? '1px solid rgba(187, 134, 252, 0.2)'
+                : '1px solid rgba(0, 122, 255, 0.15)',
+            }}
+          >
+            <StarIcon 
+              sx={{ 
+                fontSize: '2.5rem', 
+                color: darkMode ? '#BB86FC' : '#007AFF',
+                filter: 'drop-shadow(0 0 8px rgba(187, 134, 252, 0.3))',
+              }} 
+            />
+          </Box>
+        </Box>
+        
+        {/* Main Heading */}
+            <Typography
+              sx={{
+            fontSize: '1.25rem',
+            fontWeight: 800,
+            background: darkMode 
+              ? 'linear-gradient(135deg, #FFFFFF 0%, #BB86FC 100%)'
+              : 'linear-gradient(135deg, #1D1D1F 0%, #007AFF 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+                textAlign: 'center',
+                mb: 1,
+            lineHeight: 1.3,
+            letterSpacing: '-0.02em',
+            fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+          Unlock Premium Features
+            </Typography>
+            
+        {/* Status Chips */}
+        <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Chip
+            icon={<RateReviewIcon sx={{ fontSize: '16px !important' }} />}
+            label={`${reviewCount} Review${reviewCount !== 1 ? 's' : ''}`}
+            size="small"
+            sx={{
+              backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
+              color: darkMode ? '#BB86FC' : '#007AFF',
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              '& .MuiChip-icon': {
+                color: darkMode ? '#BB86FC' : '#007AFF',
+              }
+            }}
+          />
+          <Chip
+            icon={<StarIcon sx={{ fontSize: '16px !important' }} />}
+            label={`${gradeCount} Grade${gradeCount !== 1 ? 's' : ''}`}
+            size="small"
+            sx={{
+              backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
+              color: darkMode ? '#BB86FC' : '#007AFF',
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              '& .MuiChip-icon': {
+                color: darkMode ? '#BB86FC' : '#007AFF',
+              }
+            }}
+          />
+        </Box>
+        
+        {/* Description with Specific Benefits */}
+            <Typography
+              sx={{
+            fontSize: '0.9rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+                textAlign: 'center',
+            mb: 3,
+            lineHeight: 1.5,
+            maxWidth: '320px',
+            fontWeight: 500,
+            fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+              {needed > 0 
+            ? `Complete ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock:`
+            : `🎉 Premium features unlocked! You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median grade${gradeCount !== 1 ? 's' : ''}.`
+              }
+            </Typography>
+            
+        {/* Feature Benefits List */}
+        {needed > 0 && (
+          <Box sx={{ mb: 3, textAlign: 'center' }}>
+            <Typography
+              sx={{
+                fontSize: '0.85rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                fontWeight: 600,
+                mb: 1,
+                fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+              ✨ Get notified when someone drops a class
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.85rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                fontWeight: 600,
+                mb: 1,
+                fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+              📅 Add to Google & Apple Calendar in one click
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.85rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                fontWeight: 600,
+                fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+              📊 Real-time enrollment data for the rest of the term
+            </Typography>
+          </Box>
+        )}
+
+        {/* Call to Action Button */}
+        <Button
+          onClick={handleNavigateToReviews}
+          endIcon={<ArrowForwardIcon sx={{ fontSize: '18px' }} />}
+          sx={{
+            background: darkMode 
+              ? 'linear-gradient(135deg, #BB86FC 0%, #9C4DCC 100%)'
+              : 'linear-gradient(135deg, #007AFF 0%, #0056CC 100%)',
+            color: 'white',
+            fontWeight: 700,
+            fontSize: '0.95rem',
+            fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+            textTransform: 'none',
+            borderRadius: '14px',
+            padding: '14px 28px',
+            minHeight: '48px', // Ensure minimum touch target
+            minWidth: '200px', // Ensure adequate button width
+            position: 'relative',
+            zIndex: 20, // Higher z-index to ensure it's above everything
+            boxShadow: darkMode
+              ? '0 12px 32px rgba(187, 134, 252, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25)'
+              : '0 12px 32px rgba(0, 122, 255, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+            border: darkMode 
+              ? '1px solid rgba(255, 255, 255, 0.2)'
+              : '1px solid rgba(255, 255, 255, 0.3)',
+            transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            '&:hover': {
+              transform: 'translateY(-3px) scale(1.03)',
+              boxShadow: darkMode
+                ? '0 16px 40px rgba(187, 134, 252, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+                : '0 16px 40px rgba(0, 122, 255, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+              background: darkMode 
+                ? 'linear-gradient(135deg, #C89FFF 0%, #A855DD 100%)'
+                : 'linear-gradient(135deg, #1A8FFF 0%, #0A66DD 100%)',
+              border: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.3)'
+                : '1px solid rgba(255, 255, 255, 0.4)',
+            },
+            '&:active': {
+              transform: 'translateY(-1px) scale(0.99)',
+            },
+            // Ensure the button area is clearly defined
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: '-4px',
+              left: '-4px',
+              right: '-4px',
+              bottom: '-4px',
+              background: 'transparent',
+              borderRadius: '18px',
+              zIndex: -1,
+            }
+          }}
+        >
+          Write Your First Review
+        </Button>
+
+        {/* Progress Indicator */}
+        <Box sx={{ mt: 2, width: '100%', maxWidth: '200px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: '0.75rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Progress
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.75rem',
+                color: darkMode ? '#BB86FC' : '#007AFF',
+                fontWeight: 700,
+              }}
+            >
+              {totalContributions}/3
+            </Typography>
+          </Box>
           
-        </>
-      )}
+          <Box
+            sx={{
+              height: '6px',
+              backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+              borderRadius: '3px',
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            <Box
+              sx={{
+                height: '100%',
+                width: `${Math.min((totalContributions / 3) * 100, 100)}%`,
+                background: darkMode 
+                  ? 'linear-gradient(90deg, #BB86FC 0%, #9C4DCC 100%)'
+                  : 'linear-gradient(90deg, #007AFF 0%, #0056CC 100%)',
+                borderRadius: '3px',
+                transition: 'width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              }}
+            />
+          </Box>
+        </Box>
+      </Box> {/* Close Content Container with Background */}
     </Box>
   );
 };
@@ -284,79 +585,98 @@ const TimetableGrid = ({
       <TableContainer
         component={Paper}
         sx={{
-          backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
-          marginTop: '10px',
+          backgroundColor: darkMode 
+            ? 'rgba(28, 31, 67, 0.85)' 
+            : 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)', // Safari support
+          marginTop: '20px',
           boxShadow: darkMode
-            ? '0 6px 16px rgba(255, 255, 255, 0.1)'
-            : '0 2px 8px rgba(0, 0, 0, 0.06)',
-          borderRadius: '12px',
+            ? '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+            : '0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+          borderRadius: '20px',
           overflowX: 'auto',
           maxWidth: '100%',
-          transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
-          border: darkMode
-            ? '1px solid rgba(187, 134, 252, 0.2)'
-            : '1px solid rgba(0, 105, 62, 0.1)',
+          transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          border: 'none',
           '&:hover': {
             boxShadow: darkMode
-              ? '0 3px 10px rgba(255, 255, 255, 0.2)'
-              : '0 3px 10px rgba(0, 0, 0, 0.08)',
+              ? '0 12px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)'
+              : '0 12px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06)',
+            transform: 'translateY(-2px)',
           },
         }}
       >
         <Table sx={{ minWidth: isMobile ? '100%' : '650px' }}>
           <TableHead
             sx={{
-              backgroundColor: darkMode ? '#333333' : '#F8F8F8',
+              backgroundColor: 'transparent',
               position: 'sticky',
               top: 0,
               zIndex: 1,
-              transition: 'background-color 0.3s ease',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: darkMode 
+                  ? 'rgba(45, 55, 89, 0.8)' 
+                  : 'rgba(248, 250, 252, 0.8)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderRadius: '20px 20px 0 0',
+                zIndex: -1,
+              }
             }}
           >
             <TableRow>
-              {/* Combined column for Subject/Number/Title/Section - made narrower */}
+              {/* Combined column for Subject/Number/Title/Section */}
               <TableCell
                 sx={{
-                  color: darkMode ? '#FFFFFF' : '#333333',
+                  color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
                   textAlign: 'left',
                   fontWeight: 700,
-                  fontSize: '1rem',
-                  padding: '16px 12px',
-                  borderBottom: '2px solid #E0E0E0',
-                  borderColor: darkMode ? '#444444' : '#E0E0E0',
-                  backgroundColor: darkMode ? '#333333' : '#F8F8F8',
-                  fontFamily: 'SF Pro Display, sans-serif',
-                  transition: 'background-color 0.3s ease, color 0.3s ease',
-                  width: '20%', // Reduced from 30% to 20%
+                  fontSize: '0.875rem',
+                  padding: '20px 24px',
+                  border: 'none',
+                  fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+                  letterSpacing: '0.5px',
+                  textTransform: 'uppercase',
+                  width: '20%',
+                  position: 'relative',
+                  zIndex: 1,
                 }}
               >
                 Course
               </TableCell>
               
-              {/* Other table headers - adjusted widths */}
+              {/* Other table headers */}
               {[
-                { header: 'Timing', width: '12%' },
+                { header: 'Schedule', width: '12%' },
                 { header: 'Location', width: '12%' },
-                { header: 'Instructor', width: '12%' },
+                { header: 'Professor', width: '12%' },
                 { header: 'Enrollment', width: '12%' },
                 { header: 'Notifications', width: '12%' },
-                { header: 'Add to Calendar', width: '12%' },
+                { header: 'Calendar', width: '12%' },
                 { header: 'Add', width: '8%' },
               ].map(({ header, width }, index) => (
                 <TableCell
                   key={index}
                   sx={{
-                    color: darkMode ? '#FFFFFF' : '#333333',
+                    color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
                     textAlign: 'left',
                     fontWeight: 700,
-                    fontSize: '1rem',
-                    padding: '16px 12px',
-                    borderBottom: '2px solid #E0E0E0',
-                    borderColor: darkMode ? '#444444' : '#E0E0E0',
-                    backgroundColor: darkMode ? '#333333' : '#F8F8F8',
-                    fontFamily: 'SF Pro Display, sans-serif',
-                    transition: 'background-color 0.3s ease, color 0.3s ease',
+                    fontSize: '0.875rem',
+                    padding: '20px 24px',
+                    border: 'none',
+                    fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+                    letterSpacing: '0.5px',
+                    textTransform: 'uppercase',
                     width: width,
+                    position: 'relative',
+                    zIndex: 1,
                   }}
                 >
                   {header}
@@ -367,87 +687,107 @@ const TimetableGrid = ({
 
           <TableBody>
             {courses.map((course, index) => {
-              const rowBackground =
-                index % 2 === 0
-                  ? darkMode
-                    ? '#1C1F43'
-                    : '#FFFFFF'
-                  : darkMode
-                  ? '#24273c'
-                  : '#F9F9F9';
-
               return (
                 <TableRow
                   key={index}
                   sx={{
-                    backgroundColor: rowBackground,
-                    transition: 'background-color 0.3s ease',
-                    '&:hover': {
-                      backgroundColor: darkMode ? '#2a2a2a' : '#E5E5EA',
-                    },
+                    backgroundColor: 'transparent',
+                    transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                     cursor: 'default',
+                    position: 'relative',
+                    '&:hover': {
+                      backgroundColor: darkMode 
+                        ? 'rgba(255, 255, 255, 0.03)' 
+                        : 'rgba(0, 0, 0, 0.02)',
+                      transform: 'scale(1.005)',
+                      '& .course-row-content': {
+                        backgroundColor: darkMode 
+                          ? 'rgba(255, 255, 255, 0.05)' 
+                          : 'rgba(0, 0, 0, 0.03)',
+                      }
+                    },
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: '24px',
+                      right: '24px',
+                      height: '1px',
+                      backgroundColor: darkMode 
+                        ? 'rgba(255, 255, 255, 0.08)' 
+                        : 'rgba(0, 0, 0, 0.06)',
+                      opacity: index === courses.length - 1 ? 0 : 1,
+                    }
                   }}
                 >
-                  {/* Course Cell: Subject + Number, Title, and Section - made narrower */}
+                  {/* Course Cell: Subject + Number, Title, and Section */}
                   <TableCell
                     onClick={(e) => {
                       e.stopPropagation();
                       handleCourseClick(course);
                     }}
                     sx={{
-                      padding: '12px 16px',
+                      padding: '20px 24px',
                       cursor: 'pointer',
-                      transition: 'color 0.3s ease',
-                      fontFamily: 'SF Pro Display, sans-serif',
-                      width: '20%', // Reduced from 30% to 20%
+                      transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                      fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+                      width: '20%',
                       maxWidth: '20%',
+                      border: 'none',
+                      position: 'relative',
                     }}
+                    className="course-row-content"
                   >
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      {/* Subject and Number (darker color) */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {/* Subject and Number */}
                       <Typography 
                         sx={{ 
-                          color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)', 
-                          fontWeight: 600,
-                          fontSize: '0.95rem',
+                          color: darkMode ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.95)', 
+                          fontWeight: 700,
+                          fontSize: '1rem',
+                          letterSpacing: '0.3px',
                           '&:hover': {
-                            textDecoration: 'underline',
+                            color: darkMode ? '#BB86FC' : '#007AFF',
+                            transform: 'translateX(2px)',
                           },
+                          transition: 'all 0.2s ease',
                         }}
                       >
                         {course.subj} {course.num}
                       </Typography>
                       
-                      {/* Course Title (color-highlighted) */}
+                      {/* Course Title */}
                       <Typography 
                         sx={{ 
-                          color: darkMode ? '#BB86FC' : '#571ce0',
-                          fontWeight: 500,
-                          fontSize: '0.95rem',
-                          '&:hover': {
-                            textDecoration: 'underline',
-                          },
-                          lineHeight: 1.3,
+                          color: darkMode ? '#BB86FC' : '#007AFF',
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          lineHeight: 1.4,
                           fontStyle: course.title ? 'normal' : 'italic',
-                          // Add text overflow handling for long titles
+                          opacity: course.title ? 1 : 0.7,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
+                          '&:hover': {
+                            transform: 'translateX(2px)',
+                          },
+                          transition: 'all 0.2s ease',
                         }}
                       >
                         {course.title || 'No title available'}
                       </Typography>
                       
-                      {/* Section (always show) */}
+                      {/* Section */}
                       <Typography
                         sx={{
-                          color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
-                          fontSize: '0.85rem',
-                          fontWeight: 400,
+                          color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
                           lineHeight: 1.2,
-                          mt: 0.5,
+                          letterSpacing: '0.2px',
+                          textTransform: 'uppercase',
                         }}
                       >
                         Section {course.sec}
@@ -455,29 +795,32 @@ const TimetableGrid = ({
                     </Box>
                   </TableCell>
 
-                  {/* Timing Cell - now wider */}
+                  {/* Timing Cell */}
                   <TableCell
                     sx={{
-                      color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                      padding: '10px',
-                      fontWeight: 400,
-                      fontSize: '0.95rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                      padding: '20px 24px',
+                      fontWeight: 500,
+                      fontSize: '0.9rem',
                       textAlign: 'left',
-                      transition: 'color 0.3s ease',
-                      fontFamily: 'SF Pro Display, sans-serif',
+                      transition: 'all 0.3s ease',
+                      fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
                       width: '12%',
+                      border: 'none',
                     }}
+                    className="course-row-content"
                   >
                     {(() => {
                       const { mainTime, xHour } = formatTiming(course.timing);
                       
                       return (
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           {/* Main time */}
                           <Typography sx={{ 
-                            color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                            fontSize: '0.95rem',
-                            fontWeight: 400,
+                            color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                            fontSize: '0.9rem',
+                            fontWeight: 600,
+                            letterSpacing: '0.2px',
                           }}>
                             {mainTime}
                           </Typography>
@@ -487,15 +830,20 @@ const TimetableGrid = ({
                             <Tooltip title={`X-Hour: ${xHour}`} placement="top">
                               <Typography sx={{ 
                                 color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
-                                fontSize: '0.85rem', 
-                                fontWeight: 400,
+                                fontSize: '0.75rem', 
+                                fontWeight: 500,
                                 fontStyle: 'italic',
                                 cursor: 'help',
-                                mt: 0.5,
+                                padding: '2px 8px',
+                                backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 122, 255, 0.1)',
+                                borderRadius: '12px',
+                                display: 'inline-block',
+                                letterSpacing: '0.1px',
                                 '&:hover': {
-                                  textDecoration: 'underline',
-                                  textDecorationStyle: 'dotted',
-                                }
+                                  backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 122, 255, 0.2)',
+                                  transform: 'scale(1.05)',
+                                },
+                                transition: 'all 0.2s ease',
                               }}>
                                 +X-Hour
                               </Typography>
@@ -506,57 +854,63 @@ const TimetableGrid = ({
                     })()}
                   </TableCell>
 
-                  {/* Location Cell (merged Room and Building) - now wider */}
+                  {/* Location Cell */}
                   <TableCell
                     sx={{
-                      color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                      padding: '10px',
-                      fontWeight: 400,
-                      fontSize: '0.95rem',
+                      color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                      padding: '20px 24px',
+                      fontWeight: 500,
+                      fontSize: '0.9rem',
                       textAlign: 'left',
-                      transition: 'color 0.3s ease',
-                      fontFamily: 'SF Pro Display, sans-serif',
+                      transition: 'all 0.3s ease',
+                      fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
                       width: '12%',
+                      border: 'none',
                     }}
+                    className="course-row-content"
                   >
                     <Typography
                       sx={{
                         color: formatLocation(course.room, course.building) === 'Location not yet available'
-                          ? (darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)')
-                          : (darkMode ? '#FFFFFF' : '#1D1D1F'),
+                          ? (darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)')
+                          : (darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)'),
                         fontStyle: formatLocation(course.room, course.building) === 'Location not yet available' ? 'italic' : 'normal',
-                        fontSize: '0.95rem',
-                        fontWeight: 400,
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        letterSpacing: '0.2px',
                       }}
                     >
                       {formatLocation(course.room, course.building)}
                     </Typography>
                   </TableCell>
 
-                  {/* Instructor - match course title style exactly with working links */}
+                  {/* Instructor */}
                   <TableCell
                     sx={{
-                      padding: '10px',
-                      fontWeight: 400,
-                      fontSize: '0.95rem',
+                      padding: '20px 24px',
+                      fontWeight: 500,
+                      fontSize: '0.9rem',
                       textAlign: 'left',
-                      transition: 'color 0.3s ease',
-                      fontFamily: 'SF Pro Display, sans-serif',
+                      transition: 'all 0.3s ease',
+                      fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
                       width: '12%',
                       maxWidth: '12%',
                       whiteSpace: 'normal',
-                      // Apply the styling directly to the cell to override ProfessorCell defaults
+                      border: 'none',
                       '& *': {
-                        color: `${darkMode ? '#BB86FC' : '#571ce0'} !important`, // Match course title color exactly
-                        fontWeight: '500 !important', // Match course title weight
-                        fontSize: '0.95rem !important',
-                        lineHeight: '1.3 !important',
+                        color: `${darkMode ? '#BB86FC' : '#007AFF'} !important`,
+                        fontWeight: '600 !important',
+                        fontSize: '0.9rem !important',
+                        lineHeight: '1.4 !important',
                         textDecoration: 'none !important',
                         '&:hover': {
-                          textDecoration: 'underline !important', // Match course title hover effect
+                          transform: 'translateX(2px) !important',
+                          textDecoration: 'none !important',
                         },
+                        transition: 'all 0.2s ease !important',
                       },
                     }}
+                    className="course-row-content"
                   >
                     <Box
                       sx={{
@@ -574,15 +928,15 @@ const TimetableGrid = ({
                     </Box>
                   </TableCell>
 
-                  {/* Enrollment cell - with review gate (first column of three-column span) */}
+                  {/* Enrollment cell - with review gate */}
                   <TableCell 
                     align="center" 
                     sx={{ 
-                      padding: '12px 16px', 
+                      padding: '20px 24px', 
                       verticalAlign: 'middle', 
                       position: 'relative',
                       width: '12%',
-                      // Remove borders for locked columns
+                      border: 'none',
                       ...(!hasUnlockedFeatures && {
                         borderLeft: 'none',
                         borderRight: 'none',
@@ -590,78 +944,17 @@ const TimetableGrid = ({
                         borderBottom: 'none',
                       })
                     }}
+                    className="course-row-content"
                   >
                     {!hasUnlockedFeatures ? (
                       // Only render the overlay in the middle column every 5 rows, but span across all 3
-                      index % 5 === 2 && (
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: '-200%', // Extend to cover all 3 columns
-                            bottom: 0,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: darkMode 
-                              ? 'rgba(28, 31, 67, 0.85)' 
-                              : 'rgba(255, 255, 255, 0.85)',
-                            backdropFilter: 'blur(12px)',
-                            borderRadius: '8px',
-                            padding: '16px',
-                            zIndex: 10,
-                            cursor: 'default',
-                          }}
-                        >
-                          <LockIcon 
-                            sx={{ 
-                              fontSize: '2rem', 
-                              color: darkMode ? '#BB86FC' : '#571ce0',
-                              mb: 1,
-                              opacity: 0.8
-                            }} 
-                          />
-                          
-                          <Typography
-                            sx={{
-                              fontSize: '0.9rem',
-                              fontWeight: 600,
-                              color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                              textAlign: 'center',
-                              mb: 1,
-                              lineHeight: 1.4,
-                            }}
-                          >
-                            Unlock with Course Reviews
-                          </Typography>
-                          
-                          <Typography
-                            sx={{
-                              fontSize: '0.8rem',
-                              color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
-                              textAlign: 'center',
-                              mb: 2,
-                              lineHeight: 1.3,
-                              maxWidth: '200px',
-                            }}
-                          >
-                            {(() => {
-                              const requiredTerms = getPreviousTerms(currentTerm);
-                              const { reviewCount, gradeCount } = getContributionCounts(userReviews, userGradeSubmissions, currentTerm);
-                              const totalContributions = reviewCount + gradeCount;
-                              const needed = Math.max(0, 3 - totalContributions);
-                              
-                              if (needed > 0) {
-                                return `Need ${needed} more contribution${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock. You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median${gradeCount !== 1 ? 's' : ''}.`;
-                              } else {
-                                return `You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median${gradeCount !== 1 ? 's' : ''} from ${requiredTerms.join(' and ')}.`;
-                              }
-                            })()}
-                          </Typography>
-                          
-                        </Box>
+                      index % 8 === 2 && (
+                        <AppleInspiredLockOverlay 
+                          darkMode={darkMode}
+                          currentTerm={currentTerm}
+                          userReviews={userReviews}
+                          userGradeSubmissions={userGradeSubmissions}
+                        />
                       )
                     ) : enableEnrollmentData ? (
                       // Normal enrollment display when enabled and unlocked
@@ -670,7 +963,8 @@ const TimetableGrid = ({
                           sx={{ 
                             fontSize: '0.9rem', 
                             color: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)',
-                            fontStyle: 'italic'
+                            fontStyle: 'italic',
+                            fontWeight: 500,
                           }}
                         >
                           Loading...
@@ -680,7 +974,8 @@ const TimetableGrid = ({
                           sx={{ 
                             fontSize: '0.9rem', 
                             color: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)',
-                            fontStyle: 'italic'
+                            fontStyle: 'italic',
+                            fontWeight: 500,
                           }}
                         >
                           No data
@@ -725,7 +1020,7 @@ const TimetableGrid = ({
                             ? 'rgba(255, 255, 255, 0.05)' 
                             : 'rgba(0, 0, 0, 0.05)',
                           backdropFilter: 'blur(8px)',
-                          borderRadius: '8px',
+                          borderRadius: '12px',
                           border: darkMode 
                             ? '1px solid rgba(255, 255, 255, 0.1)' 
                             : '1px solid rgba(0, 0, 0, 0.1)',
@@ -747,30 +1042,30 @@ const TimetableGrid = ({
                     )}
                   </TableCell>
 
-                  {/* Notify When Available Button - with review gate (middle column) */}
+                  {/* Notify When Available Button - with review gate */}
                   <TableCell 
                     sx={{ 
-                      padding: '12px', 
+                      padding: '20px 24px', 
                       textAlign: 'center', 
                       verticalAlign: 'middle',
                       position: 'relative',
                       width: '12%',
-                      // Remove borders for locked columns
+                      border: 'none',
                       ...(!hasUnlockedFeatures && {
                         borderLeft: 'none',
                         borderRight: 'none',
                         borderTop: 'none',
                         borderBottom: 'none',
                       }),
-                      // Add these styles to ensure proper centering
                       '& > *': {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        textDecoration: 'none !important', // Remove underlines
-                        borderBottom: 'none !important',   // Remove bottom border/line
+                        textDecoration: 'none !important',
+                        borderBottom: 'none !important',
                       }
                     }}
+                    className="course-row-content"
                   >
                     {!hasUnlockedFeatures ? (
                       // Empty for locked state - overlay is handled by first column
@@ -782,8 +1077,8 @@ const TimetableGrid = ({
                         alignItems: 'center',
                         width: '100%',
                         '& *': {
-                          textDecoration: 'none !important', // Remove any text decoration
-                          borderBottom: 'none !important',   // Remove any bottom borders
+                          textDecoration: 'none !important',
+                          borderBottom: 'none !important',
                         }
                       }}>
                         <NotificationButton 
@@ -809,7 +1104,7 @@ const TimetableGrid = ({
                             ? 'rgba(255, 255, 255, 0.05)' 
                             : 'rgba(0, 0, 0, 0.05)',
                           backdropFilter: 'blur(8px)',
-                          borderRadius: '8px',
+                          borderRadius: '12px',
                           border: darkMode 
                             ? '1px solid rgba(255, 255, 255, 0.1)' 
                             : '1px solid rgba(0, 0, 0, 0.1)',
@@ -832,16 +1127,16 @@ const TimetableGrid = ({
                     )}
                   </TableCell>
 
-                  {/* Add to Calendar Button - with review gate (third column) */}
+                  {/* Add to Calendar Button - with review gate */}
                   <TableCell
                     sx={{
-                      padding: '8px 12px',
+                      padding: '20px 24px',
                       textAlign: 'left',
                       height: '48px',
                       verticalAlign: 'middle',
                       width: '12%',
                       position: 'relative',
-                      // Remove borders for locked columns
+                      border: 'none',
                       ...(!hasUnlockedFeatures && {
                         borderLeft: 'none',
                         borderRight: 'none',
@@ -849,6 +1144,7 @@ const TimetableGrid = ({
                         borderBottom: 'none',
                       })
                     }}
+                    className="course-row-content"
                   >
                     {!hasUnlockedFeatures ? (
                       // Empty for locked state - overlay is handled by first column
@@ -857,7 +1153,7 @@ const TimetableGrid = ({
                       course.period !== 'ARR' && course.period !== 'FS' && (
                         <Box sx={{ 
                           display: 'flex', 
-                          gap: '12px',
+                          gap: '8px',
                           alignItems: 'center',
                           justifyContent: 'center',
                         }}>
@@ -866,6 +1162,15 @@ const TimetableGrid = ({
                             <GoogleCalendarButton 
                                 darkMode={darkMode} 
                                 onClick={() => handleAddToCalendar(course)}
+                                sx={{
+                                  height: '36px',
+                                  width: '36px',
+                                  borderRadius: '50%',
+                                  transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                  '&:hover': {
+                                    transform: 'scale(1.1) translateY(-1px)',
+                                  }
+                                }}
                             >
                                 <div className="icon">
                                 <GoogleIcon />
@@ -876,7 +1181,19 @@ const TimetableGrid = ({
                           
                           <Tooltip title="Add to Apple Calendar" arrow placement="top">
                             <span>
-                              <AppleCalendarButton darkMode={darkMode} onClick={() => handleAddToAppleCalendar(course)}>
+                              <AppleCalendarButton 
+                                darkMode={darkMode} 
+                                onClick={() => handleAddToAppleCalendar(course)}
+                                sx={{
+                                  height: '36px',
+                                  width: '36px',
+                                  borderRadius: '50%',
+                                  transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                  '&:hover': {
+                                    transform: 'scale(1.1) translateY(-1px)',
+                                  }
+                                }}
+                              >
                                 <div className="icon">
                                   <AppleIcon />
                                 </div>
@@ -891,30 +1208,49 @@ const TimetableGrid = ({
                   {/* Add Button Cell - not gated by reviews */}
                   <TableCell
                     sx={{
-                      padding: '12px',
-                      textAlign: 'left',
+                      padding: '20px 24px',
+                      textAlign: 'center',
                       width: '8%',
+                      border: 'none',
                     }}
+                    className="course-row-content"
                   >
                     {/* Check if course is already in selectedCourses */}
                     {selectedCourses.some(
                       (c) => c.subj === course.subj && c.num === course.num && c.sec === course.sec
                     ) ? (
-                      <IconButton onClick={() => handleRemoveCourse(course)}>
-                        <DeleteIcon sx={{ color: '#FF3B30' }} />
+                      <IconButton 
+                        onClick={() => handleRemoveCourse(course)}
+                        sx={{
+                          color: '#FF3B30',
+                          backgroundColor: 'rgba(255, 59, 48, 0.1)',
+                          borderRadius: '12px',
+                          padding: '8px',
+                          transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 59, 48, 0.2)',
+                            transform: 'scale(1.1) rotate(-5deg)',
+                          }
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     ) : (
                       <IconButton 
                         onClick={() => handleAddCourse(course)}
                         sx={{ 
-                          color: darkMode ? '#BB86FC' : '#00693E',
-                          backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.1)',
+                          color: darkMode ? '#BB86FC' : '#007AFF',
+                          backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 122, 255, 0.1)',
+                          borderRadius: '12px',
+                          padding: '8px',
+                          transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                           '&:hover': {
-                            backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.2)',
+                            backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 122, 255, 0.2)',
+                            transform: 'scale(1.1) rotate(5deg)',
                           }
                         }}
                       >
-                        <AddIcon />
+                        <AddIcon fontSize="small" />
                       </IconButton>
                     )}
                   </TableCell>
