@@ -25,7 +25,7 @@ export const fetchEnrollmentData = async () => {
     
     console.log("Fetching fresh enrollment data");
     
-    const response = await fetch('https://storage.googleapis.com/timetable-info/winter_courses_latest.json');
+    const response = await fetch('https://storage.googleapis.com/timetable-info/winter_courses.json');
     
     if (!response.ok) {
       throw new Error(`Failed to fetch enrollment data: ${response.status}`);
