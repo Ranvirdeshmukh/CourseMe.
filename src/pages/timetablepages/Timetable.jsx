@@ -35,7 +35,7 @@ import FeatureHighlight from './FeatureHighlight';
 import LoadingState from './LoadingState';
 import ScheduleVisualization from './ScheduleVisualization';
 
-// Helper function to get previous terms for review requirement
+// Helper function to get the previous terms
 const getPreviousTerms = (currentTerm) => {
   // For current term "25S", we want previous 2 terms: ["25W", "24F"]
   const termOrder = ['W', 'S', 'X', 'F'];
@@ -70,6 +70,16 @@ const getPreviousTerms = (currentTerm) => {
   }
   
   return previousTerms;
+};
+
+// Helper function to format term name for display
+const formatTermName = (termType) => {
+  if (termType === 'summer') {
+    return 'Summer 2025';
+  } else if (termType === 'fall') {
+    return 'Fall 2025';
+  }
+  return 'Course'; // fallback
 };
 
 // Helper function to check if user has enough reviews
@@ -613,10 +623,9 @@ const handleForceRefreshEnrollments = async () => {
             variant="h2"
             align="left"
             sx={{
+              color: darkMode ? '#BB86FC' : '#00693E',
+              fontSize: isMobile ? '1.5rem' : '1.8rem',
               fontWeight: 700,
-              fontSize: '2.5rem',
-              color: darkMode ? '#FFFFFF' : '#34495e',
-              marginBottom: '8px',
               marginTop: '10px',
               fontFamily: 'SF Pro Display, sans-serif',
               letterSpacing: '-0.02em',
@@ -624,7 +633,7 @@ const handleForceRefreshEnrollments = async () => {
               transition: 'color 0.3s ease',
             }}
           >
-            Your Summer 2025 Courses.
+            Your {formatTermName(termType)} Courses.
           </Typography>
         )}
   
@@ -777,7 +786,7 @@ const handleForceRefreshEnrollments = async () => {
   
         {showSelectedCourses && selectedCourses.length === 0 && (
           <Typography sx={{ marginBottom: '20px', color: darkMode ? '#FFFFFF' : '#1D1D1F' }}>
-            Haven&apos;t added your Summer 2025 timetable on CourseMe? Add now!
+            Haven&apos;t added your {formatTermName(termType)} timetable on CourseMe? Add now!
           </Typography>
         )}
      

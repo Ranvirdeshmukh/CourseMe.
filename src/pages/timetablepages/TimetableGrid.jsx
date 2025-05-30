@@ -306,11 +306,16 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
                 : '1px solid rgba(0, 122, 255, 0.15)',
             }}
           >
-            <StarIcon 
-              sx={{ 
-                fontSize: '2.5rem', 
-                color: darkMode ? '#BB86FC' : '#007AFF',
-                filter: 'drop-shadow(0 0 8px rgba(187, 134, 252, 0.3))',
+            <img 
+              src="/darkmodefavicon.png" 
+              alt="CourseMe Logo"
+              style={{ 
+                width: '2.5rem',
+                height: '2.5rem',
+                filter: darkMode 
+                  ? 'drop-shadow(0 0 8px rgba(187, 134, 252, 0.3))' 
+                  : 'drop-shadow(0 0 8px rgba(0, 122, 255, 0.3))',
+                objectFit: 'contain',
               }} 
             />
           </Box>
@@ -568,6 +573,8 @@ const TimetableGrid = ({
   userReviews = [],
   userGradeSubmissions = [],
   onAddReview = () => {}, // Callback to open review modal/page
+  // Term type for proper data organization
+  termType = 'fall', // 'summer' or 'fall'
 }) => {
   
   // Debug logging to see what props are received
