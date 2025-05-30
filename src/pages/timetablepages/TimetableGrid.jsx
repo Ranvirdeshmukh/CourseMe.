@@ -201,309 +201,345 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         },
       }}
     >
-      {/* Decorative Elements */}
-      <Box
-            sx={{ 
-          position: 'absolute',
-          top: '-10px',
-          right: '20px',
-          width: '60px',
-          height: '60px',
-          background: darkMode 
-            ? 'linear-gradient(45deg, #BB86FC 0%, #9C4DCC 100%)' 
-            : 'linear-gradient(45deg, #007AFF 0%, #0056CC 100%)',
-          borderRadius: '50%',
-          opacity: 0.1,
-          animation: 'float 3s ease-in-out infinite',
-          '@keyframes float': {
-            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-            '50%': { transform: 'translateY(-10px) rotate(180deg)' }
-          }
-        }}
-      />
-      
+      {/* Content Container with Background */}
       <Box
         sx={{
-          position: 'absolute',
-          bottom: '-5px',
-          left: '20px',
-          width: '40px',
-          height: '40px',
+          // Background that covers just the content area
           background: darkMode 
-            ? 'linear-gradient(45deg, #BB86FC 0%, #9C4DCC 100%)' 
-            : 'linear-gradient(45deg, #007AFF 0%, #0056CC 100%)',
-          borderRadius: '30%',
-          opacity: 0.08,
-          animation: 'float 4s ease-in-out infinite reverse',
-        }}
-      />
-
-      {/* Premium Icon with Glow */}
-      <Box
-        sx={{
-          position: 'relative',
-          mb: 3,
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '80px',
-            height: '80px',
-            background: darkMode 
-              ? 'radial-gradient(circle, rgba(187, 134, 252, 0.2) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(0, 122, 255, 0.15) 0%, transparent 70%)',
-            borderRadius: '50%',
-            zIndex: -1,
-          }
-        }}
-      >
-        <Box
-          sx={{
-            position: 'relative',
-            background: darkMode 
-              ? 'linear-gradient(135deg, rgba(187, 134, 252, 0.15) 0%, rgba(156, 77, 204, 0.15) 100%)'
-              : 'linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 86, 204, 0.1) 100%)',
-            borderRadius: '20px',
-            padding: '16px',
-            border: darkMode 
-              ? '1px solid rgba(187, 134, 252, 0.2)'
-              : '1px solid rgba(0, 122, 255, 0.15)',
-          }}
-        >
-          <StarIcon 
-            sx={{ 
-              fontSize: '2.5rem', 
-              color: darkMode ? '#BB86FC' : '#007AFF',
-              filter: 'drop-shadow(0 0 8px rgba(187, 134, 252, 0.3))',
-            }} 
-          />
-        </Box>
-      </Box>
-      
-      {/* Main Heading */}
-          <Typography
-            sx={{
-          fontSize: '1.25rem',
-          fontWeight: 800,
-          background: darkMode 
-            ? 'linear-gradient(135deg, #FFFFFF 0%, #BB86FC 100%)'
-            : 'linear-gradient(135deg, #1D1D1F 0%, #007AFF 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-              textAlign: 'center',
-              mb: 1,
-          lineHeight: 1.3,
-          letterSpacing: '-0.02em',
-          fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
-            }}
-          >
-        Unlock Premium Features
-          </Typography>
-          
-      {/* Status Chips */}
-      <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <Chip
-          icon={<RateReviewIcon sx={{ fontSize: '16px !important' }} />}
-          label={`${reviewCount} Review${reviewCount !== 1 ? 's' : ''}`}
-          size="small"
-          sx={{
-            backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
-            color: darkMode ? '#BB86FC' : '#007AFF',
-            fontWeight: 600,
-            fontSize: '0.75rem',
-            '& .MuiChip-icon': {
-              color: darkMode ? '#BB86FC' : '#007AFF',
-            }
-          }}
-        />
-        <Chip
-          icon={<StarIcon sx={{ fontSize: '16px !important' }} />}
-          label={`${gradeCount} Grade${gradeCount !== 1 ? 's' : ''}`}
-          size="small"
-          sx={{
-            backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
-            color: darkMode ? '#BB86FC' : '#007AFF',
-            fontWeight: 600,
-            fontSize: '0.75rem',
-            '& .MuiChip-icon': {
-              color: darkMode ? '#BB86FC' : '#007AFF',
-            }
-          }}
-        />
-      </Box>
-      
-      {/* Description with Specific Benefits */}
-          <Typography
-            sx={{
-          fontSize: '0.9rem',
-              color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
-              textAlign: 'center',
-          mb: 3,
-          lineHeight: 1.5,
-          maxWidth: '320px',
-          fontWeight: 500,
-          fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
-            }}
-          >
-            {needed > 0 
-          ? `Complete ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock:`
-          : `🎉 Premium features unlocked! You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median grade${gradeCount !== 1 ? 's' : ''}.`
-            }
-          </Typography>
-          
-      {/* Feature Benefits List */}
-      {needed > 0 && (
-        <Box sx={{ mb: 3, textAlign: 'center' }}>
-          <Typography
-            sx={{
-              fontSize: '0.85rem',
-              color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
-              fontWeight: 600,
-              mb: 1,
-              fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
-            }}
-          >
-            ✨ Get notified when someone drops a class
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '0.85rem',
-              color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
-              fontWeight: 600,
-              mb: 1,
-              fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
-            }}
-          >
-            📅 Add to Google & Apple Calendar in one click
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '0.85rem',
-              color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
-              fontWeight: 600,
-              fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
-            }}
-          >
-            📊 Real-time enrollment data for the rest of the term
-          </Typography>
-        </Box>
-      )}
-
-      {/* Call to Action Button */}
-      <Button
-        onClick={handleNavigateToReviews}
-        endIcon={<ArrowForwardIcon sx={{ fontSize: '18px' }} />}
-        sx={{
-          background: darkMode 
-            ? 'linear-gradient(135deg, #BB86FC 0%, #9C4DCC 100%)'
-            : 'linear-gradient(135deg, #007AFF 0%, #0056CC 100%)',
-          color: 'white',
-          fontWeight: 700,
-          fontSize: '0.95rem',
-          fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
-          textTransform: 'none',
-          borderRadius: '14px',
-          padding: '14px 28px',
-          minHeight: '48px', // Ensure minimum touch target
-          minWidth: '200px', // Ensure adequate button width
-          position: 'relative',
-          zIndex: 20, // Higher z-index to ensure it's above everything
+            ? 'linear-gradient(135deg, rgba(28, 31, 67, 0.95) 0%, rgba(45, 55, 89, 0.95) 50%, rgba(28, 31, 67, 0.95) 100%)' 
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 50%, rgba(255, 255, 255, 0.95) 100%)',
+          backdropFilter: 'blur(25px)',
+          WebkitBackdropFilter: 'blur(25px)',
+          borderRadius: '20px',
+          padding: '24px 20px',
+          // Enhanced shadow and border for better definition
           boxShadow: darkMode
-            ? '0 12px 32px rgba(187, 134, 252, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25)'
-            : '0 12px 32px rgba(0, 122, 255, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+            ? '0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
+            : '0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+          // Add a subtle border for better definition
           border: darkMode 
-            ? '1px solid rgba(255, 255, 255, 0.2)'
-            : '1px solid rgba(255, 255, 255, 0.3)',
-          transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            ? '1px solid rgba(187, 134, 252, 0.3)'
+            : '1px solid rgba(0, 122, 255, 0.2)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           '&:hover': {
-            transform: 'translateY(-3px) scale(1.03)',
             boxShadow: darkMode
-              ? '0 16px 40px rgba(187, 134, 252, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-              : '0 16px 40px rgba(0, 122, 255, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-            background: darkMode 
-              ? 'linear-gradient(135deg, #C89FFF 0%, #A855DD 100%)'
-              : 'linear-gradient(135deg, #1A8FFF 0%, #0A66DD 100%)',
+              ? '0 25px 70px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+              : '0 25px 70px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.95)',
             border: darkMode 
-              ? '1px solid rgba(255, 255, 255, 0.3)'
-              : '1px solid rgba(255, 255, 255, 0.4)',
+              ? '1px solid rgba(187, 134, 252, 0.4)'
+              : '1px solid rgba(0, 122, 255, 0.3)',
           },
-          '&:active': {
-            transform: 'translateY(-1px) scale(0.99)',
-          },
-          // Ensure the button area is clearly defined
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: '-4px',
-            left: '-4px',
-            right: '-4px',
-            bottom: '-4px',
-            background: 'transparent',
-            borderRadius: '18px',
-            zIndex: -1,
-          }
         }}
       >
-        Write Your First Review
-      </Button>
-
-      {/* Progress Indicator */}
-      <Box sx={{ mt: 2, width: '100%', maxWidth: '200px' }}>
+        {/* Decorative Elements */}
         <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mb: 1,
+              sx={{ 
+            position: 'absolute',
+            top: '-10px',
+            right: '20px',
+            width: '60px',
+            height: '60px',
+            background: darkMode 
+              ? 'linear-gradient(45deg, #BB86FC 0%, #9C4DCC 100%)' 
+              : 'linear-gradient(45deg, #007AFF 0%, #0056CC 100%)',
+            borderRadius: '50%',
+            opacity: 0.1,
+            animation: 'float 3s ease-in-out infinite',
+            '@keyframes float': {
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-10px) rotate(180deg)' }
+            }
           }}
-        >
-          <Typography
-            sx={{
-              fontSize: '0.75rem',
-              color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-            }}
-          >
-            Progress
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '0.75rem',
-              color: darkMode ? '#BB86FC' : '#007AFF',
-              fontWeight: 700,
-            }}
-          >
-            {totalContributions}/3
-          </Typography>
-        </Box>
+        />
         
         <Box
           sx={{
-            height: '6px',
-            backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-            borderRadius: '3px',
-            overflow: 'hidden',
+            position: 'absolute',
+            bottom: '-5px',
+            left: '20px',
+            width: '40px',
+            height: '40px',
+            background: darkMode 
+              ? 'linear-gradient(45deg, #BB86FC 0%, #9C4DCC 100%)' 
+              : 'linear-gradient(45deg, #007AFF 0%, #0056CC 100%)',
+            borderRadius: '30%',
+            opacity: 0.08,
+            animation: 'float 4s ease-in-out infinite reverse',
+          }}
+        />
+
+        {/* Premium Icon with Glow */}
+        <Box
+          sx={{
             position: 'relative',
+            mb: 3,
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '80px',
+              height: '80px',
+              background: darkMode 
+                ? 'radial-gradient(circle, rgba(187, 134, 252, 0.2) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(0, 122, 255, 0.15) 0%, transparent 70%)',
+              borderRadius: '50%',
+              zIndex: -1,
+            }
           }}
         >
           <Box
             sx={{
-              height: '100%',
-              width: `${Math.min((totalContributions / 3) * 100, 100)}%`,
+              position: 'relative',
               background: darkMode 
-                ? 'linear-gradient(90deg, #BB86FC 0%, #9C4DCC 100%)'
-                : 'linear-gradient(90deg, #007AFF 0%, #0056CC 100%)',
-              borderRadius: '3px',
-              transition: 'width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                ? 'linear-gradient(135deg, rgba(187, 134, 252, 0.15) 0%, rgba(156, 77, 204, 0.15) 100%)'
+                : 'linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 86, 204, 0.1) 100%)',
+              borderRadius: '20px',
+              padding: '16px',
+              border: darkMode 
+                ? '1px solid rgba(187, 134, 252, 0.2)'
+                : '1px solid rgba(0, 122, 255, 0.15)',
+            }}
+          >
+            <StarIcon 
+              sx={{ 
+                fontSize: '2.5rem', 
+                color: darkMode ? '#BB86FC' : '#007AFF',
+                filter: 'drop-shadow(0 0 8px rgba(187, 134, 252, 0.3))',
+              }} 
+            />
+          </Box>
+        </Box>
+        
+        {/* Main Heading */}
+            <Typography
+              sx={{
+            fontSize: '1.25rem',
+            fontWeight: 800,
+            background: darkMode 
+              ? 'linear-gradient(135deg, #FFFFFF 0%, #BB86FC 100%)'
+              : 'linear-gradient(135deg, #1D1D1F 0%, #007AFF 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+                textAlign: 'center',
+                mb: 1,
+            lineHeight: 1.3,
+            letterSpacing: '-0.02em',
+            fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+          Unlock Premium Features
+            </Typography>
+            
+        {/* Status Chips */}
+        <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Chip
+            icon={<RateReviewIcon sx={{ fontSize: '16px !important' }} />}
+            label={`${reviewCount} Review${reviewCount !== 1 ? 's' : ''}`}
+            size="small"
+            sx={{
+              backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
+              color: darkMode ? '#BB86FC' : '#007AFF',
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              '& .MuiChip-icon': {
+                color: darkMode ? '#BB86FC' : '#007AFF',
+              }
+            }}
+          />
+          <Chip
+            icon={<StarIcon sx={{ fontSize: '16px !important' }} />}
+            label={`${gradeCount} Grade${gradeCount !== 1 ? 's' : ''}`}
+            size="small"
+            sx={{
+              backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
+              color: darkMode ? '#BB86FC' : '#007AFF',
+              fontWeight: 600,
+              fontSize: '0.75rem',
+              '& .MuiChip-icon': {
+                color: darkMode ? '#BB86FC' : '#007AFF',
+              }
             }}
           />
         </Box>
-      </Box>
+        
+        {/* Description with Specific Benefits */}
+            <Typography
+              sx={{
+            fontSize: '0.9rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+                textAlign: 'center',
+            mb: 3,
+            lineHeight: 1.5,
+            maxWidth: '320px',
+            fontWeight: 500,
+            fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+              {needed > 0 
+            ? `Complete ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock:`
+            : `🎉 Premium features unlocked! You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median grade${gradeCount !== 1 ? 's' : ''}.`
+              }
+            </Typography>
+            
+        {/* Feature Benefits List */}
+        {needed > 0 && (
+          <Box sx={{ mb: 3, textAlign: 'center' }}>
+            <Typography
+              sx={{
+                fontSize: '0.85rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                fontWeight: 600,
+                mb: 1,
+                fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+              ✨ Get notified when someone drops a class
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.85rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                fontWeight: 600,
+                mb: 1,
+                fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+              📅 Add to Google & Apple Calendar in one click
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.85rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                fontWeight: 600,
+                fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+              📊 Real-time enrollment data for the rest of the term
+            </Typography>
+          </Box>
+        )}
+
+        {/* Call to Action Button */}
+        <Button
+          onClick={handleNavigateToReviews}
+          endIcon={<ArrowForwardIcon sx={{ fontSize: '18px' }} />}
+          sx={{
+            background: darkMode 
+              ? 'linear-gradient(135deg, #BB86FC 0%, #9C4DCC 100%)'
+              : 'linear-gradient(135deg, #007AFF 0%, #0056CC 100%)',
+            color: 'white',
+            fontWeight: 700,
+            fontSize: '0.95rem',
+            fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
+            textTransform: 'none',
+            borderRadius: '14px',
+            padding: '14px 28px',
+            minHeight: '48px', // Ensure minimum touch target
+            minWidth: '200px', // Ensure adequate button width
+            position: 'relative',
+            zIndex: 20, // Higher z-index to ensure it's above everything
+            boxShadow: darkMode
+              ? '0 12px 32px rgba(187, 134, 252, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25)'
+              : '0 12px 32px rgba(0, 122, 255, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+            border: darkMode 
+              ? '1px solid rgba(255, 255, 255, 0.2)'
+              : '1px solid rgba(255, 255, 255, 0.3)',
+            transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            '&:hover': {
+              transform: 'translateY(-3px) scale(1.03)',
+              boxShadow: darkMode
+                ? '0 16px 40px rgba(187, 134, 252, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+                : '0 16px 40px rgba(0, 122, 255, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+              background: darkMode 
+                ? 'linear-gradient(135deg, #C89FFF 0%, #A855DD 100%)'
+                : 'linear-gradient(135deg, #1A8FFF 0%, #0A66DD 100%)',
+              border: darkMode 
+                ? '1px solid rgba(255, 255, 255, 0.3)'
+                : '1px solid rgba(255, 255, 255, 0.4)',
+            },
+            '&:active': {
+              transform: 'translateY(-1px) scale(0.99)',
+            },
+            // Ensure the button area is clearly defined
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: '-4px',
+              left: '-4px',
+              right: '-4px',
+              bottom: '-4px',
+              background: 'transparent',
+              borderRadius: '18px',
+              zIndex: -1,
+            }
+          }}
+        >
+          Write Your First Review
+        </Button>
+
+        {/* Progress Indicator */}
+        <Box sx={{ mt: 2, width: '100%', maxWidth: '200px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: '0.75rem',
+                color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Progress
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.75rem',
+                color: darkMode ? '#BB86FC' : '#007AFF',
+                fontWeight: 700,
+              }}
+            >
+              {totalContributions}/3
+            </Typography>
+          </Box>
+          
+          <Box
+            sx={{
+              height: '6px',
+              backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+              borderRadius: '3px',
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            <Box
+              sx={{
+                height: '100%',
+                width: `${Math.min((totalContributions / 3) * 100, 100)}%`,
+                background: darkMode 
+                  ? 'linear-gradient(90deg, #BB86FC 0%, #9C4DCC 100%)'
+                  : 'linear-gradient(90deg, #007AFF 0%, #0056CC 100%)',
+                borderRadius: '3px',
+                transition: 'width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              }}
+            />
+          </Box>
+        </Box>
+      </Box> {/* Close Content Container with Background */}
     </Box>
   );
 };
