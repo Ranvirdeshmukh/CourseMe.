@@ -195,6 +195,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         padding: '32px 28px',
         zIndex: 10,
         cursor: 'default',
+        pointerEvents: 'auto', // Ensure this captures all mouse events
         transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         '&:hover': {
           transform: 'translateY(-2px)',
@@ -704,7 +705,13 @@ const TimetableGrid = ({
                         backgroundColor: darkMode 
                           ? 'rgba(255, 255, 255, 0.05)' 
                           : 'rgba(0, 0, 0, 0.03)',
-                      }
+                      },
+                      // Don't apply hover effects to locked premium columns
+                      ...(hasUnlockedFeatures ? {} : {
+                        '& .course-row-content:nth-of-type(5), & .course-row-content:nth-of-type(6), & .course-row-content:nth-of-type(7)': {
+                          backgroundColor: 'transparent',
+                        }
+                      })
                     },
                     '&::after': {
                       content: '""',
@@ -937,6 +944,16 @@ const TimetableGrid = ({
                       position: 'relative',
                       width: '12%',
                       border: 'none',
+                      // Disable interactions when locked
+                      pointerEvents: !hasUnlockedFeatures ? 'none' : 'auto',
+                      // Reduce opacity when locked to show it's disabled
+                      opacity: !hasUnlockedFeatures ? 0.4 : 1,
+                      // Remove hover effects when locked
+                      '&:hover': !hasUnlockedFeatures ? {} : {
+                        backgroundColor: darkMode 
+                          ? 'rgba(255, 255, 255, 0.03)' 
+                          : 'rgba(0, 0, 0, 0.02)',
+                      },
                       ...(!hasUnlockedFeatures && {
                         borderLeft: 'none',
                         borderRight: 'none',
@@ -944,7 +961,7 @@ const TimetableGrid = ({
                         borderBottom: 'none',
                       })
                     }}
-                    className="course-row-content"
+                    className={hasUnlockedFeatures ? "course-row-content" : ""}
                   >
                     {!hasUnlockedFeatures ? (
                       // Only render the overlay in the middle column every 5 rows, but span across all 3
@@ -1051,6 +1068,16 @@ const TimetableGrid = ({
                       position: 'relative',
                       width: '12%',
                       border: 'none',
+                      // Disable interactions when locked
+                      pointerEvents: !hasUnlockedFeatures ? 'none' : 'auto',
+                      // Reduce opacity when locked to show it's disabled
+                      opacity: !hasUnlockedFeatures ? 0.4 : 1,
+                      // Remove hover effects when locked
+                      '&:hover': !hasUnlockedFeatures ? {} : {
+                        backgroundColor: darkMode 
+                          ? 'rgba(255, 255, 255, 0.03)' 
+                          : 'rgba(0, 0, 0, 0.02)',
+                      },
                       ...(!hasUnlockedFeatures && {
                         borderLeft: 'none',
                         borderRight: 'none',
@@ -1065,7 +1092,7 @@ const TimetableGrid = ({
                         borderBottom: 'none !important',
                       }
                     }}
-                    className="course-row-content"
+                    className={hasUnlockedFeatures ? "course-row-content" : ""}
                   >
                     {!hasUnlockedFeatures ? (
                       // Empty for locked state - overlay is handled by first column
@@ -1137,6 +1164,16 @@ const TimetableGrid = ({
                       width: '12%',
                       position: 'relative',
                       border: 'none',
+                      // Disable interactions when locked
+                      pointerEvents: !hasUnlockedFeatures ? 'none' : 'auto',
+                      // Reduce opacity when locked to show it's disabled
+                      opacity: !hasUnlockedFeatures ? 0.4 : 1,
+                      // Remove hover effects when locked
+                      '&:hover': !hasUnlockedFeatures ? {} : {
+                        backgroundColor: darkMode 
+                          ? 'rgba(255, 255, 255, 0.03)' 
+                          : 'rgba(0, 0, 0, 0.02)',
+                      },
                       ...(!hasUnlockedFeatures && {
                         borderLeft: 'none',
                         borderRight: 'none',
@@ -1144,7 +1181,7 @@ const TimetableGrid = ({
                         borderBottom: 'none',
                       })
                     }}
-                    className="course-row-content"
+                    className={hasUnlockedFeatures ? "course-row-content" : ""}
                   >
                     {!hasUnlockedFeatures ? (
                       // Empty for locked state - overlay is handled by first column
