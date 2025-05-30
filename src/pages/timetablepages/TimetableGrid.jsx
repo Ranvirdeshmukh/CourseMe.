@@ -593,7 +593,7 @@ const TimetableGrid = ({
     pointerEvents: 'auto',
     '&:hover': {
       backgroundColor: darkMode 
-        ? 'rgba(255, 255, 255, 0.03)' 
+        ? 'rgba(255, 255, 255, 0.04)' 
         : 'rgba(0, 0, 0, 0.02)',
     },
   }), [darkMode]);
@@ -710,19 +710,13 @@ const TimetableGrid = ({
                   key={index}
                   sx={{
                     backgroundColor: 'transparent',
-                    transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                    transition: 'background-color 0.2s ease',
                     cursor: 'default',
                     position: 'relative',
                     '&:hover': {
                       backgroundColor: darkMode 
-                        ? 'rgba(255, 255, 255, 0.03)' 
-                        : 'rgba(0, 0, 0, 0.02)',
-                      transform: 'scale(1.005)',
-                      '& .course-row-content': {
-                        backgroundColor: darkMode 
-                          ? 'rgba(255, 255, 255, 0.05)' 
-                          : 'rgba(0, 0, 0, 0.03)',
-                      }
+                        ? 'rgba(255, 255, 255, 0.02)' 
+                        : 'rgba(0, 0, 0, 0.01)',
                     },
                     '&::after': {
                       content: '""',
@@ -747,12 +741,17 @@ const TimetableGrid = ({
                     sx={{
                       padding: '20px 24px',
                       cursor: 'pointer',
-                      transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                      transition: 'background-color 0.2s ease',
                       fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
                       width: '20%',
                       maxWidth: '20%',
                       border: 'none',
                       position: 'relative',
+                      '&:hover': {
+                        backgroundColor: darkMode 
+                          ? 'rgba(255, 255, 255, 0.03)' 
+                          : 'rgba(0, 0, 0, 0.02)',
+                      },
                     }}
                     className="course-row-content"
                   >
@@ -764,11 +763,10 @@ const TimetableGrid = ({
                           fontWeight: 700,
                           fontSize: '1rem',
                           letterSpacing: '0.3px',
+                          transition: 'color 0.2s ease',
                           '&:hover': {
                             color: darkMode ? '#BB86FC' : '#007AFF',
-                            transform: 'translateX(2px)',
                           },
-                          transition: 'all 0.2s ease',
                         }}
                       >
                         {course.subj} {course.num}
@@ -788,10 +786,7 @@ const TimetableGrid = ({
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
-                          '&:hover': {
-                            transform: 'translateX(2px)',
-                          },
-                          transition: 'all 0.2s ease',
+                          transition: 'opacity 0.2s ease',
                         }}
                       >
                         {course.title || 'No title available'}
@@ -821,7 +816,6 @@ const TimetableGrid = ({
                       fontWeight: 500,
                       fontSize: '0.9rem',
                       textAlign: 'left',
-                      transition: 'all 0.3s ease',
                       fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
                       width: '12%',
                       border: 'none',
@@ -880,7 +874,6 @@ const TimetableGrid = ({
                       fontWeight: 500,
                       fontSize: '0.9rem',
                       textAlign: 'left',
-                      transition: 'all 0.3s ease',
                       fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
                       width: '12%',
                       border: 'none',
@@ -909,7 +902,6 @@ const TimetableGrid = ({
                       fontWeight: 500,
                       fontSize: '0.9rem',
                       textAlign: 'left',
-                      transition: 'all 0.3s ease',
                       fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
                       width: '12%',
                       maxWidth: '12%',
@@ -921,11 +913,7 @@ const TimetableGrid = ({
                         fontSize: '0.9rem !important',
                         lineHeight: '1.4 !important',
                         textDecoration: 'none !important',
-                        '&:hover': {
-                          transform: 'translateX(2px) !important',
-                          textDecoration: 'none !important',
-                        },
-                        transition: 'all 0.2s ease !important',
+                        transition: 'color 0.2s ease !important',
                       },
                     }}
                     className="course-row-content"
