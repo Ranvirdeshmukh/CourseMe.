@@ -568,6 +568,8 @@ const TimetableGrid = ({
   userReviews = [],
   userGradeSubmissions = [],
   onAddReview = () => {}, // Callback to open review modal/page
+  // Term type for proper data organization
+  termType = 'fall', // 'summer' or 'fall'
 }) => {
   
   // Debug logging to see what props are received
