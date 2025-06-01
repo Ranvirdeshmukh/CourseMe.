@@ -23,19 +23,30 @@ const NewStartPage = () => {
   
   // Text scrambling animation effect
   useEffect(() => {
-    // Characters to use for scrambling effect
-    const chars = "!<>-_\\/[]{}—=+*^?#________";
+    // Elegant character set - more refined, less chaotic
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const elegantChars = "CourseMe."; // Occasionally use letters from the target word
+    const subtleGlitch = "▫▪◦•"; // Minimal, elegant glitch characters
     
     let frame = 0;
-    const frameRate = 25;
-    const finalFrameHold = 5; // Significantly reduced from 22 frames to minimize pause
+    const totalFrames = 75; // Slightly faster but still smooth
+    const finalHoldFrames = 45; // Much longer pause to appreciate the logo (1.5 seconds at 30fps)
     let holdCount = 0;
     let isComplete = false;
+    
+    // Each character will have its own "solution time" - more elegant timing
+    const textLength = targetText.length;
+    const solutionTimes = Array.from({ length: textLength }, (_, i) => {
+      // More elegant, wave-like timing pattern
+      const waveOffset = Math.sin((i / textLength) * Math.PI) * 15;
+      const baseTime = 25 + (i * 2.5) + waveOffset;
+      return Math.min(baseTime, 65);
+    });
     
     const scramble = () => {
       if (isComplete) {
         holdCount++;
-        if (holdCount > finalFrameHold) {
+        if (holdCount > finalHoldFrames) {
           setIsAnimationComplete(true);
         }
         return;
@@ -43,38 +54,53 @@ const NewStartPage = () => {
       
       frame++;
       
-      // Calculate progress - how much of target text to show correctly
-      const progress = Math.min(frame / frameRate, 1);
-      const textLength = targetText.length;
-      const scrambleLength = Math.floor(textLength * progress);
-      
-      // Build the displayed text:
-      // 1. Characters that should now be correct
-      // 2. Scrambled characters for the rest
       let displayString = '';
+      let allSolved = true;
       
       for (let i = 0; i < textLength; i++) {
-        if (i < scrambleLength) {
+        const solutionTime = solutionTimes[i];
+        
+        if (frame >= solutionTime) {
+          // Character is solved - show the correct character
           displayString += targetText[i];
-        } else if (i === scrambleLength) {
-          // Active scrambling character
-          const charIndex = Math.floor(Math.random() * chars.length);
-          displayString += chars[charIndex];
         } else {
-          // Spaces for not-yet-reached characters
-          displayString += " ";
+          // Character is still scrambling - more elegant approach
+          allSolved = false;
+          
+          // Calculate scrambling intensity with smoother falloff
+          const timeToSolution = solutionTime - frame;
+          const intensity = Math.max(0.05, Math.min(1, timeToSolution / 25));
+          
+          // Use more refined character selection
+          let charSet = chars;
+          
+          if (intensity < 0.4 && Math.random() < 0.6) {
+            // When close to solution, favor letters from the target word
+            charSet = elegantChars + targetText[i] + targetText[i].toLowerCase() + targetText[i].toUpperCase();
+          } else if (intensity > 0.7 && Math.random() < 0.15) {
+            // Minimal elegant glitch effects only occasionally
+            charSet = subtleGlitch;
+          } else if (intensity < 0.7 && Math.random() < 0.3) {
+            // Mix in some target word characters for coherence
+            charSet = chars + elegantChars;
+          }
+          
+          // Single character selection for elegance (no multiple scrambling)
+          const scrambledChar = charSet[Math.floor(Math.random() * charSet.length)];
+          displayString += scrambledChar;
         }
       }
       
       setDisplayText(displayString);
       
-      // Check if we've completed the animation
-      if (progress >= 1) {
+      // Check if all characters are solved
+      if (allSolved || frame > totalFrames) {
         isComplete = true;
+        setDisplayText(targetText); // Ensure final text is correct
       }
     };
     
-    // Run the animation at 30fps
+    // Run the animation at 30fps for elegant, smooth movement
     const interval = setInterval(scramble, 1000 / 30);
     
     return () => clearInterval(interval);
@@ -217,7 +243,53 @@ const NewStartPage = () => {
       }
     }
     
-    // Normal rendering for scramble animation
+    // Enhanced rendering for scramble animation with character-by-character effects
+    if (!isAnimationComplete && displayText) {
+      return displayText.split('').map((char, index) => {
+        const isCorrectChar = char === targetText[index];
+        const isPeriod = char === '.';
+        const isGlitchChar = ['█', '▓', '▒', '░', '▄', '▀', '▐', '▌', '▆', '▇'].includes(char);
+        
+        // Create dynamic styling based on character state
+        const charStyle = {
+          color: isPeriod ? '#f26655' : isCorrectChar ? '#FFFFFF' : isGlitchChar ? '#FF6B9D' : '#B0B0B0',
+          opacity: isCorrectChar ? 1 : isGlitchChar ? 0.8 + (Math.random() * 0.2) : 0.6 + (Math.random() * 0.4),
+          textShadow: isCorrectChar 
+            ? '0 0 15px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.2)' 
+            : isPeriod 
+              ? '0 0 20px rgba(242, 102, 85, 0.8), 0 0 40px rgba(242, 102, 85, 0.4)'
+              : isGlitchChar
+                ? `0 0 10px rgba(255, 107, 157, 0.8), ${Math.random() * 4 - 2}px 0 8px rgba(255, 255, 255, 0.3)`
+                : `0 0 8px rgba(176, 176, 176, ${Math.random() * 0.6 + 0.2})`,
+          transition: isCorrectChar ? 'all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1)' : 'none',
+          transform: isCorrectChar 
+            ? 'scale(1)' 
+            : isGlitchChar 
+              ? `scale(${0.9 + Math.random() * 0.2}) skew(${Math.random() * 4 - 2}deg)`
+              : `scale(${0.92 + Math.random() * 0.16})`,
+          display: 'inline-block',
+          animation: isCorrectChar 
+            ? 'character-solve 0.6s ease-out' 
+            : isGlitchChar && Math.random() < 0.5
+              ? 'glitch-pulse 0.2s ease-in-out'
+              : !isCorrectChar && Math.random() < 0.2 
+                ? 'subtle-flicker 0.15s ease-in-out' 
+                : 'none',
+          filter: isGlitchChar ? `hue-rotate(${Math.random() * 60}deg)` : 'none',
+        };
+        
+        return (
+          <span 
+            key={`${index}-${char}-${Date.now()}`} // More dynamic key to trigger re-renders
+            style={charStyle}
+          >
+            {char}
+          </span>
+        );
+      });
+    }
+    
+    // Normal rendering for completed text
     if (displayText.endsWith('.')) {
       const textWithoutPeriod = displayText.slice(0, -1);
       return (
@@ -239,6 +311,36 @@ const NewStartPage = () => {
         overflow: 'hidden',
         position: 'relative',
         backgroundColor: '#1C093F', // Dark purple background color used in the app
+        // Add keyframes for the flicker animation
+        '@keyframes subtle-flicker': {
+          '0%': { opacity: 0.7, transform: 'scale(0.95)' },
+          '50%': { opacity: 0.9, transform: 'scale(1.02)' },
+          '100%': { opacity: 0.7, transform: 'scale(0.95)' }
+        },
+        '@keyframes character-solve': {
+          '0%': { 
+            opacity: 0.5, 
+            transform: 'scale(0.8) rotateY(90deg)',
+            textShadow: '0 0 20px rgba(255, 255, 255, 0.8)'
+          },
+          '50%': { 
+            opacity: 0.8, 
+            transform: 'scale(1.1) rotateY(45deg)',
+            textShadow: '0 0 25px rgba(255, 255, 255, 0.9)'
+          },
+          '100%': { 
+            opacity: 1, 
+            transform: 'scale(1) rotateY(0deg)',
+            textShadow: '0 0 10px rgba(255, 255, 255, 0.3)'
+          }
+        },
+        '@keyframes glitch-pulse': {
+          '0%': { textShadow: '0 0 5px rgba(176, 176, 176, 0.5)' },
+          '25%': { textShadow: '2px 0 5px rgba(255, 0, 255, 0.7), -2px 0 5px rgba(0, 255, 255, 0.7)' },
+          '50%': { textShadow: '0 0 5px rgba(176, 176, 176, 0.5)' },
+          '75%': { textShadow: '-2px 0 5px rgba(255, 255, 0, 0.7), 2px 0 5px rgba(255, 0, 0, 0.7)' },
+          '100%': { textShadow: '0 0 5px rgba(176, 176, 176, 0.5)' }
+        }
       }}
     >
       <Box
