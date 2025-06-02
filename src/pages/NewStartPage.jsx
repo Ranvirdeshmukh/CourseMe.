@@ -255,12 +255,12 @@ const NewStartPage = () => {
           color: isPeriod ? '#f26655' : isCorrectChar ? '#FFFFFF' : isGlitchChar ? '#FF6B9D' : '#B0B0B0',
           opacity: isCorrectChar ? 1 : isGlitchChar ? 0.8 + (Math.random() * 0.2) : 0.6 + (Math.random() * 0.4),
           textShadow: isCorrectChar 
-            ? '0 0 15px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.2)' 
+            ? '0 0 8px rgba(255, 255, 255, 0.2), 0 0 16px rgba(255, 255, 255, 0.1)' 
             : isPeriod 
-              ? '0 0 20px rgba(242, 102, 85, 0.8), 0 0 40px rgba(242, 102, 85, 0.4)'
+              ? '0 0 12px rgba(242, 102, 85, 0.4), 0 0 24px rgba(242, 102, 85, 0.2)'
               : isGlitchChar
-                ? `0 0 10px rgba(255, 107, 157, 0.8), ${Math.random() * 4 - 2}px 0 8px rgba(255, 255, 255, 0.3)`
-                : `0 0 8px rgba(176, 176, 176, ${Math.random() * 0.6 + 0.2})`,
+                ? `0 0 6px rgba(255, 107, 157, 0.5), ${Math.random() * 4 - 2}px 0 4px rgba(255, 255, 255, 0.2)`
+                : `0 0 4px rgba(176, 176, 176, ${Math.random() * 0.3 + 0.1})`,
           transition: isCorrectChar 
             ? 'color 0.3s ease-out, opacity 0.3s ease-out, text-shadow 0.4s ease-out' 
             : 'color 0.1s ease-out, opacity 0.1s ease-out',
@@ -329,25 +329,25 @@ const NewStartPage = () => {
           '0%': { 
             opacity: 0.8, 
             transform: 'scale(0.95) rotateY(5deg)',
-            textShadow: '0 0 8px rgba(255, 255, 255, 0.6)',
+            textShadow: '0 0 8px rgba(255, 255, 255, 0.3)',
             filter: 'blur(0.5px)'
           },
           '30%': {
             opacity: 0.9,
             transform: 'scale(0.98) rotateY(3deg)',
-            textShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+            textShadow: '0 0 10px rgba(255, 255, 255, 0.25)',
             filter: 'blur(0.2px)'
           },
           '70%': {
             opacity: 0.95,
             transform: 'scale(1.01) rotateY(1deg)',
-            textShadow: '0 0 12px rgba(255, 255, 255, 0.4)',
+            textShadow: '0 0 12px rgba(255, 255, 255, 0.2)',
             filter: 'blur(0px)'
           },
           '100%': { 
             opacity: 1, 
             transform: 'scale(1) rotateY(0deg)',
-            textShadow: '0 0 15px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.2)',
+            textShadow: '0 0 10px rgba(255, 255, 255, 0.15), 0 0 20px rgba(255, 255, 255, 0.1)',
             filter: 'blur(0px)'
           }
         },
@@ -384,7 +384,7 @@ const NewStartPage = () => {
             fontSize: { xs: '3rem', sm: '4rem', md: '6rem' },
             color: '#FFFFFF',
             letterSpacing: '-0.02em',
-            textShadow: isShrinkingAnimation ? '0 0 15px rgba(255, 255, 255, 0.3)' : isEatingAnimation && eatingStep > maxSteps ? '0 0 25px rgba(255, 255, 255, 0.9)' : '0 0 15px rgba(255, 255, 255, 0.2)',
+            textShadow: isShrinkingAnimation ? '0 0 8px rgba(255, 255, 255, 0.15)' : isEatingAnimation && eatingStep > maxSteps ? '0 0 12px rgba(255, 255, 255, 0.4)' : isEatingAnimation ? `0 0 ${6 + eatingStep}px rgba(255, 255, 255, 0.2)` : '0 0 8px rgba(255, 255, 255, 0.1)',
             opacity: isShrinkingAnimation && isTransitioning ? 0 : isAnimationComplete ? 1 : 0.95,
             transition: isTransitioning ? 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)' : 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
             transform: isTransitioning ? 'scale(0.85) translateY(10px)' : isEatingAnimation && eatingStep > maxSteps ? 'scale(1.1)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.01})` : 'scale(1)',
