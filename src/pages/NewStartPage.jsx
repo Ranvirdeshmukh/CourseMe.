@@ -34,13 +34,13 @@ const NewStartPage = () => {
     let holdCount = 0;
     let isComplete = false;
     
-    // Each character will have its own "solution time" - more elegant timing
+    // Each character will have its own "solution time" - start revealing immediately
     const textLength = targetText.length;
     const solutionTimes = Array.from({ length: textLength }, (_, i) => {
-      // More elegant, wave-like timing pattern
-      const waveOffset = Math.sin((i / textLength) * Math.PI) * 15;
-      const baseTime = 25 + (i * 2.5) + waveOffset;
-      return Math.min(baseTime, 65);
+      // Start revealing from the very beginning with a smoother distribution
+      const waveOffset = Math.sin((i / textLength) * Math.PI) * 8; // Reduced wave intensity
+      const baseTime = 10 + (i * 5.5) + waveOffset; // Start at frame 12 for a slight delay on "C"
+      return Math.min(baseTime, 65); // Keep the same cap
     });
     
     const scramble = () => {
@@ -67,21 +67,21 @@ const NewStartPage = () => {
           // Character is still scrambling - more elegant approach
           allSolved = false;
           
-          // Calculate scrambling intensity with smoother falloff
+          // Calculate scrambling intensity with smoother falloff - adjusted for earlier reveals
           const timeToSolution = solutionTime - frame;
-          const intensity = Math.max(0.05, Math.min(1, timeToSolution / 25));
+          const intensity = Math.max(0.05, Math.min(1, timeToSolution / 15)); // Reduced denominator for smoother transitions
           
           // Use more refined character selection
           let charSet = chars;
           
-          if (intensity < 0.4 && Math.random() < 0.6) {
-            // When close to solution, favor letters from the target word
+          if (intensity < 0.3 && Math.random() < 0.7) {
+            // When close to solution, favor letters from the target word more aggressively
             charSet = elegantChars + targetText[i] + targetText[i].toLowerCase() + targetText[i].toUpperCase();
-          } else if (intensity > 0.7 && Math.random() < 0.15) {
-            // Minimal elegant glitch effects only occasionally
+          } else if (intensity > 0.8 && Math.random() < 0.12) {
+            // Minimal elegant glitch effects only occasionally and when far from solution
             charSet = subtleGlitch;
-          } else if (intensity < 0.7 && Math.random() < 0.3) {
-            // Mix in some target word characters for coherence
+          } else if (intensity < 0.6 && Math.random() < 0.4) {
+            // Mix in some target word characters for coherence earlier in the process
             charSet = chars + elegantChars;
           }
           
