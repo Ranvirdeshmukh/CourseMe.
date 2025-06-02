@@ -265,11 +265,11 @@ const NewStartPage = () => {
           transform: isCorrectChar 
             ? 'scale(1)' 
             : isGlitchChar 
-              ? `scale(${0.9 + Math.random() * 0.2}) skew(${Math.random() * 4 - 2}deg)`
-              : `scale(${0.92 + Math.random() * 0.16})`,
+              ? `scale(${0.9 + Math.random() * 0.2}) skew(${Math.random() * 4 - 2}deg) rotateY(${Math.random() * 6 - 3}deg)`
+              : `scale(${0.92 + Math.random() * 0.16}) rotateY(${Math.random() * 8 - 4}deg)`,
           display: 'inline-block',
           animation: isCorrectChar 
-            ? 'character-solve 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
+            ? 'character-solve 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)' 
             : isGlitchChar && Math.random() < 0.5
               ? 'glitch-pulse 0.2s ease-in-out'
               : !isCorrectChar && Math.random() < 0.2 
