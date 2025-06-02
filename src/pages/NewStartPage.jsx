@@ -261,15 +261,17 @@ const NewStartPage = () => {
               : isGlitchChar
                 ? `0 0 10px rgba(255, 107, 157, 0.8), ${Math.random() * 4 - 2}px 0 8px rgba(255, 255, 255, 0.3)`
                 : `0 0 8px rgba(176, 176, 176, ${Math.random() * 0.6 + 0.2})`,
-          transition: isCorrectChar ? 'all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1)' : 'none',
+          transition: isCorrectChar 
+            ? 'color 0.3s ease-out, opacity 0.3s ease-out, text-shadow 0.4s ease-out' 
+            : 'color 0.1s ease-out, opacity 0.1s ease-out',
           transform: isCorrectChar 
-            ? 'scale(1)' 
+            ? 'scale(1) rotateY(0deg)' 
             : isGlitchChar 
               ? `scale(${0.9 + Math.random() * 0.2}) skew(${Math.random() * 4 - 2}deg) rotateY(${Math.random() * 6 - 3}deg)`
               : `scale(${0.92 + Math.random() * 0.16}) rotateY(${Math.random() * 8 - 4}deg)`,
           display: 'inline-block',
           animation: isCorrectChar 
-            ? 'character-solve 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)' 
+            ? 'character-solve 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
             : isGlitchChar && Math.random() < 0.5
               ? 'glitch-pulse 0.2s ease-in-out'
               : !isCorrectChar && Math.random() < 0.2 
@@ -329,6 +331,18 @@ const NewStartPage = () => {
             transform: 'scale(0.95) rotateY(5deg)',
             textShadow: '0 0 8px rgba(255, 255, 255, 0.6)',
             filter: 'blur(0.5px)'
+          },
+          '30%': {
+            opacity: 0.9,
+            transform: 'scale(0.98) rotateY(3deg)',
+            textShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+            filter: 'blur(0.2px)'
+          },
+          '70%': {
+            opacity: 0.95,
+            transform: 'scale(1.01) rotateY(1deg)',
+            textShadow: '0 0 12px rgba(255, 255, 255, 0.4)',
+            filter: 'blur(0px)'
           },
           '100%': { 
             opacity: 1, 
