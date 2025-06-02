@@ -269,13 +269,17 @@ const NewStartPage = () => {
               : `scale(${0.92 + Math.random() * 0.16})`,
           display: 'inline-block',
           animation: isCorrectChar 
-            ? 'character-solve 0.6s ease-out' 
+            ? 'character-solve 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
             : isGlitchChar && Math.random() < 0.5
               ? 'glitch-pulse 0.2s ease-in-out'
               : !isCorrectChar && Math.random() < 0.2 
                 ? 'subtle-flicker 0.15s ease-in-out' 
                 : 'none',
           filter: isGlitchChar ? `hue-rotate(${Math.random() * 60}deg)` : 'none',
+          // Add transform origin for better 3D rotation
+          transformOrigin: 'center center',
+          // Add transform style for 3D
+          transformStyle: 'preserve-3d',
         };
         
         return (
@@ -311,6 +315,8 @@ const NewStartPage = () => {
         overflow: 'hidden',
         position: 'relative',
         backgroundColor: '#1C093F', // Dark purple background color used in the app
+        // Add perspective for better 3D rotation visibility
+        perspective: '1000px',
         // Add keyframes for the flicker animation
         '@keyframes subtle-flicker': {
           '0%': { opacity: 0.7, transform: 'scale(0.95)' },
@@ -319,19 +325,16 @@ const NewStartPage = () => {
         },
         '@keyframes character-solve': {
           '0%': { 
-            opacity: 0.5, 
-            transform: 'scale(0.8) rotateY(90deg)',
-            textShadow: '0 0 20px rgba(255, 255, 255, 0.8)'
-          },
-          '50%': { 
             opacity: 0.8, 
-            transform: 'scale(1.1) rotateY(45deg)',
-            textShadow: '0 0 25px rgba(255, 255, 255, 0.9)'
+            transform: 'scale(0.95) rotateY(5deg)',
+            textShadow: '0 0 8px rgba(255, 255, 255, 0.6)',
+            filter: 'blur(0.5px)'
           },
           '100%': { 
             opacity: 1, 
             transform: 'scale(1) rotateY(0deg)',
-            textShadow: '0 0 10px rgba(255, 255, 255, 0.3)'
+            textShadow: '0 0 15px rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.2)',
+            filter: 'blur(0px)'
           }
         },
         '@keyframes glitch-pulse': {
@@ -373,6 +376,8 @@ const NewStartPage = () => {
             transform: isTransitioning ? 'scale(0.85) translateY(10px)' : isEatingAnimation && eatingStep > maxSteps ? 'scale(1.1)' : isEatingAnimation ? `scale(${1 + eatingStep * 0.01})` : 'scale(1)',
             display: 'inline-block',
             textAlign: 'center',
+            // Add transform-style to enable 3D transforms on child elements
+            transformStyle: 'preserve-3d',
           }}
         >
           {renderTextWithColoredPeriod()}
