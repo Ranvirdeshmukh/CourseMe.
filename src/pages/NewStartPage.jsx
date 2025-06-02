@@ -39,7 +39,7 @@ const NewStartPage = () => {
     const solutionTimes = Array.from({ length: textLength }, (_, i) => {
       // Start revealing from the very beginning with a smoother distribution
       const waveOffset = Math.sin((i / textLength) * Math.PI) * 8; // Reduced wave intensity
-      const baseTime = 5 + (i * 5.5) + waveOffset; // Start at frame 5, spread more gradually
+      const baseTime = 10 + (i * 5.5) + waveOffset; // Start at frame 12 for a slight delay on "C"
       return Math.min(baseTime, 65); // Keep the same cap
     });
     
