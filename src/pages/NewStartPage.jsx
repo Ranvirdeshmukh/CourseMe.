@@ -29,8 +29,8 @@ const NewStartPage = () => {
     const subtleGlitch = "▫▪◦•"; // Minimal, elegant glitch characters
     
     let frame = 0;
-    const totalFrames = 60; // Faster scrambling animation
-    const finalHoldFrames = 30; // Shorter pause to appreciate the logo (1 second at 30fps)
+    const totalFrames = 50; // Optimized scrambling animation (1.67 seconds)
+    const finalHoldFrames = 25; // Optimized pause (0.83 seconds) - Total: 2.5 seconds
     let holdCount = 0;
     let isComplete = false;
     
@@ -38,9 +38,9 @@ const NewStartPage = () => {
     const textLength = targetText.length;
     const solutionTimes = Array.from({ length: textLength }, (_, i) => {
       // More elegant, wave-like timing pattern
-      const waveOffset = Math.sin((i / textLength) * Math.PI) * 12;
-      const baseTime = 20 + (i * 2.2) + waveOffset;
-      return Math.min(baseTime, 55);
+      const waveOffset = Math.sin((i / textLength) * Math.PI) * 10;
+      const baseTime = 15 + (i * 1.8) + waveOffset;
+      return Math.min(baseTime, 45);
     });
     
     const scramble = () => {
