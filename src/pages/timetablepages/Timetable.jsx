@@ -83,7 +83,7 @@ const formatTermName = (termType) => {
 };
 
 // Helper function to check if user has enough reviews
-const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25S') => {
+const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25X') => {
   const requiredTerms = getPreviousTerms(currentTerm);
   
   console.log('hasEnoughReviews check:');
@@ -164,8 +164,11 @@ const Timetable = ({ darkMode }) => {
     setCourses 
   } = useCourses(termType); // Pass termType to useCourses
   
+  // Calculate current term based on termType
+  const currentTerm = termType === 'summer' ? '25X' : '25S';
+  
   // Calculate if user has unlocked features
-  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, "25S");
+  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm);
   
   // Pagination
   const classesPerPage = 50;
@@ -740,7 +743,7 @@ const handleForceRefreshEnrollments = async () => {
     isMobile={isMobile}
     userReviews={userReviews}
     userGradeSubmissions={userGradeSubmissions}
-    currentTerm="25S"
+    currentTerm={currentTerm}
     onAddReview={handleAddReview}
     termType={termType} // Pass the current term type
   />
@@ -835,7 +838,7 @@ const handleForceRefreshEnrollments = async () => {
   isMobile={isMobile}
   userReviews={userReviews}
   userGradeSubmissions={userGradeSubmissions}
-  currentTerm="25S"
+  currentTerm={currentTerm}
   onAddReview={handleAddReview}
   termType={termType} // Pass the current term type
 />

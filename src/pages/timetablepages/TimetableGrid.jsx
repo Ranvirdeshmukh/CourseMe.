@@ -61,7 +61,7 @@ const getPreviousTerms = (currentTerm) => {
 };
 
 // Helper function to check if user has enough reviews
-const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25S') => {
+const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25X') => {
   const requiredTerms = getPreviousTerms(currentTerm);
   
   console.log('hasEnoughReviews check:');
@@ -91,7 +91,7 @@ const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25
 };
 
 // Helper function to get review and grade counts for display
-const getContributionCounts = (reviews = [], gradeSubmissions = [], currentTerm = '25S') => {
+const getContributionCounts = (reviews = [], gradeSubmissions = [], currentTerm = '25X') => {
   const requiredTerms = getPreviousTerms(currentTerm);
   
   console.log('Current term:', currentTerm);
@@ -569,7 +569,7 @@ const TimetableGrid = ({
   enableEnrollmentData = true,
   courseAvailabilityDate = "May 30", // When course availability opens
   // New props for review system
-  currentTerm = "25S",
+  currentTerm = "25X",
   userReviews = [],
   userGradeSubmissions = [],
   onAddReview = () => {}, // Callback to open review modal/page
