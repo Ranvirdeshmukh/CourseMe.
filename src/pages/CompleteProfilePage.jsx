@@ -69,7 +69,7 @@ const majorOptions = [
   'Theater',
   'Womens, Gender, and Sexuality Studies',
   'Undecided',
-  'Graduate Student- MEM, etc.'
+  'Graduate Student- MEM,Tuck,etc.'
 ];
 
 const yearOptions = [2025, 2026, 2027, 2028, 2029];
@@ -215,6 +215,53 @@ const CompleteProfilePage = () => {
             value={major}
             onChange={(event, newValue) => setMajor(newValue)}
             options={majorOptions}
+            PaperComponent={({ children, ...other }) => (
+              <Box
+                {...other}
+                sx={{
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(30, 30, 30, 0.95)' 
+                    : 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(0, 0, 0, 0.08)',
+                  borderRadius: '12px',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+                    : '0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+                  marginTop: '4px',
+                  overflow: 'hidden',
+                  '& .MuiAutocomplete-listbox': {
+                    padding: '8px',
+                    '& .MuiAutocomplete-option': {
+                      borderRadius: '8px',
+                      margin: '2px 0',
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontSize: '15px',
+                      color: theme.palette.text.primary,
+                      transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(139, 92, 246, 0.15)' 
+                          : 'rgba(87, 28, 224, 0.08)',
+                        transform: 'translateX(4px)',
+                      },
+                      '&[aria-selected="true"]': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(139, 92, 246, 0.2)' 
+                          : 'rgba(87, 28, 224, 0.12)',
+                        color: theme.palette.mode === 'dark' ? '#A78BFA' : '#4C1D95',
+                        fontWeight: 500,
+                      },
+                    },
+                  },
+                }}
+              >
+                {children}
+              </Box>
+            )}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -295,6 +342,53 @@ const CompleteProfilePage = () => {
             value={classYear}
             onChange={(event, newValue) => setClassYear(newValue)}
             options={yearOptions}
+            PaperComponent={({ children, ...other }) => (
+              <Box
+                {...other}
+                sx={{
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(30, 30, 30, 0.95)' 
+                    : 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(0, 0, 0, 0.08)',
+                  borderRadius: '12px',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+                    : '0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+                  marginTop: '4px',
+                  overflow: 'hidden',
+                  '& .MuiAutocomplete-listbox': {
+                    padding: '8px',
+                    '& .MuiAutocomplete-option': {
+                      borderRadius: '8px',
+                      margin: '2px 0',
+                      fontFamily: 'SF Pro Display, sans-serif',
+                      fontSize: '15px',
+                      color: theme.palette.text.primary,
+                      transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(139, 92, 246, 0.15)' 
+                          : 'rgba(87, 28, 224, 0.08)',
+                        transform: 'translateX(4px)',
+                      },
+                      '&[aria-selected="true"]': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(139, 92, 246, 0.2)' 
+                          : 'rgba(87, 28, 224, 0.12)',
+                        color: theme.palette.mode === 'dark' ? '#A78BFA' : '#4C1D95',
+                        fontWeight: 500,
+                      },
+                    },
+                  },
+                }}
+              >
+                {children}
+              </Box>
+            )}
             renderInput={(params) => (
               <TextField
                 {...params}
