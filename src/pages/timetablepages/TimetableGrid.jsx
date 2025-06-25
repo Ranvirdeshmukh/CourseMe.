@@ -69,14 +69,14 @@ const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25
   console.log('Reviews:', reviews);
   console.log('Grade submissions:', gradeSubmissions);
   
-  // Count reviews from required terms
+  // Count reviews from required terms (trim whitespace for comparison)
   const reviewCount = reviews.filter(review => 
-    review && review.term && requiredTerms.includes(review.term)
+    review && review.term && requiredTerms.includes(review.term.trim())
   ).length;
   
-  // Count grade submissions from required terms
+  // Count grade submissions from required terms (trim whitespace for comparison)
   const gradeCount = gradeSubmissions.filter(submission => 
-    submission && submission.Term && requiredTerms.includes(submission.Term)
+    submission && submission.Term && requiredTerms.includes(submission.Term.trim())
   ).length;
   
   const totalContributions = reviewCount + gradeCount;
@@ -99,19 +99,21 @@ const getContributionCounts = (reviews = [], gradeSubmissions = [], currentTerm 
   console.log('All reviews:', reviews);
   console.log('All grade submissions:', gradeSubmissions);
   
-  // Count reviews from required terms with exact string matching
+  // Count reviews from required terms with exact string matching (trim whitespace)
   const validReviews = reviews.filter(review => {
     if (!review || !review.term) return false;
-    const isValid = requiredTerms.includes(review.term);
-    console.log(`Review term "${review.term}" valid:`, isValid);
+    const trimmedTerm = review.term.trim();
+    const isValid = requiredTerms.includes(trimmedTerm);
+    console.log(`Review term "${review.term}" (trimmed: "${trimmedTerm}") valid:`, isValid);
     return isValid;
   });
   
-  // Count grade submissions from required terms with exact string matching
+  // Count grade submissions from required terms with exact string matching (trim whitespace)
   const validGradeSubmissions = gradeSubmissions.filter(submission => {
     if (!submission || !submission.Term) return false;
-    const isValid = requiredTerms.includes(submission.Term);
-    console.log(`Grade submission term "${submission.Term}" valid:`, isValid);
+    const trimmedTerm = submission.Term.trim();
+    const isValid = requiredTerms.includes(trimmedTerm);
+    console.log(`Grade submission term "${submission.Term}" (trimmed: "${trimmedTerm}") valid:`, isValid);
     return isValid;
   });
   
@@ -171,9 +173,20 @@ const formatLocation = (room, building) => {
 const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], userGradeSubmissions = [] }) => {
   const navigate = useNavigate();
   const requiredTerms = getPreviousTerms(currentTerm);
+  
+  // Debug logging for AppleInspiredLockOverlay
+  console.log('=== AppleInspiredLockOverlay Debug ===');
+  console.log('Overlay currentTerm:', currentTerm);
+  console.log('Overlay userReviews:', userReviews);
+  console.log('Overlay userGradeSubmissions:', userGradeSubmissions);
+  console.log('Overlay requiredTerms:', requiredTerms);
+  
   const { reviewCount, gradeCount } = getContributionCounts(userReviews, userGradeSubmissions, currentTerm);
   const totalContributions = reviewCount + gradeCount;
   const needed = Math.max(0, 3 - totalContributions);
+  
+  console.log('Overlay final counts - reviewCount:', reviewCount, 'gradeCount:', gradeCount, 'total:', totalContributions, 'needed:', needed);
+  console.log('=== End AppleInspiredLockOverlay Debug ===');
 
   const handleNavigateToReviews = () => {
     navigate('/classes'); // Navigate to AllClassesPage (correct route)
@@ -578,13 +591,18 @@ const TimetableGrid = ({
 }) => {
   
   // Debug logging to see what props are received
+  console.log('=== TimetableGrid Main Debug ===');
   console.log('TimetableGrid received props:');
   console.log('userReviews:', userReviews);
   console.log('userGradeSubmissions:', userGradeSubmissions);
   console.log('currentTerm:', currentTerm);
+  console.log('termType:', termType);
   
   // Check if user has enough reviews to unlock features
   const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm);
+  
+  console.log('TimetableGrid hasUnlockedFeatures result:', hasUnlockedFeatures);
+  console.log('=== End TimetableGrid Main Debug ===');
 
   // Memoize the base cell styles to prevent recalculation
   const lockedCellStyles = useMemo(() => ({

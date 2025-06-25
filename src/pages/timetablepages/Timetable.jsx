@@ -91,14 +91,14 @@ const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25
   console.log('Reviews:', reviews);
   console.log('Grade submissions:', gradeSubmissions);
   
-  // Count reviews from required terms
+  // Count reviews from required terms (trim whitespace for comparison)
   const reviewCount = reviews.filter(review => 
-    review && review.term && requiredTerms.includes(review.term)
+    review && review.term && requiredTerms.includes(review.term.trim())
   ).length;
   
-  // Count grade submissions from required terms
+  // Count grade submissions from required terms (trim whitespace for comparison)
   const gradeCount = gradeSubmissions.filter(submission => 
-    submission && submission.Term && requiredTerms.includes(submission.Term)
+    submission && submission.Term && requiredTerms.includes(submission.Term.trim())
   ).length;
   
   const totalContributions = reviewCount + gradeCount;
