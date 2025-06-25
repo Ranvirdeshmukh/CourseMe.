@@ -83,7 +83,7 @@ const formatTermName = (termType) => {
 };
 
 // Helper function to check if user has enough reviews
-const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25S') => {
+const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25X') => {
   const requiredTerms = getPreviousTerms(currentTerm);
   
   console.log('hasEnoughReviews check:');
@@ -91,14 +91,14 @@ const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25
   console.log('Reviews:', reviews);
   console.log('Grade submissions:', gradeSubmissions);
   
-  // Count reviews from required terms
+  // Count reviews from required terms (trim whitespace for comparison)
   const reviewCount = reviews.filter(review => 
-    review && review.term && requiredTerms.includes(review.term)
+    review && review.term && requiredTerms.includes(review.term.trim())
   ).length;
   
-  // Count grade submissions from required terms
+  // Count grade submissions from required terms (trim whitespace for comparison)
   const gradeCount = gradeSubmissions.filter(submission => 
-    submission && submission.Term && requiredTerms.includes(submission.Term)
+    submission && submission.Term && requiredTerms.includes(submission.Term.trim())
   ).length;
   
   const totalContributions = reviewCount + gradeCount;
@@ -164,8 +164,11 @@ const Timetable = ({ darkMode }) => {
     setCourses 
   } = useCourses(termType); // Pass termType to useCourses
   
+  // Calculate current term based on termType
+  const currentTerm = termType === 'summer' ? '25X' : '25S';
+  
   // Calculate if user has unlocked features
-  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, "25S");
+  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm);
   
   // Pagination
   const classesPerPage = 50;
@@ -740,7 +743,7 @@ const handleForceRefreshEnrollments = async () => {
     isMobile={isMobile}
     userReviews={userReviews}
     userGradeSubmissions={userGradeSubmissions}
-    currentTerm="25S"
+    currentTerm={currentTerm}
     onAddReview={handleAddReview}
     termType={termType} // Pass the current term type
   />
@@ -835,7 +838,7 @@ const handleForceRefreshEnrollments = async () => {
   isMobile={isMobile}
   userReviews={userReviews}
   userGradeSubmissions={userGradeSubmissions}
-  currentTerm="25S"
+  currentTerm={currentTerm}
   onAddReview={handleAddReview}
   termType={termType} // Pass the current term type
 />
