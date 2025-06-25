@@ -173,20 +173,9 @@ const formatLocation = (room, building) => {
 const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], userGradeSubmissions = [] }) => {
   const navigate = useNavigate();
   const requiredTerms = getPreviousTerms(currentTerm);
-  
-  // Debug logging for AppleInspiredLockOverlay
-  console.log('=== AppleInspiredLockOverlay Debug ===');
-  console.log('Overlay currentTerm:', currentTerm);
-  console.log('Overlay userReviews:', userReviews);
-  console.log('Overlay userGradeSubmissions:', userGradeSubmissions);
-  console.log('Overlay requiredTerms:', requiredTerms);
-  
   const { reviewCount, gradeCount } = getContributionCounts(userReviews, userGradeSubmissions, currentTerm);
   const totalContributions = reviewCount + gradeCount;
   const needed = Math.max(0, 3 - totalContributions);
-  
-  console.log('Overlay final counts - reviewCount:', reviewCount, 'gradeCount:', gradeCount, 'total:', totalContributions, 'needed:', needed);
-  console.log('=== End AppleInspiredLockOverlay Debug ===');
 
   const handleNavigateToReviews = () => {
     navigate('/classes'); // Navigate to AllClassesPage (correct route)
@@ -590,19 +579,8 @@ const TimetableGrid = ({
   termType = 'fall', // 'summer' or 'fall'
 }) => {
   
-  // Debug logging to see what props are received
-  console.log('=== TimetableGrid Main Debug ===');
-  console.log('TimetableGrid received props:');
-  console.log('userReviews:', userReviews);
-  console.log('userGradeSubmissions:', userGradeSubmissions);
-  console.log('currentTerm:', currentTerm);
-  console.log('termType:', termType);
-  
   // Check if user has enough reviews to unlock features
   const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm);
-  
-  console.log('TimetableGrid hasUnlockedFeatures result:', hasUnlockedFeatures);
-  console.log('=== End TimetableGrid Main Debug ===');
 
   // Memoize the base cell styles to prevent recalculation
   const lockedCellStyles = useMemo(() => ({

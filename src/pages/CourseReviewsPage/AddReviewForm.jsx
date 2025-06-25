@@ -24,6 +24,56 @@ const AddReviewForm = ({ onReviewAdded, darkMode }) => {
   const [error, setError] = useState(null);
   const [professorsList, setProfessorsList] = useState([]);
 
+  // Dynamic term generation function
+  const generateTermOptions = () => {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
+    
+    // Determine current academic year
+    let academicYear;
+    
+    // Academic year runs from Fall (September) to Summer (August)
+    if (currentMonth >= 9) {
+      // Fall term or later in current calendar year
+      academicYear = currentYear;
+    } else {
+      // Winter, Spring, or Summer in following calendar year  
+      academicYear = currentYear - 1;
+    }
+    
+    // Determine which term we're currently in (for reference, not used in generation)
+    let currentTerm;
+    if (currentMonth >= 9 && currentMonth <= 11) {
+      currentTerm = 'F'; // Fall (Sep-Nov)
+    } else if (currentMonth === 12 || currentMonth <= 2) {
+      currentTerm = 'W'; // Winter (Dec-Feb)
+    } else if (currentMonth >= 3 && currentMonth <= 5) {
+      currentTerm = 'S'; // Spring (Mar-May)  
+    } else if (currentMonth >= 6 && currentMonth <= 8) {
+      currentTerm = 'X'; // Summer (Jun-Aug)
+    }
+    
+    const terms = [];
+    const seasons = ['F', 'X', 'S', 'W']; // Fall, Summer, Spring, Winter in reverse chronological order
+    
+    // Generate terms starting from 1 year in the future, going back 4 years
+    // This ensures we always have current + future terms available
+    for (let yearOffset = 1; yearOffset >= -4; yearOffset--) {
+      const year = academicYear + yearOffset;
+      const shortYear = String(year).slice(-2);
+      
+      for (const season of seasons) {
+        const termCode = `${shortYear}${season}`;
+        terms.push(termCode);
+      }
+    }
+    
+    return terms;
+  };
+
+  const termOptions = generateTermOptions();
+
   useEffect(() => {
     const fetchProfessors = async () => {
       try {
@@ -67,14 +117,19 @@ const AddReviewForm = ({ onReviewAdded, darkMode }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!term || !professor || !review) {
+    // Trim whitespace from all inputs to ensure clean data
+    const cleanTerm = term.trim();
+    const cleanProfessor = professor.trim();
+    const cleanReview = review.trim();
+
+    if (!cleanTerm || !cleanProfessor || !cleanReview) {
       setError('All fields are required');
       return;
     }
 
     try {
-      const sanitizedProfessor = sanitizeFieldPath(professor);
-      const reviewData = `${term} with ${professor}: ${review}`;
+      const sanitizedProfessor = sanitizeFieldPath(cleanProfessor);
+      const reviewData = `${cleanTerm} with ${cleanProfessor}: ${cleanReview}`;
 
       let data = null;
       const transformedCourseIdMatch = courseId.match(/([A-Z]+\d{3}_\d{2})/);
@@ -96,14 +151,14 @@ const AddReviewForm = ({ onReviewAdded, darkMode }) => {
       await updateDoc(userDocRef, {
         reviews: arrayUnion({
           courseId: transformedCourseId || sanitizedCourseId,
-          term,
-          professor,
-          review,
+          term: cleanTerm,
+          professor: cleanProfessor,
+          review: cleanReview,
         }),
       });
 
-      if (!professorsList.includes(professor)) {
-        setProfessorsList([...professorsList, professor]);
+      if (!professorsList.includes(cleanProfessor)) {
+        setProfessorsList([...professorsList, cleanProfessor]);
       }
 
       onReviewAdded();
@@ -242,36 +297,78 @@ const AddReviewForm = ({ onReviewAdded, darkMode }) => {
             >
               Term
             </Typography>
-            <TextField
+            <Autocomplete
+              options={termOptions}
               value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              fullWidth
-              required
-              placeholder="e.g., 24F"
-              variant="outlined"
-              size="medium"
-              InputProps={{
-                sx: {
-                  backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.8)' : 'rgba(255, 255, 255, 0.7)',
-                  color: darkMode ? '#FFFFFF' : '#1D1D1F',
-                  borderRadius: '12px',
-                  border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  boxShadow: darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
-                  transition: 'all 0.2s ease',
-                  height: '56px',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
-                  letterSpacing: '-0.01em',
-                  '&:hover': {
-                    backgroundColor: darkMode ? 'rgba(40, 45, 71, 0.8)' : 'rgba(248, 249, 251, 0.9)',
-                    boxShadow: darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
-                  },
-                  '&.Mui-focused': {
-                    boxShadow: darkMode ? '0 0 0 3px rgba(10, 132, 255, 0.3)' : '0 0 0 3px rgba(0, 113, 227, 0.2)',
-                  }
-                },
+              onChange={(event, newValue) => {
+                setTerm(newValue || '');
               }}
+              disableClearable={false}
+              autoHighlight
+              renderOption={(props, option) => {
+                const getFullYear = (shortYear) => {
+                  const year = parseInt(shortYear);
+                  return year >= 20 ? `20${shortYear}` : `20${shortYear}`;
+                };
+                
+                const getSeasonYear = (option, seasonName) => {
+                  const shortYear = option.slice(0, 2);
+                  const baseYear = parseInt(getFullYear(shortYear));
+                  
+                  // Winter and Spring are in the following calendar year
+                  if (seasonName === 'Winter' || seasonName === 'Spring') {
+                    return baseYear + 1;
+                  }
+                  return baseYear;
+                };
+                
+                const getDisplayName = (option) => {
+                  if (option.endsWith('F')) return `Fall ${getSeasonYear(option, 'Fall')}`;
+                  if (option.endsWith('W')) return `Winter ${getSeasonYear(option, 'Winter')}`;
+                  if (option.endsWith('S')) return `Spring ${getSeasonYear(option, 'Spring')}`;
+                  if (option.endsWith('X')) return `Summer ${getSeasonYear(option, 'Summer')}`;
+                  return option;
+                };
+                
+                return (
+                  <Box component="li" {...props} sx={{ fontSize: '0.95rem', fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif' }}>
+                    {option} ({getDisplayName(option)})
+                  </Box>
+                );
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  required
+                  placeholder="Select a term"
+                  fullWidth
+                  variant="outlined"
+                  size="medium"
+                  InputProps={{
+                    ...params.InputProps,
+                    sx: {
+                      backgroundColor: darkMode ? 'rgba(30, 35, 61, 0.8)' : 'rgba(255, 255, 255, 0.7)',
+                      color: darkMode ? '#FFFFFF' : '#1D1D1F',
+                      borderRadius: '12px',
+                      border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      boxShadow: darkMode ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+                      transition: 'all 0.2s ease',
+                      height: '56px',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                      letterSpacing: '-0.01em',
+                      '&:hover': {
+                        backgroundColor: darkMode ? 'rgba(40, 45, 71, 0.8)' : 'rgba(248, 249, 251, 0.9)',
+                        boxShadow: darkMode ? '0 6px 16px rgba(0, 0, 0, 0.2)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
+                      },
+                      '&.Mui-focused': {
+                        boxShadow: darkMode ? '0 0 0 3px rgba(10, 132, 255, 0.3)' : '0 0 0 3px rgba(0, 113, 227, 0.2)',
+                      }
+                    },
+                  }}
+                />
+              )}
             />
           </Box>
 
