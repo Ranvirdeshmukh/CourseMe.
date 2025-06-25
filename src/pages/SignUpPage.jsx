@@ -226,34 +226,67 @@ const SignUpPage = ({ darkMode }) => {
             required
             sx={{
               mb: 2,
-              bgcolor: theme.palette.background.default,
-              borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                height: '48px',
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.03)' 
+                  : theme.palette.background.default,
+                borderRadius: '12px',
+                height: '52px',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.08)' 
+                  : '1px solid rgba(0, 0, 0, 0.08)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '& fieldset': {
-                  borderColor: theme.palette.divider,
-                  transition: 'border-color 0.3s ease',
+                  border: 'none',
                 },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'rgba(87, 28, 224, 0.02)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.12)' 
+                    : '1px solid rgba(87, 28, 224, 0.15)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 4px 20px rgba(0, 0, 0, 0.15)'
+                    : '0 4px 20px rgba(87, 28, 224, 0.08)',
                 },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&.Mui-focused': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.06)' 
+                    : 'rgba(87, 28, 224, 0.03)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(87, 28, 224, 0.4)' 
+                    : '1px solid rgba(87, 28, 224, 0.3)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 6px 25px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(87, 28, 224, 0.15)'
+                    : '0 6px 25px rgba(87, 28, 224, 0.12), 0 0 0 3px rgba(87, 28, 224, 0.1)',
                 },
               },
               '& .MuiInputBase-input': {
                 color: theme.palette.text.primary,
-              },
-              '& .MuiOutlinedInput-input::placeholder': {
-                color: theme.palette.text.secondary,
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                '&::placeholder': {
+                  color: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.5)' 
+                    : 'rgba(0, 0, 0, 0.6)',
+                  opacity: 1,
+                },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <PersonIcon sx={{ color: '#571ce0' }} />
+                  <PersonIcon sx={{ 
+                    color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                    transition: 'color 0.3s ease'
+                  }} />
                 </InputAdornment>
               ),
             }}
@@ -265,34 +298,67 @@ const SignUpPage = ({ darkMode }) => {
             required
             sx={{
               mb: 2,
-              bgcolor: theme.palette.background.default,
-              borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                height: '48px',
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.03)' 
+                  : theme.palette.background.default,
+                borderRadius: '12px',
+                height: '52px',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.08)' 
+                  : '1px solid rgba(0, 0, 0, 0.08)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '& fieldset': {
-                  borderColor: theme.palette.divider,
-                  transition: 'border-color 0.3s ease',
+                  border: 'none',
                 },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'rgba(87, 28, 224, 0.02)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.12)' 
+                    : '1px solid rgba(87, 28, 224, 0.15)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 4px 20px rgba(0, 0, 0, 0.15)'
+                    : '0 4px 20px rgba(87, 28, 224, 0.08)',
                 },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&.Mui-focused': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.06)' 
+                    : 'rgba(87, 28, 224, 0.03)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(87, 28, 224, 0.4)' 
+                    : '1px solid rgba(87, 28, 224, 0.3)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 6px 25px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(87, 28, 224, 0.15)'
+                    : '0 6px 25px rgba(87, 28, 224, 0.12), 0 0 0 3px rgba(87, 28, 224, 0.1)',
                 },
               },
               '& .MuiInputBase-input': {
                 color: theme.palette.text.primary,
-              },
-              '& .MuiOutlinedInput-input::placeholder': {
-                color: theme.palette.text.secondary,
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                '&::placeholder': {
+                  color: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.5)' 
+                    : 'rgba(0, 0, 0, 0.6)',
+                  opacity: 1,
+                },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <PersonIcon sx={{ color: '#571ce0' }} />
+                  <PersonIcon sx={{ 
+                    color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                    transition: 'color 0.3s ease'
+                  }} />
                 </InputAdornment>
               ),
             }}
@@ -304,34 +370,67 @@ const SignUpPage = ({ darkMode }) => {
             required
             sx={{
               mb: 2,
-              bgcolor: theme.palette.background.default,
-              borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                height: '48px',
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.03)' 
+                  : theme.palette.background.default,
+                borderRadius: '12px',
+                height: '52px',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.08)' 
+                  : '1px solid rgba(0, 0, 0, 0.08)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '& fieldset': {
-                  borderColor: theme.palette.divider,
-                  transition: 'border-color 0.3s ease',
+                  border: 'none',
                 },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'rgba(87, 28, 224, 0.02)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.12)' 
+                    : '1px solid rgba(87, 28, 224, 0.15)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 4px 20px rgba(0, 0, 0, 0.15)'
+                    : '0 4px 20px rgba(87, 28, 224, 0.08)',
                 },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&.Mui-focused': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.06)' 
+                    : 'rgba(87, 28, 224, 0.03)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(87, 28, 224, 0.4)' 
+                    : '1px solid rgba(87, 28, 224, 0.3)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 6px 25px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(87, 28, 224, 0.15)'
+                    : '0 6px 25px rgba(87, 28, 224, 0.12), 0 0 0 3px rgba(87, 28, 224, 0.1)',
                 },
               },
               '& .MuiInputBase-input': {
                 color: theme.palette.text.primary,
-              },
-              '& .MuiOutlinedInput-input::placeholder': {
-                color: theme.palette.text.secondary,
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                '&::placeholder': {
+                  color: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.5)' 
+                    : 'rgba(0, 0, 0, 0.6)',
+                  opacity: 1,
+                },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <EmailIcon sx={{ color: '#571ce0' }} />
+                  <EmailIcon sx={{ 
+                    color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                    transition: 'color 0.3s ease'
+                  }} />
                 </InputAdornment>
               ),
             }}
@@ -344,34 +443,67 @@ const SignUpPage = ({ darkMode }) => {
             required
             sx={{
               mb: 2,
-              bgcolor: theme.palette.background.default,
-              borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                height: '48px',
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.03)' 
+                  : theme.palette.background.default,
+                borderRadius: '12px',
+                height: '52px',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.08)' 
+                  : '1px solid rgba(0, 0, 0, 0.08)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '& fieldset': {
-                  borderColor: theme.palette.divider,
-                  transition: 'border-color 0.3s ease',
+                  border: 'none',
                 },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'rgba(87, 28, 224, 0.02)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.12)' 
+                    : '1px solid rgba(87, 28, 224, 0.15)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 4px 20px rgba(0, 0, 0, 0.15)'
+                    : '0 4px 20px rgba(87, 28, 224, 0.08)',
                 },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&.Mui-focused': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.06)' 
+                    : 'rgba(87, 28, 224, 0.03)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(87, 28, 224, 0.4)' 
+                    : '1px solid rgba(87, 28, 224, 0.3)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 6px 25px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(87, 28, 224, 0.15)'
+                    : '0 6px 25px rgba(87, 28, 224, 0.12), 0 0 0 3px rgba(87, 28, 224, 0.1)',
                 },
               },
               '& .MuiInputBase-input': {
                 color: theme.palette.text.primary,
-              },
-              '& .MuiOutlinedInput-input::placeholder': {
-                color: theme.palette.text.secondary,
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                '&::placeholder': {
+                  color: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.5)' 
+                    : 'rgba(0, 0, 0, 0.6)',
+                  opacity: 1,
+                },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockIcon sx={{ color: '#571ce0' }} />
+                  <LockIcon sx={{ 
+                    color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                    transition: 'color 0.3s ease'
+                  }} />
                 </InputAdornment>
               ),
               endAdornment: (
@@ -380,6 +512,10 @@ const SignUpPage = ({ darkMode }) => {
                     aria-label="toggle password visibility"
                     onClick={handleClickShowPassword}
                     edge="end"
+                    sx={{
+                      color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                      transition: 'color 0.3s ease',
+                    }}
                   >
                     {showPassword ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
@@ -395,34 +531,67 @@ const SignUpPage = ({ darkMode }) => {
             required
             sx={{
               mb: 3,
-              bgcolor: theme.palette.background.default,
-              borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                height: '48px',
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.03)' 
+                  : theme.palette.background.default,
+                borderRadius: '12px',
+                height: '52px',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.08)' 
+                  : '1px solid rgba(0, 0, 0, 0.08)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '& fieldset': {
-                  borderColor: theme.palette.divider,
-                  transition: 'border-color 0.3s ease',
+                  border: 'none',
                 },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'rgba(87, 28, 224, 0.02)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.12)' 
+                    : '1px solid rgba(87, 28, 224, 0.15)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 4px 20px rgba(0, 0, 0, 0.15)'
+                    : '0 4px 20px rgba(87, 28, 224, 0.08)',
                 },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&.Mui-focused': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.06)' 
+                    : 'rgba(87, 28, 224, 0.03)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(87, 28, 224, 0.4)' 
+                    : '1px solid rgba(87, 28, 224, 0.3)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 6px 25px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(87, 28, 224, 0.15)'
+                    : '0 6px 25px rgba(87, 28, 224, 0.12), 0 0 0 3px rgba(87, 28, 224, 0.1)',
                 },
               },
               '& .MuiInputBase-input': {
                 color: theme.palette.text.primary,
-              },
-              '& .MuiOutlinedInput-input::placeholder': {
-                color: theme.palette.text.secondary,
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                '&::placeholder': {
+                  color: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.5)' 
+                    : 'rgba(0, 0, 0, 0.6)',
+                  opacity: 1,
+                },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockIcon sx={{ color: '#571ce0' }} />
+                  <LockIcon sx={{ 
+                    color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                    transition: 'color 0.3s ease'
+                  }} />
                 </InputAdornment>
               ),
               endAdornment: (
@@ -431,6 +600,10 @@ const SignUpPage = ({ darkMode }) => {
                     aria-label="toggle confirm password visibility"
                     onClick={handleClickShowConfirmPassword}
                     edge="end"
+                    sx={{
+                      color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                      transition: 'color 0.3s ease',
+                    }}
                   >
                     {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
@@ -438,32 +611,81 @@ const SignUpPage = ({ darkMode }) => {
               ),
             }}
           />
-          <Typography
-            variant="body2"
+          <Box
             sx={{
               marginBottom: '20px',
-              fontFamily: 'SF Pro Display, sans-serif',
-              color: theme.palette.text.primary,
+              padding: '12px 16px',
+              backgroundColor: theme.palette.mode === 'dark' 
+                ? 'rgba(139, 92, 246, 0.1)' 
+                : 'rgba(87, 28, 224, 0.08)',
+              border: theme.palette.mode === 'dark' 
+                ? '1px solid rgba(139, 92, 246, 0.2)' 
+                : '1px solid rgba(87, 28, 224, 0.15)',
+              borderRadius: '10px',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
             }}
           >
-            <strong>Please Note:</strong> Sign up using your Dartmouth email ID.
-          </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: 'SF Pro Display, sans-serif',
+                color: theme.palette.text.primary,
+                fontSize: '14px',
+                lineHeight: 1.4,
+              }}
+            >
+              <strong>Please Note:</strong> Sign up using your Dartmouth email ID.
+            </Typography>
+          </Box>
           <Button
             type="submit"
             variant="contained"
             fullWidth
             disabled={loading}
             sx={{
-              backgroundColor: '#000080', // Navy Royal Blue
+              background: theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, #8B5CF6 0%, #571CE0 100%)'
+                : 'linear-gradient(135deg, #571CE0 0%, #3B0F9F 100%)',
               color: '#FFFFFF',
-              fontWeight: 'bold',
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontWeight: 600,
+              fontSize: '16px',
               mb: 2,
-              height: '48px',
-              borderRadius: '20px',
-              transition: 'transform 0.2s',
+              height: '52px',
+              borderRadius: '14px',
+              border: 'none',
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 8px 24px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                : '0 8px 24px rgba(87, 28, 224, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+              position: 'relative',
+              overflow: 'hidden',
+              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              '&:before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '1px',
+                background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)',
+              },
               '&:hover': {
-                backgroundColor: '#0000CD', // Medium Blue
-                transform: 'scale(1.05)',
+                transform: 'translateY(-2px) scale(1.02)',
+                boxShadow: theme.palette.mode === 'dark'
+                  ? '0 12px 32px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
+                  : '0 12px 32px rgba(87, 28, 224, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25)',
+              },
+              '&:active': {
+                transform: 'translateY(-1px) scale(1.01)',
+              },
+              '&:disabled': {
+                background: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.1)' 
+                  : 'rgba(0, 0, 0, 0.1)',
+                color: theme.palette.text.disabled,
+                boxShadow: 'none',
+                transform: 'none',
               },
             }}
           >
@@ -477,16 +699,43 @@ const SignUpPage = ({ darkMode }) => {
               alignItems: 'center',
               justifyContent: 'center',
               width: '100%',
-              height: '48px',
-              backgroundColor: theme.palette.background.default, // Adjusted for theme
-              borderRadius: '20px',
-              boxShadow: theme.shadows[2],
+              height: '52px',
+              backgroundColor: theme.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.05)' 
+                : theme.palette.background.default,
+              border: theme.palette.mode === 'dark' 
+                ? '1px solid rgba(255, 255, 255, 0.1)' 
+                : '1px solid rgba(0, 0, 0, 0.08)',
+              borderRadius: '14px',
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+                : theme.shadows[2],
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
               cursor: 'pointer',
               mb: 2,
-              transition: 'background-color 0.2s, box-shadow 0.2s',
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontWeight: 500,
+              fontSize: '16px',
+              color: theme.palette.text.primary,
+              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               '&:hover': {
-                backgroundColor: theme.palette.action.hover,
-                boxShadow: theme.shadows[4],
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.08)' 
+                  : 'rgba(0, 0, 0, 0.02)',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.15)' 
+                  : '1px solid rgba(0, 0, 0, 0.12)',
+                boxShadow: theme.palette.mode === 'dark'
+                  ? '0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+                  : theme.shadows[4],
+                transform: 'translateY(-1px)',
+              },
+              '&:active': {
+                transform: 'translateY(0px)',
+                boxShadow: theme.palette.mode === 'dark'
+                  ? '0 2px 8px rgba(0, 0, 0, 0.15)'
+                  : theme.shadows[1],
               },
             }}
           >
@@ -527,15 +776,34 @@ const SignUpPage = ({ darkMode }) => {
               <span>Continue with Google</span>
             </Box>
           </Box>
-          <Typography variant="body2" sx={{ mt: 3, fontSize: '1.1rem' }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              mt: 3, 
+              fontSize: '1.1rem',
+              fontFamily: 'SF Pro Display, sans-serif',
+              textAlign: 'center',
+            }}
+          >
             Already have an account?{' '}
             <Link
               component={RouterLink}
               to="/login"
               sx={{
-                color: '#571CE0',
-                fontWeight: 'bold',
+                color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571CE0',
+                fontWeight: 500,
                 textDecoration: 'none',
+                position: 'relative',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(139, 92, 246, 0.1)' 
+                    : 'rgba(87, 28, 224, 0.08)',
+                  color: theme.palette.mode === 'dark' ? '#A78BFA' : '#4C1D95',
+                  transform: 'translateY(-1px)',
+                },
                 '&:hover': {
                   color: '#3A0DAF',
                   textDecoration: 'underline',
