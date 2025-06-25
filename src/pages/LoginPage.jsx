@@ -207,12 +207,28 @@ const LoginPage = ({ darkMode }) => {
           alignItems: 'center',
           width: '100%',
           maxWidth: { xs: '85%', md: '400px' }, // Adjust width for mobile
-          backgroundColor: theme.palette.background.paper, // Use theme's paper background
+          backgroundColor: theme.palette.mode === 'dark' 
+            ? 'rgba(255, 255, 255, 0.05)' 
+            : theme.palette.background.paper,
           borderRadius: '12px',
-          boxShadow: theme.shadows[5],
+          border: theme.palette.mode === 'dark' 
+            ? '1px solid rgba(255, 255, 255, 0.1)' 
+            : '1px solid rgba(0, 0, 0, 0.05)',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+            : theme.shadows[5],
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           padding: { xs: '20px', md: '30px' }, // Adjust padding for mobile
           color: theme.palette.text.primary, // Use theme's text color
           marginBottom: { xs: 4, md: 0 },
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 12px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)'
+              : '0 10px 25px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+            transform: 'translateY(-2px)',
+          }
         }}
       >
         {error && (
