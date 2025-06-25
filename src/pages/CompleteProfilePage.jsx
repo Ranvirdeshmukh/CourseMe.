@@ -72,7 +72,31 @@ const majorOptions = [
   'Graduate Student- MEM,Tuck,etc.'
 ];
 
-const yearOptions = [2025, 2026, 2027, 2028, 2029];
+// Dynamic class year generation based on current date
+const generateClassYears = () => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth(); // 0-based, so December is 11
+  
+  // If it's December or later, consider the next academic year cycle
+  const academicYear = currentMonth >= 11 ? currentYear + 1 : currentYear;
+  
+  // Generate class years for current students (typically 4-6 years from now)
+  // Include some past years for transfer students and current academic year
+  const years = [];
+  
+  // Add previous year for any remaining students
+  years.push(academicYear);
+  
+  // Add next 5 years for incoming freshmen through future classes
+  for (let i = 1; i <= 5; i++) {
+    years.push(academicYear + i);
+  }
+  
+  return years.sort((a, b) => a - b);
+};
+
+const yearOptions = generateClassYears();
 
 const CompleteProfilePage = () => {
   const { currentUser } = useAuth();
