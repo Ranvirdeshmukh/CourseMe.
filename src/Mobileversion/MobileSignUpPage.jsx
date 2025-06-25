@@ -262,10 +262,26 @@ const MobileSignUpPage = ({ darkMode }) => {
         <Box
           sx={{
             width: '100%',
-            backgroundColor: theme.palette.background.paper,
+            backgroundColor: theme.palette.mode === 'dark' 
+              ? 'rgba(255, 255, 255, 0.05)' 
+              : theme.palette.background.paper,
             borderRadius: '12px',
-            boxShadow: theme.shadows[3],
+            border: theme.palette.mode === 'dark' 
+              ? '1px solid rgba(255, 255, 255, 0.1)' 
+              : '1px solid rgba(0, 0, 0, 0.05)',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+              : theme.shadows[3],
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
             p: 3,
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 12px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)'
+                : '0 10px 25px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+              transform: 'translateY(-2px)',
+            }
           }}
         >
           {error && (
