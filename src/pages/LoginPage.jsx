@@ -413,12 +413,21 @@ const LoginPage = ({ darkMode }) => {
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
             <Link
               sx={{
-                color: '#571CE0',
-                fontWeight: 'bold',
+                color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571CE0',
+                fontWeight: 600,
                 cursor: 'pointer',
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontSize: '14px',
+                textDecoration: 'none',
+                padding: '4px 8px',
+                borderRadius: '8px',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '&:hover': {
-                  color: theme.palette.primary.dark,
-                  textDecoration: 'underline',
+                  color: theme.palette.mode === 'dark' ? '#A78BFA' : '#4338CA',
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(139, 92, 246, 0.1)' 
+                    : 'rgba(87, 28, 224, 0.05)',
+                  transform: 'translateY(-1px)',
                 },
               }}
               onClick={handleForgotPassword}
@@ -429,12 +438,27 @@ const LoginPage = ({ darkMode }) => {
           <Typography
             variant="body2"
             sx={{
-              marginBottom: '20px',
+              marginBottom: '24px',
               fontFamily: 'SF Pro Display, sans-serif',
-              color: theme.palette.text.primary,
+              fontSize: '14px',
+              lineHeight: 1.5,
+              color: theme.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.7)' 
+                : 'rgba(0, 0, 0, 0.7)',
+              backgroundColor: theme.palette.mode === 'dark' 
+                ? 'rgba(139, 92, 246, 0.05)' 
+                : 'rgba(87, 28, 224, 0.03)',
+              padding: '12px 16px',
+              borderRadius: '10px',
+              border: theme.palette.mode === 'dark' 
+                ? '1px solid rgba(139, 92, 246, 0.15)' 
+                : '1px solid rgba(87, 28, 224, 0.1)',
             }}
           >
-            <strong>Please Note:</strong> Log in using your Dartmouth email ID.
+            <strong style={{ 
+              color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571CE0',
+              fontWeight: 600 
+            }}>Please Note:</strong> Log in using your Dartmouth email ID.
           </Typography>
 
           <Button
@@ -443,16 +467,51 @@ const LoginPage = ({ darkMode }) => {
             fullWidth
             disabled={loading}
             sx={{
-              backgroundColor: '#000080', // Navy Royal Blue
+              background: theme.palette.mode === 'dark' 
+                ? 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)'
+                : 'linear-gradient(135deg, #571CE0 0%, #4338CA 100%)',
               color: '#FFFFFF',
-              fontWeight: 'bold',
+              fontWeight: 600,
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontSize: '16px',
               mb: 2,
-              height: '48px',
-              borderRadius: '20px',
-              transition: 'transform 0.2s',
+              height: '52px',
+              borderRadius: '14px',
+              border: 'none',
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 8px 25px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+                : '0 8px 25px rgba(87, 28, 224, 0.25), 0 0 0 1px rgba(87, 28, 224, 0.1)',
+              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              position: 'relative',
+              overflow: 'hidden',
+              '&:before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '50%',
+                background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%)',
+                borderRadius: '14px 14px 0 0',
+              },
               '&:hover': {
-                backgroundColor: '#0000CD', // Medium Blue
-                transform: 'scale(1.05)',
+                background: theme.palette.mode === 'dark' 
+                  ? 'linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%)'
+                  : 'linear-gradient(135deg, #6366F1 0%, #571CE0 100%)',
+                transform: 'translateY(-2px) scale(1.02)',
+                boxShadow: theme.palette.mode === 'dark'
+                  ? '0 12px 35px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)'
+                  : '0 12px 35px rgba(87, 28, 224, 0.35), 0 0 0 1px rgba(87, 28, 224, 0.15)',
+              },
+              '&:active': {
+                transform: 'translateY(-1px) scale(1.01)',
+              },
+              '&:disabled': {
+                background: theme.palette.mode === 'dark' 
+                  ? 'rgba(139, 92, 246, 0.3)'
+                  : 'rgba(87, 28, 224, 0.3)',
+                color: 'rgba(255, 255, 255, 0.7)',
+                transform: 'none',
               },
             }}
           >
@@ -466,16 +525,54 @@ const LoginPage = ({ darkMode }) => {
               alignItems: 'center',
               justifyContent: 'center',
               width: '100%',
-              height: '48px',
-              backgroundColor: theme.palette.background.default,
-              borderRadius: '20px',
-              boxShadow: theme.shadows[2],
+              height: '52px',
+              backgroundColor: theme.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.03)' 
+                : theme.palette.background.default,
+              borderRadius: '14px',
+              border: theme.palette.mode === 'dark' 
+                ? '1px solid rgba(255, 255, 255, 0.1)' 
+                : '1px solid rgba(0, 0, 0, 0.08)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+                : '0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02)',
               cursor: 'pointer',
               mb: 2,
-              transition: 'background-color 0.2s, box-shadow 0.2s',
+              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontWeight: 500,
+              fontSize: '16px',
+              color: theme.palette.text.primary,
+              position: 'relative',
+              overflow: 'hidden',
+              '&:before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '50%',
+                background: theme.palette.mode === 'dark'
+                  ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%)'
+                  : 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, transparent 100%)',
+                borderRadius: '14px 14px 0 0',
+              },
               '&:hover': {
-                backgroundColor: theme.palette.action.hover,
-                boxShadow: theme.shadows[4],
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.06)' 
+                  : 'rgba(66, 133, 244, 0.02)',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.15)' 
+                  : '1px solid rgba(66, 133, 244, 0.15)',
+                transform: 'translateY(-2px)',
+                boxShadow: theme.palette.mode === 'dark'
+                  ? '0 8px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.08)'
+                  : '0 8px 30px rgba(66, 133, 244, 0.15), 0 0 0 1px rgba(66, 133, 244, 0.1)',
+              },
+              '&:active': {
+                transform: 'translateY(-1px)',
               },
             }}
           >
@@ -517,18 +614,36 @@ const LoginPage = ({ darkMode }) => {
             </Box>
           </Box>
 
-          <Typography variant="body2" sx={{ mt: 3, fontSize: '1.1rem' }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              mt: 3, 
+              fontSize: '15px',
+              fontFamily: 'SF Pro Display, sans-serif',
+              color: theme.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.7)' 
+                : 'rgba(0, 0, 0, 0.7)',
+              textAlign: 'center',
+            }}
+          >
             Don't have an account?{' '}
             <Link
               component={RouterLink}
               to="/signup"
               sx={{
-                color: '#571CE0', // Royal Blue
-                fontWeight: 'bold',
+                color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571CE0',
+                fontWeight: 600,
                 textDecoration: 'none',
+                fontFamily: 'SF Pro Display, sans-serif',
+                padding: '2px 6px',
+                borderRadius: '6px',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '&:hover': {
-                  color: '#3A0DAF', // Darker Blue on hover
-                  textDecoration: 'underline',
+                  color: theme.palette.mode === 'dark' ? '#A78BFA' : '#4338CA',
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(139, 92, 246, 0.1)' 
+                    : 'rgba(87, 28, 224, 0.05)',
+                  transform: 'translateY(-1px)',
                 },
               }}
             >
