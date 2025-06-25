@@ -249,34 +249,67 @@ const LoginPage = ({ darkMode }) => {
             required
             sx={{
               mb: 2,
-              bgcolor: theme.palette.background.default,
-              borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                height: '48px',
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.03)' 
+                  : theme.palette.background.default,
+                borderRadius: '12px',
+                height: '52px',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.08)' 
+                  : '1px solid rgba(0, 0, 0, 0.08)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '& fieldset': {
-                  borderColor: theme.palette.divider,
-                  transition: 'border-color 0.3s ease',
+                  border: 'none',
                 },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'rgba(87, 28, 224, 0.02)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.12)' 
+                    : '1px solid rgba(87, 28, 224, 0.15)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 4px 20px rgba(0, 0, 0, 0.15)'
+                    : '0 4px 20px rgba(87, 28, 224, 0.08)',
                 },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&.Mui-focused': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.06)' 
+                    : 'rgba(87, 28, 224, 0.03)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(87, 28, 224, 0.4)' 
+                    : '1px solid rgba(87, 28, 224, 0.3)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 6px 25px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(87, 28, 224, 0.15)'
+                    : '0 6px 25px rgba(87, 28, 224, 0.12), 0 0 0 3px rgba(87, 28, 224, 0.1)',
                 },
               },
               '& .MuiInputBase-input': {
                 color: theme.palette.text.primary,
-              },
-              '& .MuiOutlinedInput-input::placeholder': {
-                color: theme.palette.text.secondary,
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                '&::placeholder': {
+                  color: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.5)' 
+                    : 'rgba(0, 0, 0, 0.6)',
+                  opacity: 1,
+                },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <EmailIcon sx={{ color: '#571ce0' }} />
+                  <EmailIcon sx={{ 
+                    color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                    transition: 'color 0.3s ease'
+                  }} />
                 </InputAdornment>
               ),
             }}
@@ -289,34 +322,67 @@ const LoginPage = ({ darkMode }) => {
             required
             sx={{
               mb: 2,
-              bgcolor: theme.palette.background.default,
-              borderRadius: '8px',
               width: '100%',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                height: '48px',
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.03)' 
+                  : theme.palette.background.default,
+                borderRadius: '12px',
+                height: '52px',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.08)' 
+                  : '1px solid rgba(0, 0, 0, 0.08)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '& fieldset': {
-                  borderColor: theme.palette.divider,
-                  transition: 'border-color 0.3s ease',
+                  border: 'none',
                 },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : 'rgba(87, 28, 224, 0.02)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.12)' 
+                    : '1px solid rgba(87, 28, 224, 0.15)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 4px 20px rgba(0, 0, 0, 0.15)'
+                    : '0 4px 20px rgba(87, 28, 224, 0.08)',
                 },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.primary.main,
+                '&.Mui-focused': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.06)' 
+                    : 'rgba(87, 28, 224, 0.03)',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(87, 28, 224, 0.4)' 
+                    : '1px solid rgba(87, 28, 224, 0.3)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 6px 25px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(87, 28, 224, 0.15)'
+                    : '0 6px 25px rgba(87, 28, 224, 0.12), 0 0 0 3px rgba(87, 28, 224, 0.1)',
                 },
               },
               '& .MuiInputBase-input': {
                 color: theme.palette.text.primary,
-              },
-              '& .MuiOutlinedInput-input::placeholder': {
-                color: theme.palette.text.secondary,
+                fontFamily: 'SF Pro Display, sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                '&::placeholder': {
+                  color: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.5)' 
+                    : 'rgba(0, 0, 0, 0.6)',
+                  opacity: 1,
+                },
               },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockIcon sx={{ color: '#571ce0' }} />
+                  <LockIcon sx={{ 
+                    color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                    transition: 'color 0.3s ease'
+                  }} />
                 </InputAdornment>
               ),
               endAdornment: (
@@ -325,6 +391,18 @@ const LoginPage = ({ darkMode }) => {
                     aria-label="toggle password visibility"
                     onClick={handleClickShowPassword}
                     edge="end"
+                    sx={{
+                      color: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.7)' 
+                        : 'rgba(0, 0, 0, 0.6)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(139, 92, 246, 0.1)' 
+                          : 'rgba(87, 28, 224, 0.05)',
+                      }
+                    }}
                   >
                     {showPassword ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
