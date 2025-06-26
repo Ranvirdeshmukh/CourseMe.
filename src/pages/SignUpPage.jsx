@@ -513,8 +513,16 @@ const SignUpPage = ({ darkMode }) => {
                     onClick={handleClickShowPassword}
                     edge="end"
                     sx={{
-                      color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
-                      transition: 'color 0.3s ease',
+                      color: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.7)' 
+                        : 'rgba(0, 0, 0, 0.6)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(139, 92, 246, 0.1)' 
+                          : 'rgba(87, 28, 224, 0.05)',
+                      }
                     }}
                   >
                     {showPassword ? <Visibility /> : <VisibilityOff />}
@@ -601,8 +609,16 @@ const SignUpPage = ({ darkMode }) => {
                     onClick={handleClickShowConfirmPassword}
                     edge="end"
                     sx={{
-                      color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
-                      transition: 'color 0.3s ease',
+                      color: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.7)' 
+                        : 'rgba(0, 0, 0, 0.6)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571ce0',
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(139, 92, 246, 0.1)' 
+                          : 'rgba(87, 28, 224, 0.05)',
+                      }
                     }}
                   >
                     {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
@@ -611,80 +627,81 @@ const SignUpPage = ({ darkMode }) => {
               ),
             }}
           />
-          <Box
+          <Typography
+            variant="body2"
             sx={{
-              marginBottom: '20px',
-              padding: '12px 16px',
+              marginBottom: '24px',
+              fontFamily: 'SF Pro Display, sans-serif',
+              fontSize: '14px',
+              lineHeight: 1.5,
+              color: theme.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.7)' 
+                : 'rgba(0, 0, 0, 0.7)',
               backgroundColor: theme.palette.mode === 'dark' 
-                ? 'rgba(139, 92, 246, 0.1)' 
-                : 'rgba(87, 28, 224, 0.08)',
-              border: theme.palette.mode === 'dark' 
-                ? '1px solid rgba(139, 92, 246, 0.2)' 
-                : '1px solid rgba(87, 28, 224, 0.15)',
+                ? 'rgba(139, 92, 246, 0.05)' 
+                : 'rgba(87, 28, 224, 0.03)',
+              padding: '12px 16px',
               borderRadius: '10px',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
+              border: theme.palette.mode === 'dark' 
+                ? '1px solid rgba(139, 92, 246, 0.15)' 
+                : '1px solid rgba(87, 28, 224, 0.1)',
             }}
           >
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: 'SF Pro Display, sans-serif',
-                color: theme.palette.text.primary,
-                fontSize: '14px',
-                lineHeight: 1.4,
-              }}
-            >
-              <strong>Please Note:</strong> Sign up using your Dartmouth email ID.
-            </Typography>
-          </Box>
+            <strong style={{ 
+              color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571CE0',
+              fontWeight: 600 
+            }}>Please Note:</strong> Sign up using your Dartmouth email ID.
+          </Typography>
           <Button
             type="submit"
             variant="contained"
             fullWidth
             disabled={loading}
             sx={{
-              background: theme.palette.mode === 'dark'
-                ? 'linear-gradient(135deg, #8B5CF6 0%, #571CE0 100%)'
-                : 'linear-gradient(135deg, #571CE0 0%, #3B0F9F 100%)',
+              background: theme.palette.mode === 'dark' 
+                ? 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)'
+                : 'linear-gradient(135deg, #571CE0 0%, #4338CA 100%)',
               color: '#FFFFFF',
-              fontFamily: 'SF Pro Display, sans-serif',
               fontWeight: 600,
+              fontFamily: 'SF Pro Display, sans-serif',
               fontSize: '16px',
               mb: 2,
               height: '52px',
               borderRadius: '14px',
               border: 'none',
               boxShadow: theme.palette.mode === 'dark'
-                ? '0 8px 24px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                : '0 8px 24px rgba(87, 28, 224, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                ? '0 8px 25px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+                : '0 8px 25px rgba(87, 28, 224, 0.25), 0 0 0 1px rgba(87, 28, 224, 0.1)',
+              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               position: 'relative',
               overflow: 'hidden',
-              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               '&:before': {
                 content: '""',
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 right: 0,
-                height: '1px',
-                background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)',
+                height: '50%',
+                background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%)',
+                borderRadius: '14px 14px 0 0',
               },
               '&:hover': {
+                background: theme.palette.mode === 'dark' 
+                  ? 'linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%)'
+                  : 'linear-gradient(135deg, #6366F1 0%, #571CE0 100%)',
                 transform: 'translateY(-2px) scale(1.02)',
                 boxShadow: theme.palette.mode === 'dark'
-                  ? '0 12px 32px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
-                  : '0 12px 32px rgba(87, 28, 224, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25)',
+                  ? '0 12px 35px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)'
+                  : '0 12px 35px rgba(87, 28, 224, 0.35), 0 0 0 1px rgba(87, 28, 224, 0.15)',
               },
               '&:active': {
                 transform: 'translateY(-1px) scale(1.01)',
               },
               '&:disabled': {
                 background: theme.palette.mode === 'dark' 
-                  ? 'rgba(255, 255, 255, 0.1)' 
-                  : 'rgba(0, 0, 0, 0.1)',
-                color: theme.palette.text.disabled,
-                boxShadow: 'none',
+                  ? 'rgba(139, 92, 246, 0.3)'
+                  : 'rgba(87, 28, 224, 0.3)',
+                color: 'rgba(255, 255, 255, 0.7)',
                 transform: 'none',
               },
             }}
@@ -701,41 +718,52 @@ const SignUpPage = ({ darkMode }) => {
               width: '100%',
               height: '52px',
               backgroundColor: theme.palette.mode === 'dark' 
-                ? 'rgba(255, 255, 255, 0.05)' 
+                ? 'rgba(255, 255, 255, 0.03)' 
                 : theme.palette.background.default,
+              borderRadius: '14px',
               border: theme.palette.mode === 'dark' 
                 ? '1px solid rgba(255, 255, 255, 0.1)' 
                 : '1px solid rgba(0, 0, 0, 0.08)',
-              borderRadius: '14px',
-              boxShadow: theme.palette.mode === 'dark'
-                ? '0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
-                : theme.shadows[2],
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+                : '0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02)',
               cursor: 'pointer',
               mb: 2,
+              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               fontFamily: 'SF Pro Display, sans-serif',
               fontWeight: 500,
               fontSize: '16px',
               color: theme.palette.text.primary,
-              transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              position: 'relative',
+              overflow: 'hidden',
+              '&:before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '50%',
+                background: theme.palette.mode === 'dark'
+                  ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%)'
+                  : 'linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, transparent 100%)',
+                borderRadius: '14px 14px 0 0',
+              },
               '&:hover': {
                 backgroundColor: theme.palette.mode === 'dark' 
-                  ? 'rgba(255, 255, 255, 0.08)' 
-                  : 'rgba(0, 0, 0, 0.02)',
+                  ? 'rgba(255, 255, 255, 0.06)' 
+                  : 'rgba(66, 133, 244, 0.02)',
                 border: theme.palette.mode === 'dark' 
                   ? '1px solid rgba(255, 255, 255, 0.15)' 
-                  : '1px solid rgba(0, 0, 0, 0.12)',
+                  : '1px solid rgba(66, 133, 244, 0.15)',
+                transform: 'translateY(-2px)',
                 boxShadow: theme.palette.mode === 'dark'
-                  ? '0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08)'
-                  : theme.shadows[4],
-                transform: 'translateY(-1px)',
+                  ? '0 8px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.08)'
+                  : '0 8px 30px rgba(66, 133, 244, 0.15), 0 0 0 1px rgba(66, 133, 244, 0.1)',
               },
               '&:active': {
-                transform: 'translateY(0px)',
-                boxShadow: theme.palette.mode === 'dark'
-                  ? '0 2px 8px rgba(0, 0, 0, 0.15)'
-                  : theme.shadows[1],
+                transform: 'translateY(-1px)',
               },
             }}
           >
@@ -780,8 +808,11 @@ const SignUpPage = ({ darkMode }) => {
             variant="body2" 
             sx={{ 
               mt: 3, 
-              fontSize: '1.1rem',
+              fontSize: '15px',
               fontFamily: 'SF Pro Display, sans-serif',
+              color: theme.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.7)' 
+                : 'rgba(0, 0, 0, 0.7)',
               textAlign: 'center',
             }}
           >
@@ -791,22 +822,18 @@ const SignUpPage = ({ darkMode }) => {
               to="/login"
               sx={{
                 color: theme.palette.mode === 'dark' ? '#8B5CF6' : '#571CE0',
-                fontWeight: 500,
+                fontWeight: 600,
                 textDecoration: 'none',
-                position: 'relative',
-                padding: '4px 8px',
+                fontFamily: 'SF Pro Display, sans-serif',
+                padding: '2px 6px',
                 borderRadius: '6px',
                 transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 '&:hover': {
+                  color: theme.palette.mode === 'dark' ? '#A78BFA' : '#4338CA',
                   backgroundColor: theme.palette.mode === 'dark' 
                     ? 'rgba(139, 92, 246, 0.1)' 
-                    : 'rgba(87, 28, 224, 0.08)',
-                  color: theme.palette.mode === 'dark' ? '#A78BFA' : '#4C1D95',
+                    : 'rgba(87, 28, 224, 0.05)',
                   transform: 'translateY(-1px)',
-                },
-                '&:hover': {
-                  color: '#3A0DAF',
-                  textDecoration: 'underline',
                 },
               }}
             >
