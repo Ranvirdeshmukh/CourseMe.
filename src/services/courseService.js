@@ -4,7 +4,7 @@ import localforage from 'localforage';
 import { periodCodeToTiming } from '../pages/timetablepages/googleCalendarLogic';
 import { fetchEnrollmentData, enhanceCourseDataWithEnrollment } from './enrollmentDataService';
 
-const CACHE_VERSION = 'summerV8';
+const CACHE_VERSION = 'summerV9';
 const CACHE_TTL = 5184000000; // 60 days in milliseconds
 
 export const fetchCourseData = async (db, dept, course) => {
