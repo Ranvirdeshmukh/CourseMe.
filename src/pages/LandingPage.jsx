@@ -24,7 +24,7 @@ import {
   List, ListItem, ListItemText, ClickAwayListener
 } from '@mui/material';
 
-import { recordAnalyticsView, logAnalyticsSession } from '../services/analyticsService';
+
 
 // ----------------------------------------------------------------------------------
 // 1) Revert to the original PythonAnywhere endpoint
@@ -89,38 +89,7 @@ const LandingPage = ({ darkMode }) => {
   const location = useLocation();
   const { currentUser } = useAuth();
 
-  // Track landing page views for analytics
-  const [viewStartTime, setViewStartTime] = useState(null);
 
-  useEffect(() => {
-    // Set the view start time for session duration tracking
-    setViewStartTime(new Date());
-    
-    // Record that a user is viewing the landing page
-    if (currentUser) {
-      recordAnalyticsView(
-        currentUser.uid, 
-        'landing_page', 
-        'landing_page_view',
-        location.pathname
-      );
-    }
-    
-    // When component unmounts, log the session duration
-    return () => {
-      if (currentUser && viewStartTime) {
-        const sessionDuration = new Date() - viewStartTime;
-        if (sessionDuration > 1000) { // Only log sessions longer than 1 second
-          logAnalyticsSession(
-            currentUser.uid,
-            'landing_page',
-            'landing_page_view',
-            sessionDuration
-          );
-        }
-      }
-    };
-  }, [currentUser, location.pathname]);
 
   // --------------------------------------------------------------------------------
   // 4) UI constants
@@ -676,26 +645,7 @@ const LandingPage = ({ darkMode }) => {
         timestamp: new Date().toISOString()
       });
       
-      // Also update global search analytics
-      const analyticsRef = collection(db, "search_analytics");
-      const q = query(analyticsRef, where("query", "==", searchQuery));
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.empty) {
-        // Create new entry
-        await setDoc(doc(analyticsRef), {
-          query: searchQuery,
-          count: 1,
-          last_used: new Date().toISOString()
-        });
-      } else {
-        // Update existing entry
-        const docRef = querySnapshot.docs[0].ref;
-        await setDoc(docRef, {
-          count: querySnapshot.docs[0].data().count + 1,
-          last_used: new Date().toISOString()
-        }, { merge: true });
-      }
+
     } catch (error) {
       console.error("Error saving search history:", error);
     }

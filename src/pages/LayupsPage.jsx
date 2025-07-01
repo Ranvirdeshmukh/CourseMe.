@@ -27,7 +27,7 @@ import HiddenLayups from './HiddenLayups';
 import LayupsByTiming from './LayupsByTiming';
 import useInfiniteScroll from '../constants/useInfiniteScroll'; // Adjust path if needed
 import { useAuth } from '../contexts/AuthContext';
-import { recordAnalyticsView, logAnalyticsSession } from '../services/analyticsService';
+
 
 import useHorizontalInfiniteScroll from '../constants/useHorizontalInfiniteScroll';
 // Add this constant at the top of your file, outside the component
@@ -56,38 +56,8 @@ const LayupsPage = ({darkMode}) => {
   const { scrollContainerRef, clonedItems } = useHorizontalInfiniteScroll(courses);
   const { currentUser } = useAuth();
   const location = useLocation();
-  const [viewStartTime, setViewStartTime] = useState(null);
 
-  // Analytics tracking for layups page views
-  useEffect(() => {
-    // Set the view start time for session duration tracking
-    setViewStartTime(new Date());
-    
-    // Record that this user is viewing the layups page
-    if (currentUser) {
-      recordAnalyticsView(
-        currentUser.uid, 
-        'layups_page', 
-        'layups_page_view',
-        location.pathname
-      );
-    }
-    
-    // When component unmounts, log the session duration
-    return () => {
-      if (currentUser && viewStartTime) {
-        const sessionDuration = new Date() - viewStartTime;
-        if (sessionDuration > 1000) { // Only log sessions longer than 1 second
-          logAnalyticsSession(
-            currentUser.uid,
-            'layups_page',
-            'layups_page_view',
-            sessionDuration
-          );
-        }
-      }
-    };
-  }, [currentUser, location.pathname, viewStartTime]);
+
 
   // ─── DARK MODE COLOR VARIABLES ───────────────────────────────────────────────
   const mainBgColor = darkMode
