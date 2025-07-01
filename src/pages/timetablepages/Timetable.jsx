@@ -18,7 +18,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PrintIcon from '@mui/icons-material/Print';
 import { getFirestore, getDoc, doc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
-import { recordAnalyticsView, logAnalyticsSession } from '../../services/analyticsService';
+
 import { addToGoogleCalendar } from './googleCalendarLogic';
 import { addToAppleCalendar } from './appleCalendarLogic';
 import CourseService from '../../services/courseService';
@@ -137,7 +137,7 @@ const Timetable = ({ darkMode }) => {
   const [notificationPriority, setNotificationPriority] = useState('standard');
   
   // Refs
-  const viewStartTime = useRef(new Date());
+
   
   // Hooks
   const { currentUser } = useAuth();
@@ -263,31 +263,7 @@ const Timetable = ({ darkMode }) => {
     }
   }, [location, navigate]);
   
-  // Analytics tracking
-  useEffect(() => {
-    if (currentUser) {
-      recordAnalyticsView(
-        currentUser.uid, 
-        'timetable_page', 
-        'timetable_page_view',
-        location.pathname
-      );
-    }
-    
-    return () => {
-      if (currentUser && viewStartTime.current) {
-        const sessionDuration = new Date() - viewStartTime.current;
-        if (sessionDuration > 1000) {
-          logAnalyticsSession(
-            currentUser.uid,
-            'timetable_page',
-            'timetable_page_view',
-            sessionDuration
-          );
-        }
-      }
-    };
-  }, [currentUser, location.pathname]);
+
 
 
 const handleForceRefreshEnrollments = async () => {
