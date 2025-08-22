@@ -170,6 +170,17 @@ const ParticleTextCarousel = ({
   const getEndingPunctuationColor = () => {
     if (!displayedText) return "#F26655";
     
+    // Special case: Question mark for "All of Dartmouth uses it, don't you?" should be white
+    if (displayedText.includes("All of Dartmouth uses it, don't you") && displayedText.endsWith('?')) {
+      return darkMode ? "#FFFFFF" : "#FFFFFF";
+    }
+    
+    // Special case: Exclamation mark for "Welcome aboard!" messages should be white
+    if (displayedText.includes("Welcome aboard") && displayedText.endsWith('!')) {
+      return darkMode ? "#FFFFFF" : "#FFFFFF";
+    }
+    
+    // All other punctuation marks remain red
     if (displayedText.endsWith('?')) return "#F26655";
     if (displayedText.endsWith('.') || displayedText.endsWith('!')) return "#F26655";
     return getTextColor();
