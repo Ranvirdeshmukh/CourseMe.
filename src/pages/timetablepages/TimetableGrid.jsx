@@ -61,13 +61,20 @@ const getPreviousTerms = (currentTerm) => {
 };
 
 // Helper function to check if user has enough reviews
-const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25X') => {
+const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25X', userClassYear = null) => {
+  // Class of '29 exception - always unlock features
+  if (userClassYear === 2029) {
+    console.log('Class of 2029 detected - unlocking all timetable features');
+    return true;
+  }
+  
   const requiredTerms = getPreviousTerms(currentTerm);
   
   console.log('hasEnoughReviews check:');
   console.log('Required terms:', requiredTerms);
   console.log('Reviews:', reviews);
   console.log('Grade submissions:', gradeSubmissions);
+  console.log('User class year:', userClassYear);
   
   // Count reviews from required terms (trim whitespace for comparison)
   const reviewCount = reviews.filter(review => 
@@ -574,13 +581,14 @@ const TimetableGrid = ({
   currentTerm = "25X",
   userReviews = [],
   userGradeSubmissions = [],
+  userClassYear = null, // Add userClassYear prop
   onAddReview = () => {}, // Callback to open review modal/page
   // Term type for proper data organization
   termType = 'fall', // 'summer' or 'fall'
 }) => {
   
   // Check if user has enough reviews to unlock features
-  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm);
+  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm, userClassYear);
 
   // Memoize the base cell styles to prevent recalculation
   const lockedCellStyles = useMemo(() => ({

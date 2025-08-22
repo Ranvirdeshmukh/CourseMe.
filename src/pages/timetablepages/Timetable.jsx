@@ -83,13 +83,20 @@ const formatTermName = (termType) => {
 };
 
 // Helper function to check if user has enough reviews
-const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25X') => {
+const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25X', userClassYear = null) => {
+  // Class of '29 exception - always unlock features
+  if (userClassYear === 2029) {
+    console.log('Class of 2029 detected - unlocking all timetable features');
+    return true;
+  }
+  
   const requiredTerms = getPreviousTerms(currentTerm);
   
   console.log('hasEnoughReviews check:');
   console.log('Required terms:', requiredTerms);
   console.log('Reviews:', reviews);
   console.log('Grade submissions:', gradeSubmissions);
+  console.log('User class year:', userClassYear);
   
   // Count reviews from required terms (trim whitespace for comparison)
   const reviewCount = reviews.filter(review => 
@@ -131,6 +138,7 @@ const Timetable = ({ darkMode }) => {
   // User data state
   const [userReviews, setUserReviews] = useState([]);
   const [userGradeSubmissions, setUserGradeSubmissions] = useState([]);
+  const [userClassYear, setUserClassYear] = useState(null);
   
   // Notification State
   const [isPriorityEligible, setIsPriorityEligible] = useState(false);
@@ -168,7 +176,7 @@ const Timetable = ({ darkMode }) => {
   const currentTerm = termType === 'summer' ? '25X' : '25S';
   
   // Calculate if user has unlocked features
-  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm);
+  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm, userClassYear);
   
   // Pagination
   const classesPerPage = 50;
@@ -186,6 +194,7 @@ const Timetable = ({ darkMode }) => {
       if (!currentUser) {
         setUserReviews([]);
         setUserGradeSubmissions([]);
+        setUserClassYear(null);
         return;
       }
       
@@ -195,17 +204,21 @@ const Timetable = ({ darkMode }) => {
           const userData = userDoc.data();
           setUserReviews(userData.reviews || []);
           setUserGradeSubmissions(userData.gradeSubmissions || []);
+          setUserClassYear(userData.classYear || null);
           console.log('Fetched user reviews:', userData.reviews || []);
           console.log('Fetched user grade submissions:', userData.gradeSubmissions || []);
+          console.log('Fetched user class year:', userData.classYear || null);
         } else {
           console.log('No user document found');
           setUserReviews([]);
           setUserGradeSubmissions([]);
+          setUserClassYear(null);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
         setUserReviews([]);
         setUserGradeSubmissions([]);
+        setUserClassYear(null);
       }
     };
 
@@ -719,6 +732,7 @@ const handleForceRefreshEnrollments = async () => {
     isMobile={isMobile}
     userReviews={userReviews}
     userGradeSubmissions={userGradeSubmissions}
+    userClassYear={userClassYear}
     currentTerm={currentTerm}
     onAddReview={handleAddReview}
     termType={termType} // Pass the current term type
@@ -814,6 +828,7 @@ const handleForceRefreshEnrollments = async () => {
   isMobile={isMobile}
   userReviews={userReviews}
   userGradeSubmissions={userGradeSubmissions}
+  userClassYear={userClassYear}
   currentTerm={currentTerm}
   onAddReview={handleAddReview}
   termType={termType} // Pass the current term type
