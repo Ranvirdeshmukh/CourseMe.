@@ -183,107 +183,64 @@ const MobileNavigation = ({ darkMode, currentUser, navigate, handleLoginRedirect
         </Box>
       </ButtonBase>
 
-      {/* CORA 1.0 - Mobile Style */}
-      <ButtonBase
-        onClick={() => (currentUser ? navigate('/major-tracker') : handleLoginRedirect())}
-        sx={{
-          ...mobileButtonStyle,
-          backgroundColor: darkMode ? 'rgba(245, 0, 87, 0.15)' : '#fff0f5',
-          border: darkMode ? '1px solid rgba(245, 0, 87, 0.3)' : '1px solid rgba(245, 0, 87, 0.2)',
-          position: 'relative',
-          overflow: 'hidden',
-          '&:hover': {
-            transform: 'translateY(-2px)',
-            boxShadow: '0 6px 12px rgba(245, 0, 87, 0.2)',
-            backgroundColor: darkMode ? 'rgba(245, 0, 87, 0.25)' : '#ffe0eb',
-          }
-        }}
-      >
+      {/* Schedule Visualizer - Mobile Style with NEW label */}
+      <Box sx={{ position: 'relative' }}>
         <Box
           sx={{
             position: 'absolute',
-            top: '-5px',
-            left: '-20px',
+            top: '-8px',
+            right: '8px',
             backgroundColor: '#F50057',
             color: '#fff',
-            padding: '2px 15px',
-            fontSize: '0.6rem',
+            padding: '2px 8px',
+            fontSize: '0.7rem',
             fontWeight: 'bold',
-            transform: 'rotate(-45deg)',
-            transformOrigin: 'bottom right',
+            borderRadius: '12px',
+            zIndex: 10,
             boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
           }}
         >
-          NEW
+          New
         </Box>
-        <Box sx={{ 
-          mr: 3, 
-          width: '40px', 
-          height: '40px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          borderRadius: '50%',
-          backgroundColor: darkMode ? 'rgba(245, 0, 87, 0.3)' : '#ffcce0',
-        }}>
-          <Typography sx={{ fontSize: '1.5rem' }}>🤖</Typography>
-        </Box>
-        <Box sx={{ textAlign: 'left' }}>
-          <Typography sx={{ 
-            fontWeight: 'bold', 
-            fontSize: '1rem',
-            color: darkMode ? '#FFFFFF' : '#000000'
-          }}>
-            CORA 1.0
-          </Typography>
-          <Typography sx={{ 
-            fontSize: '0.8rem',
-            color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666'
-          }}>
-            Your AI college advisor
-          </Typography>
-        </Box>
-        <Box sx={{ ml: 'auto' }}>
-          <Typography sx={{ fontSize: '1.2rem' }}>›</Typography>
-        </Box>
-      </ButtonBase>
 
-      {/* Profile - Mobile Style */}
-      <ButtonBase
-        onClick={() => (currentUser ? navigate('/profile') : handleLoginRedirect())}
-        sx={mobileButtonStyle}
-      >
-        <Box sx={{ 
-          mr: 3, 
-          width: '40px', 
-          height: '40px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          borderRadius: '50%',
-          backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.3)' : '#e0e0e0',
-        }}>
-          <Typography sx={{ fontSize: '1.5rem' }}>👤</Typography>
-        </Box>
-        <Box sx={{ textAlign: 'left' }}>
-          <Typography sx={{ 
-            fontWeight: 'bold', 
-            fontSize: '1rem',
-            color: darkMode ? '#FFFFFF' : '#000000'
+        <ButtonBase
+          onClick={() => (currentUser ? navigate('/timetable', { state: { openVisualization: true } }) : handleLoginRedirect())}
+          sx={mobileButtonStyle}
+        >
+          <Box sx={{ 
+            mr: 3, 
+            width: '40px', 
+            height: '40px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            borderRadius: '50%',
+            backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.3)' : '#e0e0e0',
           }}>
-            Profile
-          </Typography>
-          <Typography sx={{ 
-            fontSize: '0.8rem',
-            color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666'
-          }}>
-            Organize everything here
-          </Typography>
-        </Box>
-        <Box sx={{ ml: 'auto' }}>
-          <Typography sx={{ fontSize: '1.2rem' }}>›</Typography>
-        </Box>
-      </ButtonBase>
+            <Typography sx={{ fontSize: '1.5rem' }}>📅</Typography>
+          </Box>
+          <Box sx={{ textAlign: 'left' }}>
+            <Typography sx={{ 
+              fontWeight: 'bold', 
+              fontSize: '1rem',
+              color: darkMode ? '#FFFFFF' : '#000000'
+            }}>
+              Schedule Visualizer
+            </Typography>
+            <Typography sx={{ 
+              fontSize: '0.8rem',
+              color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666666'
+            }}>
+              Plan your perfect schedule
+            </Typography>
+          </Box>
+          <Box sx={{ ml: 'auto' }}>
+            <Typography sx={{ fontSize: '1.2rem' }}>›</Typography>
+          </Box>
+        </ButtonBase>
+      </Box>
+
+
     </Box>
   );
 };
