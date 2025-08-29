@@ -28,14 +28,15 @@ export const periodCodeToTiming = {
  * @param {Function} onMultipleEvents - Callback when multiple events are detected
  * @param {Function} onPopupBlocked - Callback when popup is blocked
  * @param {Function} setTimeout - The setTimeout function (passed to make testing easier)
+ * @param {string} termType - The current term type ('summer' or 'fall')
  */
-export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, setTimeout) => {
+export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, setTimeout, termType = 'summer') => {
   const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
   const details = `&details=${encodeURIComponent(`Instructor: ${course.instructor}`)}`;
   const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;
 
-  // Determine the term from the course object
-  const isSummer = course.term && course.term.toLowerCase().includes('summer');
+  // Determine the term from the termType parameter (more reliable than course.term)
+  const isSummer = termType === 'summer';
   const events = getEventTiming(course.period, course.title, course.subj, course.num, isSummer);
   
   if (events.length === 0) {
@@ -89,15 +90,15 @@ export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, se
  * @param {boolean} isSummer - Whether the course is in the summer term
  * @returns {Array} - Array of event objects ready for Google Calendar
  */
-const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = true) => {
+const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = false) => {
   const timing = periodCodeToTiming[periodCode];
   if (!timing) return [];
 
   // Use different date ranges depending on the term
   // Summer 2025: June 26 - September 2
-  // Fall 2025: September 15 - November 21
-  const eventStartDate = isSummer ? '20250626' : '20250915'; // Summer or Fall start date
-  const eventEndDate = isSummer ? '20250902' : '20251121'; // Summer or Fall end date
+  // Fall 2025: September 12 - November 26
+  const eventStartDate = isSummer ? '20250626' : '20250912'; // Summer or Fall start date
+  const eventEndDate = isSummer ? '20250902' : '20251126'; // Summer or Fall end date
   
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);

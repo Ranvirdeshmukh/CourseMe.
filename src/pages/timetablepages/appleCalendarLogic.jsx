@@ -4,8 +4,9 @@ import { periodCodeToTiming } from './googleCalendarLogic';
 /**
  * Creates and downloads an iCalendar (.ics) file for Apple Calendar
  * @param {Object} course - The course object with period, title, instructor, building, room
+ * @param {string} termType - The current term type ('summer' or 'fall')
  */
-export const addToAppleCalendar = (course) => {
+export const addToAppleCalendar = (course, termType = 'summer') => {
   console.log('Adding to Apple Calendar, course data:', course);
   console.log('Period code:', course.period);
   console.log('Available period mappings:', Object.keys(periodCodeToTiming));
@@ -16,8 +17,8 @@ export const addToAppleCalendar = (course) => {
     return;
   }
   
-  // Determine the term from the course object
-  const isSummer = course.term && course.term.toLowerCase().includes('summer');
+  // Determine the term from the termType parameter (more reliable than course.term)
+  const isSummer = termType === 'summer';
   const events = getEventTiming(course.period, course.title, course.subj, course.num, isSummer);
   console.log('Generated events:', events);
   
@@ -115,7 +116,7 @@ const generateUUID = () => {
  * @param {boolean} isSummer - Whether the course is in the summer term
  * @returns {Array} - Array of event objects ready for iCalendar
  */
-const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = true) => {
+const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = false) => {
   console.log(`Getting timing for period ${periodCode}, title: ${courseTitle}, term: ${isSummer ? 'Summer' : 'Fall'}`);
   
   // Handle case when periodCode is not in the mapping
@@ -129,9 +130,9 @@ const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = true) => 
 
   // Use different date ranges depending on the term
   // Summer 2025: June 26 - September 2
-  // Fall 2025: September 15 - November 21
-  const eventStartDate = isSummer ? '20250626' : '20250915'; // Summer or Fall start date
-  const eventEndDate = isSummer ? '20250902' : '20251121'; // Summer or Fall end date
+  // Fall 2025: September 12 - November 26
+  const eventStartDate = isSummer ? '20250626' : '20250912'; // Summer or Fall start date
+  const eventEndDate = isSummer ? '20250902' : '20251126'; // Summer or Fall end date
   
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);

@@ -463,12 +463,13 @@ const handleForceRefreshEnrollments = async () => {
       course, 
       () => setSnackbarOpen(true),
       () => setPopupMessageOpen(true),
-      setTimeout
+      setTimeout,
+      termType
     );
   };
   
   const handleAddToAppleCalendar = (course) => {
-    addToAppleCalendar(course);
+    addToAppleCalendar(course, termType);
   };
   
   const handleNextPage = () => {
