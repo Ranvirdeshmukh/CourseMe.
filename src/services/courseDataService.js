@@ -15,13 +15,13 @@ import localforage from 'localforage';
 const CACHE_CONFIG = {
   COURSE_DATA: {
     KEY: 'course_data_cache',
-    VERSION: 'v2',
+    VERSION: 'v3', // Updated to force cache invalidation after distribs fix
     DURATION: 24 * 60 * 60 * 1000, // 24 hours
     REFRESH_THRESHOLD: 60 * 60 * 1000 // 1 hour
   },
   PERIOD_DATA: {
     KEY: 'period_data_cache',
-    VERSION: 'v2',
+    VERSION: 'v3', // Updated to force cache invalidation after distribs fix
     DURATION: 24 * 60 * 60 * 1000,
     REFRESH_THRESHOLD: 60 * 60 * 1000
   },
@@ -99,14 +99,18 @@ async function fetchAndCacheCourseIndex() {
       const data = doc.data();
       if (data.department && data.course_number) {
         const key = `${data.department}_${normalizeCourseNumber(data.course_number)}`;
-        coursesIndex.set(key, {
+        const courseIndexEntry = {
           layup: data.layup || 0,
           id: doc.id,
           name: data.name || '',
           numOfReviews: data.numOfReviews || 0,
           department: data.department,
           distribs: data.distribs ? data.distribs.split(',').map(d => d.trim()) : []
-        });
+        };
+        
+
+        
+        coursesIndex.set(key, courseIndexEntry);
       }
     });
     
@@ -257,10 +261,12 @@ async function fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCo
       layup: 0, 
       id: null,
       name: '',
-      numOfReviews: 0
+      numOfReviews: 0,
+      department: '',
+      distribs: []
     };
 
-    return {
+    const course = {
       id: doc.id,
       subj: data.Subj,
       num: data.Num,
@@ -271,8 +277,14 @@ async function fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCo
       timing: periodCodeToTiming[data['Period Code']] || 'Unknown Timing',
       layup: courseInfo.layup,
       courseId: courseInfo.id,
-      numOfReviews: courseInfo.numOfReviews
+      numOfReviews: courseInfo.numOfReviews,
+      department: courseInfo.department || data.Subj,
+      distribs: courseInfo.distribs || []
     };
+    
+
+    
+    return course;
   });
 
   return courses
