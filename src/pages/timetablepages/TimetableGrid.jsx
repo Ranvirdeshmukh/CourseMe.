@@ -162,7 +162,7 @@ const formatLocation = (room, building) => {
   }
   
   if (hasRoom && hasBuilding) {
-    return `${room}, ${building}`;
+    return `Room: ${room}\nBuilding: ${building}`;
   }
   
   if (hasRoom) {

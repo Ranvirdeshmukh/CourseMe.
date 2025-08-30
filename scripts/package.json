@@ -1,0 +1,26 @@
+{
+  "name": "dartcourse-scripts",
+  "version": "1.0.0",
+  "description": "Scripts for DartCourse data management",
+  "main": "index.js",
+  "scripts": {
+    "setup": "node setupFirebase.js",
+    "sync-gcs": "node syncGCSClasses.js",
+    "sync-gcs-dry": "node -e \"require('./syncGCSClasses.js').syncGCSCourses(true)\"",
+    "sync-gcs-live": "node -e \"require('./syncGCSClasses.js').syncGCSCourses(false)\""
+  },
+  "dependencies": {
+    "firebase-admin": "^11.11.0",
+    "node-fetch": "^2.7.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "dartmouth",
+    "courses",
+    "sync",
+    "firebase"
+  ],
+  "author": "DartCourse Team",
+  "license": "MIT"
+}

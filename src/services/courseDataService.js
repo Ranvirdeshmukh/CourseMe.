@@ -10,6 +10,7 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import localforage from 'localforage';
+import { fetchGCSTimetableData } from './gcsTimetableService';
 
 // Cache configuration
 const CACHE_CONFIG = {
@@ -184,7 +185,7 @@ export async function getCoursesByPeriod(periodCode, periodCodeToTiming, term = 
       // If cache is stale but not expired, refresh in background
       if (shouldRefreshCache(cacheTimestamp, CACHE_CONFIG.PERIOD_DATA.REFRESH_THRESHOLD)) {
         console.log(`Background refreshing data for period ${periodCode} (${term})`);
-        fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming, term)
+        fetchPeriodCoursesFromGCS(periodCode, courseIndex, periodCodeToTiming, term)
           .then(freshData => {
             Promise.all([
               cacheWrite(cacheKey, freshData),
@@ -199,7 +200,7 @@ export async function getCoursesByPeriod(periodCode, periodCodeToTiming, term = 
     }
 
     // Cache miss or invalid - fetch fresh data
-    const data = await fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming, term);
+    const data = await fetchPeriodCoursesFromGCS(periodCode, courseIndex, periodCodeToTiming, term);
     
     // Cache the results
     await Promise.all([
@@ -227,70 +228,59 @@ export async function getCoursesByPeriod(periodCode, periodCodeToTiming, term = 
   }
 }
 
-// Extract the Firestore query logic for period courses
-async function fetchPeriodCoursesFromFirestore(periodCode, courseIndex, periodCodeToTiming, term = 'spring') {
-  let collectionName;
-  if (term === 'summer') {
-    collectionName = 'summerTimetable';
-  } else if (term === 'fall') {
-    collectionName = 'fallTimetable2';
-  } else {
-    collectionName = 'springTimetable';
-  }
+// Extract the GCS query logic for period courses
+async function fetchPeriodCoursesFromGCS(periodCode, courseIndex, periodCodeToTiming, term = 'spring') {
+  console.log(`Fetching from GCS for period ${periodCode} in ${term} term`);
   
-  console.log(`Fetching from collection: ${collectionName} for period ${periodCode}`);
-  
-  // Fetch timetable data with limit to improve performance
-  const timetableQuery = query(
-    collection(db, collectionName),
-    where('Period Code', '==', periodCode),
-    limit(100) // Add reasonable limit to query
-  );
-  const timetableSnapshot = await getDocs(timetableQuery);
-  
-  if (timetableSnapshot.empty) {
-    console.log(`No courses found for period ${periodCode} in ${term} term`);
+  try {
+    // Fetch all timetable data from GCS
+    const { courses: allCourses } = await fetchGCSTimetableData(term);
+    
+    // Filter courses by period code
+    const periodCourses = allCourses.filter(course => course.period === periodCode);
+    
+    if (periodCourses.length === 0) {
+      console.log(`No courses found for period ${periodCode} in ${term} term`);
+      return [];
+    }
+    
+    // Process data efficiently
+    const courses = periodCourses.map(course => {
+      const lookupKey = `${course.subj}_${normalizeCourseNumber(course.num)}`;
+      const courseInfo = courseIndex.get(lookupKey) || { 
+        layup: 0, 
+        id: null,
+        name: '',
+        numOfReviews: 0,
+        department: '',
+        distribs: []
+      };
+
+      return {
+        id: course.documentName,
+        subj: course.subj,
+        num: course.num,
+        title: course.title,
+        section: course.sec,
+        period: course.period,
+        instructor: course.instructor,
+        timing: course.timing,
+        layup: courseInfo.layup,
+        courseId: courseInfo.id,
+        numOfReviews: courseInfo.numOfReviews,
+        department: courseInfo.department || course.subj,
+        distribs: courseInfo.distribs || []
+      };
+    });
+
+    return courses
+      .filter(course => course.layup > 0)
+      .sort((a, b) => b.layup - a.layup)
+      .slice(0, 15); // Limiting to top 15 courses
+  } catch (error) {
+    console.error(`Error fetching period courses from GCS:`, error);
     return [];
   }
-  
-  // Process data efficiently
-  const courses = timetableSnapshot.docs.map(doc => {
-    const data = doc.data();
-    const lookupKey = `${data.Subj}_${normalizeCourseNumber(data.Num)}`;
-    const courseInfo = courseIndex.get(lookupKey) || { 
-      layup: 0, 
-      id: null,
-      name: '',
-      numOfReviews: 0,
-      department: '',
-      distribs: []
-    };
-
-    const course = {
-      id: doc.id,
-      subj: data.Subj,
-      num: data.Num,
-      title: data.Title,
-      section: data.Section,
-      period: data['Period Code'],
-      instructor: data.Instructor,
-      timing: periodCodeToTiming[data['Period Code']] || 'Unknown Timing',
-      layup: courseInfo.layup,
-      courseId: courseInfo.id,
-      numOfReviews: courseInfo.numOfReviews,
-      department: courseInfo.department || data.Subj,
-      distribs: courseInfo.distribs || []
-    };
-    
-
-    
-    return course;
-  });
-
-  return courses
-    .filter(course => course.layup > 0)
-    .sort((a, b) => b.layup - a.layup)
-    .slice(0, 15); // Limiting to top 15 courses
 }
 
 // Get Hidden Layups static data with caching

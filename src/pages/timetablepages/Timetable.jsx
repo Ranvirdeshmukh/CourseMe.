@@ -25,6 +25,7 @@ import CourseService from '../../services/courseService';
 import NotificationService from '../../services/notificationService';
 import ProfessorService from '../../services/professorService';
 import useCourses from '../../hooks/useCourses';
+import { getCachedMajors, cacheMajors } from '../../services/majorCacheService';
 
 // Import Components
 import FilterSection from './FilterSection';
@@ -171,6 +172,12 @@ const Timetable = ({ darkMode }) => {
     enrollmentDataReady,
     setCourses 
   } = useCourses(termType); // Pass termType to useCourses
+
+  // Major filtering state
+  const [selectedMajor, setSelectedMajor] = useState('');
+  
+  // Instructor filtering state
+  const [selectedInstructor, setSelectedInstructor] = useState('');
   
   // Calculate current term based on termType
   const currentTerm = termType === 'summer' ? '25X' : '25S';
@@ -178,15 +185,109 @@ const Timetable = ({ darkMode }) => {
   // Calculate if user has unlocked features
   const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm, userClassYear);
   
+  // Derived data for enhanced filtering with caching
+  const [majors, setMajors] = useState([]);
+  
+  // Load majors from cache or derive from courses
+  useEffect(() => {
+    const loadMajors = async () => {
+      try {
+        // First try to get from cache
+        let cachedMajors = await getCachedMajors();
+        
+        if (cachedMajors && cachedMajors.length > 0) {
+          console.log('Using cached majors:', cachedMajors.length);
+          setMajors(cachedMajors);
+        } else if (courses.length > 0) {
+          // Derive from courses and cache for a year
+          const majorSet = new Set();
+          courses.forEach(course => {
+            if (course.major) majorSet.add(course.major);
+          });
+          
+          const derivedMajors = Array.from(majorSet).sort();
+          setMajors(derivedMajors);
+          
+          // Cache the derived majors
+          await cacheMajors(derivedMajors);
+          console.log('Majors cached for 1 year:', derivedMajors.length);
+        }
+      } catch (error) {
+        console.error('Error loading majors:', error);
+        // Fallback to deriving from courses without caching
+        if (courses.length > 0) {
+          const majorSet = new Set();
+          courses.forEach(course => {
+            if (course.major) majorSet.add(course.major);
+          });
+          setMajors(Array.from(majorSet).sort());
+        }
+      }
+    };
+    
+    loadMajors();
+  }, [courses]);
+
+  const instructors = useMemo(() => {
+    const instructorSet = new Set();
+    courses.forEach(course => {
+      if (course.instructor) instructorSet.add(course.instructor);
+    });
+    return Array.from(instructorSet).sort();
+  }, [courses]);
+
+  const filteredInstructors = useMemo(() => {
+    if (!searchTerm) return instructors;
+    return instructors.filter(instructor => 
+      instructor.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [instructors, searchTerm]);
+
+  const buildings = useMemo(() => {
+    const buildingSet = new Set();
+    courses.forEach(course => {
+      if (course.building) buildingSet.add(course.building);
+    });
+    return Array.from(buildingSet).sort();
+  }, [courses]);
+
   // Pagination
   const classesPerPage = 50;
-  const totalPages = Math.ceil(filteredCourses.length / classesPerPage);
+  
+  // Calculate total pages with major and instructor filtering
+  const totalFilteredCourses = useMemo(() => {
+    let filtered = filteredCourses;
+    
+    if (selectedMajor) {
+      filtered = filtered.filter((course) => course.major === selectedMajor);
+    }
+    
+    if (selectedInstructor) {
+      filtered = filtered.filter((course) => course.instructor === selectedInstructor);
+    }
+    
+    return filtered.length;
+  }, [filteredCourses, selectedMajor, selectedInstructor]);
+  
+  const totalPages = Math.ceil(totalFilteredCourses / classesPerPage);
   
   const paginatedCourses = useMemo(() => {
+    let coursesToPaginate = filteredCourses;
+    
+    // Apply major filter
+    if (selectedMajor) {
+      coursesToPaginate = coursesToPaginate.filter((course) => course.major === selectedMajor);
+    }
+    
+    // Apply instructor filter
+    if (selectedInstructor) {
+      coursesToPaginate = coursesToPaginate.filter((course) => course.instructor === selectedInstructor);
+    }
+    
     const startIndex = (currentPage - 1) * classesPerPage;
     const endIndex = startIndex + classesPerPage;
-    return filteredCourses.slice(startIndex, endIndex);
-  }, [filteredCourses, currentPage, classesPerPage]);
+    return coursesToPaginate.slice(startIndex, endIndex);
+  }, [filteredCourses, currentPage, classesPerPage, selectedMajor, selectedInstructor]);
   
   // Fetch user data for reviews and grade submissions
   useEffect(() => {
@@ -342,6 +443,28 @@ const handleForceRefreshEnrollments = async () => {
   const handleSubjectChange = (event) => {
     setSelectedSubject(event.target.value);
   };
+
+  const handleMajorChange = (event) => {
+    setSelectedMajor(event.target.value);
+  };
+
+  const handleInstructorChange = (event) => {
+    setSelectedInstructor(event.target.value);
+  };
+
+  const clearAllFilters = () => {
+    setSelectedSubject('');
+    setSelectedMajor('');
+    setSelectedInstructor('');
+    setSearchTerm('');
+  };
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedMajor, selectedInstructor]);
+
+
   
   const handleCourseClick = async (course) => {
     const department = course.subj;
@@ -802,6 +925,15 @@ const handleForceRefreshEnrollments = async () => {
           isRefreshingEnrollments={isRefreshingEnrollments}
           showRefreshButton={true}
           enableEnrollmentData={true}
+          // Major filtering props
+          selectedMajor={selectedMajor}
+          handleMajorChange={handleMajorChange}
+          majors={majors}
+          clearAllFilters={clearAllFilters}
+          // Instructor filtering props
+          selectedInstructor={selectedInstructor}
+          handleInstructorChange={handleInstructorChange}
+          filteredInstructors={filteredInstructors}
         />
 
         {/* Main Course Listing */}

@@ -3,6 +3,7 @@ import { collection, doc, getDoc, getDocs, query, updateDoc, where, setDoc } fro
 import localforage from 'localforage';
 import { periodCodeToTiming } from '../pages/timetablepages/googleCalendarLogic';
 import { fetchEnrollmentData, enhanceCourseDataWithEnrollment } from './enrollmentDataService';
+import { fetchGCSTimetableData } from './gcsTimetableService';
 
 const CACHE_VERSION = 'summerV9';
 const CACHE_TTL = 5184000000; // 60 days in milliseconds
@@ -62,66 +63,9 @@ export const normalizeCourseNumber = (number) => {
 
 export const fetchFirestoreCourses = async (db, termType = 'summer') => {
   try {
-    // First check if we have cached data
-    const cacheKey = `cachedCourses_${termType}`;
-    const cacheTimestampKey = `cacheTimestamp_${termType}`;
-    const cacheVersionKey = `cacheVersion_${termType}`;
+    // Use GCS timetable service instead of Firebase
+    const { courses: coursesData, fromCache } = await fetchGCSTimetableData(termType);
     
-    const cachedCourses = await localforage.getItem(cacheKey);
-    const cacheTimestamp = await localforage.getItem(cacheTimestampKey);
-    const cachedVersion = await localforage.getItem(cacheVersionKey);
-    const now = Date.now();
-
-    // Check if cache is valid
-    const isCacheValid = 
-      cachedCourses && 
-      cacheTimestamp && 
-      cachedVersion === CACHE_VERSION && 
-      (now - cacheTimestamp) < CACHE_TTL;
-
-    if (isCacheValid) {
-      console.log(`Using cached ${termType} data`);
-      return {
-        courses: cachedCourses,
-        fromCache: true
-      };
-    }
-
-    console.log(`Cache invalid or expired, fetching new ${termType} data`);
-
-    // If cache version doesn't match, clear the specific cache entries
-    if (cachedVersion !== CACHE_VERSION) {
-      console.log('Version mismatch, clearing cache');
-      await localforage.removeItem(cacheKey);
-      await localforage.removeItem(cacheTimestampKey);
-      await localforage.removeItem(cacheVersionKey);
-    }
-
-    // Fetch new data - use the correct collection based on termType
-    const collectionName = termType === 'summer' ? 'summerTimetable' : 'fallTimetable2';
-    const coursesSnapshot = await getDocs(collection(db, collectionName));
-    const coursesData = coursesSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      const periodCode = data['Period Code'];
-
-      // Use the period code to get the timing information
-      const timing = periodCodeToTiming[periodCode] || 'Unknown Timing';
-
-      return {
-        documentName: doc.id,
-        subj: data.Subj,
-        num: data.Num,
-        sec: data.Section,
-        title: data.Title,
-        period: periodCode,
-        timing: timing, // This now correctly uses the mapping
-        room: data.Room,
-        building: data.Building,
-        instructor: data.Instructor,
-        isNotified: false // Initialize notification status
-      };
-    });
-
     // Enhance with enrollment data only for winter/fall terms (not summer)
     let enhancedCourses = coursesData;
     if (termType !== 'summer') {
@@ -134,20 +78,13 @@ export const fetchFirestoreCourses = async (db, termType = 'summer') => {
       }
     }
 
-    // Store the new data in cache
-    await Promise.all([
-      localforage.setItem(cacheKey, enhancedCourses),
-      localforage.setItem(cacheTimestampKey, now),
-      localforage.setItem(cacheVersionKey, CACHE_VERSION)
-    ]);
-
-    console.log(`New ${termType} data cached`);
+    console.log(`Fetched ${termType} data from GCS`);
     return {
       courses: enhancedCourses,
-      fromCache: false
+      fromCache: fromCache
     };
   } catch (error) {
-    console.error(`Error fetching ${termType} Firestore courses:`, error);
+    console.error(`Error fetching ${termType} GCS courses:`, error);
     throw error;
   }
 };
@@ -180,32 +117,10 @@ export const refreshEnrollmentData = async (db, termType = 'summer') => {
       localforage.removeItem(cacheVersionKey)
     ]);
 
-    // Fetch fresh course data from Firestore
-    const collectionName = termType === 'summer' ? 'summerTimetable' : 'fallTimetable2';
-    console.log(`Fetching fresh data from ${collectionName} collection`);
+    // Fetch fresh course data from GCS
+    console.log(`Fetching fresh data from GCS for ${termType} term`);
     
-    const coursesSnapshot = await getDocs(collection(db, collectionName));
-    const coursesData = coursesSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      const periodCode = data['Period Code'];
-
-      // Use the period code to get the timing information
-      const timing = periodCodeToTiming[periodCode] || 'Unknown Timing';
-
-      return {
-        documentName: doc.id,
-        subj: data.Subj,
-        num: data.Num,
-        sec: data.Section,
-        title: data.Title,
-        period: periodCode,
-        timing: timing,
-        room: data.Room,
-        building: data.Building,
-        instructor: data.Instructor,
-        isNotified: false
-      };
-    });
+    const { courses: coursesData } = await fetchGCSTimetableData(termType);
 
     // Force fresh enrollment data fetch by calling the enrollment service
     console.log('Forcing fresh enrollment data fetch...');

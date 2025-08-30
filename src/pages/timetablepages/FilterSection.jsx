@@ -1,8 +1,8 @@
 // src/pages/timetablepages/FilterSection.jsx
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box, TextField, Button, Typography, InputAdornment, IconButton, Paper,
-  CircularProgress
+  CircularProgress, Chip, FormControl, Select, MenuItem
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -27,9 +27,28 @@ const FilterSection = ({
   isRefreshingEnrollments,
   showRefreshButton,
   hasUnlockedFeatures,
-  enableEnrollmentData
+  enableEnrollmentData,
+  // Major filtering props
+  selectedMajor,
+  handleMajorChange,
+  majors,
+  clearAllFilters,
+  // Instructor filtering props
+  selectedInstructor,
+  handleInstructorChange,
+  filteredInstructors
 }) => {
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
+
+  // Memoize filtered subjects for better performance
+  const filteredSubjects = useMemo(() => {
+    if (!searchTerm) return subjects;
+    return subjects.filter(subject => 
+      subject.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [subjects, searchTerm]);
+
+
 
   const handleSearchFocus = () => {
     // Only open dropdown if there's search text
@@ -49,6 +68,13 @@ const FilterSection = ({
     handleSubjectChange({ target: { value: subject } });
     setIsSubjectDropdownOpen(false);
   };
+
+  const handleInstructorSelect = (instructor) => {
+    handleInstructorChange({ target: { value: instructor } });
+    setIsSubjectDropdownOpen(false);
+  };
+
+  const hasActiveFilters = selectedSubject || selectedMajor || selectedInstructor;
 
   return (
     <Box sx={{
@@ -76,9 +102,11 @@ const FilterSection = ({
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        mb: 3
+        mb: 3,
+        flexWrap: 'wrap',
+        gap: 2
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
           {/* Term Toggle Pills */}
           <Box 
             sx={{ 
@@ -92,31 +120,6 @@ const FilterSection = ({
               marginRight: '12px',
             }}
           >
-            <Box
-              onClick={() => setTermType('summer')}
-              sx={{
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                backgroundColor: termType === 'summer' 
-                  ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
-                  : 'transparent',
-                color: termType === 'summer'
-                  ? (darkMode ? '#BB86FC' : '#00693E')
-                  : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
-                fontWeight: termType === 'summer' ? 600 : 400,
-                fontSize: '0.9rem',
-                fontFamily: 'SF Pro Display, sans-serif',
-                '&:hover': {
-                  backgroundColor: termType !== 'summer'
-                    ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
-                    : (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.1)')
-                }
-              }}
-            >
-              Summer 2025
-            </Box>
             <Box
               onClick={() => setTermType('fall')}
               sx={{
@@ -195,6 +198,71 @@ const FilterSection = ({
               {isRefreshingEnrollments ? 'Refreshing...' : 'Refresh Enrollments'}
             </Button>
           )}
+
+          {/* Major Selection Dropdown */}
+          {majors && majors.length > 0 && (
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <Select
+                value={selectedMajor || ''}
+                onChange={handleMajorChange}
+                displayEmpty
+                sx={{
+                  color: darkMode ? '#FFFFFF' : '#000000',
+                  backgroundColor: darkMode ? 'rgba(28, 31, 67, 0.4)' : 'rgba(255, 255, 255, 0.8)',
+                  borderRadius: '6px',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: darkMode ? 'rgba(187, 134, 252, 0.5)' : 'rgba(0, 105, 62, 0.5)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: darkMode ? '#BB86FC' : '#00693E',
+                  },
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      backgroundColor: darkMode ? '#1C1F43' : '#FFFFFF',
+                      color: darkMode ? '#FFFFFF' : '#000000',
+                      maxHeight: 300,
+                    }
+                  }
+                }}
+              >
+                <MenuItem value="">
+                  <em>All Majors</em>
+                </MenuItem>
+                {majors.map((major) => (
+                  <MenuItem key={major} value={major}>
+                    {major}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+
+          {/* Clear All Filters Button */}
+          {hasActiveFilters && (
+            <Button
+              variant="text"
+              size="small"
+              onClick={clearAllFilters}
+              sx={{
+                color: darkMode ? '#FF6B6B' : '#D32F2F',
+                fontSize: '0.8rem',
+                fontWeight: 500,
+                textTransform: 'none',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                '&:hover': {
+                  backgroundColor: darkMode ? 'rgba(255, 107, 107, 0.1)' : 'rgba(211, 47, 47, 0.1)',
+                }
+              }}
+            >
+              Clear All
+            </Button>
+          )}
         </Box>
         
         {/* Search Box */}
@@ -205,7 +273,7 @@ const FilterSection = ({
         }}>
           <TextField
             variant="outlined"
-            placeholder="Search by course, subject or instructor..."
+            placeholder="Search by course name, subject, or instructor..."
             value={searchTerm}
             onChange={handleSearch}
             onFocus={handleSearchFocus}
@@ -260,8 +328,8 @@ const FilterSection = ({
             }}
           />
           
-          {/* Subject filter dropdown */}
-          {subjects.length > 0 && isSubjectDropdownOpen && (
+          {/* Enhanced dropdown for subjects and instructors */}
+          {(filteredSubjects.length > 0 || filteredInstructors.length > 0) && isSubjectDropdownOpen && (
             <Paper
               elevation={4}
               sx={{
@@ -269,7 +337,7 @@ const FilterSection = ({
                 top: '48px',
                 left: 0,
                 width: '100%',
-                maxHeight: '300px',
+                maxHeight: '400px',
                 overflowY: 'auto',
                 borderRadius: '12px',
                 zIndex: 10,
@@ -279,46 +347,36 @@ const FilterSection = ({
                 flexDirection: 'column',
               }}
             >
-              {/* "All Subjects" option at the top */}
-              <Box
-                onClick={() => handleSubjectSelect('')}
-                sx={{
-                  padding: '10px 16px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid',
-                  borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                  backgroundColor: selectedSubject === '' ? (darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.05)') : 'transparent',
-                  color: selectedSubject === '' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? '#FFFFFF' : '#000000'),
-                  fontWeight: selectedSubject === '' ? 600 : 400,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  '&:hover': {
+              {/* Subjects Section */}
+              {filteredSubjects.length > 0 && (
+                <>
+                  <Box sx={{
+                    padding: '8px 16px',
                     backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
-                  },
-                }}
-              >
-                <Typography sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>All Subjects</Typography>
-                {selectedSubject === '' && (
-                  <CheckCircleIcon sx={{ fontSize: '18px', color: darkMode ? '#BB86FC' : '#00693E' }} />
-                )}
-              </Box>
-              
-              {/* Filter subject items to match current search */}
-              {subjects
-                .filter(subject => !searchTerm || subject.toLowerCase().includes(searchTerm.toLowerCase()))
-                .map((subject, index) => (
+                    borderBottom: '1px solid',
+                    borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                  }}>
+                    <Typography variant="caption" sx={{ 
+                      color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Departments
+                    </Typography>
+                  </Box>
+                  
+                  {/* "All Subjects" option */}
                   <Box
-                    key={index}
-                    onClick={() => handleSubjectSelect(subject)}
+                    onClick={() => handleSubjectSelect('')}
                     sx={{
                       padding: '10px 16px',
                       cursor: 'pointer',
-                      borderBottom: index < subjects.length - 1 ? '1px solid' : 'none',
+                      borderBottom: '1px solid',
                       borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                      backgroundColor: selectedSubject === subject ? (darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.05)') : 'transparent',
-                      color: selectedSubject === subject ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? '#FFFFFF' : '#000000'),
-                      fontWeight: selectedSubject === subject ? 600 : 400,
+                      backgroundColor: selectedSubject === '' ? (darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.05)') : 'transparent',
+                      color: selectedSubject === '' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? '#FFFFFF' : '#000000'),
+                      fontWeight: selectedSubject === '' ? 600 : 400,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
@@ -327,55 +385,179 @@ const FilterSection = ({
                       },
                     }}
                   >
-                    <Typography sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>{subject}</Typography>
-                    {selectedSubject === subject && (
+                    <Typography sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>All Departments</Typography>
+                    {selectedSubject === '' && (
                       <CheckCircleIcon sx={{ fontSize: '18px', color: darkMode ? '#BB86FC' : '#00693E' }} />
                     )}
                   </Box>
-                ))}
+                  
+                  {/* Subject items */}
+                  {filteredSubjects.map((subject, index) => (
+                    <Box
+                      key={`subject-${index}`}
+                      onClick={() => handleSubjectSelect(subject)}
+                      sx={{
+                        padding: '10px 16px',
+                        cursor: 'pointer',
+                        borderBottom: index < filteredSubjects.length - 1 ? '1px solid' : 'none',
+                        borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                        backgroundColor: selectedSubject === subject ? (darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.05)') : 'transparent',
+                        color: selectedSubject === subject ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? '#FFFFFF' : '#000000'),
+                        fontWeight: selectedSubject === subject ? 600 : 400,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        '&:hover': {
+                          backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                        },
+                      }}
+                    >
+                      <Typography sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>{subject}</Typography>
+                      {selectedSubject === subject && (
+                        <CheckCircleIcon sx={{ fontSize: '18px', color: darkMode ? '#BB86FC' : '#00693E' }} />
+                      )}
+                    </Box>
+                  ))}
+                </>
+              )}
+              
+              {/* Instructors Section */}
+              {filteredInstructors.length > 0 && (
+                <>
+                  <Box sx={{
+                    padding: '8px 16px',
+                    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                    borderBottom: '1px solid',
+                    borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                  }}>
+                    <Typography variant="caption" sx={{ 
+                      color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Instructors
+                    </Typography>
+                  </Box>
+                  
+                  {/* "All Instructors" option */}
+                  <Box
+                    onClick={() => handleInstructorSelect('')}
+                    sx={{
+                      padding: '10px 16px',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid',
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                      backgroundColor: selectedInstructor === '' ? (darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.05)') : 'transparent',
+                      color: selectedInstructor === '' ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? '#FFFFFF' : '#000000'),
+                      fontWeight: selectedInstructor === '' ? 600 : 400,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      '&:hover': {
+                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                      },
+                    }}
+                  >
+                    <Typography sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>All Instructors</Typography>
+                    {selectedInstructor === '' && (
+                      <CheckCircleIcon sx={{ fontSize: '18px', color: darkMode ? '#BB86FC' : '#00693E' }} />
+                    )}
+                  </Box>
+                  
+                  {/* Instructor items */}
+                  {filteredInstructors.map((instructor, index) => (
+                    <Box
+                      key={`instructor-${index}`}
+                      onClick={() => handleInstructorSelect(instructor)}
+                      sx={{
+                        padding: '10px 16px',
+                        cursor: 'pointer',
+                        borderBottom: index < filteredInstructors.length - 1 ? '1px solid' : 'none',
+                        borderColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                        backgroundColor: selectedInstructor === instructor ? (darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 105, 62, 0.05)') : 'transparent',
+                        color: selectedInstructor === instructor ? (darkMode ? '#BB86FC' : '#00693E') : (darkMode ? '#FFFFFF' : '#000000'),
+                        fontWeight: selectedInstructor === instructor ? 600 : 400,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        '&:hover': {
+                          backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                        },
+                      }}
+                    >
+                      <Typography sx={{ fontFamily: 'SF Pro Display, sans-serif' }}>{instructor}</Typography>
+                      {selectedInstructor === instructor && (
+                        <CheckCircleIcon sx={{ fontSize: '18px', color: darkMode ? '#BB86FC' : '#00693E' }} />
+                      )}
+                    </Box>
+                  ))}
+                </>
+              )}
             </Paper>
           )}
         </Box>
       </Box>
+
+
       
-      {/* Selected subject pill/chip - will show beneath search field */}
-      {selectedSubject && (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            marginTop: '8px',
-            padding: '6px 12px',
-            backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)',
-            borderRadius: '20px',
-            alignSelf: 'flex-start',
-            width: 'fit-content',
-          }}
-        >
-          <Typography
-            sx={{
-              color: darkMode ? '#BB86FC' : '#00693E',
-              fontWeight: 600,
-              fontSize: '0.9rem',
-              marginRight: '8px',
-              fontFamily: 'SF Pro Display, sans-serif',
-            }}
-          >
-            {selectedSubject}
+      {/* Active Filters Display */}
+      {(selectedSubject || selectedMajor || selectedInstructor) && (
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          flexWrap: 'wrap',
+          mt: 2
+        }}>
+          <Typography variant="body2" sx={{ 
+            color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
+            mr: 1
+          }}>
+            Active filters:
           </Typography>
-          <IconButton
-            size="small"
-            onClick={() => handleSubjectSelect('')}
-            sx={{
-              padding: '2px',
-              color: darkMode ? '#BB86FC' : '#00693E',
-              '&:hover': {
-                backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.25)' : 'rgba(0, 105, 62, 0.15)',
-              },
-            }}
-          >
-            <CloseIcon sx={{ fontSize: '16px' }} />
-          </IconButton>
+          
+          {selectedSubject && (
+            <Chip
+              label={`Dept: ${selectedSubject}`}
+              onDelete={() => handleSubjectChange({ target: { value: '' } })}
+              sx={{
+                backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)',
+                color: darkMode ? '#BB86FC' : '#00693E',
+                '& .MuiChip-deleteIcon': {
+                  color: darkMode ? '#BB86FC' : '#00693E',
+                }
+              }}
+            />
+          )}
+          
+          {selectedMajor && (
+            <Chip
+              label={`Major: ${selectedMajor}`}
+              onDelete={() => handleMajorChange({ target: { value: '' } })}
+              sx={{
+                backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)',
+                color: darkMode ? '#BB86FC' : '#00693E',
+                '& .MuiChip-deleteIcon': {
+                  color: darkMode ? '#BB86FC' : '#00693E',
+                }
+              }}
+            />
+          )}
+          
+          {selectedInstructor && (
+            <Chip
+              label={`Instructor: ${selectedInstructor}`}
+              onDelete={() => handleInstructorChange({ target: { value: '' } })}
+              sx={{
+                backgroundColor: darkMode ? 'rgba(187, 252, 134, 0.15)' : 'rgba(76, 175, 80, 0.08)',
+                color: darkMode ? '#4CAF50' : '#2E7D32',
+                '& .MuiChip-deleteIcon': {
+                  color: darkMode ? '#4CAF50' : '#2E7D32',
+                }
+              }}
+            />
+          )}
         </Box>
       )}
     </Box>
