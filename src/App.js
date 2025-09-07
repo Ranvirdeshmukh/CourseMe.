@@ -117,6 +117,14 @@ const App = () => {
   );
 };
 
+// Redirect CSDA course pages to equivalent COSC 021-029 pages
+const CSDARedirect = () => {
+  const { id } = useParams();
+  // Map IDs like CSDA_CSDA021__Title -> COSC_COSC021__Title
+  const targetId = id ? id.replace(/^CSDA_CSDA/, 'COSC_COSC') : '';
+  return <Navigate to={`/departments/COSC/courses/${targetId}`} replace />;
+};
+
 const AppContent = () => {
   const location = useLocation();
   const { currentUser } = useAuth();
@@ -171,6 +179,8 @@ const AppContent = () => {
         <Route path="/profile" element={<ProfilePage darkMode={effectiveDarkMode} />} />
         <Route path="/signup" element={<SignUpPage darkMode={effectiveDarkMode} />} />
         <Route path="/login" element={<LoginPage darkMode={effectiveDarkMode} />} />
+        {/* CSDA -> COSC course redirect must appear before generic course routes */}
+        <Route path="/departments/CSDA/courses/:id" element={<CSDARedirect />} />
         <Route path="/departments/:department" element={<DepartmentCoursesPage darkMode={effectiveDarkMode} />} />
         <Route path="/departments/:department/courses/:courseId" element={<CourseReviewsPage darkMode={effectiveDarkMode} />} />
         <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage darkMode={effectiveDarkMode} />} />
