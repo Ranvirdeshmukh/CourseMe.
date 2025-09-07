@@ -16,13 +16,13 @@ import { fetchGCSTimetableData } from './gcsTimetableService';
 const CACHE_CONFIG = {
   COURSE_DATA: {
     KEY: 'course_data_cache',
-    VERSION: 'v3', // Updated to force cache invalidation after distribs fix
+    VERSION: 'v4', // Bump to invalidate caches after distribs normalization
     DURATION: 24 * 60 * 60 * 1000, // 24 hours
     REFRESH_THRESHOLD: 60 * 60 * 1000 // 1 hour
   },
   PERIOD_DATA: {
     KEY: 'period_data_cache',
-    VERSION: 'v3', // Updated to force cache invalidation after distribs fix
+    VERSION: 'v4', // Bump to invalidate caches after distribs normalization
     DURATION: 24 * 60 * 60 * 1000,
     REFRESH_THRESHOLD: 60 * 60 * 1000
   },
@@ -106,7 +106,7 @@ async function fetchAndCacheCourseIndex() {
           name: data.name || '',
           numOfReviews: data.numOfReviews || 0,
           department: data.department,
-          distribs: data.distribs ? data.distribs.split(',').map(d => d.trim()) : []
+          distribs: normalizeDistribs(data.distribs)
         };
         
 
@@ -309,7 +309,7 @@ export async function getHiddenLayupsStaticData(hiddenLayupCourseIds) {
           id: doc.id,
           name: data.name || 'Unknown Course Name',
           department: data.department || 'Unknown Department',
-          distribs: data.distribs ? data.distribs.split(',').map(d => d.trim()) : [],
+          distribs: normalizeDistribs(data.distribs),
           layup: parseFloat(data.layup) || 0
         };
       }
@@ -459,12 +459,40 @@ async function fetchTopLayupsFromFirestore(limit) {
     return {
       id: doc.id,
       name: docData.name || 'Untitled',
-      distribs: docData.distribs
-        ? docData.distribs.split(',').map((d) => d.trim())
-        : [],
+      distribs: normalizeDistribs(docData.distribs),
       layup: docData.layup ?? 0,
       numOfReviews: docData.numOfReviews ?? 0,
       department: docData.department
     };
   }).sort((a, b) => b.layup - a.layup);
 } 
+
+// Normalize distribs coming from Firestore. Handles string, array, null/undefined, and objects.
+function normalizeDistribs(rawDistribs) {
+  try {
+    if (Array.isArray(rawDistribs)) {
+      return rawDistribs
+        .filter(Boolean)
+        .map(String)
+        .map((d) => d.trim())
+        .filter((d) => d.length > 0);
+    }
+    if (typeof rawDistribs === 'string') {
+      return rawDistribs
+        .split(',')
+        .map((d) => d.trim())
+        .filter((d) => d.length > 0);
+    }
+    if (rawDistribs && typeof rawDistribs === 'object') {
+      // Some browsers/drivers may deserialize as an object (e.g., map) – coerce values
+      return Object.values(rawDistribs)
+        .filter(Boolean)
+        .map(String)
+        .map((d) => d.trim())
+        .filter((d) => d.length > 0);
+    }
+    return [];
+  } catch (_e) {
+    return [];
+  }
+}
