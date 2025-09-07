@@ -6,7 +6,8 @@ import {
   Route,
   BrowserRouter as Router,
   Routes,
-  useLocation
+  useLocation,
+  useParams
 } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, createTheme, useMediaQuery } from '@mui/material';
 import UniversalFooter from './components/universalfooter.jsx';
