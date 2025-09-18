@@ -11,4 +11,16 @@ module.exports = function(app) {
       },
     })
   );
+
+  // Proxy for Google Cloud Storage to avoid CORS issues
+  app.use(
+    '/gcs',
+    createProxyMiddleware({
+      target: 'https://storage.googleapis.com',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/gcs': '', // remove /gcs prefix when forwarding to the target
+      },
+    })
+  );
 };

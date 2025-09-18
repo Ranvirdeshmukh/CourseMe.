@@ -3,7 +3,10 @@ import localforage from 'localforage';
 
 const CACHE_VERSION = 'gcsV1';
 const CACHE_TTL = 3600000; // 1 hour in milliseconds
-const GCS_URL = 'https://storage.googleapis.com/timetable-info/courses_detailed.json';
+// Use proxy route to avoid CORS issues during development
+const GCS_URL = process.env.NODE_ENV === 'development' 
+  ? '/gcs/timetable-info/courses_detailed.json'
+  : 'https://storage.googleapis.com/timetable-info/courses_detailed.json';
 
 // Period code to timing mapping
 const periodCodeToTiming = {
