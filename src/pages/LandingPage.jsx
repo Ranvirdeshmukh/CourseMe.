@@ -16,6 +16,18 @@ import ScheduleVisualization from './timetablepages/ScheduleVisualization';
 import Slide from '@mui/material/Slide';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Divider from '@mui/material/Divider';
+import { 
+  ClassesIcon, 
+  LayupsIcon, 
+  ProfessorsIcon, 
+  TimetableIcon, 
+  ScheduleVisualizerIcon, 
+  ProfileIcon,
+  RecentIcon,
+  PopularIcon,
+  CourseIcon,
+  QuestionIcon
+} from '../components/icons/CustomIcons';
 
 import { 
   Container, Box, Typography, TextField, Button, 
@@ -752,7 +764,7 @@ const LandingPage = ({ darkMode }) => {
         .map(item => ({
           text: item.query,
           type: 'recent',
-          icon: '🕒'
+          icon: 'recent'
         }));
       
       suggestions = [...suggestions, ...matchingRecentSearches];
@@ -765,7 +777,7 @@ const LandingPage = ({ darkMode }) => {
         .map(item => ({
           text: item.query,
           type: 'popular',
-          icon: '🔥'
+          icon: 'popular'
         }));
       
       suggestions = [...suggestions, ...matchingPopularSearches];
@@ -780,7 +792,7 @@ const LandingPage = ({ darkMode }) => {
           const professorSuggestions = professorResults.map(prof => ({
             text: `${prof.name}${prof.departments.length > 0 ? ` (${prof.departments[0]})` : ''}`,
             type: 'professor',
-            icon: '👨‍🏫',
+            icon: 'professor',
             professorId: prof.id,
             matchScore: prof.matchScore
           }));
@@ -831,7 +843,7 @@ const LandingPage = ({ darkMode }) => {
             courseSuggestions.push({
               text: `${data.department} ${data.course_number} - ${data.course_title}`,
               type: 'course',
-              icon: '📚',
+              icon: 'course',
               docId: doc.id
             });
           });
@@ -846,9 +858,9 @@ const LandingPage = ({ darkMode }) => {
     // Add some common question templates if nothing else matches
     if (suggestions.length === 0) {
       const questionTemplates = [
-        { text: `What are the easiest ${value} courses?`, type: 'question', icon: '❓' },
-        { text: `Who is the best professor for ${value}?`, type: 'question', icon: '👨‍🏫' },
-        { text: `How difficult is ${value}?`, type: 'question', icon: '📊' }
+        { text: `What are the easiest ${value} courses?`, type: 'question', icon: 'question' },
+        { text: `Who is the best professor for ${value}?`, type: 'question', icon: 'professor' },
+        { text: `How difficult is ${value}?`, type: 'question', icon: 'question' }
       ];
       
       suggestions = [...suggestions, ...questionTemplates];
@@ -1027,18 +1039,15 @@ const LandingPage = ({ darkMode }) => {
                 filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
-            <Typography
-              variant="h3"
+            <Box
               className="button-icon"
               sx={{
-                fontSize: '1.5rem',
                 mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
                 transition: 'transform 0.3s ease',
               }}
             >
-              📚
-            </Typography>
+              <ClassesIcon size={44} darkMode={darkMode} />
+            </Box>
             <Typography
               variant="h6"
               sx={{
@@ -1087,18 +1096,15 @@ const LandingPage = ({ darkMode }) => {
                 filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
-            <Typography
-              variant="h3"
+            <Box
               className="button-icon"
               sx={{
-                fontSize: '1.5rem',
                 mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
                 transition: 'transform 0.3s ease',
               }}
             >
-              🎯
-            </Typography>
+              <LayupsIcon size={44} darkMode={darkMode} />
+            </Box>
             <Typography
               variant="h6"
               sx={{
@@ -1145,18 +1151,15 @@ const LandingPage = ({ darkMode }) => {
                 filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
-            <Typography
-              variant="h3"
+            <Box
               className="button-icon"
               sx={{
-                fontSize: '1.5rem',
                 mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
                 transition: 'transform 0.3s ease',
               }}
             >
-              👨‍🏫
-            </Typography>
+              <ProfessorsIcon size={44} darkMode={darkMode} />
+            </Box>
             <Typography
               variant="h6"
               sx={{
@@ -1204,18 +1207,15 @@ const LandingPage = ({ darkMode }) => {
                 filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
-            <Typography
-              variant="h3"
+            <Box
               className="button-icon"
               sx={{
-                fontSize: '1.5rem',
                 mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
                 transition: 'transform 0.3s ease',
               }}
             >
-              🗓️
-            </Typography>
+              <TimetableIcon size={44} darkMode={darkMode} />
+            </Box>
             <Typography
               variant="h6"
               sx={{
@@ -1297,18 +1297,15 @@ const LandingPage = ({ darkMode }) => {
                   filter: darkMode ? 'blur(8px)' : 'blur(12px)',
                 }} 
               />
-              <Typography
-                variant="h3"
+              <Box
                 className="button-icon"
                 sx={{
-                  fontSize: '1.5rem',
                   mb: '8px',
-                  color: darkMode ? '#FFFFFF' : '#000000',
                   transition: 'transform 0.3s ease',
                 }}
               >
-                📅
-              </Typography>
+                <ScheduleVisualizerIcon size={44} darkMode={darkMode} />
+              </Box>
               <Typography
                 variant="h6"
                 sx={{
@@ -1356,18 +1353,15 @@ const LandingPage = ({ darkMode }) => {
                 filter: darkMode ? 'blur(8px)' : 'blur(12px)',
               }} 
             />
-            <Typography
-              variant="h3"
+            <Box
               className="button-icon"
               sx={{
-                fontSize: '1.5rem',
                 mb: '8px',
-                color: darkMode ? '#FFFFFF' : '#000000',
                 transition: 'transform 0.3s ease',
               }}
             >
-              👤
-            </Typography>
+              <ProfileIcon size={44} darkMode={darkMode} />
+            </Box>
             <Typography
               variant="h6"
               sx={{
@@ -1532,14 +1526,19 @@ const LandingPage = ({ darkMode }) => {
                             width: '100%', 
                             color: darkMode ? '#ffffff' : '#333333' 
                           }}>
-                            <Typography sx={{ 
-                              mr: 1.5, 
-                              fontSize: '1.2rem',
+                            <Box sx={{ 
+                              mr: 1.5,
                               width: '24px',
-                              textAlign: 'center'
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                             }}>
-                              {suggestion.icon}
-                            </Typography>
+                              {suggestion.icon === 'recent' && <RecentIcon size={20} />}
+                              {suggestion.icon === 'popular' && <PopularIcon size={20} />}
+                              {suggestion.icon === 'course' && <CourseIcon size={20} />}
+                              {suggestion.icon === 'professor' && <ProfessorsIcon size={20} darkMode={darkMode} />}
+                              {suggestion.icon === 'question' && <QuestionIcon size={20} />}
+                            </Box>
                             <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               <Typography 
                                 variant="body1" 
@@ -1671,9 +1670,9 @@ const LandingPage = ({ darkMode }) => {
                   label={search.query}
                   onClick={() => {
                     setQuestion(search.query);
-                    handleSearch(new Event('submit'));
-                  }}
-                  icon={<Typography sx={{ fontSize: '1rem', ml: 1 }}>🔥</Typography>}
+                  handleSearch(new Event('submit'));
+                }}
+                icon={<PopularIcon size={18} />}
                   sx={{
                     bgcolor: darkMode ? 'rgba(87, 28, 224, 0.15)' : 'rgba(0, 0, 0, 0.05)',
                     color: darkMode ? '#ffffff' : '#333333',
