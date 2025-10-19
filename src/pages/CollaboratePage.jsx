@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Container, Box, Typography, Paper, Grid, Card, CardContent,
-  Chip, Fade
+  Fade
 } from '@mui/material';
 import { 
   GitHub,
@@ -22,7 +22,7 @@ const CollaboratePage = ({ darkMode }) => {
     {
       id: 'mts-ai',
       title: 'Member of Technical Staff',
-      subtitle: 'AI Features',
+      subtitle: 'AI Engineer',
       description: 'Build cutting-edge AI features for course recommendations, academic planning, and intelligent search capabilities.',
       skills: ['React', 'Python', 'AI/ML', 'NoSQL Database', 'OpenAI API'],
       impact: 'Direct impact on 4,000+ students through AI-powered features'
@@ -30,7 +30,7 @@ const CollaboratePage = ({ darkMode }) => {
     {
       id: 'mts-frontend',
       title: 'Member of Technical Staff',
-      subtitle: 'Frontend Development',
+      subtitle: 'Frontend Engineer',
       description: 'Enhance user experience, build beautiful responsive interfaces, and implement modern design systems.',
       skills: ['React', 'Material-UI', 'JavaScript', 'CSS', 'TypeScript'],
       impact: 'Shape the daily experience of thousands of Dartmouth students'
@@ -38,7 +38,7 @@ const CollaboratePage = ({ darkMode }) => {
     {
       id: 'mts-backend',
       title: 'Member of Technical Staff',
-      subtitle: 'Backend Engineering',
+      subtitle: 'Backend Engineer',
       description: 'Scale infrastructure, build robust APIs, optimize database performance, and ensure system reliability.',
       skills: ['Python', 'NoSQL Database', 'Cloud Functions', 'Database Design', 'API Development'],
       impact: 'Build the foundation that powers CourseMe for thousands of users'
@@ -294,14 +294,27 @@ const CollaboratePage = ({ darkMode }) => {
 
         {/* Why Join Section */}
         <Fade in={fadeIn} timeout={1600}>
-          <Box sx={{ mb: 6 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              mb: 6,
+              borderRadius: '20px',
+              background: darkMode 
+                ? 'linear-gradient(145deg, rgba(44, 25, 79, 0.3), rgba(28, 9, 63, 0.3))' 
+                : 'linear-gradient(145deg, #ffffff, #f7f7f7)',
+              border: darkMode 
+                ? '1px solid rgba(87, 28, 224, 0.2)' 
+                : '1px solid rgba(0, 0, 0, 0.05)',
+            }}
+          >
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 600,
                 color: darkMode ? '#ffffff' : '#333333',
                 mb: 3,
-                textAlign: 'left'
+                textAlign: 'center'
               }}
             >
               Why Join CourseMe?
@@ -327,31 +340,52 @@ const CollaboratePage = ({ darkMode }) => {
                 }
               ].map((benefit, index) => (
                 <Grid item xs={12} md={6} key={index}>
-                  <Box sx={{ mb: 2 }}>
-                    <Typography
-                      variant="h6"
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                    <Box
                       sx={{
-                        fontWeight: 600,
-                        color: darkMode ? '#ffffff' : '#333333',
-                        mb: 1
+                        width: 40,
+                        height: 40,
+                        borderRadius: '10px',
+                        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
                       }}
                     >
-                      {benefit.title}
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
-                        lineHeight: 1.6
-                      }}
-                    >
-                      {benefit.description}
-                    </Typography>
+                      <Box sx={{ 
+                        width: 8, 
+                        height: 8, 
+                        borderRadius: '50%', 
+                        backgroundColor: ['#F26655', '#571CE0', '#00693e', '#F26655'][index] 
+                      }} />
+                    </Box>
+                    <Box>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 600,
+                          color: darkMode ? '#ffffff' : '#333333',
+                          mb: 1
+                        }}
+                      >
+                        {benefit.title}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+                          lineHeight: 1.5
+                        }}
+                      >
+                        {benefit.description}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Grid>
               ))}
             </Grid>
-          </Box>
+          </Paper>
         </Fade>
       </Container>
     </Box>
