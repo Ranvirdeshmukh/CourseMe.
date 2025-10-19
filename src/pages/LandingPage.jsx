@@ -88,6 +88,9 @@ const LandingPage = ({ darkMode }) => {
   const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(true);
   const [selectedCourses, setSelectedCourses] = useState([]);
 
+  // State for collaborate popup
+  const [showCollaboratePopup, setShowCollaboratePopup] = useState(false);
+
   // New state for search suggestions
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -582,6 +585,25 @@ const LandingPage = ({ darkMode }) => {
     }
   }, []);
 
+  // Show collaborate popup after a delay (only if user hasn't seen it before)
+  useEffect(() => {
+    const hasSeenCollaboratePopup = localStorage.getItem('hasSeenCollaboratePopup');
+    
+    if (!hasSeenCollaboratePopup && currentUser && fadeIn) {
+      const timer = setTimeout(() => {
+        setShowCollaboratePopup(true);
+      }, 4000); // Show after 4 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentUser, fadeIn]);
+
+  // Handle popup dismiss
+  const handleDismissPopup = () => {
+    setShowCollaboratePopup(false);
+    localStorage.setItem('hasSeenCollaboratePopup', 'true');
+  };
+
   // Replace the handleOpenMiniSchedule function with this navigate function
   const navigateToTimetableWithVisualization = () => {
     // Navigate to timetable with state parameter to open visualization
@@ -958,6 +980,7 @@ const LandingPage = ({ darkMode }) => {
           searchProfessors={searchProfessors}
         />
       </Box>
+
 
       {/* For tablets and larger - show the desktop version */}
       <Container
@@ -1386,7 +1409,9 @@ const LandingPage = ({ darkMode }) => {
               <span style={{ color: '#F26655' }}>.</span>
             </Typography>
           </ButtonBase>
+
         </Box>
+
 
         {/* Search bar */}
         <Box
@@ -2023,6 +2048,183 @@ const LandingPage = ({ darkMode }) => {
           {error}
         </Alert>
       </Snackbar>
+
+      {/* Collaborate Popup */}
+      {showCollaboratePopup && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: { xs: '60px', sm: '70px', md: '80px' },
+            right: { xs: '20px', sm: '40px', md: '80px' },
+            zIndex: 1000,
+            animation: 'slideInFromTop 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
+            '@keyframes slideInFromTop': {
+              '0%': { 
+                transform: 'translateY(-100%) scale(0.8)',
+                opacity: 0
+              },
+              '100%': { 
+                transform: 'translateY(0) scale(1)',
+                opacity: 1
+              },
+            },
+          }}
+        >
+          {/* Arrow pointing up to navbar collaborate button */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '-8px',
+              right: '60px',
+              width: 0,
+              height: 0,
+              borderLeft: '12px solid transparent',
+              borderRight: '12px solid transparent',
+              borderBottom: darkMode 
+                ? '12px solid rgba(44, 25, 79, 0.95)' 
+                : '12px solid rgba(255, 255, 255, 0.98)',
+              filter: 'drop-shadow(0 -2px 4px rgba(0, 0, 0, 0.1))',
+            }}
+          />
+          
+          {/* Popup content */}
+          <Paper
+            elevation={8}
+            sx={{
+              p: 3,
+              maxWidth: '280px',
+              borderRadius: '16px',
+              background: darkMode 
+                ? 'linear-gradient(145deg, rgba(44, 25, 79, 0.95), rgba(28, 9, 63, 0.95))' 
+                : 'linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98))',
+              border: darkMode 
+                ? '1px solid rgba(242, 102, 85, 0.3)' 
+                : '1px solid rgba(242, 102, 85, 0.2)',
+              boxShadow: darkMode
+                ? '0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(242, 102, 85, 0.1)'
+                : '0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(242, 102, 85, 0.05)',
+              backdropFilter: 'blur(10px)',
+              position: 'relative',
+            }}
+          >
+            {/* Close button */}
+            <IconButton
+              onClick={handleDismissPopup}
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                width: 24,
+                height: 24,
+                color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)',
+                '&:hover': {
+                  backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                }
+              }}
+            >
+              <Close fontSize="small" />
+            </IconButton>
+
+            {/* Sparkle icon */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 48,
+                height: 48,
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #F26655, #571CE0)',
+                mb: 2,
+                mx: 'auto',
+                animation: 'sparkle 2s infinite',
+                '@keyframes sparkle': {
+                  '0%, 100%': { transform: 'rotate(0deg) scale(1)' },
+                  '25%': { transform: 'rotate(-5deg) scale(1.05)' },
+                  '75%': { transform: 'rotate(5deg) scale(1.05)' },
+                },
+              }}
+            >
+              <Typography sx={{ fontSize: '1.5rem' }}>✨</Typography>
+            </Box>
+
+            {/* Heading */}
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                fontSize: '1.1rem',
+                color: darkMode ? '#ffffff' : '#333333',
+                textAlign: 'center',
+                mb: 1,
+                fontFamily: 'SF Pro Display, sans-serif',
+              }}
+            >
+              Level Up Your Resume!
+            </Typography>
+
+            {/* Description */}
+            <Typography
+              variant="body2"
+              sx={{
+                color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.7)',
+                textAlign: 'center',
+                mb: 2.5,
+                lineHeight: 1.5,
+                fontSize: '0.9rem',
+              }}
+            >
+              Join CourseMe's team and build real features used by{' '}
+              <Box component="span" sx={{ fontWeight: 600, color: '#F26655' }}>
+                4,000+ students
+              </Box>
+              . Get hands-on experience with cutting-edge tech!
+            </Typography>
+
+            {/* CTA Button */}
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => {
+                handleDismissPopup();
+                navigate('/collaborate');
+              }}
+              sx={{
+                background: 'linear-gradient(135deg, #F26655, #571CE0)',
+                color: '#ffffff',
+                fontWeight: 600,
+                py: 1.2,
+                borderRadius: '12px',
+                fontSize: '0.9rem',
+                textTransform: 'none',
+                boxShadow: '0 4px 12px rgba(242, 102, 85, 0.3)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #E55A4A, #4A1AB8)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 6px 16px rgba(242, 102, 85, 0.4)',
+                },
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Join the Team 🚀
+            </Button>
+
+            {/* Small disclaimer */}
+            <Typography
+              variant="caption"
+              sx={{
+                color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                textAlign: 'center',
+                display: 'block',
+                mt: 1.5,
+                fontSize: '0.75rem',
+              }}
+            >
+              Open to all Dartmouth students
+            </Typography>
+          </Paper>
+        </Box>
+      )}
     </Box>
   );
 };
