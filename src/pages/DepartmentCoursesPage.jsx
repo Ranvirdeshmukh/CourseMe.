@@ -527,18 +527,7 @@ const DepartmentCoursesPage = ({ darkMode }) => {
                 </Box>
               )}
             </Button>
-            <Typography 
-              sx={{ 
-                fontSize: '11px',
-                color: '#666',
-                fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif',
-                fontWeight: '400',
-                opacity: 0.8,
-                letterSpacing: '0.2px'
-              }}
-            >
-              Filter by Spring 2025 (on special demand)
-            </Typography>
+            
           </Box>
         </Box>
 
