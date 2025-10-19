@@ -959,52 +959,6 @@ const LandingPage = ({ darkMode }) => {
         />
       </Box>
 
-      {/* Collaborate Button - Top Right */}
-      <Box
-        sx={{
-          position: 'fixed',
-          top: { xs: 20, sm: 30 },
-          right: { xs: 20, sm: 30 },
-          zIndex: 1000,
-          display: { xs: 'none', sm: 'block' }, // Hide on mobile
-        }}
-      >
-        <Button
-          onClick={() => navigate('/collaborate')}
-          variant="contained"
-          size="medium"
-          sx={{
-            backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.9)' : '#571CE0',
-            color: 'white',
-            fontWeight: 500,
-            fontSize: '0.9rem',
-            px: 3,
-            py: 1,
-            borderRadius: '20px',
-            textTransform: 'none',
-            boxShadow: darkMode 
-              ? '0 4px 15px rgba(87, 28, 224, 0.3)' 
-              : '0 4px 12px rgba(87, 28, 224, 0.25)',
-            transition: 'all 0.3s ease',
-            backdropFilter: 'blur(10px)',
-            border: darkMode 
-              ? '1px solid rgba(87, 28, 224, 0.3)' 
-              : '1px solid rgba(87, 28, 224, 0.1)',
-            '&:hover': {
-              backgroundColor: darkMode ? 'rgba(87, 28, 224, 1)' : '#4A18B8',
-              transform: 'translateY(-2px)',
-              boxShadow: darkMode 
-                ? '0 6px 20px rgba(87, 28, 224, 0.4)' 
-                : '0 6px 18px rgba(87, 28, 224, 0.35)',
-            },
-            '&:active': {
-              transform: 'translateY(0)',
-            },
-          }}
-        >
-          Collaborate
-        </Button>
-      </Box>
 
       {/* For tablets and larger - show the desktop version */}
       <Container

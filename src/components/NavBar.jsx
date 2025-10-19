@@ -13,7 +13,8 @@ import {
   ListItemText,
   Snackbar,
   Alert,
-  Tooltip
+  Tooltip,
+  Button
 } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -256,12 +257,38 @@ const NavBar = ({ darkMode, themeMode, setThemeMode }) => {
             )
           )}
 
+          {/* Collaborate Button */}
+          <Button
+            onClick={() => navigate('/collaborate')}
+            variant="outlined"
+            size="small"
+            sx={{
+              color: darkMode ? '#FFFFFF' : '#571CE0',
+              borderColor: darkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(87, 28, 224, 0.3)',
+              fontWeight: 500,
+              fontSize: '0.85rem',
+              px: 2,
+              py: 0.5,
+              borderRadius: '16px',
+              textTransform: 'none',
+              fontFamily: 'SF Pro Display, sans-serif',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(87, 28, 224, 0.1)',
+                borderColor: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(87, 28, 224, 0.5)',
+                transform: 'translateY(-1px)',
+              },
+            }}
+          >
+            Collaborate
+          </Button>
+
           {/* Theme Mode Icon Button */}
           <Tooltip title={`Theme: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)} (click to change)`}>
-  <IconButton onClick={handleThemeToggle} sx={{ color: darkMode ? 'inherit' : 'black' }}>
-    {themeIcon}
-  </IconButton>
-</Tooltip>
+            <IconButton onClick={handleThemeToggle} sx={{ color: darkMode ? 'inherit' : 'black' }}>
+              {themeIcon}
+            </IconButton>
+          </Tooltip>
 
         </Box>
 
@@ -321,6 +348,9 @@ const NavBar = ({ darkMode, themeMode, setThemeMode }) => {
                   </ListItem>
                   <ListItem button component={Link} to="/profile" onClick={handleDrawerClose}>
                     <ListItemText primary="Profile" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
+                  </ListItem>
+                  <ListItem button component={Link} to="/collaborate" onClick={handleDrawerClose}>
+                    <ListItemText primary="Collaborate" sx={{ color: darkMode ? '#FFFFFF' : '#000000' }} />
                   </ListItem>
                 </>
               ) : (
