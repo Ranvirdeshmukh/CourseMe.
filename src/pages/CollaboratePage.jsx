@@ -48,7 +48,7 @@ const CollaboratePage = ({ darkMode }) => {
       title: 'Marketing',
       subtitle: 'Growth & Community',
       description: 'Lead social media strategy, create engaging content, and grow our user base across Instagram, TikTok, and other platforms.',
-      skills: ['Instagram', 'TikTok', 'Content Creation', 'Social Media Strategy', 'Analytics'],
+      skills: ['Instagram', 'TikTok', 'Content Creation', 'Canva/Figma', 'Analytics', 'Copywriting', 'Video Editing'],
       impact: 'Help more Dartmouth students discover and benefit from CourseMe'
     },
     {
@@ -56,7 +56,7 @@ const CollaboratePage = ({ darkMode }) => {
       title: 'Product Manager',
       subtitle: 'Strategy & Coordination',
       description: 'Define product roadmap, coordinate between teams, conduct user research, and drive product decisions.',
-      skills: ['Product Strategy', 'User Research', 'Project Management', 'Analytics', 'Communication'],
+      skills: ['Product Strategy', 'User Research', 'Figma/Wireframing', 'Analytics', 'Agile/Scrum', 'Communication', 'Data Analysis'],
       impact: 'Shape the future direction of CourseMe and prioritize features that matter most'
     }
   ];
