@@ -1388,6 +1388,49 @@ const LandingPage = ({ darkMode }) => {
           </ButtonBase>
         </Box>
 
+        {/* Join Our Team CTA */}
+        <Box sx={{ 
+          display: { xs: 'none', sm: 'flex' }, 
+          justifyContent: 'center', 
+          mt: 3, 
+          mb: 2 
+        }}>
+          <Button
+            onClick={() => navigate('/collaborate')}
+            variant="contained"
+            size="large"
+            sx={{
+              backgroundColor: '#F26655',
+              color: 'white',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              px: 4,
+              py: 1.5,
+              borderRadius: '25px',
+              textTransform: 'none',
+              boxShadow: darkMode 
+                ? '0 8px 20px rgba(242, 102, 85, 0.3)' 
+                : '0 8px 16px rgba(242, 102, 85, 0.2)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                backgroundColor: '#E55A4A',
+                transform: 'translateY(-2px)',
+                boxShadow: darkMode 
+                  ? '0 12px 30px rgba(242, 102, 85, 0.4)' 
+                  : '0 12px 25px rgba(242, 102, 85, 0.3)',
+              },
+              '&:active': {
+                transform: 'translateY(0)',
+              },
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            🚀 Join Our Team
+          </Button>
+        </Box>
+
         {/* Search bar */}
         <Box
           component="form"

@@ -36,6 +36,7 @@ import ProfessorDirectory from './pages/ProfessorDirectory';
 import WeeklySchedule from './pages/timetablepages/WeeklySchedule.jsx';
 import CORA from './pages/MajorTracking/CORA';
 import BetaSignup from './pages/BetaSignup';
+import CollaboratePage from './pages/CollaboratePage';
 
 
 import darkTheme from './components/theme'; // Your dark theme file
@@ -187,6 +188,8 @@ const AppContent = () => {
         <Route path="/departments/:department/courses/:documentName" element={<CourseReviewsPage darkMode={effectiveDarkMode} />} />
         <Route path="/major-tracker" element={<CORA darkMode={effectiveDarkMode} />} />
         <Route path="/beta" element={<BetaSignup darkMode={effectiveDarkMode} />} />
+        <Route path="/collaborate" element={<CollaboratePage darkMode={effectiveDarkMode} />} />
+        <Route path="/join-team" element={<CollaboratePage darkMode={effectiveDarkMode} />} />
         <Route
           path="/departments/:department/courses/:courseId/professors/:professor"
           element={<ProfessorReviewsPage darkMode={effectiveDarkMode} />}
