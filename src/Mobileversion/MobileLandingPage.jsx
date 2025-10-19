@@ -26,6 +26,13 @@ import { useNavigate } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
 import ParticleTextCarousel from '../components/ParticleTextCarousel';
 import { doc, getDoc } from 'firebase/firestore';
+import { 
+  RecentIcon,
+  PopularIcon,
+  CourseIcon,
+  ProfessorsIcon,
+  QuestionIcon
+} from '../components/icons/CustomIcons';
 
 const MobileLandingPage = ({ 
   darkMode, 
@@ -307,14 +314,19 @@ const MobileLandingPage = ({
                                 width: '100%',
                                 color: darkMode ? '#ffffff' : '#333333' 
                               }}>
-                                <Typography sx={{ 
-                                  mr: 1.5, 
-                                  fontSize: '1.2rem',
+                                <Box sx={{ 
+                                  mr: 1.5,
                                   width: '24px',
-                                  textAlign: 'center'
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
                                 }}>
-                                  {suggestion.icon}
-                                </Typography>
+                                  {suggestion.icon === 'recent' && <RecentIcon size={20} />}
+                                  {suggestion.icon === 'popular' && <PopularIcon size={20} />}
+                                  {suggestion.icon === 'course' && <CourseIcon size={20} />}
+                                  {suggestion.icon === 'professor' && <ProfessorsIcon size={20} darkMode={darkMode} />}
+                                  {suggestion.icon === 'question' && <QuestionIcon size={20} />}
+                                </Box>
                                 <Box sx={{ 
                                   overflow: 'hidden', 
                                   textOverflow: 'ellipsis',

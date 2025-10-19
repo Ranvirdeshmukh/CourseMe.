@@ -1,5 +1,12 @@
 import React from 'react';
 import { Box, ButtonBase, Typography } from '@mui/material';
+import { 
+  ClassesIcon,
+  LayupsIcon,
+  ProfessorsIcon,
+  TimetableIcon,
+  ScheduleVisualizerIcon
+} from '../components/icons/CustomIcons';
 
 const MobileNavigation = ({ darkMode, currentUser, navigate, handleLoginRedirect }) => {
   // Mobile-specific button style
@@ -50,7 +57,7 @@ const MobileNavigation = ({ darkMode, currentUser, navigate, handleLoginRedirect
           borderRadius: '50%',
           backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.3)' : '#e0e0e0',
         }}>
-          <Typography sx={{ fontSize: '1.5rem' }}>📚</Typography>
+          <ClassesIcon size={28} darkMode={darkMode} />
         </Box>
         <Box sx={{ textAlign: 'left' }}>
           <Typography sx={{ 
@@ -87,7 +94,7 @@ const MobileNavigation = ({ darkMode, currentUser, navigate, handleLoginRedirect
           borderRadius: '50%',
           backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.3)' : '#e0e0e0',
         }}>
-          <Typography sx={{ fontSize: '1.5rem' }}>🎯</Typography>
+          <LayupsIcon size={28} darkMode={darkMode} />
         </Box>
         <Box sx={{ textAlign: 'left' }}>
           <Typography sx={{ 
@@ -124,7 +131,7 @@ const MobileNavigation = ({ darkMode, currentUser, navigate, handleLoginRedirect
           borderRadius: '50%',
           backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.3)' : '#e0e0e0',
         }}>
-          <Typography sx={{ fontSize: '1.5rem' }}>👨‍🏫</Typography>
+          <ProfessorsIcon size={28} darkMode={darkMode} />
         </Box>
         <Box sx={{ textAlign: 'left' }}>
           <Typography sx={{ 
@@ -161,7 +168,7 @@ const MobileNavigation = ({ darkMode, currentUser, navigate, handleLoginRedirect
           borderRadius: '50%',
           backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.3)' : '#e0e0e0',
         }}>
-          <Typography sx={{ fontSize: '1.5rem' }}>🗓️</Typography>
+          <TimetableIcon size={28} darkMode={darkMode} />
         </Box>
         <Box sx={{ textAlign: 'left' }}>
           <Typography sx={{ 
@@ -217,7 +224,7 @@ const MobileNavigation = ({ darkMode, currentUser, navigate, handleLoginRedirect
             borderRadius: '50%',
             backgroundColor: darkMode ? 'rgba(87, 28, 224, 0.3)' : '#e0e0e0',
           }}>
-            <Typography sx={{ fontSize: '1.5rem' }}>📅</Typography>
+            <ScheduleVisualizerIcon size={28} darkMode={darkMode} />
           </Box>
           <Box sx={{ textAlign: 'left' }}>
             <Typography sx={{ 
