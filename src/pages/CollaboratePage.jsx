@@ -24,7 +24,7 @@ const CollaboratePage = ({ darkMode }) => {
       title: 'Member of Technical Staff',
       subtitle: 'AI Engineer',
       description: 'Build cutting-edge AI features for course recommendations, academic planning, and intelligent search capabilities.',
-      skills: ['React', 'Python', 'AI/ML', 'NoSQL Database', 'OpenAI API'],
+      skills: ['React', 'Python','Vector Database', 'Vector Search', 'NoSQL Database', 'OpenAI API'],
       impact: 'Direct impact on 4,000+ students through AI-powered features'
     },
     {
@@ -32,7 +32,7 @@ const CollaboratePage = ({ darkMode }) => {
       title: 'Member of Technical Staff',
       subtitle: 'Frontend Engineer',
       description: 'Enhance user experience, build beautiful responsive interfaces, and implement modern design systems.',
-      skills: ['React', 'Material-UI', 'JavaScript', 'CSS', 'TypeScript'],
+      skills: ['React', 'TypeScript', 'JavaScript', 'Material-UI', 'CSS/SCSS', 'Responsive Design', 'Git'],
       impact: 'Shape the daily experience of thousands of Dartmouth students'
     },
     {
@@ -40,12 +40,12 @@ const CollaboratePage = ({ darkMode }) => {
       title: 'Member of Technical Staff',
       subtitle: 'Backend Engineer',
       description: 'Scale infrastructure, build robust APIs, optimize database performance, and ensure system reliability.',
-      skills: ['Python', 'NoSQL Database', 'Cloud Functions', 'Database Design', 'API Development'],
+      skills: ['Python', 'Node.js', 'REST APIs', 'NoSQL Database', 'Cloud Functions', 'Docker', 'Git'],
       impact: 'Build the foundation that powers CourseMe for thousands of users'
     },
     {
       id: 'marketing',
-      title: 'Marketing Manager',
+      title: 'Marketing',
       subtitle: 'Growth & Community',
       description: 'Lead social media strategy, create engaging content, and grow our user base across Instagram, TikTok, and other platforms.',
       skills: ['Instagram', 'TikTok', 'Content Creation', 'Social Media Strategy', 'Analytics'],
@@ -64,7 +64,7 @@ const CollaboratePage = ({ darkMode }) => {
   const handleRoleClick = (roleId) => {
     // Navigate to Google Form with role pre-selected
     // You can replace this URL with your actual Google Form URL
-    const googleFormUrl = 'https://forms.google.com/your-form-url';
+    const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScbwhRfqeAvfrGO9IldKLLJoeE-zMaA5f7CtqKiKYMpU8ZyDg/viewform?usp=header';
     window.open(googleFormUrl, '_blank');
   };
 
@@ -189,7 +189,7 @@ const CollaboratePage = ({ darkMode }) => {
     >
       <Container maxWidth="lg">
         {/* Hero Section */}
-        <Box sx={{ mb: 8 }}>
+        <Box sx={{ mb: 4 }}>
           <Fade in={fadeIn} timeout={1000}>
             <Grid container spacing={4} alignItems="center">
               <Grid item xs={12} md={8}>
@@ -225,7 +225,12 @@ const CollaboratePage = ({ darkMode }) => {
               </Grid>
               
               <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: 2,
+                  alignItems: { xs: 'flex-start', md: 'flex-end' }
+                }}>
                   {[
                     { icon: <People />, label: '4,000+ Active Users', color: '#571CE0' },
                     { icon: <GitHub />, label: 'Open Source', color: '#F26655' },
@@ -234,7 +239,7 @@ const CollaboratePage = ({ darkMode }) => {
                     <Box
                       key={index}
                       sx={{
-                        display: 'flex',
+                        display: 'inline-flex',
                         alignItems: 'center',
                         gap: 1,
                         px: 2,
@@ -242,7 +247,7 @@ const CollaboratePage = ({ darkMode }) => {
                         borderRadius: '20px',
                         backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
                         border: darkMode ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.1)',
-                        justifyContent: { xs: 'flex-start', md: 'flex-end' }
+                        width: 'fit-content'
                       }}
                     >
                       <Box sx={{ color: stat.color }}>{stat.icon}</Box>
@@ -250,7 +255,8 @@ const CollaboratePage = ({ darkMode }) => {
                         variant="body2"
                         sx={{
                           fontWeight: 500,
-                          color: darkMode ? '#ffffff' : '#333333'
+                          color: darkMode ? '#ffffff' : '#333333',
+                          whiteSpace: 'nowrap'
                         }}
                       >
                         {stat.label}
@@ -263,21 +269,9 @@ const CollaboratePage = ({ darkMode }) => {
           </Fade>
         </Box>
 
-        {/* Available Roles Section */}
+        {/* Roles Section */}
         <Fade in={fadeIn} timeout={1400}>
           <Box sx={{ mb: 6 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 600,
-                color: darkMode ? '#ffffff' : '#333333',
-                mb: 4,
-                textAlign: 'left'
-              }}
-            >
-              Available Roles
-            </Typography>
-
             <Grid container spacing={3}>
               {roles.map((role) => (
                 <Grid item xs={12} md={6} lg={4} key={role.id}>
