@@ -181,11 +181,12 @@ const Timetable = ({ darkMode }) => {
   // Instructor filtering state
   const [selectedInstructor, setSelectedInstructor] = useState('');
   
-  // Calculate current term based on termType
+  // Calculate current term based on termType (for display purposes)
   const currentTerm = termType === 'summer' ? '25X' : termType === 'winter' ? '26W' : '25F';
   
-  // Calculate if user has unlocked features
-  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm, userClassYear);
+  // Calculate if user has unlocked features - Use Fall 2025 as consistent reference
+  // This ensures unlock status is the same across all terms
+  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, '25F', userClassYear);
   
   // Derived data for enhanced filtering with caching
   const [majors, setMajors] = useState([]);
@@ -872,6 +873,7 @@ const handleForceRefreshEnrollments = async () => {
     currentTerm={currentTerm}
     onAddReview={handleAddReview}
     termType={termType} // Pass the current term type
+    hasUnlockedFeatures={hasUnlockedFeatures} // Pass pre-calculated unlock status
   />
 )}
             
@@ -977,6 +979,7 @@ const handleForceRefreshEnrollments = async () => {
   currentTerm={currentTerm}
   onAddReview={handleAddReview}
   termType={termType} // Pass the current term type
+  hasUnlockedFeatures={hasUnlockedFeatures} // Pass pre-calculated unlock status
 />
 
             <PaginationControls
