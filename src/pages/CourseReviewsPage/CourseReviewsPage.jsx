@@ -1194,10 +1194,10 @@ const CourseReviewsPage = ({ darkMode }) => {
         professorTerms[instructor] = [];
       }
       
-      const winterTerm = currentYear + 'W';
+      const winterTerm = '26W'; // Winter 2026
       if (!professorTerms[instructor].includes(winterTerm)) {
         professorTerms[instructor].unshift(winterTerm);
-        console.log(`Added current Winter term ${winterTerm} for professor ${instructor}`);
+        console.log(`Added Winter 2026 term ${winterTerm} for professor ${instructor}`);
       }
     });
     
@@ -1484,7 +1484,7 @@ const handleQualityVote = async (voteType) => {
             console.log("fetching current instructors")
             try {
               // Check Winter Term
-              const winterTimetableRef = collection(db, 'winterTimetable');
+              const winterTimetableRef = collection(db, 'winterTimetable26');
               console.log("deptCode:", deptCode, "courseNumber:", courseNumValue);
               const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumValue));
               const winterQuerySnapshot = await getDocs(winterQuery);
@@ -1627,7 +1627,7 @@ const handleQualityVote = async (voteType) => {
         console.log("Fetching current instructors");
 
         // Check Winter Term
-        const winterTimetableRef = collection(db, 'winterTimetable');
+        const winterTimetableRef = collection(db, 'winterTimetable26');
         const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
         const winterQuerySnapshot = await getDocs(winterQuery);
         
@@ -2711,9 +2711,9 @@ useEffect(() => {
           
           // Check if professor is in winter or spring instructors
           if (winterInstructors.includes(professor)) {
-            const winterTerm = currentYear + 'W';
+            const winterTerm = '26W'; // Winter 2026
             terms.add(winterTerm);
-            console.log(`Manual extraction: No terms found for ${professor}, adding current winter term ${winterTerm}`);
+            console.log(`Manual extraction: No terms found for ${professor}, adding Winter 2026 term ${winterTerm}`);
           }
           
           if (springInstructors.includes(professor)) {
@@ -2844,7 +2844,7 @@ useEffect(() => {
               }}
             >
               {isTaughtCurrentTerm && (
-                <Tooltip title="This course is offered in 25W" arrow placement="top">
+                <Tooltip title="This course is offered in 26W" arrow placement="top">
                   <Box
                     sx={{
                       backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
@@ -2870,7 +2870,7 @@ useEffect(() => {
                         color: darkMode ? '#B3E5FC' : '#0277BD',
                       }}
                     >
-                      25W
+                      26W
                     </Typography>
                   </Box>
                 </Tooltip>
@@ -3434,7 +3434,7 @@ useEffect(() => {
                             fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
                           }}
                         >
-                          25W
+                          26W
                         </Typography>
                       </Box>
                       <Box
@@ -3524,7 +3524,7 @@ useEffect(() => {
                           fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
                         }}
                       >
-                        25W
+                        26W
                       </Typography>
                     </Box>
                   ) : isSpring ? (
