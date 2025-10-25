@@ -41,31 +41,59 @@ const fetchWinterDataFromFirestore = async () => {
     const winterCollectionRef = collection(db, 'winterTimetable26');
     const snapshot = await getDocs(winterCollectionRef);
     
-    const transformedCourses = snapshot.docs.map((doc) => {
+    // Transform the data - Handle BOTH Firestore structure AND GCS structure
+    const transformedCourses = snapshot.docs.map((doc, index) => {
       const data = doc.data();
-      const periodCode = data.period || data['Period Code'] || 'ARR';
+      
+      // Flexible field extraction - works with any field name variation
+      const subj = data.Subj || data.subj || data.subject || data.Subject || '';
+      const num = data.Num || data.num || data.number || data.Number || '';
+      // Section: Use provided value, or default to '01' if missing/empty
+      const secRaw = data.Sec || data.sec || data.section || data.Section || '';
+      const sec = secRaw || '01'; // Default to '01' if section is missing or empty
+      const title = data.Title || data.title || '';
+      const periodCode = data['Period Code'] || data.period || data.Period || 'ARR';
+      const room = data.Room || data.room || '';
+      const building = data.Building || data.building || '';
+      const instructor = data.Instructor || data.instructor || '';
+      const xlist = data.XList || data.xlist || data.crossList || '';
+      const wc = data.WC || data.wc || data.worldCulture || '';
+      const dist = data.Dist || data.dist || data.distributive || '';
+      
       const timing = periodCodeToTiming[periodCode] || 'Unknown Timing';
+      
+      // Create consistent documentName
+      const documentName = (subj && num && sec) ? `${subj}${num}_${sec}` : doc.id;
+      
+      if (index < 3) {
+        console.log(`Winter course ${index} from Firestore:`, {
+          raw: data,
+          transformed: { subj, num, sec: `${sec}${secRaw ? '' : ' (defaulted to 01)'}`, title, periodCode }
+        });
+      }
 
       return {
-        documentName: doc.id,
-        subj: data.subj || data.Subj || '',
-        num: data.num || data.Num || '',
-        sec: data.sec || data.Sec || '',
-        title: data.title || data.Title || '',
+        documentName: documentName,
+        subj: subj,
+        num: num,
+        sec: sec,
+        title: title,
         period: periodCode,
         timing: timing,
-        room: data.room || data.Room || '',
-        building: data.building || data.Building || '',
-        instructor: data.instructor || data.Instructor || '',
-        xlist: data.xlist || data.XList || '',
-        wc: data.wc || data.WC || '',
-        dist: data.dist || data.Dist || '',
-        major: data.major || '',
+        room: room,
+        building: building,
+        instructor: instructor,
+        xlist: xlist,
+        wc: wc,
+        dist: dist,
         isNotified: false
       };
     });
 
     console.log(`Fetched ${transformedCourses.length} winter courses from Firestore`);
+    if (transformedCourses.length > 0) {
+      console.log('First winter course sample:', transformedCourses[0]);
+    }
     return transformedCourses;
   } catch (error) {
     console.error('Error fetching winter data from Firestore:', error);
@@ -78,7 +106,7 @@ const fetchWinterDataFromFirestore = async () => {
  * @param {string} termType - The term type (summer, fall, winter)
  * @returns {Promise<Object>} Object containing courses and cache status
  */
-export const fetchGCSTimetableData = async (termType = 'fall') => {
+export const fetchGCSTimetableData = async (termType = 'winter') => {
   try {
     // For winter term, fetch from Firestore instead of GCS
     if (termType === 'winter') {
@@ -220,7 +248,7 @@ export const fetchGCSTimetableData = async (termType = 'fall') => {
  * Clear GCS timetable cache
  * @param {string} termType - The term type to clear cache for
  */
-export const clearGCSCache = async (termType = 'fall') => {
+export const clearGCSCache = async (termType = 'winter') => {
   try {
     const cacheKey = `gcsCachedCourses_${termType}`;
     const cacheTimestampKey = `gcsCacheTimestamp_${termType}`;

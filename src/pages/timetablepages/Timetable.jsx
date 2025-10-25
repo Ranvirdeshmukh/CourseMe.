@@ -135,7 +135,7 @@ const Timetable = ({ darkMode }) => {
   const [popupMessageOpen, setPopupMessageOpen] = useState(false);
   const [openPopupMessage, setOpenPopupMessage] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', type: 'info' });
-  const [termType, setTermType] = useState('fall'); // Default to 'fall'
+  const [termType, setTermType] = useState('winter'); // Default to 'winter'
   const [isRefreshingEnrollments, setIsRefreshingEnrollments] = useState(false);
   
   // User data state
@@ -389,6 +389,16 @@ const handleForceRefreshEnrollments = async () => {
   if (termType === 'summer') {
     setPopupMessage({
       message: "Enrollment data refresh is not available for summer courses",
+      type: 'info',
+    });
+    setOpenPopupMessage(true);
+    return;
+  }
+  
+  // Don't allow refresh for winter courses (if not yet supported)
+  if (termType === 'winter') {
+    setPopupMessage({
+      message: "Enrollment data refresh is not yet available for winter courses",
       type: 'info',
     });
     setOpenPopupMessage(true);

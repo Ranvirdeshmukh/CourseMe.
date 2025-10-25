@@ -30,7 +30,7 @@ export const periodCodeToTiming = {
  * @param {Function} setTimeout - The setTimeout function (passed to make testing easier)
  * @param {string} termType - The current term type ('summer', 'fall', or 'winter')
  */
-export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, setTimeout, termType = 'summer') => {
+export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, setTimeout, termType = 'winter') => {
   const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
   const details = `&details=${encodeURIComponent(`Instructor: ${course.instructor}`)}`;
   const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;

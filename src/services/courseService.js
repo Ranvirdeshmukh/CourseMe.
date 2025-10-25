@@ -61,7 +61,7 @@ export const normalizeCourseNumber = (number) => {
   }
 };
 
-export const fetchFirestoreCourses = async (db, termType = 'summer') => {
+export const fetchFirestoreCourses = async (db, termType = 'winter') => {
   try {
     // Use GCS timetable service instead of Firebase
     const { courses: coursesData, fromCache } = await fetchGCSTimetableData(termType);
@@ -89,7 +89,7 @@ export const fetchFirestoreCourses = async (db, termType = 'summer') => {
   }
 };
 
-export const refreshEnrollmentData = async (db, termType = 'summer') => {
+export const refreshEnrollmentData = async (db, termType = 'winter') => {
   try {
     // Summer doesn't have enrollment data, so return early
     if (termType === 'summer') {
@@ -161,8 +161,11 @@ export const extractSubjects = (courses) => {
   return [...subjectsSet];
 };
 
-export const addCourseToTimetable = async (db, currentUser, course, termType = 'summer') => {
+export const addCourseToTimetable = async (db, currentUser, course, termType = 'winter') => {
+  console.log('addCourseToTimetable called with:', { course, termType, userId: currentUser?.uid });
+  
   if (!currentUser) {
+    console.error('No current user found');
     return {
       success: false,
       message: "Please log in to add courses to your timetable."
@@ -170,21 +173,32 @@ export const addCourseToTimetable = async (db, currentUser, course, termType = '
   }
 
   // Ensure we have the period and location information
+  // Default section to '01' if missing or empty
+  const sec = course.sec || '01';
+  
   const courseToAdd = { 
     ...course,
+    sec: sec,  // Use the defaulted section
     period: course.period || "ARR",  // Default to "ARR" if period is missing
     addedAt: new Date(),  // Add timestamp for when the course was added
     term: termType === 'summer' ? "Summer 2025" : termType === 'winter' ? "Winter 2026" : "Fall 2025",   // Explicitly set the term
-    id: `${course.subj}_${course.num}_${course.sec}_${Date.now()}` // Generate a unique ID
+    id: `${course.subj}_${course.num}_${sec}_${Date.now()}` // Generate a unique ID
   };
 
   // Validate that we have the required fields before proceeding
-  if (!courseToAdd.subj || !courseToAdd.num || !courseToAdd.sec) {
+  if (!courseToAdd.subj || !courseToAdd.num) {
+    console.error('Missing required fields:', { 
+      subj: courseToAdd.subj, 
+      num: courseToAdd.num,
+      sec: courseToAdd.sec
+    });
     return {
       success: false,
       message: "Could not add course: missing required information."
     };
   }
+  
+  console.log('Course validation passed, courseToAdd:', courseToAdd);
 
   try {
     // Create a clean version of the course object with only the fields we need
@@ -215,17 +229,27 @@ export const addCourseToTimetable = async (db, currentUser, course, termType = '
       const fieldName = termType === 'summer' ? 'summerCoursestaken' : termType === 'winter' ? 'winterCoursestaken' : 'fallCoursestaken';
       const currentCourses = userData[fieldName] || [];
       
+      console.log(`Adding to field: ${fieldName}, current courses:`, currentCourses.length);
+      
       // Add the new course
       const updateData = {};
       updateData[fieldName] = [...currentCourses, courseData];
+      
+      console.log('Updating user document with data:', updateData);
       await updateDoc(userDocRef, updateData);
+      console.log('User document updated successfully');
     } else {
       // User document does not exist, create it
+      console.log('User document does not exist, creating new one');
       const initialData = {};
       initialData[termType === 'summer' ? 'summerCoursestaken' : termType === 'winter' ? 'winterCoursestaken' : 'fallCoursestaken'] = [courseData];
+      
+      console.log('Creating user document with data:', initialData);
       await setDoc(userDocRef, initialData);
+      console.log('User document created successfully');
     }
     
+    console.log('Course added successfully:', courseData);
     return {
       success: true,
       message: `${courseToAdd.subj} ${courseToAdd.num} has been added to your timetable.`,
@@ -241,7 +265,7 @@ export const addCourseToTimetable = async (db, currentUser, course, termType = '
   }
 };
 
-export const removeCourseFromTimetable = async (db, currentUser, course, termType = 'summer') => {
+export const removeCourseFromTimetable = async (db, currentUser, course, termType = 'winter') => {
   if (!currentUser) {
     return {
       success: false,

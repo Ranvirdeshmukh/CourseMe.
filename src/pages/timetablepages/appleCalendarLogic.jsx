@@ -6,7 +6,7 @@ import { periodCodeToTiming } from './googleCalendarLogic';
  * @param {Object} course - The course object with period, title, instructor, building, room
  * @param {string} termType - The current term type ('summer', 'fall', or 'winter')
  */
-export const addToAppleCalendar = (course, termType = 'summer') => {
+export const addToAppleCalendar = (course, termType = 'winter') => {
   console.log('Adding to Apple Calendar, course data:', course);
   console.log('Period code:', course.period);
   console.log('Available period mappings:', Object.keys(periodCodeToTiming));

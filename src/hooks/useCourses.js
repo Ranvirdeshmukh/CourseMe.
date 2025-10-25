@@ -62,7 +62,7 @@ const sortCourses = (courses) => {
   });
 };
 
-const useCourses = (termType = 'summer') => {
+const useCourses = (termType = 'winter') => {
   // State
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
