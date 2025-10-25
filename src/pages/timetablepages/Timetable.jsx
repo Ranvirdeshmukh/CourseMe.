@@ -79,6 +79,8 @@ const formatTermName = (termType) => {
     return 'Summer 2025';
   } else if (termType === 'fall') {
     return 'Fall 2025';
+  } else if (termType === 'winter') {
+    return 'Winter 2026';
   }
   return 'Course'; // fallback
 };
@@ -133,7 +135,7 @@ const Timetable = ({ darkMode }) => {
   const [popupMessageOpen, setPopupMessageOpen] = useState(false);
   const [openPopupMessage, setOpenPopupMessage] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', type: 'info' });
-  const [termType, setTermType] = useState('fall'); // Default to 'fall'
+  const [termType, setTermType] = useState('winter'); // Default to 'winter'
   const [isRefreshingEnrollments, setIsRefreshingEnrollments] = useState(false);
   
   // User data state
@@ -179,11 +181,12 @@ const Timetable = ({ darkMode }) => {
   // Instructor filtering state
   const [selectedInstructor, setSelectedInstructor] = useState('');
   
-  // Calculate current term based on termType
-  const currentTerm = termType === 'summer' ? '25X' : '25S';
+  // Calculate current term based on termType (for display purposes)
+  const currentTerm = termType === 'summer' ? '25X' : termType === 'winter' ? '26W' : '25F';
   
-  // Calculate if user has unlocked features
-  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm, userClassYear);
+  // Calculate if user has unlocked features - Use Fall 2025 as consistent reference
+  // This ensures unlock status is the same across all terms
+  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, '25F', userClassYear);
   
   // Derived data for enhanced filtering with caching
   const [majors, setMajors] = useState([]);
@@ -387,6 +390,16 @@ const handleForceRefreshEnrollments = async () => {
   if (termType === 'summer') {
     setPopupMessage({
       message: "Enrollment data refresh is not available for summer courses",
+      type: 'info',
+    });
+    setOpenPopupMessage(true);
+    return;
+  }
+  
+  // Don't allow refresh for winter courses (if not yet supported)
+  if (termType === 'winter') {
+    setPopupMessage({
+      message: "Enrollment data refresh is not yet available for winter courses",
       type: 'info',
     });
     setOpenPopupMessage(true);
@@ -860,6 +873,7 @@ const handleForceRefreshEnrollments = async () => {
     currentTerm={currentTerm}
     onAddReview={handleAddReview}
     termType={termType} // Pass the current term type
+    hasUnlockedFeatures={hasUnlockedFeatures} // Pass pre-calculated unlock status
   />
 )}
             
@@ -965,6 +979,7 @@ const handleForceRefreshEnrollments = async () => {
   currentTerm={currentTerm}
   onAddReview={handleAddReview}
   termType={termType} // Pass the current term type
+  hasUnlockedFeatures={hasUnlockedFeatures} // Pass pre-calculated unlock status
 />
 
             <PaginationControls

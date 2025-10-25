@@ -4,9 +4,9 @@ import { periodCodeToTiming } from './googleCalendarLogic';
 /**
  * Creates and downloads an iCalendar (.ics) file for Apple Calendar
  * @param {Object} course - The course object with period, title, instructor, building, room
- * @param {string} termType - The current term type ('summer' or 'fall')
+ * @param {string} termType - The current term type ('summer', 'fall', or 'winter')
  */
-export const addToAppleCalendar = (course, termType = 'summer') => {
+export const addToAppleCalendar = (course, termType = 'winter') => {
   console.log('Adding to Apple Calendar, course data:', course);
   console.log('Period code:', course.period);
   console.log('Available period mappings:', Object.keys(periodCodeToTiming));
@@ -18,8 +18,7 @@ export const addToAppleCalendar = (course, termType = 'summer') => {
   }
   
   // Determine the term from the termType parameter (more reliable than course.term)
-  const isSummer = termType === 'summer';
-  const events = getEventTiming(course.period, course.title, course.subj, course.num, isSummer);
+  const events = getEventTiming(course.period, course.title, course.subj, course.num, termType);
   console.log('Generated events:', events);
   
   if (events.length === 0) {
@@ -113,11 +112,11 @@ const generateUUID = () => {
  * @param {string} courseTitle - The title of the course
  * @param {string} subj - The course subject code (e.g., "AAAS")
  * @param {string} num - The course number (e.g., "23")
- * @param {boolean} isSummer - Whether the course is in the summer term
+ * @param {string} termType - The term type ('summer', 'fall', or 'winter')
  * @returns {Array} - Array of event objects ready for iCalendar
  */
-const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = false) => {
-  console.log(`Getting timing for period ${periodCode}, title: ${courseTitle}, term: ${isSummer ? 'Summer' : 'Fall'}`);
+const getEventTiming = (periodCode, courseTitle, subj, num, termType = 'fall') => {
+  console.log(`Getting timing for period ${periodCode}, title: ${courseTitle}, term: ${termType}`);
   
   // Handle case when periodCode is not in the mapping
   const timing = periodCodeToTiming[periodCode];
@@ -131,8 +130,19 @@ const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = false) =>
   // Use different date ranges depending on the term
   // Summer 2025: June 26 - September 2
   // Fall 2025: September 12 - November 26
-  const eventStartDate = isSummer ? '20250626' : '20250912'; // Summer or Fall start date
-  const eventEndDate = isSummer ? '20250902' : '20251126'; // Summer or Fall end date
+  // Winter 2026: January 6 - March 11
+  let eventStartDate, eventEndDate;
+  
+  if (termType === 'summer') {
+    eventStartDate = '20250626';
+    eventEndDate = '20250902';
+  } else if (termType === 'winter') {
+    eventStartDate = '20260106';
+    eventEndDate = '20260323';
+  } else { // fall
+    eventStartDate = '20250912';
+    eventEndDate = '20251126';
+  }
   
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);

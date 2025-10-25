@@ -28,16 +28,15 @@ export const periodCodeToTiming = {
  * @param {Function} onMultipleEvents - Callback when multiple events are detected
  * @param {Function} onPopupBlocked - Callback when popup is blocked
  * @param {Function} setTimeout - The setTimeout function (passed to make testing easier)
- * @param {string} termType - The current term type ('summer' or 'fall')
+ * @param {string} termType - The current term type ('summer', 'fall', or 'winter')
  */
-export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, setTimeout, termType = 'summer') => {
+export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, setTimeout, termType = 'winter') => {
   const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
   const details = `&details=${encodeURIComponent(`Instructor: ${course.instructor}`)}`;
   const location = `&location=${encodeURIComponent(`${course.building}, ${course.room}`)}`;
 
   // Determine the term from the termType parameter (more reliable than course.term)
-  const isSummer = termType === 'summer';
-  const events = getEventTiming(course.period, course.title, course.subj, course.num, isSummer);
+  const events = getEventTiming(course.period, course.title, course.subj, course.num, termType);
   
   if (events.length === 0) {
     alert('No valid meeting times found for this course.');
@@ -87,18 +86,29 @@ export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, se
  * @param {string} courseTitle - The title of the course
  * @param {string} subj - The course subject code (e.g., "AAAS")
  * @param {string} num - The course number (e.g., "23")
- * @param {boolean} isSummer - Whether the course is in the summer term
+ * @param {string} termType - The term type ('summer', 'fall', or 'winter')
  * @returns {Array} - Array of event objects ready for Google Calendar
  */
-const getEventTiming = (periodCode, courseTitle, subj, num, isSummer = false) => {
+const getEventTiming = (periodCode, courseTitle, subj, num, termType = 'fall') => {
   const timing = periodCodeToTiming[periodCode];
   if (!timing) return [];
 
   // Use different date ranges depending on the term
   // Summer 2025: June 26 - September 2
   // Fall 2025: September 12 - November 26
-  const eventStartDate = isSummer ? '20250626' : '20250912'; // Summer or Fall start date
-  const eventEndDate = isSummer ? '20250902' : '20251126'; // Summer or Fall end date
+  // Winter 2026: January 6 - March 11
+  let eventStartDate, eventEndDate;
+  
+  if (termType === 'summer') {
+    eventStartDate = '20250626';
+    eventEndDate = '20250902';
+  } else if (termType === 'winter') {
+    eventStartDate = '20260106';
+    eventEndDate = '20260311';
+  } else { // fall
+    eventStartDate = '20250912';
+    eventEndDate = '20251126';
+  }
   
   const timezone = 'America/New_York';
   const baseStartDate = moment.tz(eventStartDate, 'YYYYMMDD', timezone);

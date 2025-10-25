@@ -585,10 +585,14 @@ const TimetableGrid = ({
   onAddReview = () => {}, // Callback to open review modal/page
   // Term type for proper data organization
   termType = 'fall', // 'summer' or 'fall'
+  // Pre-calculated unlock status (same across all terms)
+  hasUnlockedFeatures: hasUnlockedFeaturesProp,
 }) => {
   
-  // Check if user has enough reviews to unlock features
-  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm, userClassYear);
+  // Use passed unlock status, or fallback to calculating (for backward compatibility)
+  const hasUnlockedFeatures = hasUnlockedFeaturesProp !== undefined 
+    ? hasUnlockedFeaturesProp 
+    : hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm, userClassYear);
 
   // Memoize the base cell styles to prevent recalculation
   const lockedCellStyles = useMemo(() => ({
@@ -1272,7 +1276,7 @@ const TimetableGrid = ({
                   >
                     {/* Check if course is already in selectedCourses */}
                     {selectedCourses.some(
-                      (c) => c.subj === course.subj && c.num === course.num && c.sec === course.sec
+                      (c) => c.subj === course.subj && c.num === course.num && (c.sec || '01') === (course.sec || '01')
                     ) ? (
                       <IconButton 
                         onClick={() => handleRemoveCourse(course)}
