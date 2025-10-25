@@ -79,6 +79,8 @@ const formatTermName = (termType) => {
     return 'Summer 2025';
   } else if (termType === 'fall') {
     return 'Fall 2025';
+  } else if (termType === 'winter') {
+    return 'Winter 2026';
   }
   return 'Course'; // fallback
 };
@@ -180,7 +182,7 @@ const Timetable = ({ darkMode }) => {
   const [selectedInstructor, setSelectedInstructor] = useState('');
   
   // Calculate current term based on termType
-  const currentTerm = termType === 'summer' ? '25X' : '25S';
+  const currentTerm = termType === 'summer' ? '25X' : termType === 'winter' ? '26W' : '25F';
   
   // Calculate if user has unlocked features
   const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm, userClassYear);

@@ -93,7 +93,7 @@ const FilterSection = ({
           transition: 'color 0.3s ease',
         }}
       >
-        {termType === 'summer' ? 'Summer' : 'Fall'} 2025 Timetable.
+        {termType === 'summer' ? 'Summer' : termType === 'winter' ? 'Winter' : 'Fall'} {termType === 'winter' ? '2026' : '2025'} Timetable.
       </Typography>
       
       {/* Horizontal Navigation Bar */}
@@ -144,6 +144,31 @@ const FilterSection = ({
               }}
             >
               Fall 2025
+            </Box>
+            <Box
+              onClick={() => setTermType('winter')}
+              sx={{
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                backgroundColor: termType === 'winter' 
+                  ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
+                  : 'transparent',
+                color: termType === 'winter'
+                  ? (darkMode ? '#BB86FC' : '#00693E')
+                  : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
+                fontWeight: termType === 'winter' ? 600 : 400,
+                fontSize: '0.9rem',
+                fontFamily: 'SF Pro Display, sans-serif',
+                '&:hover': {
+                  backgroundColor: termType !== 'winter'
+                    ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
+                    : (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.1)')
+                }
+              }}
+            >
+              Winter 2026
             </Box>
           </Box>
           

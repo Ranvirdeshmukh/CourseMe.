@@ -144,7 +144,7 @@ const useCourses = (termType = 'summer') => {
       if (userDocSnap.exists()) {
         // Extract courses for the selected term
         const userData = userDocSnap.data();
-        const fieldName = termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken';
+        const fieldName = termType === 'summer' ? 'summerCoursestaken' : termType === 'winter' ? 'winterCoursestaken' : 'fallCoursestaken';
         const termCourses = userData[fieldName] || [];
         
         // Sort user's selected courses too
@@ -153,7 +153,7 @@ const useCourses = (termType = 'summer') => {
       } else {
         // Create user document with empty courses array
         const initialData = {};
-        initialData[termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken'] = [];
+        initialData[termType === 'summer' ? 'summerCoursestaken' : termType === 'winter' ? 'winterCoursestaken' : 'fallCoursestaken'] = [];
         await setDoc(userDocRef, initialData);
         setSelectedCourses([]);
       }

@@ -174,7 +174,7 @@ export const addCourseToTimetable = async (db, currentUser, course, termType = '
     ...course,
     period: course.period || "ARR",  // Default to "ARR" if period is missing
     addedAt: new Date(),  // Add timestamp for when the course was added
-    term: termType === 'summer' ? "Summer 2025" : "Fall 2025",   // Explicitly set the term
+    term: termType === 'summer' ? "Summer 2025" : termType === 'winter' ? "Winter 2026" : "Fall 2025",   // Explicitly set the term
     id: `${course.subj}_${course.num}_${course.sec}_${Date.now()}` // Generate a unique ID
   };
 
@@ -212,7 +212,7 @@ export const addCourseToTimetable = async (db, currentUser, course, termType = '
     if (userDocSnap.exists()) {
       // User document exists, update the courses array for the current term
       const userData = userDocSnap.data();
-      const fieldName = termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken';
+      const fieldName = termType === 'summer' ? 'summerCoursestaken' : termType === 'winter' ? 'winterCoursestaken' : 'fallCoursestaken';
       const currentCourses = userData[fieldName] || [];
       
       // Add the new course
@@ -222,7 +222,7 @@ export const addCourseToTimetable = async (db, currentUser, course, termType = '
     } else {
       // User document does not exist, create it
       const initialData = {};
-      initialData[termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken'] = [courseData];
+      initialData[termType === 'summer' ? 'summerCoursestaken' : termType === 'winter' ? 'winterCoursestaken' : 'fallCoursestaken'] = [courseData];
       await setDoc(userDocRef, initialData);
     }
     
@@ -259,7 +259,7 @@ export const removeCourseFromTimetable = async (db, currentUser, course, termTyp
     if (userDocSnap.exists()) {
       // Get current courses
       const userData = userDocSnap.data();
-      const fieldName = termType === 'summer' ? 'summerCoursestaken' : 'fallCoursestaken';
+      const fieldName = termType === 'summer' ? 'summerCoursestaken' : termType === 'winter' ? 'winterCoursestaken' : 'fallCoursestaken';
       const currentCourses = userData[fieldName] || [];
       
       // Filter out the course to remove using multiple possible identifiers
