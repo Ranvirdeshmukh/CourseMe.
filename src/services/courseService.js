@@ -294,9 +294,10 @@ export const removeCourseFromTimetable = async (db, currentUser, course, termTyp
         }
         
         // Otherwise, use subject, number, and section combination
+        // Normalize section comparison (empty section defaults to '01')
         return !(c.subj === course.subj && 
                 c.num === course.num && 
-                c.sec === course.sec);
+                (c.sec || '01') === (course.sec || '01'));
       });
       
       // Check if any course was actually removed

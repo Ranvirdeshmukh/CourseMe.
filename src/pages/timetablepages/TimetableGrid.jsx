@@ -1272,7 +1272,7 @@ const TimetableGrid = ({
                   >
                     {/* Check if course is already in selectedCourses */}
                     {selectedCourses.some(
-                      (c) => c.subj === course.subj && c.num === course.num && c.sec === course.sec
+                      (c) => c.subj === course.subj && c.num === course.num && (c.sec || '01') === (course.sec || '01')
                     ) ? (
                       <IconButton 
                         onClick={() => handleRemoveCourse(course)}

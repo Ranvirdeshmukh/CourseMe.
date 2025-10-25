@@ -203,8 +203,9 @@ const useCourses = (termType = 'winter') => {
   // Add a course to the user's timetable
   const addCourse = useCallback(async (course) => {
     // Check if the course is already in the timetable
+    // Normalize section comparison (empty section defaults to '01')
     const alreadyAdded = selectedCourses.some(
-      (c) => c.subj === course.subj && c.num === course.num && c.sec === course.sec
+      (c) => c.subj === course.subj && c.num === course.num && (c.sec || '01') === (course.sec || '01')
     );
 
     if (alreadyAdded) {
@@ -230,10 +231,11 @@ const useCourses = (termType = 'winter') => {
   const removeCourse = useCallback(async (course) => {
     // Remove from UI immediately for better UX
     // Use a more robust comparison since courses might not have consistent ID fields
+    // Normalize section comparison (empty section defaults to '01')
     const updatedCourses = selectedCourses.filter(c => 
       !(c.subj === course.subj && 
         c.num === course.num && 
-        c.sec === course.sec)
+        (c.sec || '01') === (course.sec || '01'))
     );
     const sortedSelectedCourses = sortCourses(updatedCourses);
     setSelectedCourses(sortedSelectedCourses);

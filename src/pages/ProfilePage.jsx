@@ -97,9 +97,9 @@ const ProfilePage = ({darkMode}) => {
             pinnedCourses: userData.pinnedCourses || [],
           });
 
-          // Fetch the user's fall courses from the user document
-          const fallCourses = userData.fallCoursestaken || [];
-          setSelectedCourses(fallCourses);
+          // Fetch the user's winter courses from the user document
+          const winterCourses = userData.winterCoursestaken || [];
+          setSelectedCourses(winterCourses);
       
           // Optionally, if you still need notifications from the main user document:
           setNotifications(userData.notifications || []);
@@ -336,7 +336,7 @@ const ProfilePage = ({darkMode}) => {
             
           }}
         >
-          Make your term more organized by adding your Fall 2025 classes to CourseMe
+          Make your term more organized by adding your Winter 2026 classes to CourseMe
           <span style={{ color: '#F26655' }}>.</span> and your personal Google Calendar.{' '}
           <span 
             style={{ 
@@ -744,7 +744,7 @@ const ProfilePage = ({darkMode}) => {
                 marginBottom: 2,
               }}
             >
-              Fall 2025 Course Enrollment Priority.
+              Winter 2026 Course Enrollment Priority.
             </Typography>
             <Divider sx={{ marginY: 2, backgroundColor: darkMode ? '#444444' : '#DDD' }} />
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 2 }}>
@@ -987,7 +987,7 @@ const ProfilePage = ({darkMode}) => {
                     marginBottom: 0.9,
                   }}
                 >
-                  Fall 2025 Timetable
+                  Winter 2026 Timetable
                 </Typography>
                 <Divider sx={{ marginBottom: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
                 {renderTimetable()}
