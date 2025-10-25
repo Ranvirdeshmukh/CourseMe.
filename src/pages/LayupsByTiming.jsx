@@ -36,7 +36,7 @@ const LayupsByTiming = ({darkMode}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState("10A");
-  const [selectedTerm, setSelectedTerm] = useState("fall");
+  const [selectedTerm, setSelectedTerm] = useState("winter");
   const [selectedDistribs, setSelectedDistribs] = useState([]);
   const [distribs, setDistribs] = useState([]);
   const [filterApplied, setFilterApplied] = useState(false);
@@ -137,7 +137,7 @@ const LayupsByTiming = ({darkMode}) => {
   // This effect runs only once after the component mounts
   useEffect(() => {
     fetchDistribs();
-    fetchData("10A", "fall", []);
+    fetchData("10A", "winter", []);
     didMountRef.current = true;
   }, [fetchData, fetchDistribs]);
   
@@ -245,6 +245,24 @@ const LayupsByTiming = ({darkMode}) => {
                 }}
               >
                 <MenuItem
+                  value="fall"
+                  sx={{
+                    backgroundColor: darkMode ? '#1C1F43' : undefined,
+                    color: darkMode ? '#fff' : undefined,
+                  }}
+                >
+                  Fall 2025
+                </MenuItem>
+                <MenuItem
+                  value="winter"
+                  sx={{
+                    backgroundColor: darkMode ? '#1C1F43' : undefined,
+                    color: darkMode ? '#fff' : undefined,
+                  }}
+                >
+                  Winter 2026
+                </MenuItem>
+                <MenuItem
                   value="spring"
                   sx={{
                     backgroundColor: darkMode ? '#1C1F43' : undefined,
@@ -261,15 +279,6 @@ const LayupsByTiming = ({darkMode}) => {
                   }}
                 >
                   Summer Term
-                </MenuItem>
-                <MenuItem
-                  value="fall"
-                  sx={{
-                    backgroundColor: darkMode ? '#1C1F43' : undefined,
-                    color: darkMode ? '#fff' : undefined,
-                  }}
-                >
-                  Fall Term
                 </MenuItem>
               </Select>
             </FormControl>
