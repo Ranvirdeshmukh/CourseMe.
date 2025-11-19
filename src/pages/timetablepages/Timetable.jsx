@@ -36,43 +36,6 @@ import FeatureHighlight from './FeatureHighlight';
 import LoadingState from './LoadingState';
 import ScheduleVisualization from './ScheduleVisualization';
 
-// Helper function to get the previous terms
-const getPreviousTerms = (currentTerm) => {
-  // For current term "25S", we want previous 2 terms: ["25W", "24F"]
-  const termOrder = ['W', 'S', 'X', 'F'];
-  
-  // Parse the current term
-  const year = parseInt(currentTerm.substring(0, 2));
-  const termLetter = currentTerm.substring(2);
-  const currentIndex = termOrder.indexOf(termLetter);
-  
-  if (currentIndex === -1) {
-    console.error('Invalid term letter:', termLetter);
-    return [];
-  }
-  
-  const previousTerms = [];
-  
-  // Get exactly the previous 2 terms
-  for (let i = 1; i <= 2; i++) {
-    let prevIndex = currentIndex - i;
-    let prevYear = year;
-    
-    // Handle year rollover
-    if (prevIndex < 0) {
-      prevIndex = termOrder.length + prevIndex;
-      prevYear = year - 1;
-    }
-    
-    // Format year as 2 digits with leading zero if needed
-    const yearStr = prevYear.toString().padStart(2, '0');
-    const prevTermStr = `${yearStr}${termOrder[prevIndex]}`;
-    previousTerms.push(prevTermStr);
-  }
-  
-  return previousTerms;
-};
-
 // Helper function to format term name for display
 const formatTermName = (termType) => {
   if (termType === 'summer') {
@@ -83,43 +46,6 @@ const formatTermName = (termType) => {
     return 'Winter 2026';
   }
   return 'Course'; // fallback
-};
-
-// Helper function to check if user has enough reviews
-const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25X', userClassYear = null) => {
-  // Class of '29 exception - always unlock features
-  if (userClassYear === 2029) {
-    console.log('Class of 2029 detected - unlocking all timetable features');
-    return true;
-  }
-  
-  const requiredTerms = getPreviousTerms(currentTerm);
-  
-  console.log('hasEnoughReviews check:');
-  console.log('Required terms:', requiredTerms);
-  console.log('Reviews:', reviews);
-  console.log('Grade submissions:', gradeSubmissions);
-  console.log('User class year:', userClassYear);
-  
-  // Count reviews from required terms (trim whitespace for comparison)
-  const reviewCount = reviews.filter(review => 
-    review && review.term && requiredTerms.includes(review.term.trim())
-  ).length;
-  
-  // Count grade submissions from required terms (trim whitespace for comparison)
-  const gradeCount = gradeSubmissions.filter(submission => 
-    submission && submission.Term && requiredTerms.includes(submission.Term.trim())
-  ).length;
-  
-  const totalContributions = reviewCount + gradeCount;
-  const hasEnough = totalContributions >= 3; // Changed from 3 to 1 for testing
-  
-  console.log('Review count:', reviewCount);
-  console.log('Grade count:', gradeCount);
-  console.log('Total contributions:', totalContributions);
-  console.log('Has enough?', hasEnough);
-  
-  return hasEnough;
 };
 
 const Timetable = ({ darkMode }) => {
@@ -184,9 +110,9 @@ const Timetable = ({ darkMode }) => {
   // Calculate current term based on termType (for display purposes)
   const currentTerm = termType === 'summer' ? '25X' : termType === 'winter' ? '26W' : '25F';
   
-  // Calculate if user has unlocked features - Use Fall 2025 as consistent reference
-  // This ensures unlock status is the same across all terms
-  const hasUnlockedFeatures = hasEnoughReviews(userReviews, userGradeSubmissions, '25F', userClassYear);
+  // Calculate if user has unlocked features - Global check across all terms
+  // Users need 3+ reviews across ANY terms to unlock all timetable features
+  const hasUnlockedFeatures = userReviews.length >= 3 || userClassYear === 2029;
   
   // Derived data for enhanced filtering with caching
   const [majors, setMajors] = useState([]);

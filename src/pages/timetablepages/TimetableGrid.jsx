@@ -23,118 +23,7 @@ import {
   EnrollmentProgressBar 
 } from './TimetableStyleComponents';
 
-// Helper function to get previous terms for review requirement
-const getPreviousTerms = (currentTerm) => {
-  // For current term "25S", we want previous 2 terms: ["25W", "24F"]
-  const termOrder = ['W', 'S', 'X', 'F'];
-  
-  // Parse the current term
-  const year = parseInt(currentTerm.substring(0, 2));
-  const termLetter = currentTerm.substring(2);
-  const currentIndex = termOrder.indexOf(termLetter);
-  
-  if (currentIndex === -1) {
-    console.error('Invalid term letter:', termLetter);
-    return [];
-  }
-  
-  const previousTerms = [];
-  
-  // Get exactly the previous 2 terms
-  for (let i = 1; i <= 2; i++) {
-    let prevIndex = currentIndex - i;
-    let prevYear = year;
-    
-    // Handle year rollover
-    if (prevIndex < 0) {
-      prevIndex = termOrder.length + prevIndex;
-      prevYear = year - 1;
-    }
-    
-    // Format year as 2 digits with leading zero if needed
-    const yearStr = prevYear.toString().padStart(2, '0');
-    const prevTermStr = `${yearStr}${termOrder[prevIndex]}`;
-    previousTerms.push(prevTermStr);
-  }
-  
-  return previousTerms;
-};
-
-// Helper function to check if user has enough reviews
-const hasEnoughReviews = (reviews = [], gradeSubmissions = [], currentTerm = '25X', userClassYear = null) => {
-  // Class of '29 exception - always unlock features
-  if (userClassYear === 2029) {
-    console.log('Class of 2029 detected - unlocking all timetable features');
-    return true;
-  }
-  
-  const requiredTerms = getPreviousTerms(currentTerm);
-  
-  console.log('hasEnoughReviews check:');
-  console.log('Required terms:', requiredTerms);
-  console.log('Reviews:', reviews);
-  console.log('Grade submissions:', gradeSubmissions);
-  console.log('User class year:', userClassYear);
-  
-  // Count reviews from required terms (trim whitespace for comparison)
-  const reviewCount = reviews.filter(review => 
-    review && review.term && requiredTerms.includes(review.term.trim())
-  ).length;
-  
-  // Count grade submissions from required terms (trim whitespace for comparison)
-  const gradeCount = gradeSubmissions.filter(submission => 
-    submission && submission.Term && requiredTerms.includes(submission.Term.trim())
-  ).length;
-  
-  const totalContributions = reviewCount + gradeCount;
-  const hasEnough = totalContributions >= 3; // Changed from 3 to 1 for testing
-  
-  console.log('Review count:', reviewCount);
-  console.log('Grade count:', gradeCount);
-  console.log('Total contributions:', totalContributions);
-  console.log('Has enough?', hasEnough);
-  
-  return hasEnough;
-};
-
-// Helper function to get review and grade counts for display
-const getContributionCounts = (reviews = [], gradeSubmissions = [], currentTerm = '25X') => {
-  const requiredTerms = getPreviousTerms(currentTerm);
-  
-  console.log('Current term:', currentTerm);
-  console.log('Required previous terms:', requiredTerms);
-  console.log('All reviews:', reviews);
-  console.log('All grade submissions:', gradeSubmissions);
-  
-  // Count reviews from required terms with exact string matching (trim whitespace)
-  const validReviews = reviews.filter(review => {
-    if (!review || !review.term) return false;
-    const trimmedTerm = review.term.trim();
-    const isValid = requiredTerms.includes(trimmedTerm);
-    console.log(`Review term "${review.term}" (trimmed: "${trimmedTerm}") valid:`, isValid);
-    return isValid;
-  });
-  
-  // Count grade submissions from required terms with exact string matching (trim whitespace)
-  const validGradeSubmissions = gradeSubmissions.filter(submission => {
-    if (!submission || !submission.Term) return false;
-    const trimmedTerm = submission.Term.trim();
-    const isValid = requiredTerms.includes(trimmedTerm);
-    console.log(`Grade submission term "${submission.Term}" (trimmed: "${trimmedTerm}") valid:`, isValid);
-    return isValid;
-  });
-  
-  console.log('Valid reviews:', validReviews);
-  console.log('Valid grade submissions:', validGradeSubmissions);
-  console.log('Final counts - Reviews:', validReviews.length, 'Grades:', validGradeSubmissions.length);
-  
-  return { 
-    reviewCount: validReviews.length, 
-    gradeCount: validGradeSubmissions.length 
-  };
-};
-
-// Add this helper function at the top of your component
+// Helper function for formatting timing
 const formatTiming = (timingString) => {
   if (!timingString || timingString === 'Unknown Timing') {
     return { mainTime: 'Unknown Timing', xHour: null };
@@ -179,9 +68,9 @@ const formatLocation = (room, building) => {
 // Apple-Inspired Lock Overlay Component
 const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], userGradeSubmissions = [] }) => {
   const navigate = useNavigate();
-  const requiredTerms = getPreviousTerms(currentTerm);
-  const { reviewCount, gradeCount } = getContributionCounts(userReviews, userGradeSubmissions, currentTerm);
-  const totalContributions = reviewCount + gradeCount;
+  // Global check: count ALL reviews across ANY terms
+  const reviewCount = userReviews.length;
+  const totalContributions = reviewCount; // Only count reviews now
   const needed = Math.max(0, 3 - totalContributions);
 
   const handleNavigateToReviews = () => {
@@ -355,21 +244,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
           <Chip
             icon={<RateReviewIcon sx={{ fontSize: '16px !important' }} />}
-            label={`${reviewCount} Review${reviewCount !== 1 ? 's' : ''}`}
-            size="small"
-            sx={{
-              backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
-              color: darkMode ? '#BB86FC' : '#007AFF',
-              fontWeight: 600,
-              fontSize: '0.75rem',
-              '& .MuiChip-icon': {
-                color: darkMode ? '#BB86FC' : '#007AFF',
-              }
-            }}
-          />
-          <Chip
-            icon={<StarIcon sx={{ fontSize: '16px !important' }} />}
-            label={`${gradeCount} Grade${gradeCount !== 1 ? 's' : ''}`}
+            label={`${reviewCount} / 3 Reviews`}
             size="small"
             sx={{
               backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 122, 255, 0.1)',
@@ -396,9 +271,9 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
             fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
               }}
             >
-              {needed > 0 
-            ? `Complete ${needed} more review${needed > 1 ? 's' : ''} from ${requiredTerms.join(' or ')} to unlock:`
-            : `🎉 Premium features unlocked! You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} and ${gradeCount} median grade${gradeCount !== 1 ? 's' : ''}.`
+              {needed > 0
+            ? `Complete ${needed} more review${needed > 1 ? 's' : ''} (across any terms) to unlock:`
+            : `🎉 Premium features unlocked! You have ${reviewCount} review${reviewCount !== 1 ? 's' : ''} across all terms.`
               }
             </Typography>
             
@@ -590,9 +465,10 @@ const TimetableGrid = ({
 }) => {
   
   // Use passed unlock status, or fallback to calculating (for backward compatibility)
-  const hasUnlockedFeatures = hasUnlockedFeaturesProp !== undefined 
-    ? hasUnlockedFeaturesProp 
-    : hasEnoughReviews(userReviews, userGradeSubmissions, currentTerm, userClassYear);
+  // Global check: users need 3+ reviews across ANY terms
+  const hasUnlockedFeatures = hasUnlockedFeaturesProp !== undefined
+    ? hasUnlockedFeaturesProp
+    : (userReviews.length >= 3 || userClassYear === 2029);
 
   // Memoize the base cell styles to prevent recalculation
   const lockedCellStyles = useMemo(() => ({
