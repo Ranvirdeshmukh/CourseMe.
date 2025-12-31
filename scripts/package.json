@@ -7,7 +7,9 @@
     "setup": "node setupFirebase.js",
     "sync-gcs": "node syncGCSClasses.js",
     "sync-gcs-dry": "node -e \"require('./syncGCSClasses.js').syncGCSCourses(true)\"",
-    "sync-gcs-live": "node -e \"require('./syncGCSClasses.js').syncGCSCourses(false)\""
+    "sync-gcs-live": "node -e \"require('./syncGCSClasses.js').syncGCSCourses(false)\"",
+    "export-sample-data": "node exportSampleData.js",
+    "import-test-data": "node importTestData.js"
   },
   "dependencies": {
     "firebase-admin": "^11.11.0",
