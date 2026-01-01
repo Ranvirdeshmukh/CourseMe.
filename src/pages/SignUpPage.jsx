@@ -1,5 +1,3 @@
-// src/pages/SignUpPage.jsx
-
 import React, { useRef, useState } from 'react';
 import {
   Typography,
@@ -14,9 +12,8 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, db, googleProvider } from '../firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { signUpWithEmail, signInWithGoogle, validateDartmouthEmail } from '../services/authService';
+import { getUserProfile, createUserProfile, needsProfileCompletion } from '../services/userService';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
@@ -53,34 +50,42 @@ const SignUpPage = ({ darkMode }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const email = emailRef.current.value;
-    if (!email.endsWith('@dartmouth.edu')) {
+    
+    if (!validateDartmouthEmail(email)) {
       setError('Please use your Dartmouth email address');
       setSnackbarOpen(true);
       return;
     }
+    
     if (passwordRef.current.value !== confirmPasswordRef.current.value) {
       setError('Passwords do not match');
       setSnackbarOpen(true);
       return;
     }
+    
     try {
       setError('');
       setLoading(true);
-      const userCredential = await createUserWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value);
-      const user = userCredential.user;
-      await setDoc(doc(db, 'users', user.uid), {
+      
+      const result = await signUpWithEmail(email, passwordRef.current.value);
+      
+      if (!result.success) {
+        setError(result.error);
+        setSnackbarOpen(true);
+        return;
+      }
+      
+      const user = result.user;
+      await createUserProfile(user.uid, {
         firstName: firstNameRef.current.value,
         lastName: lastNameRef.current.value,
         email: user.email,
         createdAt: new Date(),
       });
+      
       navigate('/complete-profile');
     } catch (error) {
-      if (error.code === 'auth/email-already-in-use') {
-        setError('This email is already in use. Please try logging in.');
-      } else {
-        setError('Failed to create an account');
-      }
+      setError('Failed to create an account');
       setSnackbarOpen(true);
     } finally {
       setLoading(false);
@@ -89,11 +94,19 @@ const SignUpPage = ({ darkMode }) => {
 
   const handleGoogleSignIn = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await signInWithGoogle();
+      
+      if (!result.success) {
+        setError(result.error);
+        setSnackbarOpen(true);
+        return;
+      }
+
       const user = result.user;
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, 'users', user.uid), {
+      const profileResult = await getUserProfile(user.uid);
+
+      if (!profileResult.success) {
+        await createUserProfile(user.uid, {
           firstName: user.displayName.split(' ')[0],
           lastName: user.displayName.split(' ')[1],
           email: user.email,
@@ -101,8 +114,8 @@ const SignUpPage = ({ darkMode }) => {
         });
         navigate('/complete-profile');
       } else {
-        const userData = userDoc.data();
-        if (!userData.major || !userData.classYear) {
+        const userData = profileResult.data;
+        if (needsProfileCompletion(userData)) {
           navigate('/complete-profile');
         } else {
           navigate('/');
