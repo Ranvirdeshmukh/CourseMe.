@@ -2024,7 +2024,7 @@ const LandingPage = ({ darkMode }) => {
             mb: 1,
           }}
         >
-          &copy; 2025 CourseMe. All Rights Reserved.
+          &copy; 2026 CourseMe. All Rights Reserved.
         </Typography>
         <Typography
           variant="body2"
