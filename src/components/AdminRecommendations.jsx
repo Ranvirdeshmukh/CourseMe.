@@ -17,18 +17,10 @@ import {
   Link
 } from '@mui/material';
 import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  setDoc, 
-  serverTimestamp,
-  limit
-} from 'firebase/firestore';
-import { db } from '../firebase';
+  getCourseRecommendations,
+  approveCourseRecommendation,
+  rejectCourseRecommendation
+} from '../services/recommendationService';
 
 import { useNavigate } from 'react-router-dom';
 import { Analytics, Lightbulb } from '@mui/icons-material';
@@ -45,19 +37,14 @@ const AdminRecommendations = ({ user, darkMode = false }) => {
     const fetchData = async () => {
       try {
         // Fetch recommendations
-        const recommendationsQuery = query(
-          collection(db, 'course_recommendations'),
-          where('status', '==', 'pending'),
-          orderBy('submittedAt', 'desc')
-        );
+        const result = await getCourseRecommendations('pending');
         
-        const snapshot = await getDocs(recommendationsQuery);
-        setRecommendations(
-          snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }))
-        );
+        if (result.success) {
+          setRecommendations(result.recommendations);
+        } else {
+          setError(result.error);
+        }
+        
         setLoading(false);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -72,48 +59,28 @@ const AdminRecommendations = ({ user, darkMode = false }) => {
 
 
   const handleApprove = async (recommendation) => {
-    try {
-      // First update the recommendation status
-      await updateDoc(doc(db, 'course_recommendations', recommendation.id), {
-        status: 'approved',
-        approvedBy: user.uid,
-        approvedAt: serverTimestamp()
-      });
+    const result = await approveCourseRecommendation(recommendation);
 
-      // Then add to hidden_layups collection
-      await setDoc(doc(db, 'hidden_layups', recommendation.id), {
-        name: recommendation.name,
-        department: recommendation.department,
-        yes_count: 0,
-        no_count: 0
-      });
-
+    if (result.success) {
       // Update local state to remove from pending list
       setRecommendations(prev => 
         prev.filter(rec => rec.id !== recommendation.id)
       );
-
       console.log(`Approved and added ${recommendation.name} to hidden layups`);
-    } catch (err) {
-      console.error('Error approving recommendation:', err);
-      setError('Failed to approve recommendation');
+    } else {
+      setError(result.error);
     }
   };
 
   const handleReject = async (recommendation) => {
-    try {
-      await updateDoc(doc(db, 'course_recommendations', recommendation.id), {
-        status: 'rejected',
-        rejectedBy: user.uid,
-        rejectedAt: serverTimestamp()
-      });
+    const result = await rejectCourseRecommendation(recommendation.id);
 
+    if (result.success) {
       setRecommendations(prev => 
         prev.filter(rec => rec.id !== recommendation.id)
       );
-    } catch (err) {
-      console.error('Error rejecting recommendation:', err);
-      setError('Failed to reject recommendation');
+    } else {
+      setError(result.error);
     }
   };
 
