@@ -1,5 +1,3 @@
-// LoginPage.js
-
 import React, { useRef, useState } from 'react';
 import {
   Typography,
@@ -14,9 +12,8 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { signInWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
-import { auth, googleProvider, db } from '../firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { signInWithEmail, signInWithGoogle, resetPassword } from '../services/authService';
+import { getUserProfile, createUserProfile, needsProfileCompletion } from '../services/userService';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
@@ -50,23 +47,30 @@ const LoginPage = ({ darkMode }) => {
     try {
       setError('');
       setLoading(true);
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
+      
+      const result = await signInWithEmail(
         emailRef.current.value,
         passwordRef.current.value
       );
-      const user = userCredential.user;
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      
+      if (!result.success) {
+        setError(result.error);
+        setSnackbarOpen(true);
+        return;
+      }
 
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, 'users', user.uid), {
+      const user = result.user;
+      const profileResult = await getUserProfile(user.uid);
+
+      if (!profileResult.success) {
+        await createUserProfile(user.uid, {
           email: user.email,
           createdAt: new Date(),
         });
         navigate('/complete-profile');
       } else {
-        const userData = userDoc.data();
-        if (!userData.major || !userData.classYear) {
+        const userData = profileResult.data;
+        if (needsProfileCompletion(userData)) {
           navigate('/complete-profile');
         } else {
           navigate('/');
@@ -76,18 +80,26 @@ const LoginPage = ({ darkMode }) => {
       setError('Failed to sign in');
       setSnackbarOpen(true);
       console.error('Sign in error:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const result = await signInWithGoogle();
+      
+      if (!result.success) {
+        setError(result.error);
+        setSnackbarOpen(true);
+        return;
+      }
 
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, 'users', user.uid), {
+      const user = result.user;
+      const profileResult = await getUserProfile(user.uid);
+
+      if (!profileResult.success) {
+        await createUserProfile(user.uid, {
           firstName: user.displayName.split(' ')[0],
           lastName: user.displayName.split(' ')[1],
           email: user.email,
@@ -95,8 +107,8 @@ const LoginPage = ({ darkMode }) => {
         });
         navigate('/complete-profile');
       } else {
-        const userData = userDoc.data();
-        if (!userData.major || !userData.classYear) {
+        const userData = profileResult.data;
+        if (needsProfileCompletion(userData)) {
           navigate('/complete-profile');
         } else {
           navigate('/');
@@ -118,15 +130,15 @@ const LoginPage = ({ darkMode }) => {
       return;
     }
 
-    try {
-      await sendPasswordResetEmail(auth, email);
+    const result = await resetPassword(email);
+    
+    if (result.success) {
       setResetEmailSent(true);
       setError('');
       setSnackbarOpen(true);
-    } catch (error) {
-      setError('Failed to send password reset email');
+    } else {
+      setError(result.error);
       setSnackbarOpen(true);
-      console.error('Password reset error:', error);
     }
   };
 

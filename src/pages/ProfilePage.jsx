@@ -32,9 +32,11 @@ import {
 import { Delete, ArrowDropDown, BugReport, Logout, PushPin } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
-import { auth, db } from '../firebase';
-import { doc, getDoc, updateDoc, arrayRemove, deleteDoc, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { signOut as authSignOut } from '../services/authService';
+import { getUserProfile, updateUserProfile, unpinCourse as unpinCourseService, removeNotification as removeNotificationService } from '../services/userService';
+import { deleteReview as deleteReviewService, deleteReply as deleteReplyService } from '../services/reviewService';
+import { submitBugReport } from '../services/bugReportService';
+import { removeUserFromTimetableRequest } from '../services/timetableService';
 import Footer from '../components/Footer';
 
 const ProfilePage = ({darkMode}) => {
@@ -83,10 +85,10 @@ const ProfilePage = ({darkMode}) => {
   useEffect(() => {
     const fetchProfileData = async () => {
       if (currentUser) {
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
+        const result = await getUserProfile(currentUser.uid);
+        
+        if (result.success) {
+          const userData = result.data;
           setProfileData({
             major: userData.major || '',
             classYear: userData.classYear || '',
@@ -117,30 +119,11 @@ const ProfilePage = ({darkMode}) => {
 
   const handleRemoveNotification = async (notification) => {
     try {
-      const userRef = doc(db, 'users', currentUser.uid);
-      const timetableRequestRef = doc(db, 'timetable-requests', notification.requestId);
-  
       // Remove notification from user's notifications array
-      await updateDoc(userRef, {
-        notifications: arrayRemove(notification)
-      });
+      await removeNotificationService(currentUser.uid, notification);
   
       // Remove user from the timetable-requests document
-      const timetableRequestDoc = await getDoc(timetableRequestRef);
-      if (timetableRequestDoc.exists()) {
-        const users = timetableRequestDoc.data().users || [];
-        const updatedUsers = users.filter(user => user.email !== currentUser.email);
-        
-        if (updatedUsers.length === 0) {
-          // If no users left, delete the document
-          await deleteDoc(timetableRequestRef);
-        } else {
-          // Update the users array
-          await updateDoc(timetableRequestRef, {
-            users: updatedUsers
-          });
-        }
-      }
+      await removeUserFromTimetableRequest(notification.requestId, currentUser.email);
   
       // Update local state
       setNotifications(prev => prev.filter(n => n.requestId !== notification.requestId));
@@ -153,7 +136,7 @@ const ProfilePage = ({darkMode}) => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await authSignOut();
       navigate('/login');
     } catch (error) {
       console.error('Failed to log out:', error);
@@ -167,32 +150,20 @@ const ProfilePage = ({darkMode}) => {
 
   const handleDeleteReview = async (review) => {
     try {
-      const userDocRef = doc(db, 'users', currentUser.uid);
-      const sanitizedCourseId = review.courseId;
-      const courseDocRef = doc(db, 'reviews', sanitizedCourseId);
+      const result = await deleteReviewService(
+        review.courseId,
+        review.professor,
+        review.review,
+        currentUser.uid,
+        review.term
+      );
 
-      await updateDoc(userDocRef, {
-        reviews: arrayRemove(review),
-      });
-
-      const courseDocSnap = await getDoc(courseDocRef);
-      if (courseDocSnap.exists()) {
-        const courseData = courseDocSnap.data();
-        const updatedReviews = courseData[review.professor]?.filter(
-          (r) => r !== `review: "${review.term} with ${review.professor}: ${review.review}"`
-        );
-        if (updatedReviews.length === 0) {
-          delete courseData[review.professor];
-        } else {
-          courseData[review.professor] = updatedReviews;
-        }
-        await updateDoc(courseDocRef, courseData);
+      if (result.success) {
+        setProfileData((prevState) => ({
+          ...prevState,
+          reviews: prevState.reviews.filter((r) => r !== review),
+        }));
       }
-
-      setProfileData((prevState) => ({
-        ...prevState,
-        reviews: prevState.reviews.filter((r) => r !== review),
-      }));
     } catch (error) {
       console.error('Failed to delete review:', error);
     }
@@ -200,28 +171,14 @@ const ProfilePage = ({darkMode}) => {
 
   const handleDeleteReply = async (reply) => {
     try {
-      const userDocRef = doc(db, 'users', currentUser.uid);
-      const { courseId, reviewData, timestamp } = reply;
-      const sanitizedCourseId = courseId.split('_')[1];
-      const sanitizedInstructor = reviewData.instructor.replace(/\./g, '_');
-      const replyDocRef = doc(
-        db,
-        'reviews',
-        sanitizedCourseId,
-        `${sanitizedInstructor}_${reviewData.reviewIndex}_replies`,
-        timestamp
-      );
+      const result = await deleteReplyService(reply, currentUser.uid);
 
-      await updateDoc(userDocRef, {
-        replies: arrayRemove(reply),
-      });
-
-      await deleteDoc(replyDocRef);
-
-      setProfileData((prevState) => ({
-        ...prevState,
-        replies: prevState.replies.filter((r) => r !== reply),
-      }));
+      if (result.success) {
+        setProfileData((prevState) => ({
+          ...prevState,
+          replies: prevState.replies.filter((r) => r !== reply),
+        }));
+      }
     } catch (error) {
       console.error('Failed to delete reply:', error);
     }
@@ -239,14 +196,15 @@ const ProfilePage = ({darkMode}) => {
 
   const handleSaveProfile = async () => {
     try {
-      const userDocRef = doc(db, 'users', currentUser.uid);
-      await updateDoc(userDocRef, newProfileData);
+      const result = await updateUserProfile(currentUser.uid, newProfileData);
 
-      setProfileData((prevState) => ({
-        ...prevState,
-        ...newProfileData,
-      }));
-      setEditing(false);
+      if (result.success) {
+        setProfileData((prevState) => ({
+          ...prevState,
+          ...newProfileData,
+        }));
+        setEditing(false);
+      }
     } catch (error) {
       console.error('Failed to save profile:', error);
     }
@@ -273,18 +231,17 @@ const ProfilePage = ({darkMode}) => {
       return;
     }
 
-    try {
-      await addDoc(collection(db, 'report_a_bug'), {
-        userId: currentUser.uid,
-        email: currentUser.email,
-        page: bugPage,
-        description: bugDescription,
-        timestamp: new Date().toISOString(),
-      });
+    const result = await submitBugReport(
+      currentUser.uid,
+      currentUser.email,
+      bugPage,
+      bugDescription
+    );
+    
+    if (result.success) {
       handleReportBugClose();
-    } catch (error) {
-      console.error('Failed to report bug:', error);
-      setBugReportError('Failed to report bug. Please try again.');
+    } else {
+      setBugReportError(result.error);
     }
   };
 
@@ -295,17 +252,15 @@ const ProfilePage = ({darkMode}) => {
   const handleUnpinCourse = async (courseId) => {
     if (!currentUser) return;
 
-    const userDocRef = doc(db, 'users', currentUser.uid);
-
     try {
-      await updateDoc(userDocRef, {
-        pinnedCourses: arrayRemove(courseId),
-      });
+      const result = await unpinCourseService(currentUser.uid, courseId);
 
-      setProfileData((prevState) => ({
-        ...prevState,
-        pinnedCourses: prevState.pinnedCourses.filter((id) => id !== courseId),
-      }));
+      if (result.success) {
+        setProfileData((prevState) => ({
+          ...prevState,
+          pinnedCourses: prevState.pinnedCourses.filter((id) => id !== courseId),
+        }));
+      }
     } catch (error) {
       console.error('Failed to unpin course:', error);
     }
