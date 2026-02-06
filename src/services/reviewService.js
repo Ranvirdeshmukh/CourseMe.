@@ -71,7 +71,7 @@ export const addReview = async (courseId, professor, review, userId, term) => {
 /**
  * Delete a review
  */
-export const deleteReview = async (courseId, professor, review, userId, term) => {
+export const deleteReview = async (courseId, professor, review, userId, term, timestamp) => {
   try {
     const reviewDocRef = doc(db, 'reviews', courseId);
     const reviewText = `review: "${term} with ${professor}: ${review}"`;
@@ -91,14 +91,15 @@ export const deleteReview = async (courseId, professor, review, userId, term) =>
       await setDoc(reviewDocRef, courseData);
     }
     
-    // Remove from user's reviews
+    // Remove from user's reviews - must match the exact object shape from addReview
     const userDocRef = doc(db, 'users', userId);
     await updateDoc(userDocRef, {
       reviews: arrayRemove({
         courseId,
         professor,
         review,
-        term
+        term,
+        timestamp // Include timestamp for exact match
       })
     });
     

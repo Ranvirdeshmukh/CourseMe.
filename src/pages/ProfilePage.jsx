@@ -155,7 +155,8 @@ const ProfilePage = ({darkMode}) => {
         review.professor,
         review.review,
         currentUser.uid,
-        review.term
+        review.term,
+        review.timestamp // Pass timestamp for exact object match in arrayRemove
       );
 
       if (result.success) {

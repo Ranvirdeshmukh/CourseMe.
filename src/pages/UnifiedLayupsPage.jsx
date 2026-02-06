@@ -22,7 +22,7 @@ import {
   Button,
   Chip,
 } from '@mui/material';
-import { collection, query, orderBy, getDocs, where, limit } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, where, limit, startAfter } from 'firebase/firestore';
 import { db } from '../firebase';
 import LayupsByTiming from './LayupsByTiming';
 import HiddenLayups from './HiddenLayups';
@@ -90,31 +90,47 @@ const UnifiedLayupsPage = ({ darkMode }) => {
 
         let q;
 
-        // If filters are applied, we need a different approach
+        // If filters are applied
         if (selectedDepartment || selectedDistribs.length > 0) {
           // Build query with department filter if selected
           if (selectedDepartment) {
-            q = query(
-              collection(db, 'courses'),
-              where('department', '==', selectedDepartment),
-              orderBy('layup', 'desc'),
-              limit(isInitial ? ITEMS_PER_PAGE : ITEMS_PER_PAGE)
-            );
+            // Department filter query
+            if (!isInitial && lastVisible) {
+              // Paginated query with startAfter
+              q = query(
+                collection(db, 'courses'),
+                where('department', '==', selectedDepartment),
+                orderBy('layup', 'desc'),
+                startAfter(lastVisible),
+                limit(ITEMS_PER_PAGE)
+              );
+            } else {
+              // Initial query
+              q = query(
+                collection(db, 'courses'),
+                where('department', '==', selectedDepartment),
+                orderBy('layup', 'desc'),
+                limit(ITEMS_PER_PAGE)
+              );
+            }
           } else {
-            q = query(
-              collection(db, 'courses'),
-              orderBy('layup', 'desc'),
-              limit(isInitial ? ITEMS_PER_PAGE * 3 : ITEMS_PER_PAGE * 3) // Fetch more for distrib filtering
-            );
-          }
-
-          if (!isInitial && lastVisible) {
-            q = query(
-              collection(db, 'courses'),
-              where('department', '==', selectedDepartment || ''),
-              orderBy('layup', 'desc'),
-              limit(ITEMS_PER_PAGE)
-            );
+            // Distrib-only filter (no department filter)
+            if (!isInitial && lastVisible) {
+              // Paginated query with startAfter
+              q = query(
+                collection(db, 'courses'),
+                orderBy('layup', 'desc'),
+                startAfter(lastVisible),
+                limit(ITEMS_PER_PAGE * 3) // Fetch more for distrib filtering
+              );
+            } else {
+              // Initial query
+              q = query(
+                collection(db, 'courses'),
+                orderBy('layup', 'desc'),
+                limit(ITEMS_PER_PAGE * 3) // Fetch more for distrib filtering
+              );
+            }
           }
 
           const querySnapshot = await getDocs(q);
