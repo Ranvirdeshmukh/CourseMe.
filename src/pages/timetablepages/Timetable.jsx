@@ -1,17 +1,6 @@
 // src/pages/timetablepages/Timetable.jsx
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { 
-  Box, 
-  Container, 
-  Alert, 
-  Zoom, 
-  Fab, 
-  Snackbar, 
-  useMediaQuery, 
-  Button,
-  Typography,
-  Paper
-} from '@mui/material';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Box, Container, Alert, Zoom, Fab, Snackbar, useMediaQuery, Button, Typography, Paper } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -23,7 +12,6 @@ import { addToGoogleCalendar } from './googleCalendarLogic';
 import { addToAppleCalendar } from './appleCalendarLogic';
 import CourseService from '../../services/courseService';
 import NotificationService from '../../services/notificationService';
-import ProfessorService from '../../services/professorService';
 import useCourses from '../../hooks/useCourses';
 import { getCachedMajors, cacheMajors } from '../../services/majorCacheService';
 
@@ -44,6 +32,8 @@ const formatTermName = (termType) => {
     return 'Fall 2025';
   } else if (termType === 'winter') {
     return 'Winter 2026';
+  } else if (termType === 'spring') {
+    return 'Spring 2026';
   }
   return 'Course'; // fallback
 };
@@ -61,7 +51,7 @@ const Timetable = ({ darkMode }) => {
   const [popupMessageOpen, setPopupMessageOpen] = useState(false);
   const [openPopupMessage, setOpenPopupMessage] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', type: 'info' });
-  const [termType, setTermType] = useState('winter'); // Default to 'winter'
+  const [termType, setTermType] = useState('spring'); // Default to 'winter'
   const [isRefreshingEnrollments, setIsRefreshingEnrollments] = useState(false);
   
   // User data state
@@ -85,20 +75,9 @@ const Timetable = ({ darkMode }) => {
   
   // Custom hooks
   const { 
-    courses, 
-    filteredCourses, 
-    selectedCourses, 
-    subjects, 
-    loading, 
-    error, 
-    searchTerm, 
-    setSearchTerm, 
-    selectedSubject, 
-    setSelectedSubject, 
-    addCourse, 
-    removeCourse, 
-    enrollmentDataReady,
-    setCourses 
+    courses, filteredCourses, selectedCourses, subjects, loading, 
+    error, searchTerm, setSearchTerm, selectedSubject, setSelectedSubject, 
+    addCourse, removeCourse, enrollmentDataReady,setCourses 
   } = useCourses(termType); // Pass termType to useCourses
 
   // Major filtering state
@@ -312,26 +291,6 @@ const Timetable = ({ darkMode }) => {
 const handleForceRefreshEnrollments = async () => {
   if (isRefreshingEnrollments) return;
   
-  // Don't allow refresh for summer courses
-  if (termType === 'summer') {
-    setPopupMessage({
-      message: "Enrollment data refresh is not available for summer courses",
-      type: 'info',
-    });
-    setOpenPopupMessage(true);
-    return;
-  }
-  
-  // Don't allow refresh for winter courses (if not yet supported)
-  if (termType === 'winter') {
-    setPopupMessage({
-      message: "Enrollment data refresh is not yet available for winter courses",
-      type: 'info',
-    });
-    setOpenPopupMessage(true);
-    return;
-  }
-  
   setIsRefreshingEnrollments(true);
   
   try {
@@ -422,25 +381,22 @@ const handleForceRefreshEnrollments = async () => {
     }
   };
   
-  const handleAddCourse = async (course) => {
-    const result = await addCourse(course);
+  const handleCourseAction = async (course, action) => {
+    const result = action === 'add' 
+      ? await addCourse(course)
+      : await removeCourse(course);
     
     setPopupMessage({
       message: result.message,
-      type: result.success ? 'success' : 'warning',
+      type: result.success 
+        ? 'success' 
+        : action === 'add' ? 'warning' : 'error',
     });
     setOpenPopupMessage(true);
   };
-  
-  const handleRemoveCourse = async (course) => {
-    const result = await removeCourse(course);
-    
-    setPopupMessage({
-      message: result.message,
-      type: result.success ? 'success' : 'error',
-    });
-    setOpenPopupMessage(true);
-  };
+
+  const handleAddCourse = (course) => handleCourseAction(course, 'add');
+  const handleRemoveCourse = (course) => handleCourseAction(course, 'remove');
   
   const handleNotifyDrop = async (course) => {
     if (!currentUser) {

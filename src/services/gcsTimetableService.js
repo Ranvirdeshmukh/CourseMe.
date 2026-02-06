@@ -2,7 +2,7 @@
 import localforage from 'localforage';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 
-const CACHE_VERSION = 'gcsV1';
+const CACHE_VERSION = 'gcsV2';
 const CACHE_TTL = 3600000; // 1 hour in milliseconds
 // Use proxy route to avoid CORS issues during development
 const GCS_URL = process.env.NODE_ENV === 'development' 
@@ -31,15 +31,17 @@ const periodCodeToTiming = {
 };
 
 /**
- * Fetch winter timetable data from Firestore
+ * Fetch timetable data from Firestore collection
+ * @param {string} collectionName - The Firestore collection name
+ * @param {string} termType - The term type for logging
  * @returns {Promise<Object>} Object containing courses and cache status
  */
-const fetchWinterDataFromFirestore = async () => {
+const fetchDataFromFirestore = async (collectionName, termType) => {
   try {
-    console.log('Fetching winter data from Firestore collection: winterTimetable26');
+    console.log(`Fetching ${termType} data from Firestore collection: ${collectionName}`);
     const db = getFirestore();
-    const winterCollectionRef = collection(db, 'winterTimetable26');
-    const snapshot = await getDocs(winterCollectionRef);
+    const collectionRef = collection(db, collectionName);
+    const snapshot = await getDocs(collectionRef);
     
     // Transform the data - Handle BOTH Firestore structure AND GCS structure
     const transformedCourses = snapshot.docs.map((doc, index) => {
@@ -66,7 +68,7 @@ const fetchWinterDataFromFirestore = async () => {
       const documentName = (subj && num && sec) ? `${subj}${num}_${sec}` : doc.id;
       
       if (index < 3) {
-        console.log(`Winter course ${index} from Firestore:`, {
+        console.log(`${termType} course ${index} from Firestore:`, {
           raw: data,
           transformed: { subj, num, sec: `${sec}${secRaw ? '' : ' (defaulted to 01)'}`, title, periodCode }
         });
@@ -90,20 +92,36 @@ const fetchWinterDataFromFirestore = async () => {
       };
     });
 
-    console.log(`Fetched ${transformedCourses.length} winter courses from Firestore`);
+    console.log(`Fetched ${transformedCourses.length} ${termType} courses from Firestore`);
     if (transformedCourses.length > 0) {
-      console.log('First winter course sample:', transformedCourses[0]);
+      console.log(`First ${termType} course sample:`, transformedCourses[0]);
     }
     return transformedCourses;
   } catch (error) {
-    console.error('Error fetching winter data from Firestore:', error);
+    console.error(`Error fetching ${termType} data from Firestore:`, error);
     throw error;
   }
 };
 
 /**
- * Fetch timetable data from Google Cloud Storage or Firestore (for winter)
- * @param {string} termType - The term type (summer, fall, winter)
+ * Fetch winter timetable data from Firestore
+ * @returns {Promise<Object>} Object containing courses and cache status
+ */
+const fetchWinterDataFromFirestore = async () => {
+  return fetchDataFromFirestore('winterTimetable26', 'winter');
+};
+
+/**
+ * Fetch spring timetable data from Firestore
+ * @returns {Promise<Object>} Object containing courses and cache status
+ */
+const fetchSpringDataFromFirestore = async () => {
+  return fetchDataFromFirestore('springTimetable26', 'spring');
+};
+
+/**
+ * Fetch timetable data from Google Cloud Storage or Firestore (for winter/spring)
+ * @param {string} termType - The term type (summer, fall, winter, spring)
  * @returns {Promise<Object>} Object containing courses and cache status
  */
 export const fetchGCSTimetableData = async (termType = 'winter') => {
@@ -150,6 +168,52 @@ export const fetchGCSTimetableData = async (termType = 'winter') => {
       console.log('Winter data cached');
       return {
         courses: winterCourses,
+        fromCache: false
+      };
+    }
+
+    // For spring term, fetch from Firestore
+    if (termType === 'spring') {
+      // Check cache first
+      const cacheKey = `springCachedCourses`;
+      const cacheTimestampKey = `springCacheTimestamp`;
+      const cacheVersionKey = `springCacheVersion`;
+      
+      const cachedCourses = await localforage.getItem(cacheKey);
+      const cacheTimestamp = await localforage.getItem(cacheTimestampKey);
+      const cachedVersion = await localforage.getItem(cacheVersionKey);
+      const now = Date.now();
+
+      // Check if cache is valid
+      const isCacheValid = 
+        cachedCourses && 
+        cacheTimestamp && 
+        cachedVersion === CACHE_VERSION && 
+        (now - cacheTimestamp) < CACHE_TTL;
+
+      if (isCacheValid) {
+        console.log('Using cached spring data');
+        return {
+          courses: cachedCourses,
+          fromCache: true
+        };
+      }
+
+      console.log('Cache invalid or expired, fetching new spring data from Firestore');
+
+      // Fetch from Firestore
+      const springCourses = await fetchSpringDataFromFirestore();
+
+      // Store in cache
+      await Promise.all([
+        localforage.setItem(cacheKey, springCourses),
+        localforage.setItem(cacheTimestampKey, now),
+        localforage.setItem(cacheVersionKey, CACHE_VERSION)
+      ]);
+
+      console.log('Spring data cached');
+      return {
+        courses: springCourses,
         fromCache: false
       };
     }
@@ -250,9 +314,23 @@ export const fetchGCSTimetableData = async (termType = 'winter') => {
  */
 export const clearGCSCache = async (termType = 'winter') => {
   try {
-    const cacheKey = `gcsCachedCourses_${termType}`;
-    const cacheTimestampKey = `gcsCacheTimestamp_${termType}`;
-    const cacheVersionKey = `gcsCacheVersion_${termType}`;
+    // Spring and winter use different cache key patterns
+    let cacheKey, cacheTimestampKey, cacheVersionKey;
+    
+    if (termType === 'winter') {
+      cacheKey = 'winterCachedCourses';
+      cacheTimestampKey = 'winterCacheTimestamp';
+      cacheVersionKey = 'winterCacheVersion';
+    } else if (termType === 'spring') {
+      cacheKey = 'springCachedCourses';
+      cacheTimestampKey = 'springCacheTimestamp';
+      cacheVersionKey = 'springCacheVersion';
+    } else {
+      // Fall/summer use the generic pattern
+      cacheKey = `gcsCachedCourses_${termType}`;
+      cacheTimestampKey = `gcsCacheTimestamp_${termType}`;
+      cacheVersionKey = `gcsCacheVersion_${termType}`;
+    }
     
     await Promise.all([
       localforage.removeItem(cacheKey),
@@ -260,8 +338,8 @@ export const clearGCSCache = async (termType = 'winter') => {
       localforage.removeItem(cacheVersionKey)
     ]);
     
-    console.log(`GCS cache cleared for ${termType}`);
+    console.log(`Cache cleared for ${termType}`);
   } catch (error) {
-    console.error(`Error clearing GCS cache:`, error);
+    console.error(`Error clearing cache for ${termType}:`, error);
   }
 };
