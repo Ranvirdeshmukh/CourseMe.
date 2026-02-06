@@ -16,14 +16,15 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PrintIcon from '@mui/icons-material/Print';
-import { getFirestore, getDoc, doc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
+import { db } from '../../firebase';
 
 import { addToGoogleCalendar } from './googleCalendarLogic';
 import { addToAppleCalendar } from './appleCalendarLogic';
 import CourseService from '../../services/courseService';
 import NotificationService from '../../services/notificationService';
 import ProfessorService from '../../services/professorService';
+import { getUserProfile } from '../../services/userService';
 import useCourses from '../../hooks/useCourses';
 import { getCachedMajors, cacheMajors } from '../../services/majorCacheService';
 
@@ -81,7 +82,6 @@ const Timetable = ({ darkMode }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery('(max-width:600px)');
-  const db = getFirestore();
   
   // Custom hooks
   const { 
@@ -229,9 +229,10 @@ const Timetable = ({ darkMode }) => {
       }
       
       try {
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
+        const result = await getUserProfile(currentUser.uid);
+        
+        if (result.success) {
+          const userData = result.data;
           setUserReviews(userData.reviews || []);
           setUserGradeSubmissions(userData.gradeSubmissions || []);
           setUserClassYear(userData.classYear || null);

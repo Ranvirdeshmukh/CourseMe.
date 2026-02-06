@@ -4,7 +4,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { collection, getDocs, getFirestore, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 import ScheduleVisualization from './ScheduleVisualization';
 
 const WeeklySchedule = ({ darkMode }) => {
@@ -26,7 +27,6 @@ const WeeklySchedule = ({ darkMode }) => {
     // Otherwise, fetch from Firestore
     const fetchUserTimetable = async () => {
       try {
-        const db = getFirestore();
         const springCoursesRef = collection(db, 'users', currentUser.uid, 'springCoursestaken');
         const snapshot = await getDocs(springCoursesRef);
         const coursesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -108,7 +108,6 @@ const WeeklySchedule = ({ darkMode }) => {
     // If we have currentUser and course has an ID, remove from Firebase
     if (currentUser && course.id) {
       try {
-        const db = getFirestore();
         const courseDocRef = doc(db, 'users', currentUser.uid, 'springCoursestaken', course.id);
         await deleteDoc(courseDocRef);
       } catch (error) {

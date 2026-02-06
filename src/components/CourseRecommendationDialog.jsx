@@ -10,8 +10,7 @@ import {
   Box,
   Typography
 } from '@mui/material';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { submitCourseRecommendation } from '../services/recommendationService';
 
 const CourseRecommendationDialog = ({ open, onClose, user }) => {
   const [courseName, setCourseName] = useState('');
@@ -31,34 +30,23 @@ const CourseRecommendationDialog = ({ open, onClose, user }) => {
       return;
     }
 
-    try {
-      // Create a URL-friendly ID
-      const courseId = `${department.toUpperCase()}_${courseName.replace(/\s+/g, '_')}`;
+    const result = await submitCourseRecommendation(
+      courseName,
+      department,
+      user.uid,
+      user.displayName || user.email
+    );
 
-      // Add to recommendations collection
-      await addDoc(collection(db, 'course_recommendations'), {
-        id: courseId,
-        name: courseName,
-        department: department.toUpperCase(),
-        status: 'pending', // pending, approved, rejected
-        submittedBy: {
-          uid: user.uid,
-          name: user.displayName || user.email,
-        },
-        submittedAt: serverTimestamp(),
-      });
-
+    if (result.success) {
       console.log(`Added ${courseName} to recommendations`);
-      
-      setSubmitted(true); // Mark as submitted to show thank you message
+      setSubmitted(true);
       setCourseName('');
       setDepartment('');
-    } catch (err) {
-      console.error('Error submitting recommendation:', err);
-      setError('Failed to submit recommendation. Please try again.');
-    } finally {
-      setSubmitting(false);
+    } else {
+      setError(result.error);
     }
+
+    setSubmitting(false);
   };
 
   const handleClose = () => {

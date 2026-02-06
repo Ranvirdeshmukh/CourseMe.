@@ -2,20 +2,22 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, deleteDoc, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, setDoc, orderBy, limit } from 'firebase/firestore';
+import { db } from '../firebase';
 import ParticleTextCarousel from '../components/ParticleTextCarousel';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, OpenInNew, CalendarMonthOutlined, CloseFullscreen, OpenInFull, Close } from '@mui/icons-material';
-import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import MobileNavigation from '../Mobileversion/MobileNavigation';
+
+import { 
+  Container, Box, Typography, TextField, Button, 
+  InputAdornment, CircularProgress, Paper, Snackbar,
+  Alert, Chip, LinearProgress, ButtonBase, Tooltip, Fade, IconButton,
+  List, ListItem, ClickAwayListener
+} from '@mui/material';
+import { Close } from '@mui/icons-material';
+
 import MobileLandingPage from '../Mobileversion/MobileLandingPage';
-import ScheduleVisualization from './timetablepages/ScheduleVisualization';
-import Slide from '@mui/material/Slide';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import Divider from '@mui/material/Divider';
 import { 
   ClassesIcon, 
   LayupsIcon, 
@@ -29,36 +31,10 @@ import {
   QuestionIcon
 } from '../components/icons/CustomIcons';
 
-import { 
-  Container, Box, Typography, TextField, Button, 
-  InputAdornment, CircularProgress, Paper, Snackbar,
-  Alert, Chip, LinearProgress, ButtonBase, Tooltip, Fade, IconButton,
-  List, ListItem, ListItemText, ClickAwayListener
-} from '@mui/material';
-
-
-
 // ----------------------------------------------------------------------------------
 // 1) Revert to the original PythonAnywhere endpoint
 // ----------------------------------------------------------------------------------
 const API_URL = 'https://coursemebot.pythonanywhere.com/api/chat';
-
-// ----------------------------------------------------------------------------------
-// 2) Firebase config
-// ----------------------------------------------------------------------------------
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
 const LandingPage = ({ darkMode }) => {
   // --------------------------------------------------------------------------------
@@ -82,11 +58,6 @@ const LandingPage = ({ darkMode }) => {
 
   // State for fade-in transition
   const [fadeIn, setFadeIn] = useState(false);
-
-  // Add state for schedule visualization
-  const [miniScheduleOpen, setMiniScheduleOpen] = useState(false);
-  const [miniScheduleExpanded, setMiniScheduleExpanded] = useState(true);
-  const [selectedCourses, setSelectedCourses] = useState([]);
 
   // State for collaborate popup
   const [showCollaboratePopup, setShowCollaboratePopup] = useState(false);
@@ -604,7 +575,6 @@ const LandingPage = ({ darkMode }) => {
     localStorage.setItem('hasSeenCollaboratePopup', 'true');
   };
 
-  // Replace the handleOpenMiniSchedule function with this navigate function
   const navigateToTimetableWithVisualization = () => {
     // Navigate to timetable with state parameter to open visualization
     navigate('/timetable', { state: { openVisualization: true } });

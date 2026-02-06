@@ -1,7 +1,6 @@
 // src/services/courseService.js
 import { collection, doc, getDoc, getDocs, query, updateDoc, where, setDoc } from 'firebase/firestore';
 import localforage from 'localforage';
-import { periodCodeToTiming } from '../pages/timetablepages/googleCalendarLogic';
 import { fetchEnrollmentData, enhanceCourseDataWithEnrollment } from './enrollmentDataService';
 import { fetchGCSTimetableData } from './gcsTimetableService';
 
