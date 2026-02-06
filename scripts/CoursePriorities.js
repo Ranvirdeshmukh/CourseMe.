@@ -1,3 +1,5 @@
+// Resolve modules from parent node_modules
+require('./resolveParentModules');
 const admin = require('firebase-admin');
 const fs = require('fs').promises;
 const path = require('path');

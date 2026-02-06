@@ -1,4 +1,6 @@
 // scripts/syncGCSClasses.js
+// Resolve modules from parent node_modules
+require('./resolveParentModules');
 const admin = require('firebase-admin');
 const fetch = require('node-fetch');
 const path = require('path');
