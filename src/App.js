@@ -24,7 +24,7 @@ import DepartmentCoursesWithPriorities from './pages/DepartmentCoursesWithPriori
 import GetStartedPage from './pages/GetStartedPage';
 import NewStartPage from './pages/NewStartPage';
 import LandingPage from './pages/LandingPage';
-import LayupsPage from './pages/LayupsPage';
+import UnifiedLayupsPage from './pages/UnifiedLayupsPage';
 import LoginPage from './pages/LoginPage';
 import ProfessorReviewsPage from './pages/ProfessorReviewsPage';
 import ProfilePage from './pages/ProfilePage';
@@ -195,7 +195,7 @@ const AppContent = () => {
           element={<ProfessorReviewsPage darkMode={effectiveDarkMode} />}
         />
         <Route path="/complete-profile" element={<CompleteProfilePage darkMode={effectiveDarkMode} />} />
-        <Route path="/layups" element={<LayupsPage darkMode={effectiveDarkMode} />} />
+        <Route path="/layups" element={<UnifiedLayupsPage darkMode={effectiveDarkMode} />} />
         <Route path="/course-enrollment-priorities" element={<CourseEnrollmentPrioritiesPage darkMode={effectiveDarkMode} />} />
         <Route
           path="/course-enrollment-priorities/:department"
