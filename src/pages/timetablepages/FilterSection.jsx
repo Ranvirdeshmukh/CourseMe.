@@ -93,7 +93,7 @@ const FilterSection = ({
           transition: 'color 0.3s ease',
         }}
       >
-        {termType === 'summer' ? 'Summer' : termType === 'winter' ? 'Winter' : 'Fall'} {termType === 'winter' ? '2026' : '2025'} Timetable.
+        {termType === 'summer' ? 'Summer 2025' : termType === 'winter' ? 'Winter 2026' : termType === 'spring' ? 'Spring 2026' : 'Fall 2025'} Timetable.
       </Typography>
       
       {/* Horizontal Navigation Bar */}

@@ -892,7 +892,7 @@ const handleQualityVote = async (voteType) => {
           console.log("fetching current instructors")
           try {
             // Check Winter Term
-            const winterTimetableRef = collection(db, 'winterTimetable');
+            const winterTimetableRef = collection(db, 'springTimetable26');
             console.log("deptCode:", deptCode, "courseNumber:", courseNumber);
             const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
             const winterQuerySnapshot = await getDocs(winterQuery);
@@ -1004,7 +1004,7 @@ const handleQualityVote = async (voteType) => {
         console.log("Fetching current instructors");
 
         // Check Winter Term
-        const winterTimetableRef = collection(db, 'winterTimetable');
+        const winterTimetableRef = collection(db, 'springTimetable26');
         const winterQuery = query(winterTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
         const winterQuerySnapshot = await getDocs(winterQuery);
         

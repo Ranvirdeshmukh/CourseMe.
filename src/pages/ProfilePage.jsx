@@ -987,7 +987,7 @@ const ProfilePage = ({darkMode}) => {
                     marginBottom: 0.9,
                   }}
                 >
-                  Winter 2026 Timetable
+                  Spring 2026 Timetable
                 </Typography>
                 <Divider sx={{ marginBottom: 2, backgroundColor: darkMode ? '#444444' : '#EEE' }} />
                 {renderTimetable()}
