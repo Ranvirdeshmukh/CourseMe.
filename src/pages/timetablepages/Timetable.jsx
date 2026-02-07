@@ -248,28 +248,10 @@ const Timetable = ({ darkMode }) => {
   
   // Feature highlight check
   useEffect(() => {
-    const checkFeatureHighlight = async () => {
-      try {
-        // Get current visit count
-        const featureVisitCount = localStorage.getItem('weeklyScheduleFeatureVisits');
-        const visitCount = featureVisitCount ? parseInt(featureVisitCount) : 0;
-        
-        // Show feature if we haven't reached 5 visits yet
-        if (visitCount < 9) {
-          // Increment and save the visit count
-          localStorage.setItem('weeklyScheduleFeatureVisits', (visitCount + 1).toString());
-          
-          // Wait a bit before showing the highlight so other elements can load
-          setTimeout(() => {
-            setShowFeatureHighlight(true);
-          }, 1500);
-        }
-      } catch (error) {
-        console.error('Error checking feature highlight status:', error);
-      }
-    };
-
-    checkFeatureHighlight();
+    // Always show the schedule visualizer popup on page load
+    setTimeout(() => {
+      setShowFeatureHighlight(true);
+    }, 1500);
   }, []);
   
   // Check for visualization parameter in location state
@@ -563,11 +545,6 @@ const handleForceRefreshEnrollments = async () => {
   
   const handleFeatureHighlightClose = () => {
     setShowFeatureHighlight(false);
-    try {
-      localStorage.setItem('weeklyScheduleFeatureVisits', '5');
-    } catch (error) {
-      console.error('Error saving feature highlight status:', error);
-    }
   };
   
   const handleFeatureHighlightTryNow = () => {

@@ -83,8 +83,18 @@ const FeatureHighlight = ({
           </IconButton>
         </Box>
         
-        <Typography sx={{ mb: 1.5, lineHeight: 1.4 }}>
-          Visualize your class schedule by day and time with our new weekly planner.
+        <Typography sx={{ mb: 1, lineHeight: 1.4 }}>
+          Visualize your class schedule by day and time with our weekly planner.
+        </Typography>
+        
+        <Typography sx={{ 
+          mb: 1.5, 
+          lineHeight: 1.4, 
+          fontWeight: 600,
+          color: darkMode ? '#BB86FC' : '#007AFF',
+          fontSize: '13px',
+        }}>
+          Use the <strong>+ Add</strong> button (last column in the timetable) to add courses, then open this panel to see them on your schedule.
         </Typography>
         
         <Button
