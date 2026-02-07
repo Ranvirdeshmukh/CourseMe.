@@ -280,6 +280,15 @@ const LayupsByTiming = ({darkMode}) => {
                 >
                   Summer 2025
                 </MenuItem>
+                <MenuItem
+                  value="spring25"
+                  sx={{
+                    backgroundColor: darkMode ? '#1C1F43' : undefined,
+                    color: darkMode ? '#fff' : undefined,
+                  }}
+                >
+                  Spring 2025
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>

@@ -112,11 +112,19 @@ const fetchWinterDataFromFirestore = async () => {
 };
 
 /**
- * Fetch spring timetable data from Firestore
+ * Fetch spring 2026 timetable data from Firestore
  * @returns {Promise<Object>} Object containing courses and cache status
  */
 const fetchSpringDataFromFirestore = async () => {
   return fetchDataFromFirestore('springTimetable26', 'spring');
+};
+
+/**
+ * Fetch spring 2025 timetable data from Firestore
+ * @returns {Promise<Object>} Object containing courses and cache status
+ */
+const fetchSpring25DataFromFirestore = async () => {
+  return fetchDataFromFirestore('springTimetable', 'spring25');
 };
 
 /**
@@ -214,6 +222,52 @@ export const fetchGCSTimetableData = async (termType = 'winter') => {
       console.log('Spring data cached');
       return {
         courses: springCourses,
+        fromCache: false
+      };
+    }
+
+    // For spring 2025 term, fetch from Firestore
+    if (termType === 'spring25') {
+      // Check cache first
+      const cacheKey = `spring25CachedCourses`;
+      const cacheTimestampKey = `spring25CacheTimestamp`;
+      const cacheVersionKey = `spring25CacheVersion`;
+      
+      const cachedCourses = await localforage.getItem(cacheKey);
+      const cacheTimestamp = await localforage.getItem(cacheTimestampKey);
+      const cachedVersion = await localforage.getItem(cacheVersionKey);
+      const now = Date.now();
+
+      // Check if cache is valid
+      const isCacheValid = 
+        cachedCourses && 
+        cacheTimestamp && 
+        cachedVersion === CACHE_VERSION && 
+        (now - cacheTimestamp) < CACHE_TTL;
+
+      if (isCacheValid) {
+        console.log('Using cached spring 2025 data');
+        return {
+          courses: cachedCourses,
+          fromCache: true
+        };
+      }
+
+      console.log('Cache invalid or expired, fetching new spring 2025 data from Firestore');
+
+      // Fetch from Firestore
+      const spring25Courses = await fetchSpring25DataFromFirestore();
+
+      // Store in cache
+      await Promise.all([
+        localforage.setItem(cacheKey, spring25Courses),
+        localforage.setItem(cacheTimestampKey, now),
+        localforage.setItem(cacheVersionKey, CACHE_VERSION)
+      ]);
+
+      console.log('Spring 2025 data cached');
+      return {
+        courses: spring25Courses,
         fromCache: false
       };
     }
@@ -325,6 +379,10 @@ export const clearGCSCache = async (termType = 'winter') => {
       cacheKey = 'springCachedCourses';
       cacheTimestampKey = 'springCacheTimestamp';
       cacheVersionKey = 'springCacheVersion';
+    } else if (termType === 'spring25') {
+      cacheKey = 'spring25CachedCourses';
+      cacheTimestampKey = 'spring25CacheTimestamp';
+      cacheVersionKey = 'spring25CacheVersion';
     } else {
       // Fall/summer use the generic pattern
       cacheKey = `gcsCachedCourses_${termType}`;
