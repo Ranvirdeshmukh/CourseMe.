@@ -93,7 +93,7 @@ const FilterSection = ({
           transition: 'color 0.3s ease',
         }}
       >
-        {termType === 'summer' ? 'Summer 2025' : termType === 'winter' ? 'Winter 2026' : termType === 'spring' ? 'Spring 2026' : 'Fall 2025'} Timetable.
+        {termType === 'summer' ? 'Summer 2025' : termType === 'spring' ? 'Spring 2026' : 'Winter 2026'} Timetable.
       </Typography>
       
       {/* Horizontal Navigation Bar */}
@@ -121,31 +121,6 @@ const FilterSection = ({
             }}
           >
             <Box
-              onClick={() => setTermType('fall')}
-              sx={{
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                backgroundColor: termType === 'fall' 
-                  ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
-                  : 'transparent',
-                color: termType === 'fall'
-                  ? (darkMode ? '#BB86FC' : '#00693E')
-                  : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
-                fontWeight: termType === 'fall' ? 600 : 400,
-                fontSize: '0.9rem',
-                fontFamily: 'SF Pro Display, sans-serif',
-                '&:hover': {
-                  backgroundColor: termType !== 'fall'
-                    ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
-                    : (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.1)')
-                }
-              }}
-            >
-              Fall 2025
-            </Box>
-            <Box
               onClick={() => setTermType('winter')}
               sx={{
                 padding: '8px 16px',
@@ -169,6 +144,31 @@ const FilterSection = ({
               }}
             >
               Winter 2026
+            </Box>
+            <Box
+              onClick={() => setTermType('spring')}
+              sx={{
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                backgroundColor: termType === 'spring' 
+                  ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
+                  : 'transparent',
+                color: termType === 'spring'
+                  ? (darkMode ? '#BB86FC' : '#00693E')
+                  : (darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'),
+                fontWeight: termType === 'spring' ? 600 : 400,
+                fontSize: '0.9rem',
+                fontFamily: 'SF Pro Display, sans-serif',
+                '&:hover': {
+                  backgroundColor: termType !== 'spring'
+                    ? (darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)')
+                    : (darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 105, 62, 0.1)')
+                }
+              }}
+            >
+              Spring 2026
             </Box>
           </Box>
           

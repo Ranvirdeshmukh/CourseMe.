@@ -139,6 +139,9 @@ const getEventTiming = (periodCode, courseTitle, subj, num, termType = 'fall') =
   } else if (termType === 'winter') {
     eventStartDate = '20260106';
     eventEndDate = '20260323';
+  } else if (termType === 'spring') {
+    eventStartDate = '20260325';
+    eventEndDate = '20260603';
   } else { // fall
     eventStartDate = '20250912';
     eventEndDate = '20251126';

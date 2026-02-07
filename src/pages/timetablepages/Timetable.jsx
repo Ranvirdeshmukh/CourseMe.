@@ -28,8 +28,6 @@ import ScheduleVisualization from './ScheduleVisualization';
 const formatTermName = (termType) => {
   if (termType === 'summer') {
     return 'Summer 2025';
-  } else if (termType === 'fall') {
-    return 'Fall 2025';
   } else if (termType === 'winter') {
     return 'Winter 2026';
   } else if (termType === 'spring') {
@@ -87,7 +85,7 @@ const Timetable = ({ darkMode }) => {
   const [selectedInstructor, setSelectedInstructor] = useState('');
   
   // Calculate current term based on termType (for display purposes)
-  const currentTerm = termType === 'summer' ? '25X' : termType === 'winter' ? '26W' : '25F';
+  const currentTerm = termType === 'summer' ? '25X' : termType === 'spring' ? '26S' : termType === 'winter' ? '26W' : '25F';
   
   // Calculate if user has unlocked features - Global check across all terms
   // Users need 3+ reviews across ANY terms to unlock all timetable features
