@@ -57,7 +57,7 @@ export const addToGoogleCalendar = (course, onMultipleEvents, onPopupBlocked, se
     const event = events[index];
     const text = `&text=${encodeURIComponent(event.title)}`;
     const startDateTime = `&dates=${event.startDateTime}/${event.endDateTime}`;
-    const recur = event.recurrence ? `&recur=${event.recurrence}` : ''; 
+    const recur = event.recurrence ? `&recur=${encodeURIComponent(event.recurrence)}` : ''; 
 
     const url = `${baseUrl}${text}${details}${location}${startDateTime}${recur}&sf=true&output=xml`;
     
