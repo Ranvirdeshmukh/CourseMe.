@@ -40,6 +40,7 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [isTaughtSpring26Term, setIsTaughtSpring26Term] = useState(false);
   const [isTaughtSummerTerm, setIsTaughtSummerTerm] = useState(false);
   const [isTaughtFallTerm, setIsTaughtFallTerm] = useState(false);
+  const [showAllTermBadges, setShowAllTermBadges] = useState(false);
   const { department, courseId } = useParams();
   const { currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
@@ -2906,182 +2907,131 @@ useEffect(() => {
             {courseName}
           </Typography>
           
-          {(isTaughtCurrentTerm || isTaughtSpring26Term || isTaughtSpringTerm || isTaughtSummerTerm || isTaughtFallTerm) && (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                height: '2rem',
-                marginLeft: 2,
-                gap: '8px',
-              }}
-            >
-              {isTaughtCurrentTerm && (
-                <Tooltip title="This course is offered in 26W" arrow placement="top">
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#2C3E50' : '#E0F7FF', // Winter blue color
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #4A6572' : '1px solid #B3E5FC',
-                      transition: 'all 0.2s ease',
-                      cursor: 'help',
-                      '&:hover': {
-                        backgroundColor: darkMode ? '#34495E' : '#B3E5FC',
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                      }
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
+          {(() => {
+            // Build ordered list of all offered term badges (most recent first)
+            const allBadges = [];
+            if (isTaughtCurrentTerm) allBadges.push({ code: '26W', tooltip: 'This course is offered in Winter 2026', bg: darkMode ? '#2C3E50' : '#E0F7FF', hoverBg: darkMode ? '#34495E' : '#B3E5FC', border: darkMode ? '#4A6572' : '#B3E5FC', text: darkMode ? '#B3E5FC' : '#0277BD' });
+            if (isTaughtSpring26Term) allBadges.push({ code: '26S', tooltip: 'This course is offered in Spring 2026', bg: darkMode ? '#1B5E20' : '#E8F5E9', hoverBg: darkMode ? '#2E7D32' : '#A5D6A7', border: darkMode ? '#2E7D32' : '#A5D6A7', text: darkMode ? '#A5D6A7' : '#2E7D32' });
+            if (isTaughtSpringTerm) allBadges.push({ code: '25S', tooltip: 'This course is offered in Spring 2025', bg: darkMode ? '#4D3C14' : '#FFF8E1', hoverBg: darkMode ? '#6D5B24' : '#FFE082', border: darkMode ? '#6D5B24' : '#FFE082', text: darkMode ? '#FFE082' : '#F57F17' });
+            if (isTaughtSummerTerm) allBadges.push({ code: '25X', tooltip: 'This course is offered in Summer 2025', bg: darkMode ? '#006064' : '#E0F7FA', hoverBg: darkMode ? '#00838F' : '#80DEEA', border: darkMode ? '#00838F' : '#80DEEA', text: darkMode ? '#B2EBF2' : '#00838F' });
+            if (isTaughtFallTerm) allBadges.push({ code: '25F', tooltip: 'This course is offered in Fall 2025', bg: darkMode ? '#4E342E' : '#FBE9E7', hoverBg: darkMode ? '#6D4C41' : '#FFCCBC', border: darkMode ? '#6D4C41' : '#FFCCBC', text: darkMode ? '#FFCCBC' : '#D84315' });
+
+            if (allBadges.length === 0) return null;
+
+            const MAX_VISIBLE = 2;
+            const visibleBadges = showAllTermBadges ? allBadges : allBadges.slice(0, MAX_VISIBLE);
+            const hiddenCount = allBadges.length - MAX_VISIBLE;
+
+            return (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  height: '2rem',
+                  marginLeft: 2,
+                  gap: '6px',
+                }}
+              >
+                {visibleBadges.map((badge) => (
+                  <Tooltip key={badge.code} title={badge.tooltip} arrow placement="top">
+                    <Box
                       sx={{
-                        fontSize: '0.9rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#B3E5FC' : '#0277BD',
+                        backgroundColor: badge.bg,
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        border: `1px solid ${badge.border}`,
+                        transition: 'all 0.2s ease',
+                        cursor: 'help',
+                        '&:hover': {
+                          backgroundColor: badge.hoverBg,
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                        }
                       }}
                     >
-                      26W
-                    </Typography>
-                  </Box>
-                </Tooltip>
-              )}
-              
-              {isTaughtSpring26Term && (
-                <Tooltip title="This course is offered in 26S" arrow placement="top">
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #2E7D32' : '1px solid #A5D6A7',
-                      transition: 'all 0.2s ease',
-                      cursor: 'help',
-                      '&:hover': {
-                        backgroundColor: darkMode ? '#2E7D32' : '#A5D6A7',
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                      }
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.9rem',
+                          fontWeight: 500,
+                          color: badge.text,
+                        }}
+                      >
+                        {badge.code}
+                      </Typography>
+                    </Box>
+                  </Tooltip>
+                ))}
+                {hiddenCount > 0 && !showAllTermBadges && (
+                  <Tooltip title="Show all terms offered" arrow placement="top">
+                    <Box
+                      onClick={() => setShowAllTermBadges(true)}
                       sx={{
-                        fontSize: '0.9rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#A5D6A7' : '#2E7D32',
+                        backgroundColor: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(0,0,0,0.12)',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          backgroundColor: darkMode ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.08)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                        }
                       }}
                     >
-                      26S
-                    </Typography>
-                  </Box>
-                </Tooltip>
-              )}
-              
-              {isTaughtSpringTerm && (
-                <Tooltip title="This course is offered in 25S" arrow placement="top">
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #6D5B24' : '1px solid #FFE082',
-                      transition: 'all 0.2s ease',
-                      cursor: 'help',
-                      '&:hover': {
-                        backgroundColor: darkMode ? '#6D5B24' : '#FFE082',
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                      }
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.85rem',
+                          fontWeight: 600,
+                          color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)',
+                        }}
+                      >
+                        +{hiddenCount}
+                      </Typography>
+                    </Box>
+                  </Tooltip>
+                )}
+                {showAllTermBadges && allBadges.length > MAX_VISIBLE && (
+                  <Tooltip title="Show fewer" arrow placement="top">
+                    <Box
+                      onClick={() => setShowAllTermBadges(false)}
                       sx={{
-                        fontSize: '0.9rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#FFE082' : '#F57F17',
+                        backgroundColor: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                        padding: '2px 6px',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        border: darkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(0,0,0,0.12)',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          backgroundColor: darkMode ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.08)',
+                          transform: 'translateY(-2px)',
+                        }
                       }}
                     >
-                      25S
-                    </Typography>
-                  </Box>
-                </Tooltip>
-              )}
-              
-              {isTaughtSummerTerm && (
-                <Tooltip title="This course is offered in 25X" arrow placement="top">
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#006064' : '#E0F7FA',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #00838F' : '1px solid #80DEEA',
-                      transition: 'all 0.2s ease',
-                      cursor: 'help',
-                      '&:hover': {
-                        backgroundColor: darkMode ? '#00838F' : '#80DEEA',
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                      }
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontSize: '0.9rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#B2EBF2' : '#00838F',
-                      }}
-                    >
-                      25X
-                    </Typography>
-                  </Box>
-                </Tooltip>
-              )}
-              
-              {isTaughtFallTerm && (
-                <Tooltip title="This course is offered in 25F" arrow placement="top">
-                  <Box
-                    sx={{
-                      backgroundColor: darkMode ? '#4E342E' : '#FBE9E7',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      border: darkMode ? '1px solid #6D4C41' : '1px solid #FFCCBC',
-                      transition: 'all 0.2s ease',
-                      cursor: 'help',
-                      '&:hover': {
-                        backgroundColor: darkMode ? '#6D4C41' : '#FFCCBC',
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                      }
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontSize: '0.9rem',
-                        fontWeight: 500,
-                        color: darkMode ? '#FFCCBC' : '#D84315',
-                      }}
-                    >
-                      25F
-                    </Typography>
-                  </Box>
-                </Tooltip>
-              )}
-            </Box>
-          )}
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          color: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)',
+                        }}
+                      >
+                        -
+                      </Typography>
+                    </Box>
+                  </Tooltip>
+                )}
+              </Box>
+            );
+          })()}
         </Box>
         
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
