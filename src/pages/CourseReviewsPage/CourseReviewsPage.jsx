@@ -37,6 +37,7 @@ import generateORCLink from './ORCLinkGenerator';
 const CourseReviewsPage = ({ darkMode }) => {
   const [isTaughtCurrentTerm, setIsTaughtCurrentTerm] = useState(false);
   const [isTaughtSpringTerm, setIsTaughtSpringTerm] = useState(false);
+  const [isTaughtSpring26Term, setIsTaughtSpring26Term] = useState(false);
   const [isTaughtSummerTerm, setIsTaughtSummerTerm] = useState(false);
   const [isTaughtFallTerm, setIsTaughtFallTerm] = useState(false);
   const { department, courseId } = useParams();
@@ -55,6 +56,7 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [currentInstructors, setCurrentInstructors] = useState([]);
   const [winterInstructors, setWinterInstructors] = useState([]);
   const [springInstructors, setSpringInstructors] = useState([]);
+  const [spring26Instructors, setSpring26Instructors] = useState([]);
   const [summerInstructors, setSummerInstructors] = useState([]);
   const [fallInstructors, setFallInstructors] = useState([]);
   const [bothTermsInstructors, setBothTermsInstructors] = useState([]);
@@ -1213,6 +1215,18 @@ const CourseReviewsPage = ({ darkMode }) => {
       }
     });
     
+    spring26Instructors.forEach(instructor => {
+      if (!professorTerms[instructor]) {
+        professorTerms[instructor] = [];
+      }
+      
+      const spring26Term = '26S'; // Spring 2026
+      if (!professorTerms[instructor].includes(spring26Term)) {
+        professorTerms[instructor].unshift(spring26Term);
+        console.log(`Added Spring 2026 term ${spring26Term} for professor ${instructor}`);
+      }
+    });
+    
     summerInstructors.forEach(instructor => {
       if (!professorTerms[instructor]) {
         professorTerms[instructor] = [];
@@ -1500,7 +1514,7 @@ const handleQualityVote = async (voteType) => {
                 }
               });
               
-              // Check Spring Term
+              // Check Spring 2025 Term
               const springTimetableRef = collection(db, 'springTimetable');
               const springQuery = query(springTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumValue));
               const springQuerySnapshot = await getDocs(springQuery);
@@ -1515,6 +1529,30 @@ const handleQualityVote = async (voteType) => {
                   }
                 }
               });
+              
+              // Check Spring 2026 Term - fetch all and filter client-side for flexible field matching
+              const spring26TimetableRef = collection(db, 'springTimetable26');
+              const spring26QuerySnapshot = await getDocs(spring26TimetableRef);
+              console.log(`springTimetable26: total docs = ${spring26QuerySnapshot.size}, looking for ${deptCode} ${courseNumValue}`);
+              if (spring26QuerySnapshot.size > 0) {
+                const sampleDoc = spring26QuerySnapshot.docs[0].data();
+                console.log("springTimetable26 sample doc fields:", Object.keys(sampleDoc), "sample values:", { Subj: sampleDoc.Subj, subj: sampleDoc.subj, Num: sampleDoc.Num, num: sampleDoc.num });
+              }
+              
+              let spring26Found = false;
+              spring26QuerySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const docSubj = data.Subj || data.subj || data.Subject || data.subject || '';
+                const docNum = String(data.Num || data.num || data.Number || data.number || '').replace(/^0+/, '');
+                const docInstructor = data.Instructor || data.instructor || '';
+                if (docSubj === deptCode && docNum === courseNumValue && docInstructor) {
+                  spring26Found = true;
+                  if (!instructors.includes(docInstructor)) {
+                    instructors.push(docInstructor);
+                  }
+                }
+              });
+              console.log(`springTimetable26: spring26Found = ${spring26Found}`);
               
               // Check Summer Term
               const summerTimetableRef = collection(db, 'summerTimetable');
@@ -1554,6 +1592,7 @@ const handleQualityVote = async (voteType) => {
 
               setIsTaughtCurrentTerm(winterFound);
               setIsTaughtSpringTerm(springFound);
+              setIsTaughtSpring26Term(spring26Found);
               setIsTaughtSummerTerm(summerFound);
               setIsTaughtFallTerm(fallFound);
               if (instructors.length > 0) {
@@ -1643,7 +1682,7 @@ const handleQualityVote = async (voteType) => {
           }
         });
         
-        // Check Spring Term
+        // Check Spring 2025 Term
         const springTimetableRef = collection(db, 'springTimetable');
         const springQuery = query(springTimetableRef, where("Subj", "==", deptCode), where("Num", "==", courseNumber));
         const springQuerySnapshot = await getDocs(springQuery);
@@ -1659,6 +1698,31 @@ const handleQualityVote = async (voteType) => {
             }
           }
         });
+
+        // Check Spring 2026 Term - fetch all and filter client-side for flexible field matching
+        const spring26TimetableRef = collection(db, 'springTimetable26');
+        const spring26QuerySnapshot = await getDocs(spring26TimetableRef);
+        console.log(`[fetchInstructors] springTimetable26: total docs = ${spring26QuerySnapshot.size}, looking for ${deptCode} ${courseNumber}`);
+        if (spring26QuerySnapshot.size > 0) {
+          const sampleDoc = spring26QuerySnapshot.docs[0].data();
+          console.log("[fetchInstructors] springTimetable26 sample doc fields:", Object.keys(sampleDoc), "sample values:", { Subj: sampleDoc.Subj, subj: sampleDoc.subj, Num: sampleDoc.Num, num: sampleDoc.num });
+        }
+        
+        let spring26Instructors = [];
+        let spring26Found = false;
+        spring26QuerySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const docSubj = data.Subj || data.subj || data.Subject || data.subject || '';
+          const docNum = String(data.Num || data.num || data.Number || data.number || '').replace(/^0+/, '');
+          const docInstructor = data.Instructor || data.instructor || '';
+          if (docSubj === deptCode && docNum === courseNumber && docInstructor) {
+            spring26Found = true;
+            if (!spring26Instructors.includes(docInstructor)) {
+              spring26Instructors.push(docInstructor);
+            }
+          }
+        });
+        console.log(`[fetchInstructors] springTimetable26: spring26Found = ${spring26Found}, instructors =`, spring26Instructors);
 
         // Check Summer Term
         const summerTimetableRef = collection(db, 'summerTimetable');
@@ -1696,22 +1760,25 @@ const handleQualityVote = async (voteType) => {
         
         // Find instructors who teach in both terms
         const bothTermsInstructors = winterInstructors.filter(instructor => 
-          springInstructors.includes(instructor)
+          springInstructors.includes(instructor) || spring26Instructors.includes(instructor)
         );
 
-        setCurrentInstructors([...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors]);
+        setCurrentInstructors([...winterInstructors, ...springInstructors, ...spring26Instructors, ...summerInstructors, ...fallInstructors]);
         setWinterInstructors(winterInstructors);
         setSpringInstructors(springInstructors);
+        setSpring26Instructors(spring26Instructors);
         setSummerInstructors(summerInstructors);
         setFallInstructors(fallInstructors);
         setBothTermsInstructors(bothTermsInstructors);
         setIsTaughtCurrentTerm(winterFound);
         setIsTaughtSpringTerm(springFound);
+        setIsTaughtSpring26Term(spring26Found);
         setIsTaughtSummerTerm(summerFound);
         setIsTaughtFallTerm(fallFound);
-        console.log("Current instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors]);
+        console.log("Current instructors:", [...winterInstructors, ...springInstructors, ...spring26Instructors, ...summerInstructors, ...fallInstructors]);
         console.log("Winter instructors:", winterInstructors);
-        console.log("Spring instructors:", springInstructors);
+        console.log("Spring 25 instructors:", springInstructors);
+        console.log("Spring 26 instructors:", spring26Instructors);
         console.log("Summer instructors:", summerInstructors);
         console.log("Fall instructors:", fallInstructors);
         console.log("Both terms instructors:", bothTermsInstructors);
@@ -1740,7 +1807,7 @@ const handleQualityVote = async (voteType) => {
           console.log("Review instructors:", reviewInstructors);
 
           // Compare and update if necessary
-          const instructorsToAdd = [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors].filter(instructor => 
+          const instructorsToAdd = [...winterInstructors, ...springInstructors, ...spring26Instructors, ...summerInstructors, ...fallInstructors].filter(instructor => 
             !reviewInstructors.some(reviewInstructor => compareNames(instructor, reviewInstructor))
           );
 
@@ -1756,14 +1823,14 @@ const handleQualityVote = async (voteType) => {
         } else {
           // If the document doesn't exist, create it with the current instructors
           const newReviewsData = {};
-          [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors].forEach(instructor => {
+          [...winterInstructors, ...springInstructors, ...spring26Instructors, ...summerInstructors, ...fallInstructors].forEach(instructor => {
             newReviewsData[instructor] = [];
           });
           await setDoc(reviewsRef, newReviewsData);
-          console.log("Created new reviews document with instructors:", [...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors]);
+          console.log("Created new reviews document with instructors:", [...winterInstructors, ...springInstructors, ...spring26Instructors, ...summerInstructors, ...fallInstructors]);
         }
 
-        setIsTaughtCurrentTerm([...winterInstructors, ...springInstructors, ...summerInstructors, ...fallInstructors].length > 0);
+        setIsTaughtCurrentTerm([...winterInstructors, ...springInstructors, ...spring26Instructors, ...summerInstructors, ...fallInstructors].length > 0);
       }
     } catch (error) {
       console.error("Error fetching and updating instructors:", error);
@@ -2722,6 +2789,12 @@ useEffect(() => {
             console.log(`Manual extraction: No terms found for ${professor}, adding current spring term ${springTerm}`);
           }
           
+          if (spring26Instructors.includes(professor)) {
+            const spring26Term = '26S';
+            terms.add(spring26Term);
+            console.log(`Manual extraction: No terms found for ${professor}, adding Spring 2026 term ${spring26Term}`);
+          }
+          
           if (summerInstructors.includes(professor)) {
             const summerTerm = currentYear + 'X';
             terms.add(summerTerm);
@@ -2833,7 +2906,7 @@ useEffect(() => {
             {courseName}
           </Typography>
           
-          {(isTaughtCurrentTerm || isTaughtSpringTerm || isTaughtSummerTerm || isTaughtFallTerm) && (
+          {(isTaughtCurrentTerm || isTaughtSpring26Term || isTaughtSpringTerm || isTaughtSummerTerm || isTaughtFallTerm) && (
             <Box
               sx={{
                 display: 'flex',
@@ -2871,6 +2944,39 @@ useEffect(() => {
                       }}
                     >
                       26W
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              )}
+              
+              {isTaughtSpring26Term && (
+                <Tooltip title="This course is offered in 26S" arrow placement="top">
+                  <Box
+                    sx={{
+                      backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: darkMode ? '1px solid #2E7D32' : '1px solid #A5D6A7',
+                      transition: 'all 0.2s ease',
+                      cursor: 'help',
+                      '&:hover': {
+                        backgroundColor: darkMode ? '#2E7D32' : '#A5D6A7',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                      }
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.9rem',
+                        fontWeight: 500,
+                        color: darkMode ? '#A5D6A7' : '#2E7D32',
+                      }}
+                    >
+                      26S
                     </Typography>
                   </Box>
                 </Tooltip>
@@ -3310,6 +3416,7 @@ useEffect(() => {
             const isCurrent = currentInstructors.includes(professor);
             const isWinter = winterInstructors.includes(professor);
             const isSpring = springInstructors.includes(professor);
+            const isSpring26 = spring26Instructors.includes(professor);
             const isSummer = summerInstructors.includes(professor);
             const isFall = fallInstructors.includes(professor);
             const isBothTerms = bothTermsInstructors.includes(professor);
@@ -3439,6 +3546,28 @@ useEffect(() => {
                       </Box>
                       <Box
                         sx={{
+                          backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          border: darkMode ? '1px solid #2E7D32' : '1px solid #A5D6A7',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            color: darkMode ? '#A5D6A7' : '#2E7D32',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                          }}
+                        >
+                          26S
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
                           backgroundColor: darkMode ? '#4D3C14' : '#FFF8E1',
                           padding: '2px 8px',
                           borderRadius: '12px',
@@ -3525,6 +3654,29 @@ useEffect(() => {
                         }}
                       >
                         26W
+                      </Typography>
+                    </Box>
+                  ) : isSpring26 ? (
+                    <Box
+                      sx={{
+                        backgroundColor: darkMode ? '#1B5E20' : '#E8F5E9',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        border: darkMode ? '1px solid #2E7D32' : '1px solid #A5D6A7',
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
+                          color: darkMode ? '#A5D6A7' : '#2E7D32',
+                          fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Text, sans-serif',
+                        }}
+                      >
+                        26S
                       </Typography>
                     </Box>
                   ) : isSpring ? (
