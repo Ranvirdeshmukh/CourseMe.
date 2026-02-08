@@ -16,7 +16,8 @@ const ScheduleVisualization = ({ selectedCourses, darkMode, onRemoveCourse }) =>
     hourSlots.push(`${displayHour}:30 ${ampm}`);
   }
 
-  // Function to parse time strings (e.g. "10:10-11:15") and convert to grid positions
+  // Function to parse time strings (e.g. "10:10-11:15") and convert to pixel positions
+  // Each grid cell is 30px for 30 minutes, so 1px = 1 minute — minute-accurate positioning
   const parseTimeToGridPosition = (timeStr) => {
     const [start, end] = timeStr.split('-');
     const [startHour, startMinute] = start.split(':').map(Number);
@@ -26,10 +27,11 @@ const ScheduleVisualization = ({ selectedCourses, darkMode, onRemoveCourse }) =>
     const start24Hour = (startHour >= 1 && startHour <= 6) ? startHour + 12 : startHour;
     const end24Hour = (endHour >= 1 && endHour <= 6) ? endHour + 12 : endHour;
     
-    const startPosition = (start24Hour - 8) * 2 + (startMinute >= 30 ? 1 : 0);
-    const endPosition = (end24Hour - 8) * 2 + (endMinute > 0 ? 1 : 0);
+    // Calculate exact minutes from 8:00 AM (1 minute = 1 pixel in the grid)
+    const startMinutes = (start24Hour - 8) * 60 + startMinute;
+    const endMinutes = (end24Hour - 8) * 60 + endMinute;
     
-    return { start: startPosition, end: endPosition, duration: endPosition - startPosition };
+    return { start: startMinutes, end: endMinutes, duration: endMinutes - startMinutes, timeDisplay: `${start}-${end}` };
   };
 
   // Function to parse day codes like "MWF" or "TuTh" to grid column indices
@@ -81,7 +83,7 @@ const ScheduleVisualization = ({ selectedCourses, darkMode, onRemoveCourse }) =>
           if (!times || !times.includes('-')) return;
           
           const dayColumns = parseDaysToCols(days);
-          const { start, end, duration } = parseTimeToGridPosition(times);
+          const { start, end, duration, timeDisplay } = parseTimeToGridPosition(times);
           
           // For each day, add a schedule item
           dayColumns.forEach(col => {
@@ -90,6 +92,7 @@ const ScheduleVisualization = ({ selectedCourses, darkMode, onRemoveCourse }) =>
               startSlot: start,
               endSlot: end,
               duration: duration,
+              timeDisplay: timeDisplay,
               course: course,
               isXHour: index > 0,
               // Generate a unique shade based on course subject
@@ -103,29 +106,26 @@ const ScheduleVisualization = ({ selectedCourses, darkMode, onRemoveCourse }) =>
       
       return scheduleItems;
     }).filter(Boolean).flat();
-  }, [selectedCourses]);
+  }, [selectedCourses, darkMode]);
 
-  // Find time conflicts for highlighting
+  // Find time conflicts using interval overlap detection
   const conflicts = useMemo(() => {
-    const slots = {};
-    const conflicts = new Set();
+    const conflictSet = new Set();
     
-    courseSchedules.forEach(item => {
-      for (let slot = item.startSlot; slot < item.endSlot; slot++) {
-        const key = `${item.day}-${slot}`;
-        if (slots[key]) {
-          conflicts.add(slots[key].id);
-          conflicts.add(`${item.course.subj}${item.course.num}-${item.day}-${item.startSlot}`);
-        } else {
-          slots[key] = {
-            id: `${item.course.subj}${item.course.num}-${item.day}-${item.startSlot}`,
-            course: item.course
-          };
+    for (let i = 0; i < courseSchedules.length; i++) {
+      for (let j = i + 1; j < courseSchedules.length; j++) {
+        const a = courseSchedules[i];
+        const b = courseSchedules[j];
+        
+        // Two items on the same day conflict if their time intervals overlap
+        if (a.day === b.day && a.startSlot < b.endSlot && b.startSlot < a.endSlot) {
+          conflictSet.add(`${a.course.subj}${a.course.num}-${a.day}-${a.startSlot}`);
+          conflictSet.add(`${b.course.subj}${b.course.num}-${b.day}-${b.startSlot}`);
         }
       }
-    });
+    }
     
-    return conflicts;
+    return conflictSet;
   }, [courseSchedules]);
 
   // If no courses to display, show a message
@@ -360,9 +360,9 @@ const ScheduleVisualization = ({ selectedCourses, darkMode, onRemoveCourse }) =>
                 sx={{
                   position: 'absolute',
                   left: `calc(${(item.day + 1) * (100 / 6)}% + 1px)`,
-                  top: `calc(30px + ${item.startSlot * 30}px)`,
+                  top: `calc(30px + ${item.startSlot}px)`,
                   width: `calc(${100 / 6}% - 2px)`,
-                  height: `calc(${item.duration * 30}px - 1px)`,
+                  height: `calc(${item.duration}px - 1px)`,
                   backgroundColor: item.colorHash,
                   border: hasConflict ? '2px solid #FF3B30' : 'none',
                   borderRadius: '4px',
@@ -387,13 +387,13 @@ const ScheduleVisualization = ({ selectedCourses, darkMode, onRemoveCourse }) =>
                 <Typography sx={{ fontSize: '0.8rem', fontWeight: 700 }}>
                   {item.course.subj} {item.course.num}
                 </Typography>
-                {item.duration > 1 && (
+                {item.duration > 30 && (
                   <>
                     <Typography sx={{ fontSize: '0.7rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {item.isXHour ? 'X-Hour' : item.course.title}
                     </Typography>
                     <Typography sx={{ fontSize: '0.65rem', mt: 'auto', opacity: 0.85 }}>
-                      {hourSlots[item.startSlot].split(' ')[0]} - {hourSlots[item.endSlot-1].split(' ')[0]} {hourSlots[item.startSlot].split(' ')[1]}
+                      {item.timeDisplay}
                     </Typography>
                   </>
                 )}
