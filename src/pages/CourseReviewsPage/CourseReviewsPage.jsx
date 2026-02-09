@@ -5,12 +5,12 @@ import {
   MenuItem, Select, FormControl, InputLabel, CircularProgress, Card, Badge, Tabs, Tab, LinearProgress,
   TextField, Autocomplete, Link as MuiLink
 } from '@mui/material';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, PushPin, Description, Grade, Input } from '@mui/icons-material';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
-import { doc, getDoc, updateDoc, setDoc, collection, getDocs, deleteDoc, arrayUnion, arrayRemove, query, where } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc, collection, getDocs, deleteDoc, arrayUnion, arrayRemove, query, where, documentId } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext.js';
 import { db } from '../../firebase';
 import AddReviewForm from './AddReviewForm';
@@ -42,6 +42,7 @@ const CourseReviewsPage = ({ darkMode }) => {
   const [isTaughtFallTerm, setIsTaughtFallTerm] = useState(false);
   const [showAllTermBadges, setShowAllTermBadges] = useState(false);
   const { department, courseId } = useParams();
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [course, setCourse] = useState(null);
@@ -1424,6 +1425,27 @@ const CourseReviewsPage = ({ darkMode }) => {
             setCourse(courseData);
             setQuality(courseData.quality); // Update quality state
         } else {
+            // Course doc not found — try to resolve by document-ID prefix.
+            // Handles broken links like COSC_COSC023__Old_Title when the real
+            // doc is COSC_COSC023_01__New_Title (different section / title).
+            const prefixMatch = courseId.match(/^([A-Z]+_[A-Z]+\d+)/);
+            if (prefixMatch) {
+              const prefix = prefixMatch[1]; // e.g. "COSC_COSC023"
+              const coursesRef = collection(db, 'courses');
+              const q = query(
+                coursesRef,
+                where(documentId(), '>=', prefix),
+                where(documentId(), '<=', prefix + '\uf8ff')
+              );
+              const snapshot = await getDocs(q);
+
+              if (!snapshot.empty) {
+                const correctDocId = snapshot.docs[0].id;
+                console.log(`Course not found at "${courseId}", redirecting to "${correctDocId}"`);
+                navigate(`/departments/${department}/courses/${correctDocId}`, { replace: true });
+                return; // navigate will re-mount with the correct courseId
+              }
+            }
             setError('Course not found.');
         }
     } catch (error) {
@@ -1433,7 +1455,7 @@ const CourseReviewsPage = ({ darkMode }) => {
         setLoading(false);
         console.log('Finished fetching course');
     }
-}, [courseId]);
+}, [courseId, department, navigate]);
 const handleQualityVote = async (voteType) => {
   if (!course || !currentUser) return;
 

@@ -14,6 +14,7 @@ import CourseService from '../../services/courseService';
 import NotificationService from '../../services/notificationService';
 import useCourses from '../../hooks/useCourses';
 import { getCachedMajors, cacheMajors } from '../../services/majorCacheService';
+import { formatTermName } from '../../constants/periodCodes';
 
 // Import Components
 import FilterSection from './FilterSection';
@@ -23,18 +24,6 @@ import MiniSchedulePanel from './MiniSchedulePanel';
 import FeatureHighlight from './FeatureHighlight';
 import LoadingState from './LoadingState';
 import ScheduleVisualization from './ScheduleVisualization';
-
-// Helper function to format term name for display
-const formatTermName = (termType) => {
-  if (termType === 'summer') {
-    return 'Summer 2025';
-  } else if (termType === 'winter') {
-    return 'Winter 2026';
-  } else if (termType === 'spring') {
-    return 'Spring 2026';
-  }
-  return 'Course'; // fallback
-};
 
 const Timetable = ({ darkMode }) => {
   // UI State
@@ -506,16 +495,17 @@ const handleForceRefreshEnrollments = async () => {
       </style>
     `;
     
+    const termName = formatTermName(termType);
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <html>
         <head>
-          <title>Summer 2025 Schedule</title>
+          <title>${termName} Schedule</title>
           ${printCSS}
         </head>
         <body>
           <div class="schedule-print-container">
-            <div class="schedule-title">Summer 2025 Weekly Schedule</div>
+            <div class="schedule-title">${termName} Weekly Schedule</div>
             <div class="schedule-subtitle">Dartmouth College</div>
             ${printContent.innerHTML}
           </div>

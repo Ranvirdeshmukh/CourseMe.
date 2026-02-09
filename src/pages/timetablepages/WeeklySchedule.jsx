@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { collection, getDocs, getFirestore, doc, deleteDoc } from 'firebase/firestore';
 import ScheduleVisualization from './ScheduleVisualization';
+import { formatTermName, getCoursesFieldName } from '../../constants/periodCodes';
 
 const WeeklySchedule = ({ darkMode }) => {
   const navigate = useNavigate();
@@ -15,6 +16,10 @@ const WeeklySchedule = ({ darkMode }) => {
   const [loading, setLoading] = useState(true);
   const printRef = useRef(null);
 
+  // Get termType from navigation state, default to 'spring' for backward compat
+  const termType = location.state?.termType || 'spring';
+  const coursesCollectionName = getCoursesFieldName(termType);
+
   useEffect(() => {
     // If courses were passed through navigation state, use those
     if (location.state?.selectedCourses) {
@@ -23,17 +28,17 @@ const WeeklySchedule = ({ darkMode }) => {
       return;
     }
 
-    // Otherwise, fetch from Firestore
+    // Otherwise, fetch from Firestore using the correct term collection
     const fetchUserTimetable = async () => {
       try {
         const db = getFirestore();
-        const springCoursesRef = collection(db, 'users', currentUser.uid, 'springCoursestaken');
-        const snapshot = await getDocs(springCoursesRef);
+        const coursesRef = collection(db, 'users', currentUser.uid, coursesCollectionName);
+        const snapshot = await getDocs(coursesRef);
         const coursesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setSelectedCourses(coursesData);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching user's spring courses:", error);
+        console.error(`Error fetching user's ${termType} courses:`, error);
         setLoading(false);
       }
     };
@@ -43,7 +48,7 @@ const WeeklySchedule = ({ darkMode }) => {
     } else {
       setLoading(false);
     }
-  }, [currentUser, location.state]);
+  }, [currentUser, location.state, coursesCollectionName, termType]);
 
   const handlePrint = () => {
     const printContent = document.getElementById('schedule-to-print');
@@ -71,16 +76,17 @@ const WeeklySchedule = ({ darkMode }) => {
     
     // Print the schedule
     if (printContent) {
+      const termName = formatTermName(termType);
       const printWindow = window.open('', '_blank');
       printWindow.document.write(`
         <html>
           <head>
-            <title>Spring 2025 Schedule</title>
+            <title>${termName} Schedule</title>
             ${printCSS}
           </head>
           <body>
             <div class="schedule-print-container">
-              <div class="schedule-title">Spring 2025 Weekly Schedule</div>
+              <div class="schedule-title">${termName} Weekly Schedule</div>
               <div class="schedule-subtitle">Dartmouth College</div>
               ${printContent.innerHTML}
             </div>
@@ -109,7 +115,7 @@ const WeeklySchedule = ({ darkMode }) => {
     if (currentUser && course.id) {
       try {
         const db = getFirestore();
-        const courseDocRef = doc(db, 'users', currentUser.uid, 'springCoursestaken', course.id);
+        const courseDocRef = doc(db, 'users', currentUser.uid, coursesCollectionName, course.id);
         await deleteDoc(courseDocRef);
       } catch (error) {
         console.error('Error removing course from Firestore:', error);

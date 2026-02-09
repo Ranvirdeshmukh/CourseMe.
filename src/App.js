@@ -1,15 +1,18 @@
 // App.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Navigate,
   Route,
   BrowserRouter as Router,
   Routes,
   useLocation,
+  useNavigate,
   useParams
 } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, createTheme, useMediaQuery } from '@mui/material';
+import { ThemeProvider, CssBaseline, createTheme, useMediaQuery, CircularProgress, Box } from '@mui/material';
+import { collection, query, where, getDocs, documentId } from 'firebase/firestore';
+import { db } from './firebase';
 import UniversalFooter from './components/universalfooter.jsx';
 
 import NavBar from './components/NavBar';
@@ -119,12 +122,64 @@ const App = () => {
   );
 };
 
-// Redirect CSDA course pages to equivalent COSC 021-029 pages
+// Redirect CSDA course pages to equivalent COSC 021-029 pages.
+// Uses a Firestore document-ID prefix query so that e.g.
+//   CSDA_CSDA023__AR_and_VR_Design  →  COSC_COSC023_01__Augmented_and_Virtual_Reality_Design
+// (a naive string-replace can't handle differing section numbers or titles)
 const CSDARedirect = () => {
   const { id } = useParams();
-  // Map IDs like CSDA_CSDA021__Title -> COSC_COSC021__Title
-  const targetId = id ? id.replace(/^CSDA_CSDA/, 'COSC_COSC') : '';
-  return <Navigate to={`/departments/COSC/courses/${targetId}`} replace />;
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const findCOSCEquivalent = async () => {
+      try {
+        // Extract the bare course number, e.g. "CSDA_CSDA023__…" → "023"
+        const match = id ? id.match(/CSDA_CSDA(\d+)/) : null;
+        if (!match) {
+          navigate('/departments/COSC', { replace: true });
+          return;
+        }
+        const courseNum = match[1]; // e.g. "023"
+
+        // Range query on document ID: finds every COSC doc whose ID starts
+        // with "COSC_COSC023" (covers 023, 023_01, 023_02, etc.)
+        const coursesRef = collection(db, 'courses');
+        const q = query(
+          coursesRef,
+          where(documentId(), '>=', `COSC_COSC${courseNum}`),
+          where(documentId(), '<=', `COSC_COSC${courseNum}\uf8ff`)
+        );
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          const targetDocId = snapshot.docs[0].id;
+          navigate(`/departments/COSC/courses/${targetDocId}`, { replace: true });
+        } else {
+          // Fallback: old string-replace behaviour
+          const fallbackId = id.replace(/^CSDA_CSDA/, 'COSC_COSC');
+          navigate(`/departments/COSC/courses/${fallbackId}`, { replace: true });
+        }
+      } catch (error) {
+        console.error('CSDARedirect: error finding COSC equivalent:', error);
+        const fallbackId = id.replace(/^CSDA_CSDA/, 'COSC_COSC');
+        navigate(`/departments/COSC/courses/${fallbackId}`, { replace: true });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    findCOSCEquivalent();
+  }, [id, navigate]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+  return null;
 };
 
 const AppContent = () => {
