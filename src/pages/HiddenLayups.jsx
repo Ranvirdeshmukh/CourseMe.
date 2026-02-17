@@ -140,7 +140,7 @@ const HiddenLayups = ({darkMode}) => {
               ...course,
               yes_count: voteCounts[course.id]?.yes_count || 0,
               no_count: voteCounts[course.id]?.no_count || 0,
-              userVote: userVotes[course.id] || null
+              userVote: userVotes[course.id] ?? null
             }));
 
           console.log('[Layups Debug] Combined data prepared:', combinedData.length, 'courses');
@@ -354,7 +354,7 @@ console.log('Filtering debug:', {
                 gutterBottom
                 sx={{ color: darkMode ? '#fff' : '#34495e', fontWeight: 600 }}
               >
-                Hidden Gems for Winter 25 💎
+                Hidden Gems for Spring 25 💎
               </Typography>
               <Typography
                 variant="body2"
