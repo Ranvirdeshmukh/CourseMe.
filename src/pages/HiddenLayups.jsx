@@ -354,7 +354,7 @@ console.log('Filtering debug:', {
                 gutterBottom
                 sx={{ color: darkMode ? '#fff' : '#34495e', fontWeight: 600 }}
               >
-                Hidden Gems for Spring 25 💎
+                Hidden Gems for Spring 26 💎
               </Typography>
               <Typography
                 variant="body2"
