@@ -8,6 +8,10 @@
   [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 </div>
 
+## Update 02/22/2026
+
+CourseMe hit more than 1M+ site hits since launch (September 2024).
+
 ## Overview
 
 CourseMe is an AI-powered platform designed to help Dartmouth students navigate their academic journey by providing insightful course and professor reviews, personalized recommendations, and powerful analytical tools. Our mission is to enhance the course selection experience through transparent, data-driven insights from fellow students.
