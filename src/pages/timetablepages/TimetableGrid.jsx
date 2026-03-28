@@ -466,9 +466,7 @@ const TimetableGrid = ({
   
   // Use passed unlock status, or fallback to calculating (for backward compatibility)
   // Global check: users need 3+ reviews across ANY terms
-  const hasUnlockedFeatures = hasUnlockedFeaturesProp !== undefined
-    ? hasUnlockedFeaturesProp
-    : (userReviews.length >= 3 || userClassYear === 2029);
+  const hasUnlockedFeatures = true;
 
   // Memoize the base cell styles to prevent recalculation
   const lockedCellStyles = useMemo(() => ({

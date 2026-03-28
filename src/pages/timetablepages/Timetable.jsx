@@ -78,7 +78,7 @@ const Timetable = ({ darkMode }) => {
   
   // Calculate if user has unlocked features - Global check across all terms
   // Users need 3+ reviews across ANY terms to unlock all timetable features
-  const hasUnlockedFeatures = userReviews.length >= 3 || userClassYear === 2029;
+  const hasUnlockedFeatures = true;
   
   // Derived data for enhanced filtering with caching
   const [majors, setMajors] = useState([]);
@@ -437,7 +437,7 @@ const handleForceRefreshEnrollments = async () => {
   const toggleNotificationPriority = (e) => {
     e.stopPropagation();
     
-    if (!isPriorityEligible) {
+    if (false) {
       alert('You need at least 3 reviews to use priority notifications.');
       return;
     }
