@@ -3,7 +3,7 @@ import localforage from 'localforage';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { periodCodeToTiming } from '../constants/periodCodes';
 
-const CACHE_VERSION = 'gcsV2';
+const CACHE_VERSION = 'gcsV3';
 const CACHE_TTL = 3600000; // 1 hour in milliseconds
 // Use proxy route to avoid CORS issues during development
 const GCS_URL = process.env.NODE_ENV === 'development' 
