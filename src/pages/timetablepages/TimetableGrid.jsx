@@ -93,8 +93,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         padding: '32px 28px',
         zIndex: 10,
         cursor: 'default',
-        pointerEvents: 'auto', // Ensure this captures all mouse events
-        willChange: 'transform', // Optimize for animations
+        pointerEvents: 'auto',
       }}
     >
       {/* Content Container with Background */}
@@ -102,10 +101,8 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
         sx={{
           // Background that covers just the content area
           background: darkMode 
-            ? 'linear-gradient(135deg, rgba(28, 31, 67, 0.95) 0%, rgba(45, 55, 89, 0.95) 50%, rgba(28, 31, 67, 0.95) 100%)' 
-            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 50%, rgba(255, 255, 255, 0.95) 100%)',
-          backdropFilter: 'blur(25px)',
-          WebkitBackdropFilter: 'blur(25px)',
+            ? 'linear-gradient(135deg, rgba(28, 31, 67, 0.98) 0%, rgba(45, 55, 89, 0.98) 50%, rgba(28, 31, 67, 0.98) 100%)' 
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 50%, rgba(255, 255, 255, 0.98) 100%)',
           borderRadius: '20px',
           padding: '24px 20px',
           // Enhanced shadow and border for better definition
@@ -121,7 +118,6 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          willChange: 'transform, box-shadow', // Optimize for animations
           transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease',
           '&:hover': {
             boxShadow: darkMode
@@ -262,7 +258,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
             <Typography
               sx={{
             fontSize: '0.9rem',
-                color: darkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.7)',
                 textAlign: 'center',
             mb: 3,
             lineHeight: 1.5,
@@ -283,7 +279,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
             <Typography
               sx={{
                 fontSize: '0.85rem',
-                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                color: darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.8)',
                 fontWeight: 600,
                 mb: 1,
                 fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
@@ -294,7 +290,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
             <Typography
               sx={{
                 fontSize: '0.85rem',
-                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                color: darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.8)',
                 fontWeight: 600,
                 mb: 1,
                 fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
@@ -305,7 +301,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
             <Typography
               sx={{
                 fontSize: '0.85rem',
-                color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                color: darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.8)',
                 fontWeight: 600,
                 fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
               }}
@@ -340,7 +336,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
             border: darkMode 
               ? '1px solid rgba(255, 255, 255, 0.2)'
               : '1px solid rgba(255, 255, 255, 0.3)',
-            transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            transition: 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
             '&:hover': {
               transform: 'translateY(-3px) scale(1.03)',
               boxShadow: darkMode
@@ -386,7 +382,7 @@ const AppleInspiredLockOverlay = ({ darkMode, currentTerm, userReviews = [], use
             <Typography
               sx={{
                 fontSize: '0.75rem',
-                color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                color: darkMode ? 'rgba(255, 255, 255, 0.75)' : 'rgba(0, 0, 0, 0.6)',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
@@ -493,10 +489,8 @@ const TimetableGrid = ({
         component={Paper}
         sx={{
           backgroundColor: darkMode 
-            ? 'rgba(28, 31, 67, 0.85)' 
-            : 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)', // Safari support
+            ? '#1C1F43' 
+            : '#FDFDFE',
           marginTop: '20px',
           boxShadow: darkMode
             ? '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05)'
@@ -504,7 +498,6 @@ const TimetableGrid = ({
           borderRadius: '20px',
           overflowX: 'auto',
           maxWidth: '100%',
-          transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           border: 'none',
           '&:hover': {
             boxShadow: darkMode
@@ -529,10 +522,8 @@ const TimetableGrid = ({
                 right: 0,
                 bottom: 0,
                 backgroundColor: darkMode 
-                  ? 'rgba(45, 55, 89, 0.8)' 
-                  : 'rgba(248, 250, 252, 0.8)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
+                  ? '#2D3759' 
+                  : '#F8FAFC',
                 borderRadius: '20px 20px 0 0',
                 zIndex: -1,
               }
@@ -542,7 +533,7 @@ const TimetableGrid = ({
               {/* Combined column for Subject/Number/Title/Section */}
               <TableCell
                 sx={{
-                  color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                  color: darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.9)',
                   textAlign: 'left',
                   fontWeight: 700,
                   fontSize: '0.875rem',
@@ -572,7 +563,7 @@ const TimetableGrid = ({
                 <TableCell
                   key={index}
                   sx={{
-                    color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                    color: darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.9)',
                     textAlign: align || 'left',
                     fontWeight: 700,
                     fontSize: '0.875rem',
@@ -601,24 +592,16 @@ const TimetableGrid = ({
                     backgroundColor: 'transparent',
                     transition: 'background-color 0.2s ease',
                     cursor: 'default',
-                    position: 'relative',
                     '&:hover': {
                       backgroundColor: darkMode 
                         ? 'rgba(255, 255, 255, 0.02)' 
                         : 'rgba(0, 0, 0, 0.01)',
                     },
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      bottom: 0,
-                      left: '24px',
-                      right: '24px',
-                      height: '1px',
-                      backgroundColor: darkMode 
-                        ? 'rgba(255, 255, 255, 0.08)' 
-                        : 'rgba(0, 0, 0, 0.06)',
-                      opacity: index === courses.length - 1 ? 0 : 1,
-                    }
+                    '& > td': index !== courses.length - 1 ? {
+                      borderBottom: darkMode 
+                        ? '1px solid rgba(255, 255, 255, 0.08)' 
+                        : '1px solid rgba(0, 0, 0, 0.06)',
+                    } : {},
                   }}
                 >
                   {/* Course Cell: Subject + Number, Title, and Section */}
@@ -635,7 +618,6 @@ const TimetableGrid = ({
                       width: '20%',
                       maxWidth: '20%',
                       border: 'none',
-                      position: 'relative',
                       '&:hover': {
                         backgroundColor: darkMode 
                           ? 'rgba(255, 255, 255, 0.03)' 
@@ -648,11 +630,10 @@ const TimetableGrid = ({
                       {/* Subject and Number */}
                       <Typography 
                         sx={{ 
-                          color: darkMode ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.95)', 
+                          color: darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.95)', 
                           fontWeight: 700,
                           fontSize: '1rem',
                           letterSpacing: '0.3px',
-                          transition: 'color 0.2s ease',
                           '&:hover': {
                             color: darkMode ? '#BB86FC' : '#007AFF',
                           },
@@ -675,7 +656,6 @@ const TimetableGrid = ({
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
-                          transition: 'opacity 0.2s ease',
                         }}
                       >
                         {course.title || 'No title available'}
@@ -684,7 +664,7 @@ const TimetableGrid = ({
                       {/* Section */}
                       <Typography
                         sx={{
-                          color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                          color: darkMode ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.5)',
                           fontSize: '0.8rem',
                           fontWeight: 500,
                           lineHeight: 1.2,
@@ -700,7 +680,7 @@ const TimetableGrid = ({
                   {/* Timing Cell */}
                   <TableCell
                     sx={{
-                      color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                      color: darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.9)',
                       padding: '20px 24px',
                       fontWeight: 500,
                       fontSize: '0.9rem',
@@ -718,7 +698,7 @@ const TimetableGrid = ({
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           {/* Main time */}
                           <Typography sx={{ 
-                            color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                            color: darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.9)',
                             fontSize: '0.9rem',
                             fontWeight: 600,
                             letterSpacing: '0.2px',
@@ -730,7 +710,7 @@ const TimetableGrid = ({
                           {xHour && (
                             <Tooltip title={`X-Hour: ${xHour}`} placement="top">
                               <Typography sx={{ 
-                                color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                                color: darkMode ? 'rgba(255, 255, 255, 0.75)' : 'rgba(0, 0, 0, 0.6)',
                                 fontSize: '0.75rem', 
                                 fontWeight: 500,
                                 fontStyle: 'italic',
@@ -744,7 +724,7 @@ const TimetableGrid = ({
                                   backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 122, 255, 0.2)',
                                   transform: 'scale(1.05)',
                                 },
-                                transition: 'all 0.2s ease',
+                                transition: 'background-color 0.2s ease, transform 0.2s ease',
                               }}>
                                 +X-Hour
                               </Typography>
@@ -758,7 +738,7 @@ const TimetableGrid = ({
                   {/* Location Cell */}
                   <TableCell
                     sx={{
-                      color: darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                      color: darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.9)',
                       padding: '20px 24px',
                       fontWeight: 500,
                       fontSize: '0.9rem',
@@ -772,8 +752,8 @@ const TimetableGrid = ({
                     <Typography
                       sx={{
                         color: formatLocation(course.room, course.building) === 'Location not yet available'
-                          ? (darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)')
-                          : (darkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)'),
+                          ? (darkMode ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.5)')
+                          : (darkMode ? '#FFFFFF' : 'rgba(0, 0, 0, 0.9)'),
                         fontStyle: formatLocation(course.room, course.building) === 'Location not yet available' ? 'italic' : 'normal',
                         fontSize: '0.9rem',
                         fontWeight: 500,
@@ -802,7 +782,6 @@ const TimetableGrid = ({
                         fontSize: '0.9rem !important',
                         lineHeight: '1.4 !important',
                         textDecoration: 'none !important',
-                        transition: 'color 0.2s ease !important',
                       },
                     }}
                     className="course-row-content"
@@ -852,7 +831,7 @@ const TimetableGrid = ({
                         <Typography 
                           sx={{ 
                             fontSize: '0.9rem', 
-                            color: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)',
+                            color: darkMode ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.6)',
                             fontStyle: 'italic',
                             fontWeight: 500,
                           }}
@@ -863,7 +842,7 @@ const TimetableGrid = ({
                         <Typography 
                           sx={{ 
                             fontSize: '0.9rem', 
-                            color: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)',
+                            color: darkMode ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.6)',
                             fontStyle: 'italic',
                             fontWeight: 500,
                           }}
@@ -907,9 +886,8 @@ const TimetableGrid = ({
                           justifyContent: 'center',
                           minHeight: '40px',
                           backgroundColor: darkMode 
-                            ? 'rgba(255, 255, 255, 0.05)' 
+                            ? 'rgba(255, 255, 255, 0.07)' 
                             : 'rgba(0, 0, 0, 0.05)',
-                          backdropFilter: 'blur(8px)',
                           borderRadius: '12px',
                           border: darkMode 
                             ? '1px solid rgba(255, 255, 255, 0.1)' 
@@ -920,7 +898,7 @@ const TimetableGrid = ({
                         <Typography
                           sx={{
                             fontSize: '0.85rem',
-                            color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                            color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.7)',
                             textAlign: 'center',
                             fontWeight: 500,
                             lineHeight: 1.3,
@@ -986,9 +964,8 @@ const TimetableGrid = ({
                           justifyContent: 'center',
                           minHeight: '40px',
                           backgroundColor: darkMode 
-                            ? 'rgba(255, 255, 255, 0.05)' 
+                            ? 'rgba(255, 255, 255, 0.07)' 
                             : 'rgba(0, 0, 0, 0.05)',
-                          backdropFilter: 'blur(8px)',
                           borderRadius: '12px',
                           border: darkMode 
                             ? '1px solid rgba(255, 255, 255, 0.1)' 
@@ -1000,7 +977,7 @@ const TimetableGrid = ({
                         <Typography
                           sx={{
                             fontSize: '0.85rem',
-                            color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                            color: darkMode ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.7)',
                             textAlign: 'center',
                             fontWeight: 500,
                             lineHeight: 1.3,
@@ -1056,9 +1033,7 @@ const TimetableGrid = ({
                                     fontSize: '0.75rem',
                                     fontWeight: 600,
                                     fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
-                                    backgroundColor: darkMode ? 'rgba(60, 60, 67, 0.95)' : 'rgba(0, 0, 0, 0.8)',
-                                    backdropFilter: 'blur(20px)',
-                                    WebkitBackdropFilter: 'blur(20px)',
+                                    backgroundColor: darkMode ? 'rgba(60, 60, 67, 0.98)' : 'rgba(0, 0, 0, 0.85)',
                                   }
                                 }
                               }}
@@ -1089,9 +1064,7 @@ const TimetableGrid = ({
                                     fontSize: '0.75rem',
                                     fontWeight: 600,
                                     fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
-                                    backgroundColor: darkMode ? 'rgba(60, 60, 67, 0.95)' : 'rgba(0, 0, 0, 0.8)',
-                                    backdropFilter: 'blur(20px)',
-                                    WebkitBackdropFilter: 'blur(20px)',
+                                    backgroundColor: darkMode ? 'rgba(60, 60, 67, 0.98)' : 'rgba(0, 0, 0, 0.85)',
                                   }
                                 }
                               }}
@@ -1118,7 +1091,7 @@ const TimetableGrid = ({
                             sx={{
                               fontSize: '0.7rem',
                               fontWeight: 500,
-                              color: darkMode ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                              color: darkMode ? 'rgba(255, 255, 255, 0.75)' : 'rgba(0, 0, 0, 0.6)',
                               fontFamily: 'SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif',
                               textTransform: 'uppercase',
                               letterSpacing: '0.5px',
@@ -1159,7 +1132,7 @@ const TimetableGrid = ({
                           backgroundColor: 'rgba(255, 59, 48, 0.1)',
                           borderRadius: '12px',
                           padding: '8px',
-                          transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                          transition: 'background-color 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                           '&:hover': {
                             backgroundColor: 'rgba(255, 59, 48, 0.2)',
                             transform: 'scale(1.1) rotate(-5deg)',
@@ -1176,7 +1149,7 @@ const TimetableGrid = ({
                           backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.1)' : 'rgba(0, 122, 255, 0.1)',
                           borderRadius: '12px',
                           padding: '8px',
-                          transition: 'all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                          transition: 'background-color 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                           '&:hover': {
                             backgroundColor: darkMode ? 'rgba(187, 134, 252, 0.2)' : 'rgba(0, 122, 255, 0.2)',
                             transform: 'scale(1.1) rotate(5deg)',

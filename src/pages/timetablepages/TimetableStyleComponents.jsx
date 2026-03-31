@@ -8,10 +8,9 @@ export const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => 
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  // Enhanced background with subtle gradient
   background: darkMode 
-    ? 'linear-gradient(135deg, rgba(66, 133, 244, 0.15) 0%, rgba(66, 133, 244, 0.08) 100%)'
-    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(66, 133, 244, 0.02) 100%)',
+    ? 'linear-gradient(135deg, rgba(66, 133, 244, 0.2) 0%, rgba(66, 133, 244, 0.12) 100%)'
+    : 'linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(240, 245, 255, 1) 100%)',
   borderRadius: '50%', // Circular design consistent with other buttons
   height: '42px',
   width: '42px',
@@ -24,14 +23,11 @@ export const GoogleCalendarButton = styled(ButtonBase)(({ theme, darkMode }) => 
   boxShadow: darkMode 
     ? '0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(66, 133, 244, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
     : '0 3px 12px rgba(66, 133, 244, 0.15), 0 1px 3px rgba(60, 64, 67, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
-  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+  transition: 'background 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   cursor: 'pointer',
-  // Refined border
   border: darkMode 
     ? '1px solid rgba(66, 133, 244, 0.25)' 
     : '1px solid rgba(66, 133, 244, 0.1)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
   position: 'relative',
   overflow: 'hidden',
   
@@ -103,10 +99,9 @@ export const AppleCalendarButton = styled(ButtonBase, {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  // Signature Apple translucent design
   background: darkMode 
-    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)'
-    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(0, 0, 0, 0.01) 100%)',
+    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.08) 100%)'
+    : 'linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(248, 248, 250, 1) 100%)',
   borderRadius: '50%', // Circular design consistent with other buttons
   height: '42px',
   width: '42px',
@@ -119,13 +114,11 @@ export const AppleCalendarButton = styled(ButtonBase, {
   boxShadow: darkMode
     ? '0 4px 12px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
     : '0 3px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
-  transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+  transition: 'background 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   cursor: 'pointer',
   border: darkMode 
     ? '1px solid rgba(255, 255, 255, 0.15)' 
     : '1px solid rgba(0, 0, 0, 0.06)',
-  backdropFilter: 'blur(25px)',
-  WebkitBackdropFilter: 'blur(25px)',
   position: 'relative',
   overflow: 'hidden',
   
@@ -186,7 +179,7 @@ export const AppleCalendarButton = styled(ButtonBase, {
     opacity: darkMode ? 1 : 0.9,
     position: 'relative',
     zIndex: 1,
-    transition: 'all 0.2s ease',
+    transition: 'opacity 0.2s ease, transform 0.2s ease',
   },
   
   '&:hover .icon': {

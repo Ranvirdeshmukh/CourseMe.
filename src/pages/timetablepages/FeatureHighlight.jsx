@@ -25,13 +25,12 @@ const FeatureHighlight = ({
           padding: '16px',
           borderRadius: '14px',
           backgroundColor: darkMode 
-            ? 'rgba(60, 60, 80, 0.95)' 
-            : 'rgba(255, 255, 255, 0.98)',
+            ? 'rgba(60, 60, 80, 0.98)' 
+            : 'rgba(255, 255, 255, 0.99)',
           color: darkMode ? '#FFFFFF' : '#000000',
           boxShadow: darkMode 
             ? '0 10px 25px rgba(0, 0, 0, 0.5)' 
             : '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
-          backdropFilter: 'blur(20px)',
           border: darkMode 
             ? '1px solid rgba(255, 255, 255, 0.1)' 
             : '1px solid rgba(0, 0, 0, 0.05)',

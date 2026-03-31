@@ -90,7 +90,6 @@ const FilterSection = ({
           color: darkMode ? '#FFFFFF' : '#000000',
           marginBottom: '16px',
           fontFamily: 'SF Pro Display, sans-serif',
-          transition: 'color 0.3s ease',
         }}
       >
         {termType === 'summer' ? 'Summer 2025' : termType === 'spring' ? 'Spring 2026' : 'Winter 2026'} Timetable.
@@ -126,7 +125,7 @@ const FilterSection = ({
                 padding: '8px 16px',
                 borderRadius: '6px',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'background-color 0.2s ease, color 0.2s ease',
                 backgroundColor: termType === 'winter' 
                   ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
                   : 'transparent',
@@ -151,7 +150,7 @@ const FilterSection = ({
                 padding: '8px 16px',
                 borderRadius: '6px',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'background-color 0.2s ease, color 0.2s ease',
                 backgroundColor: termType === 'spring' 
                   ? (darkMode ? 'rgba(187, 134, 252, 0.15)' : 'rgba(0, 105, 62, 0.08)')
                   : 'transparent',
@@ -307,7 +306,7 @@ const FilterSection = ({
               width: '100%',
               borderRadius: '30px',
               boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
-              transition: 'all 0.3s ease',
+              transition: 'box-shadow 0.3s ease',
               '& .MuiOutlinedInput-root': {
                 borderRadius: '30px',
                 backgroundColor: darkMode ? 'rgba(28, 31, 67, 0.4)' : 'rgba(255, 255, 255, 0.8)',
@@ -320,7 +319,7 @@ const FilterSection = ({
                 '& fieldset': {
                   borderColor: 'transparent',
                   borderWidth: '1px',
-                  transition: 'all 0.3s ease',
+                  transition: 'border-color 0.3s ease',
                 },
                 '&:hover fieldset': {
                   borderColor: darkMode ? 'rgba(187, 134, 252, 0.5)' : 'rgba(0, 105, 62, 0.3)',

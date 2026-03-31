@@ -127,11 +127,11 @@ const WeeklySchedule = ({ darkMode }) => {
     <Box
       sx={{
         minHeight: '100vh',
-        backgroundColor: darkMode 
+        background: darkMode 
           ? 'linear-gradient(90deg, #1C093F 0%, #0C0F33 100%)' 
           : '#F9F9F9',
         color: darkMode ? '#FFFFFF' : '#333333',
-        transition: 'background-color 0.3s ease, color 0.3s ease',
+        transition: 'background-color 0.3s ease',
         padding: '20px',
         fontFamily: 'SF Pro Display, sans-serif',
       }}
@@ -159,7 +159,6 @@ const WeeklySchedule = ({ darkMode }) => {
                 fontWeight: 600,
                 color: darkMode ? '#FFFFFF' : '#000000',
                 fontFamily: 'SF Pro Display, sans-serif',
-                transition: 'color 0.3s ease',
               }}
             >
               Weekly Schedule
